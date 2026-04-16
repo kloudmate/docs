@@ -1,0 +1,20 @@
+{
+  "name": "kloudmate-docs",
+  "type": "module",
+  "version": "0.1.0",
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "lint:md": "markdownlint-cli2 'src/content/docs/**/*.md' 'src/content/docs/**/*.mdx'",
+    "validate:frontmatter": "node scripts/validate-frontmatter.mjs"
+  },
+  "dependencies": {
+    "@astrojs/starlight": "^0.38.3",
+    "astro": "^6.1.7",
+    "sharp": "^0.33.5"
+  },
+  "devDependencies": {
+    "markdownlint-cli2": "^0.22.0"
+  }
+}

@@ -2,24 +2,30 @@
   "version": 2,
   "settings": {
     "projectType": "github",
-    "domainUrl": "",
-    "postFileTypes": ".md,.mdx",
+    "domainUrl": "https://docs.kloudmate.com",
+    "postFileTypes": ".md",
     "imageFileTypes": "image/*",
     "publishDateSource": "file",
-    "imageCompressionEnabled": false,
+    "imageCompressionEnabled": true,
     "maxImageSize": 500,
-    "imageResizeMaxWidth": 1024
+    "imageResizeMaxWidth": 1200
   },
   "commitMessages": {
-    "newPost": "feat(content): add post \"{filename}\"",
-    "updatePost": "fix(content): update post \"{filename}\"",
+    "newPost": "feat(content): add \"{filename}\"",
+    "updatePost": "fix(content): update \"{filename}\"",
     "newImage": "feat(assets): add image \"{filename}\"",
-    "updateImage": "refactor(assets): update image for \"{filename}\""
+    "updateImage": "refactor(assets): update image \"{filename}\""
   },
   "collections": [
     {
-      "id": "collection-1776329164951",
-      "name": "Main Collection",
+      "id": "collection-docs-main",
+      "name": "Docs",
+      "postsPath": "src/content/docs",
+      "imagesPath": "public/images"
+    },
+    {
+      "id": "collection-engineering-digests",
+      "name": "Engineering Digests",
       "postsPath": "content/engineering-digests/2026",
       "imagesPath": "public/images"
     }
