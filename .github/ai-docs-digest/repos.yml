@@ -1,0 +1,9 @@
+# List of repositories to include in the weekly AI docs digest.
+# Add or remove repository names here; no workflow logic changes required.
+repositories:
+  - kloudmate-api
+  - kloudmate-ui
+  - kloudmate-collector
+  - kloudmate-agent
+  - kloudmate-helm
+  - kloudmate-docs

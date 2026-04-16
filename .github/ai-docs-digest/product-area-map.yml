@@ -1,0 +1,182 @@
+# Maps changed file paths in each repo to a product area and related docs areas.
+# Rules are evaluated top-to-bottom; the first match wins for product_area.
+# Multiple docs_areas may be attached.
+mappings:
+  # ── kloudmate-api ────────────────────────────────────────────────────────────
+  - match:
+      repo: kloudmate-api
+      paths:
+        - src/alerts/**
+        - src/notification/**
+    product_area: Alerts
+    docs_areas:
+      - Alerts / Rule configuration
+      - Alerts / Notification channels
+
+  - match:
+      repo: kloudmate-api
+      paths:
+        - src/dashboards/**
+        - src/widgets/**
+    product_area: Dashboards
+    docs_areas:
+      - Dashboards
+
+  - match:
+      repo: kloudmate-api
+      paths:
+        - src/auth/**
+        - src/users/**
+        - src/organizations/**
+    product_area: Authentication & Access
+    docs_areas:
+      - Authentication
+      - User management
+
+  - match:
+      repo: kloudmate-api
+      paths:
+        - src/integrations/**
+        - src/connectors/**
+    product_area: Integrations
+    docs_areas:
+      - Integrations
+
+  - match:
+      repo: kloudmate-api
+      paths:
+        - src/monitors/**
+        - src/synthetic/**
+    product_area: Monitors
+    docs_areas:
+      - Monitors
+
+  - match:
+      repo: kloudmate-api
+      paths:
+        - src/logs/**
+        - src/traces/**
+        - src/metrics/**
+    product_area: Observability
+    docs_areas:
+      - Logs
+      - Traces
+      - Metrics
+
+  # ── kloudmate-ui ─────────────────────────────────────────────────────────────
+  - match:
+      repo: kloudmate-ui
+      paths:
+        - src/pages/dashboards/**
+        - src/components/dashboards/**
+    product_area: Dashboards
+    docs_areas:
+      - Dashboards
+
+  - match:
+      repo: kloudmate-ui
+      paths:
+        - src/pages/alerts/**
+        - src/components/alerts/**
+    product_area: Alerts
+    docs_areas:
+      - Alerts / Rule configuration
+
+  - match:
+      repo: kloudmate-ui
+      paths:
+        - src/pages/monitors/**
+        - src/components/monitors/**
+    product_area: Monitors
+    docs_areas:
+      - Monitors
+
+  - match:
+      repo: kloudmate-ui
+      paths:
+        - src/pages/settings/**
+        - src/components/settings/**
+    product_area: Settings
+    docs_areas:
+      - Account settings
+      - Organization settings
+
+  - match:
+      repo: kloudmate-ui
+      paths:
+        - src/pages/integrations/**
+        - src/components/integrations/**
+    product_area: Integrations
+    docs_areas:
+      - Integrations
+
+  # ── kloudmate-collector ──────────────────────────────────────────────────────
+  - match:
+      repo: kloudmate-collector
+      paths:
+        - config/**
+        - receivers/**
+        - processors/**
+        - exporters/**
+    product_area: Collector / Data Pipeline
+    docs_areas:
+      - Collector / Configuration
+      - Collector / Receivers
+      - Collector / Processors
+
+  - match:
+      repo: kloudmate-collector
+      paths:
+        - '**'
+    product_area: Collector / Data Pipeline
+    docs_areas:
+      - Collector / Overview
+
+  # ── kloudmate-agent ──────────────────────────────────────────────────────────
+  - match:
+      repo: kloudmate-agent
+      paths:
+        - config/**
+        - agent/**
+    product_area: Agent
+    docs_areas:
+      - Agent / Installation
+      - Agent / Configuration
+
+  - match:
+      repo: kloudmate-agent
+      paths:
+        - '**'
+    product_area: Agent
+    docs_areas:
+      - Agent / Overview
+
+  # ── kloudmate-helm ───────────────────────────────────────────────────────────
+  - match:
+      repo: kloudmate-helm
+      paths:
+        - charts/**
+        - 'values*.yaml'
+        - 'values*.yml'
+    product_area: On-Prem Deployment
+    docs_areas:
+      - On-Prem / Installation
+      - On-Prem / Upgrade guide
+
+  - match:
+      repo: kloudmate-helm
+      paths:
+        - '**'
+    product_area: On-Prem Deployment
+    docs_areas:
+      - On-Prem / Overview
+
+  # ── kloudmate-docs ───────────────────────────────────────────────────────────
+  - match:
+      repo: kloudmate-docs
+      paths:
+        - content/**
+        - src/**
+    product_area: Documentation
+    docs_areas:
+      - Documentation site
