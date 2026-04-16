@@ -29,7 +29,7 @@ The digest workflow runs every Monday at 03:30 UTC. It:
   workflows/
     ai-docs-weekly-digest.yml     # Workflow definition
   ai-docs-digest/
-    repos.yml                     # List of repositories to analyse
+    repos.yml                     # List of repositories to analyze
     product-area-map.yml          # Maps file paths → product areas + docs areas
     docs-area-map.yml             # Supplemental docs-area path rules
     prompts/
