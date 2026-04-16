@@ -32,6 +32,11 @@ export function normalizeChanges(state: PipelineState): void {
       changedFiles: (pr.files ?? []).map((f) => f.filename),
       additions: pr.additions,
       deletions: pr.deletions,
+      comments: (pr.comments ?? []).map((c) => ({
+        author: c.author,
+        body: c.body,
+        created_at: c.created_at,
+      })),
       evidence: {
         url: pr.html_url,
         refs: [pr.html_url],

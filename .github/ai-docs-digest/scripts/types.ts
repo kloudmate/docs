@@ -34,11 +34,20 @@ export interface ChangeItem {
   visibility?: "customer" | "internal" | "mixed" | "unknown";
   /** Semantic category heuristic. */
   category?: "new" | "changed" | "breaking" | "fix" | "internal";
+  /** PR discussion comments (issue-level, not inline review comments). */
+  comments?: Array<{ author: string; body: string; created_at: string }>;
   /** Evidence for docs impact reasoning. */
   evidence: {
     url?: string;
     refs: string[];
   };
+}
+
+/** A single PR comment (issue-level discussion comment). */
+export interface RawPRComment {
+  author: string;
+  body: string;
+  created_at: string;
 }
 
 /** Raw PR data as returned by the GitHub API (subset). */
@@ -57,6 +66,7 @@ export interface RawPR {
   changed_files: number;
   files?: Array<{ filename: string }>;
   commits?: Array<{ sha: string }>;
+  comments?: RawPRComment[];
 }
 
 /** Raw commit data as returned by the GitHub API (subset). */

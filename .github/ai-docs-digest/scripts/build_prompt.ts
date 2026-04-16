@@ -27,6 +27,10 @@ const MAX_PROMPT_CHARS = 120_000; // ~30k tokens — safe for most models with 1
 
 /** Maximum number of changed files listed per change item in the prompt. */
 const MAX_FILES_PER_ITEM = 15;
+/** Maximum number of PR comments included per change item in the prompt. */
+const MAX_COMMENTS_PER_ITEM = 10;
+/** Maximum body length (chars) for each PR comment in the prompt. */
+const MAX_COMMENT_BODY_CHARS = 300;
 
 export interface BuiltPrompt {
   systemPrompt: string;
@@ -50,7 +54,7 @@ export function buildPrompt(state: PipelineState): BuiltPrompt {
     `[build-prompt] Items in prompt: ${relevant.length}, excluded: ${excluded.length}`
   );
 
-  // Trim changed file lists to keep prompt size reasonable.
+  // Trim changed file lists and comments to keep prompt size reasonable.
   const trimmedItems = relevant.map((item) => ({
     ...item,
     changedFiles: item.changedFiles.slice(0, MAX_FILES_PER_ITEM),
@@ -58,6 +62,14 @@ export function buildPrompt(state: PipelineState): BuiltPrompt {
       item.description && item.description.length > 800
         ? item.description.slice(0, 800) + " …[truncated]"
         : item.description,
+    comments: (item.comments ?? []).slice(0, MAX_COMMENTS_PER_ITEM).map((c) => ({
+      author: c.author,
+      created_at: c.created_at,
+      body:
+        c.body.length > MAX_COMMENT_BODY_CHARS
+          ? c.body.slice(0, MAX_COMMENT_BODY_CHARS) + " …[truncated]"
+          : c.body,
+    })),
   }));
 
   const changesJson = JSON.stringify(trimmedItems, null, 2);
