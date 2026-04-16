@@ -10,7 +10,7 @@ import { readFileSync, writeFileSync, mkdirSync } from "fs";
 import { resolve, dirname } from "path";
 import { fileURLToPath } from "url";
 import yaml from "js-yaml";
-import type { RawPR, RawCommit, PipelineState } from "./types.js";
+import type { RawPR, RawCommit, RawPRComment, PipelineState } from "./types.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
@@ -23,6 +23,8 @@ const MAX_PR_FILES = 50;
 /** Maximum number of items fetched per repo. */
 const MAX_PRS_PER_REPO = 100;
 const MAX_COMMITS_PER_REPO = 200;
+/** Maximum number of comments to fetch per PR. */
+const MAX_PR_COMMENTS = 20;
 
 export async function collectChanges(state: PipelineState): Promise<void> {
   const token = process.env.GITHUB_TOKEN;
@@ -175,6 +177,7 @@ async function collectMergedPRs(
       // Fetch file list and commit list for this PR.
       const files = await fetchPRFiles(octokit, owner, repo, pr.number);
       const commits = await fetchPRCommitSHAs(octokit, owner, repo, pr.number);
+      const comments = await fetchPRComments(octokit, owner, repo, pr.number);
 
       // Fetch full PR details to get additions/deletions (not available in list response).
       let additions = 0;
@@ -208,6 +211,7 @@ async function collectMergedPRs(
         changed_files,
         files,
         commits,
+        comments,
       });
     }
 
@@ -251,6 +255,29 @@ async function fetchPRCommitSHAs(
       per_page: 250,
     });
     return data.map((c) => ({ sha: c.sha }));
+  } catch {
+    return [];
+  }
+}
+
+async function fetchPRComments(
+  octokit: Octokit,
+  owner: string,
+  repo: string,
+  prNumber: number
+): Promise<RawPRComment[]> {
+  try {
+    const { data } = await octokit.issues.listComments({
+      owner,
+      repo,
+      issue_number: prNumber,
+      per_page: MAX_PR_COMMENTS,
+    });
+    return data.map((c) => ({
+      author: c.user?.login ?? "unknown",
+      body: c.body ?? "",
+      created_at: c.created_at,
+    }));
   } catch {
     return [];
   }

@@ -57,7 +57,9 @@ jobs:
       - name: Collect GitHub changes
         working-directory: .github/ai-docs-digest/scripts
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # Use a PAT with org-wide read access so private repositories can be
+          # queried.  Fall back to GITHUB_TOKEN for forks / public-only setups.
+          GITHUB_TOKEN: ${{ secrets.ORG_GITHUB_TOKEN || secrets.GITHUB_TOKEN }}
         run: npx tsx main.ts collect
 
       # ── 5. Generate AI digest ─────────────────────────────────────────────────
