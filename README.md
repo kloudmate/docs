@@ -1,0 +1,2 @@
+# docs
+KloudMate docs
