@@ -7,15 +7,10 @@ End:   {{PERIOD_END}}
 ## Change data
 The following JSON array contains all normalized, classified change items collected from the configured repositories for this period. Each item includes heuristic priors for `visibility` (customer | internal | mixed | unknown) and `category` (new | changed | breaking | fix | internal). Use these as strong signals but apply your own judgment.
 
+Infer the product area and likely docs area for each change from the repository name, changed file paths, PR title, and description. Do not rely on pre-classified mappings — reason about what part of the product each change affects.
+
 ```json
 {{CHANGES_JSON}}
-```
-
-## Product area mapping results
-The following product areas and docs areas were identified from file path analysis:
-
-```json
-{{AREA_SUMMARY_JSON}}
 ```
 
 ## Output format

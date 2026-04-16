@@ -50,9 +50,6 @@ export function buildPrompt(state: PipelineState): BuiltPrompt {
     `[build-prompt] Items in prompt: ${relevant.length}, excluded: ${excluded.length}`
   );
 
-  // Build a summary of product / docs areas for the prompt header.
-  const areaSummary = buildAreaSummary(relevant);
-
   // Trim changed file lists to keep prompt size reasonable.
   const trimmedItems = relevant.map((item) => ({
     ...item,
@@ -64,7 +61,6 @@ export function buildPrompt(state: PipelineState): BuiltPrompt {
   }));
 
   const changesJson = JSON.stringify(trimmedItems, null, 2);
-  const areaSummaryJson = JSON.stringify(areaSummary, null, 2);
 
   const systemTemplate = readFileSync(
     resolve(PROMPTS_DIR, "summarize-system.txt"),
@@ -79,14 +75,13 @@ export function buildPrompt(state: PipelineState): BuiltPrompt {
     .replace(/\{\{PERIOD_START\}\}/g, state.weekStart)
     .replace(/\{\{PERIOD_END\}\}/g, state.weekEnd)
     .replace(/\{\{WEEK_LABEL\}\}/g, state.weekLabel)
-    .replace(/\{\{CHANGES_JSON\}\}/g, changesJson)
-    .replace(/\{\{AREA_SUMMARY_JSON\}\}/g, areaSummaryJson);
+    .replace(/\{\{CHANGES_JSON\}\}/g, changesJson);
 
   // Enforce token cap — trim the middle of the changes JSON if necessary.
   const combined = systemTemplate + userPrompt;
   const finalPrompt =
     combined.length > MAX_PROMPT_CHARS
-      ? capPrompt(systemTemplate, userTemplate, trimmedItems, areaSummary, state)
+      ? capPrompt(systemTemplate, userTemplate, trimmedItems, state)
       : { systemPrompt: systemTemplate, userPrompt };
 
   // Persist for debugging.
@@ -107,38 +102,11 @@ export function buildPrompt(state: PipelineState): BuiltPrompt {
 // Helpers
 // ──────────────────────────────────────────────────────────────────────────────
 
-interface AreaSummaryEntry {
-  productArea: string;
-  docsAreas: string[];
-  itemCount: number;
-  repos: string[];
-}
-
-function buildAreaSummary(items: ChangeItem[]): AreaSummaryEntry[] {
-  const map = new Map<string, AreaSummaryEntry>();
-
-  for (const item of items) {
-    const area = item.productArea ?? "Unknown";
-    if (!map.has(area)) {
-      map.set(area, { productArea: area, docsAreas: [], itemCount: 0, repos: [] });
-    }
-    const entry = map.get(area)!;
-    entry.itemCount++;
-    if (!entry.repos.includes(item.repo)) entry.repos.push(item.repo);
-    for (const da of item.docsArea ?? []) {
-      if (!entry.docsAreas.includes(da)) entry.docsAreas.push(da);
-    }
-  }
-
-  return [...map.values()].sort((a, b) => b.itemCount - a.itemCount);
-}
-
 /** Hard-cap the prompt by reducing the number of items included. */
 function capPrompt(
   systemTemplate: string,
   userTemplate: string,
   items: ChangeItem[],
-  areaSummary: ReturnType<typeof buildAreaSummary>,
   state: PipelineState
 ): BuiltPrompt {
   // Keep only the most relevant items (customer/mixed first, breaking first).
@@ -154,13 +122,11 @@ function capPrompt(
 
   while (subset.length > 0) {
     const changesJson = JSON.stringify(subset, null, 2);
-    const areaSummaryJson = JSON.stringify(areaSummary, null, 2);
     userPrompt = userTemplate
       .replace(/\{\{PERIOD_START\}\}/g, state.weekStart)
       .replace(/\{\{PERIOD_END\}\}/g, state.weekEnd)
       .replace(/\{\{WEEK_LABEL\}\}/g, state.weekLabel)
-      .replace(/\{\{CHANGES_JSON\}\}/g, changesJson)
-      .replace(/\{\{AREA_SUMMARY_JSON\}\}/g, areaSummaryJson);
+      .replace(/\{\{CHANGES_JSON\}\}/g, changesJson);
 
     if ((systemTemplate + userPrompt).length <= MAX_PROMPT_CHARS) break;
     subset = subset.slice(0, Math.floor(subset.length * 0.8));

@@ -74,16 +74,6 @@ export interface RawCommit {
   prMergeSha?: string;
 }
 
-/** Product area mapping rule. */
-export interface AreaMappingRule {
-  match: {
-    repo?: string;
-    paths: string[];
-  };
-  product_area: string;
-  docs_areas: string[];
-}
-
 /** Docs area mapping rule. */
 export interface DocsAreaMappingRule {
   match: {
