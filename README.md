@@ -1,2 +1,2 @@
 # docs
-KloudMate docs
+KloudMate docs built with starlight
