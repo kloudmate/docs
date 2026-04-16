@@ -1,7 +1,7 @@
 # List of repositories to include in the weekly AI docs digest.
 # Add or remove repository names here; no workflow logic changes required.
 repositories:
-  - kloudmate-frontend
-  - kloudmate-backend
-  - kloudmate-otel-backend
-  - km-agent
+  - kloudmate/kloudmate-frontend
+  - kloudmate/kloudmate-backend
+  - kloudmate/kloudmate-otel-backend
+  - kloudmate/km-agent
