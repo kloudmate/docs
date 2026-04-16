@@ -59,7 +59,7 @@ jobs:
         env:
           # Use a PAT with org-wide read access so private repositories can be
           # queried.  Fall back to GITHUB_TOKEN for forks / public-only setups.
-          GITHUB_TOKEN: ${{ secrets.ORG_GITHUB_TOKEN || secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GHCR_PAT || secrets.GITHUB_TOKEN }}
         run: npx tsx main.ts collect
 
       # ── 5. Generate AI digest ─────────────────────────────────────────────────
