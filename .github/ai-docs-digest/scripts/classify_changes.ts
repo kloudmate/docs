@@ -2,9 +2,10 @@
  * classify_changes.ts
  *
  * Phase 3: Apply heuristics to score each change item:
- *   - Product area + docs area from file-path mappings
+ *   - Docs area from file-path mappings
  *   - Visibility (customer | internal | mixed | unknown)
  *   - Category (new | changed | breaking | fix | internal)
+ *   - Product area is left for the LLM to infer
  */
 
 import { readFileSync, writeFileSync } from "fs";
@@ -14,7 +15,6 @@ import yaml from "js-yaml";
 import { minimatch } from "minimatch";
 import type {
   ChangeItem,
-  AreaMappingRule,
   DocsAreaMappingRule,
   PipelineState,
 } from "./types.js";
@@ -202,18 +202,8 @@ function inferVisibility(item: ChangeItem): ChangeItem["visibility"] {
 }
 
 // ──────────────────────────────────────────────────────────────────────────────
-// Product / docs area mapping
+// Docs area mapping
 // ──────────────────────────────────────────────────────────────────────────────
-
-function loadProductAreaMap(): AreaMappingRule[] {
-  const raw = yaml.load(
-    readFileSync(
-      resolve(CONFIG_DIR, "product-area-map.yml"),
-      "utf8"
-    )
-  ) as { mappings: AreaMappingRule[] };
-  return raw.mappings ?? [];
-}
 
 function loadDocsAreaMap(): DocsAreaMappingRule[] {
   const raw = yaml.load(
@@ -223,35 +213,6 @@ function loadDocsAreaMap(): DocsAreaMappingRule[] {
     )
   ) as { mappings: DocsAreaMappingRule[] };
   return raw.mappings ?? [];
-}
-
-function applyProductAreaMapping(
-  item: ChangeItem,
-  rules: AreaMappingRule[]
-): void {
-  const docsAreas = new Set<string>();
-
-  for (const rule of rules) {
-    // Optional repo filter.
-    if (rule.match.repo && rule.match.repo !== item.repo) continue;
-
-    const matched = item.changedFiles.some((f) =>
-      rule.match.paths.some((g) => minimatch(f, g, { dot: true }))
-    );
-    if (!matched) continue;
-
-    // First match assigns primary product area.
-    if (!item.productArea) {
-      item.productArea = rule.product_area;
-    }
-    for (const da of rule.docs_areas) {
-      docsAreas.add(da);
-    }
-  }
-
-  if (docsAreas.size > 0) {
-    item.docsArea = [...docsAreas];
-  }
 }
 
 function applyDocsAreaMapping(
@@ -282,11 +243,9 @@ export function classifyChanges(state: PipelineState): void {
     readFileSync(state.normalizedFile, "utf8")
   );
 
-  const productAreaRules = loadProductAreaMap();
   const docsAreaRules = loadDocsAreaMap();
 
   for (const item of items) {
-    applyProductAreaMapping(item, productAreaRules);
     applyDocsAreaMapping(item, docsAreaRules);
     item.visibility = inferVisibility(item);
     item.category = inferCategory(item);
