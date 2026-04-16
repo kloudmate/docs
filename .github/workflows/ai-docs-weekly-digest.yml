@@ -79,7 +79,16 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: npx tsx main.ts post
 
-      # ── 8. Upload debug artifacts ──────────────────────────────────────────────
+      # ── 8. Send Slack notification ────────────────────────────────────────────
+      - name: Send Slack notification
+        if: success()
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        working-directory: .github/ai-docs-digest/scripts
+        run: npx tsx main.ts slack
+
+      # ── 9. Upload debug artifacts ──────────────────────────────────────────────
       - name: Upload debug artifacts
         uses: actions/upload-artifact@v4
         if: always()

@@ -9,6 +9,7 @@
  *   npx tsx main.ts generate   # Generate digest only (assumes collect ran)
  *   npx tsx main.ts commit     # Commit digest only
  *   npx tsx main.ts post       # Post GitHub summary only
+ *   npx tsx main.ts slack      # Send Slack notification only
  *
  * Environment variables:
  *   GITHUB_TOKEN          — required for collection, commit, and issue posting
@@ -18,6 +19,7 @@
  *   GITHUB_REPOSITORY     — owner/repo (set automatically by GitHub Actions)
  *   WEEK_START            — optional YYYY-MM-DD; defaults to previous Monday
  *   ARTIFACTS_DIR         — directory for intermediate files (default: /tmp/digest-artifacts)
+ *   SLACK_WEBHOOK_URL     — Slack incoming webhook URL for digest notifications
  */
 
 import { mkdirSync, writeFileSync, readFileSync, existsSync } from "fs";
@@ -31,6 +33,7 @@ import { buildPrompt } from "./build_prompt.js";
 import { generateDigest } from "./generate_digest.js";
 import { commitDigest } from "./commit_digest.js";
 import { postGithubSummary } from "./post_github_summary.js";
+import { sendSlackNotification } from "./send_slack_notification.js";
 import type { PipelineState } from "./types.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -148,6 +151,14 @@ async function runPost(
   await postGithubSummary(state, digest);
 }
 
+async function runSlack(
+  state: PipelineState,
+  digest: string
+): Promise<void> {
+  console.log("\n── Phase 8: Send Slack notification ──────────────────────");
+  await sendSlackNotification(state, digest);
+}
+
 // ──────────────────────────────────────────────────────────────────────────────
 // Entry point
 // ──────────────────────────────────────────────────────────────────────────────
@@ -189,12 +200,18 @@ async function main(): Promise<void> {
         await runPost(state, digest);
         break;
 
+      case "slack":
+        digest = readFileSync(state.digestAbsPath, "utf8");
+        await runSlack(state, digest);
+        break;
+
       case "all":
       default:
         await runCollect(state);
         digest = await runGenerate(state);
         await runCommit(state, digest);
         await runPost(state, digest);
+        await runSlack(state, digest);
         break;
     }
 
