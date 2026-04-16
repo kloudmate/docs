@@ -17,9 +17,6 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 /** Root of the docs repository (two levels above scripts/). */
 const REPO_ROOT = resolve(__dirname, "..", "..", "..");
 
-/** Org that owns the repositories listed in repos.yml. */
-const ORG = "kloudmate";
-
 /** Maximum number of files to fetch per PR (to keep prompt size bounded). */
 const MAX_PR_FILES = 50;
 
@@ -54,30 +51,36 @@ export async function collectChanges(state: PipelineState): Promise<void> {
   const allRawCommits: RawCommit[] = [];
   const errors: string[] = [];
 
-  for (const repoName of repos) {
+  for (const repoEntry of repos) {
+    // Support both "owner/repo" and bare "repo" formats.
+    const slashIdx = repoEntry.indexOf("/");
+    const owner = slashIdx !== -1 ? repoEntry.slice(0, slashIdx) : "kloudmate";
+    const repoName = slashIdx !== -1 ? repoEntry.slice(slashIdx + 1) : repoEntry;
+
     try {
-      console.log(`[collect] Processing ${ORG}/${repoName} …`);
+      console.log(`[collect] Processing ${owner}/${repoName} …`);
 
       // Resolve default branch.
       let defaultBranch = "main";
       try {
         const { data: repoMeta } = await octokit.repos.get({
-          owner: ORG,
+          owner,
           repo: repoName,
         });
         defaultBranch = repoMeta.default_branch;
       } catch (err: unknown) {
         const msg = err instanceof Error ? err.message : String(err);
         console.warn(
-          `[collect]  ⚠ Could not fetch repo metadata for ${repoName}: ${msg}`
+          `[collect]  ⚠ Could not fetch repo metadata for ${owner}/${repoName}: ${msg}`
         );
-        errors.push(`${repoName}: failed to fetch repo metadata — ${msg}`);
+        errors.push(`${owner}/${repoName}: failed to fetch repo metadata — ${msg}`);
         continue;
       }
 
       // ── Collect merged PRs ──────────────────────────────────────────────────
       const prs = await collectMergedPRs(
         octokit,
+        owner,
         repoName,
         defaultBranch,
         since,
@@ -97,6 +100,7 @@ export async function collectChanges(state: PipelineState): Promise<void> {
       // ── Collect direct commits ──────────────────────────────────────────────
       const commits = await collectDirectCommits(
         octokit,
+        owner,
         repoName,
         defaultBranch,
         since,
@@ -107,8 +111,8 @@ export async function collectChanges(state: PipelineState): Promise<void> {
       allRawCommits.push(...commits);
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : String(err);
-      console.error(`[collect]  ✗ Error processing ${repoName}: ${msg}`);
-      errors.push(`${repoName}: ${msg}`);
+      console.error(`[collect]  ✗ Error processing ${owner}/${repoName}: ${msg}`);
+      errors.push(`${owner}/${repoName}: ${msg}`);
     }
   }
 
@@ -136,6 +140,7 @@ export async function collectChanges(state: PipelineState): Promise<void> {
 
 async function collectMergedPRs(
   octokit: Octokit,
+  owner: string,
   repo: string,
   base: string,
   since: string,
@@ -146,7 +151,7 @@ async function collectMergedPRs(
 
   while (results.length < MAX_PRS_PER_REPO) {
     const { data: prs } = await octokit.pulls.list({
-      owner: ORG,
+      owner,
       repo,
       state: "closed",
       base,
@@ -168,8 +173,8 @@ async function collectMergedPRs(
       if (pr.merged_at > until) continue;
 
       // Fetch file list and commit list for this PR.
-      const files = await fetchPRFiles(octokit, repo, pr.number);
-      const commits = await fetchPRCommitSHAs(octokit, repo, pr.number);
+      const files = await fetchPRFiles(octokit, owner, repo, pr.number);
+      const commits = await fetchPRCommitSHAs(octokit, owner, repo, pr.number);
 
       // Fetch full PR details to get additions/deletions (not available in list response).
       let additions = 0;
@@ -177,7 +182,7 @@ async function collectMergedPRs(
       let changed_files = 0;
       try {
         const { data: full } = await octokit.pulls.get({
-          owner: ORG,
+          owner,
           repo,
           pull_number: pr.number,
         });
@@ -215,12 +220,13 @@ async function collectMergedPRs(
 
 async function fetchPRFiles(
   octokit: Octokit,
+  owner: string,
   repo: string,
   prNumber: number
 ): Promise<Array<{ filename: string }>> {
   try {
     const { data } = await octokit.pulls.listFiles({
-      owner: ORG,
+      owner,
       repo,
       pull_number: prNumber,
       per_page: MAX_PR_FILES,
@@ -233,12 +239,13 @@ async function fetchPRFiles(
 
 async function fetchPRCommitSHAs(
   octokit: Octokit,
+  owner: string,
   repo: string,
   prNumber: number
 ): Promise<Array<{ sha: string }>> {
   try {
     const { data } = await octokit.pulls.listCommits({
-      owner: ORG,
+      owner,
       repo,
       pull_number: prNumber,
       per_page: 250,
@@ -251,6 +258,7 @@ async function fetchPRCommitSHAs(
 
 async function collectDirectCommits(
   octokit: Octokit,
+  owner: string,
   repo: string,
   branch: string,
   since: string,
@@ -262,7 +270,7 @@ async function collectDirectCommits(
 
   while (results.length < MAX_COMMITS_PER_REPO) {
     const { data: commits } = await octokit.repos.listCommits({
-      owner: ORG,
+      owner,
       repo,
       sha: branch,
       since,
@@ -284,7 +292,7 @@ async function collectDirectCommits(
       let files: Array<{ filename: string; additions: number; deletions: number }> = [];
       try {
         const { data: detail } = await octokit.repos.getCommit({
-          owner: ORG,
+          owner,
           repo,
           ref: c.sha,
         });
