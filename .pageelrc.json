@@ -1,0 +1,27 @@
+{
+  "version": 2,
+  "settings": {
+    "projectType": "github",
+    "domainUrl": "",
+    "postFileTypes": ".md,.mdx",
+    "imageFileTypes": "image/*",
+    "publishDateSource": "file",
+    "imageCompressionEnabled": false,
+    "maxImageSize": 500,
+    "imageResizeMaxWidth": 1024
+  },
+  "commitMessages": {
+    "newPost": "feat(content): add post \"{filename}\"",
+    "updatePost": "fix(content): update post \"{filename}\"",
+    "newImage": "feat(assets): add image \"{filename}\"",
+    "updateImage": "refactor(assets): update image for \"{filename}\""
+  },
+  "collections": [
+    {
+      "id": "collection-1776329164951",
+      "name": "Main Collection",
+      "postsPath": "content/engineering-digests/2026",
+      "imagesPath": "public/images"
+    }
+  ]
+}
