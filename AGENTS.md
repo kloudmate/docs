@@ -17,7 +17,7 @@ The site is divided into three distinct sections, each with its own path and nav
 
 - **Platform Docs (`/docs`)**: Resides in `src/content/docs/docs/`
 - **Guides (`/guides`)**: Resides in `src/content/docs/guides/`
-- **API Docs (`/reference`)**: API documentation will be generated from an OpenAPI specification. Ensure you check for the presence of plugins like `starlight-openapi` and follow their specific structural requirements. Do not manually edit generated files.
+- **API Docs (`/api`)**: API documentation will be generated from an OpenAPI specification. Ensure you check for the presence of plugins like `starlight-openapi` and follow their specific structural requirements. Do not manually edit generated files.
 
 *Note: Any assets (images) related to these sections should be placed logically near the content or in a dedicated `public/` or `src/assets/` directory following existing patterns.*
 
