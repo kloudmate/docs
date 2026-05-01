@@ -4,7 +4,7 @@ description: "Documentation for Windows Agent"
 sidebar:
   order: 5
 ---
-This document will guide you through installing the **KloudMate Agent** on your Windows machine **(Windows Server 2016+)**.
+This document will guide you through installing the **KloudMate Agent**on your Windows machine**(Windows Server 2016+)**.
 
 <hint type="info">
   The commands below are for reference only. Log in to KloudMate and copy your account-specific command to install the Agent.
@@ -19,15 +19,11 @@ Once installed, the Windows Agent collects:
 - **Windows Event Logs:** System, Application, and Security logs
 - **Application logs:** Logs from installed applications (if configured)
 - **Alerts:** Configure thresholds for host metrics or service status to notify on critical events
-- **Dashboards: ** re-built and custom dashboards to visualize Windows host metrics and logs
+- **Dashboards:** re-built and custom dashboards to visualize Windows host metrics and logs
 
 This allows you to monitor Windows hosts, troubleshoot issues, and correlate logs with metrics for performance insights.
 
-## **Accessing Your Data**
-
-View all collected data in these KloudMate sections:
-
-**1. Infrastructure Monitoring**
+## **Accessing Your Data**View all collected data in these KloudMate sections:**1. Infrastructure Monitoring**
 
 - Monitor Windows host metrics (CPU, memory, disk, network)
 - Track service status and host availability
@@ -52,11 +48,7 @@ View all collected data in these KloudMate sections:
 
 ## Install Agent
 
-**Step 1:** Navigate to the **Settings → Agents** section in your KloudMate account.
-
-**Step 2:** Select **Windows** from the list of available integrations.
-
-**Step 3:** Download the Windows executable using the provided link.
+**Step 1:**Navigate to the**Settings → Agents**section in your KloudMate account.**Step 2:**Select**Windows**from the list of available integrations.**Step 3:** Download the Windows executable using the provided link.
 
 ![image](./images/windows-agent-1.png)
 
@@ -64,11 +56,11 @@ View all collected data in these KloudMate sections:
 
 ![image](./images/windows-agent-2.png)
 
-**Step 5:** Run the command under **Check service status** in PowerShell to verify the service is running. 
+**Step 5:**Run the command under**Check service status** in PowerShell to verify the service is running. 
 
 ![image](./images/windows-agent-3.png)
 
-## **Log Integration **
+## **Log Integration**
 
 By default, the KloudMate Agent collects basic system logs.
 
@@ -83,9 +75,7 @@ This guide explains how to:
 - Enable multiline log parsing
 - Validate logs in Log Explorer
 
-## **Next Steps**
-
-- Open **Infrastructure Monitoring** to see host metrics and service status
+## **Next Steps**- Open**Infrastructure Monitoring** to see host metrics and service status
 - Go to **Dashboards** to visualize host performance and logs
 - Use **Log Explore**r to investigate Windows Event Logs and application logs
 - Configure **alerts** for host or service thresholds

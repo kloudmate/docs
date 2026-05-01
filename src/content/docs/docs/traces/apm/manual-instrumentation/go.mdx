@@ -4,11 +4,7 @@ description: "Documentation for Go"
 ---
 In this guide, we will walk you through the process of setting up and using OpenTelemetry in Go. You will learn how to instrument a simple application to produce tracing telemetry with OpenTelemetry Go.
 
-**Step 1: Prerequisites**
-
-Before diving into OpenTelemetry, be sure to have Go 1.16 or newer installed on your local machine
-
-**Step 2: Example Application**
+**Step 1: Prerequisites**Before diving into OpenTelemetry, be sure to have Go 1.16 or newer installed on your local machine**Step 2: Example Application**
 
 For this tutorial, we will be using an application that computes Fibonacci numbers for users.
 
@@ -57,7 +53,7 @@ type App struct {
  l *log.Logger
 }
 
-func NewApp(r io.Reader, l *log.Logger) *App {
+func NewApp(r io.Reader, l *log.Logger)*App {
  return &App{r: r, l: l}
 }
 
@@ -342,7 +338,7 @@ func main() {
  }()
  otel.SetTracerProvider(tp)
 
-    /* … */
+    /*…*/
 }
 ```
 
@@ -356,7 +352,7 @@ go run .
 
 ## Go Metrics
 
-| N**ame**                | **Description**                                                                               |
+| N**ame**|**Description**                                                                               |
 | ----------------------- | --------------------------------------------------------------------------------------------- |
 | go\_memory\_used        | Memory used by the Go runtime.                                                                |
 | go\_memory\_type        | The type of memory.                                                                           |
@@ -369,13 +365,9 @@ go run .
 | go\_schedule\_duration  | The time goroutines have spent in the scheduler in a runnable state before actually running.  |
 | go\_config\_gogc        | Heap size target percentage configured by the user, otherwise 100.                            |
 
-## **Conclusion**
+## **Conclusion**When you run the instrumented application, a new file named traces.txt will be created in your working directory. This file will contain all the traces created from running the application. To learn more, explore the [official documentation](https://opentelemetry.io/docs/instrumentation/go/) of the OpenTelemetry Go Project.***
 
-When you run the instrumented application, a new file named traces.txt will be created in your working directory. This file will contain all the traces created from running the application. To learn more, explore the [official documentation](https://opentelemetry.io/docs/instrumentation/go/) of the OpenTelemetry Go Project.
-
-***
-
-*Source URL for the example application: *[https://opentelemetry.io/docs/instrumentation/go/getting-started/](https://opentelemetry.io/docs/instrumentation/go/getting-started/)
+*Source URL for the example application:*[https://opentelemetry.io/docs/instrumentation/go/getting-started/](https://opentelemetry.io/docs/instrumentation/go/getting-started/)
 
 ***
 

@@ -5,8 +5,8 @@ description: "Documentation for How Does OpenTelemetry Work?"
 OpenTelemetry works by combining a set of vendor-agnostic tools to:
 
 - **Specify** the data that needs to be measured
-- **Capture, organize, and format **the data
-- **Export** it to a backend monitoring platform like **KloudMate**. 
+- **Capture, organize, and format**the data
+- **Export**it to a backend monitoring platform like**KloudMate**. 
 
 The vendor-agnostic tools include APIs, SDKs, collectors, and monitoring backends. They work together as components of OpenTelemetry, to provide a standardized approach to observability.
 
@@ -29,10 +29,7 @@ SDKs perform the language-specific implementation of the APIs and gather the tel
 
 ### Step 3: Data exportation
 
-**The OpenTelemetry Collector**
-The collector is a vendor-agnostic OpenTelemetry component that can receive, process, and export the collected telemetry data to external storage or monitoring systems. However, the collector is an optional component, the telemetry data can also be routed directly from your application(using SDKs) to a target system (an observability backend).
-
-**When to Use an OpenTelemetry Collector:**
+**The OpenTelemetry Collector**The collector is a vendor-agnostic OpenTelemetry component that can receive, process, and export the collected telemetry data to external storage or monitoring systems. However, the collector is an optional component, the telemetry data can also be routed directly from your application(using SDKs) to a target system (an observability backend).**When to Use an OpenTelemetry Collector:**
 
 - You want to export data to multiple observability backends
 - You want to handle retries, batching, or data encryption before exporting the data to a target system

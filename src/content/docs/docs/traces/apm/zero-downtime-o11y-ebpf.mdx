@@ -47,18 +47,16 @@ While traditional OpenTelemetry heavily relies on language-specific SDKs (manual
 
 | ### Feature              | ### KM eBPF Receiver                                       | ### Traditional OpenTelemetry                                 |
 | ------------------------ | ---------------------------------------------------------- | ------------------------------------------------------------- |
-| **Code Changes**         | **None.** Deploy the agent to the node.                    | Requires SDK dependencies or attaching agents.                |
-| **Application Restarts** | **No restarts required.**                                  | Requires rolling restarts to inject instrumentation.          |
-| **Setup Complexity**     | **Low.** Single DaemonSet / VM process per host.           | **High.** Per-service configuration, library updates.         |
-| **Language Support**     | **Universal.** Go, Rust, C++, Python, Java, Node.js, Ruby. | Requires per-language SDKs; compiled languages are difficult. |
-| **Performance Overhead** | **Extremely low.** Runs in kernel space.                   | Higher, especially with rich auto-instrumentation.            |
+| **Code Changes**|**None.** Deploy the agent to the node.                    | Requires SDK dependencies or attaching agents.                |
+| **Application Restarts**|**No restarts required.**                                  | Requires rolling restarts to inject instrumentation.          |
+| **Setup Complexity**|**Low.**Single DaemonSet / VM process per host.           |**High.** Per-service configuration, library updates.         |
+| **Language Support**|**Universal.** Go, Rust, C++, Python, Java, Node.js, Ruby. | Requires per-language SDKs; compiled languages are difficult. |
+| **Performance Overhead**|**Extremely low.** Runs in kernel space.                   | Higher, especially with rich auto-instrumentation.            |
 | **Missing Services**     | Impossible — the kernel sees every packet.                 | Un-instrumented services remain blind spots.                  |
 
 ## Deploying APM Strategically
 
-**Start with eBPF:** The eBPF Receiver serves as the ultimate foundational layer for enterprise observability. For massive deployments like tier-1 Banks or multi-tenant SaaS platforms, deploy the KM-Agent to grab immediate Service Graphs, rigorous network insights, and universal APM metrics across every language and stack you run.
-
-**Enrich Where Necessary:** Once eBPF has illuminated the vast majority of your distributed architecture, strategically deploy [Manual Instrumentation](<./Manual Instrumentation.mdx>) SDKs into the specific handful of applications requiring bespoke business logic mapping (such as tracing a specific User ID or capturing unique transaction states).
+**Start with eBPF:**The eBPF Receiver serves as the ultimate foundational layer for enterprise observability. For massive deployments like tier-1 Banks or multi-tenant SaaS platforms, deploy the KM-Agent to grab immediate Service Graphs, rigorous network insights, and universal APM metrics across every language and stack you run.**Enrich Where Necessary:** Once eBPF has illuminated the vast majority of your distributed architecture, strategically deploy [Manual Instrumentation](<./Manual Instrumentation.mdx>) SDKs into the specific handful of applications requiring bespoke business logic mapping (such as tracing a specific User ID or capturing unique transaction states).
 
 The KloudMate Agent seamlessly merges eBPF kernel intelligence with your applications telemetry data giving your SRE teams a flawless, unified view of reality.
 

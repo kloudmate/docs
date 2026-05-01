@@ -19,7 +19,7 @@ This document provides a step-by-step manual approach to integrating Azure Monit
 **Step 1: Access Agents and OpenTelemetry Collector Configuration**
 
 - Navigate to the KloudMate platform and log in to your account.
-- Go to **Settings** > **Agents** section.
+- Go to **Settings**>**Agents** section.
 - Here you can:
   - View all installed agents.
   - Access configuration settings for each agent.
@@ -65,7 +65,7 @@ receivers:
 ```
 
 <hint type="info">
-  *To monitor a specific service or resource group, the user can uncomment the *resourcegroup\[]* and *services\[]* entries in the configuration file.*
+  *To monitor a specific service or resource group, the user can uncomment the*resourcegroup\[]*and*services\[]*entries in the configuration file.*
 </hint>
 
 2\.  Set up the exporter as the KloudMate backend by specifying the endpoint and authorisation key in the agent configuration file, and configure the pipeline.
@@ -95,9 +95,7 @@ service:
   extensions: [health_check, pprof, zpages]
 ```
 
-**Step 2:  Step 4:  Save Configuration and Restart Agent**
-
-After updating the configuration, click “**Save Configuration**” in the UI 
+**Step 2:  Step 4:  Save Configuration and Restart Agent**After updating the configuration, click “**Save Configuration**” in the UI 
 
 ![image](https://app.archbee.com/api/optimize/dfeZmyJsGjUXyEH2hgHVe/v50H011QomNhH7lXX1BRP-20251126-110236.png)
 

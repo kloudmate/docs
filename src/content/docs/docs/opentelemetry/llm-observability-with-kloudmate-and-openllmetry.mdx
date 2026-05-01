@@ -4,25 +4,17 @@ description: "Documentation for LLM Observability with KloudMate and OpenLLMetry
 ---
 In this guide, we will walk you through the process of setting up and using OpenLLMetry in Python. You can use the following steps to instrument a Python program with OpenLLMetry and then emit and visualize its traces within [KloudMate](https://app.kloudmate.com).
 
-The instrumentation demonstrated in this guide lets OpenLLMetry capture and send OpenAI model KPIs to KloudMate, where there is a dedicated '**Traces**' section to visualize the captured data. In addition to this OpenLLMetry also has instrumentations for vector databases such as **Pinecone**, and LLM frameworks such as **LangChain**. Feel free to adapt the instructions to your preferred framework.
-
-
-
-**Step 1: Prerequisites**
+The instrumentation demonstrated in this guide lets OpenLLMetry capture and send OpenAI model KPIs to KloudMate, where there is a dedicated '**Traces**' section to visualize the captured data. In addition to this OpenLLMetry also has instrumentations for vector databases such as**Pinecone**, and LLM frameworks such as**LangChain**. Feel free to adapt the instructions to your preferred framework.**Step 1: Prerequisites**
 
 - Ensure that you have Python 3 installed on your local machine
 - Create an OpenAI account and get your OpenAI API key ([here's how](https://help.openai.com/en/articles/4936850-where-do-i-find-my-openai-api-key))
 - Create a [KloudMate account](https://app.kloudmate.com/signup) and generate your KloudMate API Key 
 
 <hint type="info">
-  The KloudMate API-Key can be obtained by logging into your KloudMate account and navigating to **Settings >> **[Workspaces ](https://app.kloudmate.com/settings)**>> Edit Workspace**.
+  The KloudMate API-Key can be obtained by logging into your KloudMate account and navigating to **Settings >>**[Workspaces ](https://app.kloudmate.com/settings)**>> Edit Workspace**.
 </hint>
 
-**Step 2: Example Application**
-
-For this setup, we will be using a basic Python program that uses OpenAI API. Adhere to the steps outlined below to set up the environment for the program.
-
-**Step 3: Installation**
+**Step 2: Example Application**For this setup, we will be using a basic Python program that uses OpenAI API. Adhere to the steps outlined below to set up the environment for the program.**Step 3: Installation**
 
 1\. Create a new directory and activate a virtual environment:
 
@@ -72,7 +64,7 @@ time.sleep(10)
 ```
 
 <hint type="info">
-  The KloudMate API-Key can be obtained by logging into your KloudMate account and navigating to **Settings >> **[Workspaces ](https://app.kloudmate.com/settings)**>> Edit Workspace**.
+  The KloudMate API-Key can be obtained by logging into your KloudMate account and navigating to **Settings >>**[Workspaces ](https://app.kloudmate.com/settings)**>> Edit Workspace**.
 </hint>
 
 **Step 5: Run the Instrumented Program**

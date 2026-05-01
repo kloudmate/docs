@@ -2,7 +2,7 @@
 title: "Server Logs to KloudMate"
 description: "Documentation for Server Logs to KloudMate"
 ---
-This document explains how to send logs from a file to KloudMate by **configuring the file log receiver** within the **KloudMate Agent**.
+This document explains how to send logs from a file to KloudMate by **configuring the file log receiver**within the**KloudMate Agent**.
 
 The KloudMate Agent acts as the log forwarding service that collects and securely transmits log data to KloudMate for analysis and troubleshooting.
 
@@ -12,9 +12,7 @@ The KloudMate Agent acts as the log forwarding service that collects and securel
 - Agent must be running and connected to KloudMate
 - Access to modify the agent collector configuration
 
-## **Step 1: Access Agent and Collector Configuration**
-
-1. Log in to the **KloudMate** platform
+## **Step 1: Access Agent and Collector Configuration**1. Log in to the**KloudMate** platform
 2. Navigate to **Settings → Agents**
 3. Select the agent running on the target server
 4. Click **Actions → Collector Configuration**
@@ -78,18 +76,12 @@ systemctl status kmagent
 
 These commands restart the KloudMate Agent and display its current status.
 
-**For Windows**
-
-1. Open the **Services** window
+**For Windows**1. Open the**Services** window
    - Press `Win + R`, type `services.msc`, and press `OK`
    - Or search for **Services** from the Start menu
-2. Locate the **KloudMate Agent **service.
+2. Locate the **KloudMate Agent**service.
 3. Right-click the service and select **Restart**.
 
-## **Step 4: Validate Log Ingestion**
-
-1. Log in to **KloudMate**
-2. Navigate to **Log Explorer**
-3. Search using **host name** or **log attributes**
+## **Step 4: Validate Log Ingestion**1. Log in to**KloudMate**2. Navigate to**Log Explorer**3. Search using**host name**or**log attributes**
 4. Confirm logs are visible
 

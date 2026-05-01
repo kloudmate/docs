@@ -13,12 +13,8 @@ Use the following attributes to get relevant data from your CloudWatch logs.
 | @requestId         | Invocation Id of Lambda                                                                                                                       |
 | @logGroup          | CloudWatch logs group name                                                                                                                    |
 | @logStream         | CloudWatch Log stream name                                                                                                                    |
-| @type              | Type of message in your log: <br />* Report - Log line contains REPORT
-* Start - Log line contains START
-* End - Log line contains END        |
-| @functionError     | Lambda invocation errors, such as:<br />* crash  (Unhandled error)
-* timeout  (Function timed out)
-* early\_exit  (Runtime exited with error) |
+| @type              | Type of message in your log: <br />*Report - Log line contains REPORT* Start - Log line contains START* End - Log line contains END        |
+| @functionError     | Lambda invocation errors, such as:<br />*crash  (Unhandled error)* timeout  (Function timed out)* early\_exit  (Runtime exited with error) |
 | @duration          | Time taken to execute the Lambda function                                                                                                     |
 | @billedDuration    | Time for which the Lambda execution is billed                                                                                                 |
 | @memorySize        | Allocated memory for the Lambda function                                                                                                      |

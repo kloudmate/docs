@@ -44,16 +44,16 @@ Choose notification channels where alerts will be sent if the UDP monitor detect
 
 Assertions define what aspects of UDP port availability and response are checked:
 
-- **Connect Time (ms)  **&#xA;Measures the duration from sending the UDP packet to receiving a response or timeout.
-- **Time to First Byte (ms)  **&#xA;Tracks the time from packet transmission until the first byte of response data arrives.
-- **Total Time (ms)  **&#xA;Captures the complete duration from the initial UDP packet send through the full response exchange.
-- **Response Data  **&#xA;Validates the actual data returned by the UDP server after sending the optional payload.
+- **Connect Time (ms)**&#xA;Measures the duration from sending the UDP packet to receiving a response or timeout.
+- **Time to First Byte (ms)**&#xA;Tracks the time from packet transmission until the first byte of response data arrives.
+- **Total Time (ms)**&#xA;Captures the complete duration from the initial UDP packet send through the full response exchange.
+- **Response Data**&#xA;Validates the actual data returned by the UDP server after sending the optional payload.
 
 ## Metrics
 
 Metrics available to be monitored in Dashboard section
 
-| **Metric Name**<br /><br />                                   | **Type**<br /><br /> | **Description**<br /><br />                                          | **Labels**<br /><br />                                                     |
+| **Metric Name**<br /><br />                                   |**Type**<br /><br /> |**Description**<br /><br />                                          |**Labels**<br /><br />                                                     |
 | ------------------------------------------------------------- | -------------------- | -------------------------------------------------------------------- | -------------------------------------------------------------------------- |
 | kloudmate\_synthetic\_check\_network\_write\_time<br /><br /> | Gauge<br /><br />    | Time taken to write to the connection (for TCP and UDP)<br /><br />  | check\_id, check\_name, check\_type, target, workspace\_id, location<br /> |
 | \_kloudmate\_synthetic\_chec\_network\_read\_time<br /><br /> | Gauge<br /><br />    | Time taken to read from the connection (for TCP and UDP)<br /><br /> | check\_id, check\_name, check\_type, target, workspace\_id, location<br /> |

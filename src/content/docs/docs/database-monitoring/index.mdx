@@ -10,7 +10,7 @@ The KloudMate Agent provides three approaches to database monitoring, from zero-
 <hint type="info">
   Which approach should I use?
 
-  **eBPF (DAM)** is the fastest way to get started, zero configuration, no database credentials needed. For deep query analytics with execution plans and schema discovery, use **Direct Database Monitoring**. **OpenTelemetry** is ideal when your application already uses OTel SDKs, and you want database spans as part of your distributed traces.
+  **eBPF (DAM)**is the fastest way to get started, zero configuration, no database credentials needed. For deep query analytics with execution plans and schema discovery, use**Direct Database Monitoring**.**OpenTelemetry** is ideal when your application already uses OTel SDKs, and you want database spans as part of your distributed traces.
 </hint>
 
 ## Monitoring Approaches
@@ -51,7 +51,7 @@ The KloudMate Agent provides three approaches to database monitoring, from zero-
 
 ## Comparison
 
-| ### **Feature**                      | ### **eBPF (DAM)** | ### **OpenTelemetry** | ### **Direct (SQL Setup)** |
+| ### **Feature**| ###**eBPF (DAM)**| ###**OpenTelemetry**| ###**Direct (SQL Setup)** |
 | ------------------------------------ | ------------------ | --------------------- | -------------------------- |
 | **Setup complexity**                 | None               | SDK integration       | SQL scripts + agent config |
 | **Database credentials**             | Not required       | Not required          | Required                   |
@@ -62,6 +62,4 @@ The KloudMate Agent provides three approaches to database monitoring, from zero-
 | **Distributed trace context**        | —                  | ✅                     | —                          |
 | **Custom span attributes**           | —                  | ✅                     | —                          |
 | **Works on managed DBs (RDS, etc.)** | ✅                  | ✅                     | ✅                          |
-| **Linux kernel requirement**         | ≥ 5.8              | None                  | None                       |
-
-****
+| **Linux kernel requirement** | ≥ 5.8 | None | None |

@@ -14,7 +14,7 @@ description: "Documentation for Deploy on a Kubernetes environment"
 - A Stripe account \[Optional] (Only if online billing is required).
 - Kubectl and access to the cluster master node is required
 
-| **Hardware**        | **Minimum/POC&#xD;**&#xA;**&#xD;** | **Minimum Prod &#xD;** |
+| **Hardware**|**Minimum/POC&#xD;**&#xA;**&#xD;**|**Minimum Prod &#xD;** |
 | ------------------- | ---------------------------------- | ---------------------- |
 | Nodes               | 3                                  | 5&#xD;&#xA;&#xD;       |
 | CPU/&#xD;&#xA;&#xD; | 8 core                             | 16 core                |
@@ -25,16 +25,12 @@ description: "Documentation for Deploy on a Kubernetes environment"
 
 The following setup can handle 1TB of data ingestion per month
 
-| **Component&#xD;**&#xA;&#xD; | **Node Count&#xD;**&#xA;**&#xD;** | **vCPUs (Each Node)&#xD;**&#xA;**&#xD;** | **RAM (Each Node)&#xD;**&#xA;**&#xD;** | **Storage (Each Node)&#xD;**&#xA;**&#xD;** |
+| **Component&#xD;**&#xA;&#xD; |**Node Count&#xD;**&#xA;**&#xD;**|**vCPUs (Each Node)&#xD;**&#xA;**&#xD;**|**RAM (Each Node)&#xD;**&#xA;**&#xD;**|**Storage (Each Node)&#xD;**&#xA;**&#xD;** |
 | ---------------------------- | --------------------------------- | ---------------------------------------- | -------------------------------------- | ------------------------------------------ |
 | Control Plane&#xD;&#xA;&#xD; | 3                                 | 4–8 vCPUs&#xD;                           | 8–16 GB&#xD;&#xA;                      | 50 GB (OS, etcd)&#xD;&#xA;&#xD;            |
 | Data Nodes&#xD;&#xA;&#xD;    | 2                                 | 8–16 vCPUs&#xD;&#xA;&#xD;                | 32–64 GB&#xD;&#xA;&#xD;                | 1–2 TB NVMe SSD&#xD;&#xA;&#xD;             |
 
-### **Cluster Setup (3 Control, 4 Data Nodes) - High workload**
-
-The following spec is required for a workload that can handle **millions of rows per second**
-
-| **Node Type&#xD;**&#xA;**&#xD;** | **Count&#xD;**&#xA;&#xD; | **vCPUs (Each Node)&#xD;**&#xA;**&#xD;** | **RAM (Each Node)&#xD;**&#xA;**&#xD;** | **Storage (Each Node)&#xD;**&#xA;**&#xD;** |
+### **Cluster Setup (3 Control, 4 Data Nodes) - High workload**The following spec is required for a workload that can handle**millions of rows per second**|**Node Type&#xD;**&#xA;**&#xD;**|**Count&#xD;**&#xA;&#xD; |**vCPUs (Each Node)&#xD;**&#xA;**&#xD;**|**RAM (Each Node)&#xD;**&#xA;**&#xD;**|**Storage (Each Node)&#xD;**&#xA;**&#xD;** |
 | -------------------------------- | ------------------------ | ---------------------------------------- | -------------------------------------- | ------------------------------------------ |
 | Control Plane&#xD;&#xA;&#xD;     | 3                        | 4 vCPUs                                  | 8–16 GB&#xD;&#xA;                      | 50 GB &#xD;&#xA;&#xD;                      |
 | Data Nodes&#xD;&#xA;&#xD;        | 4                        | 16–32 vCPUs&#xD;&#xA;&#xD;               | 64–128 GB&#xD;&#xA;&#xD;               | 1–2 TB (NVMe)&#xD;&#xA;&#xD;               |

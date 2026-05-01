@@ -161,7 +161,7 @@ python manage.py runserver 127.0.0.1:8000
 
 You can now access the app at: [http://localhost:8000/](http://localhost:8000/)
 
-### **Step 3: ** nstallation & Setup
+### **Step 3:** nstallation & Setup
 
 Run the following commands in your project environment to install the essential OpenTelemetry packages and exporters:
 
@@ -173,7 +173,7 @@ opentelemetry-bootstrap -a install
 - `opentelemetry-distro` includes OpenTelemetry API, SDK, and tools.
 - `opentelemetry-bootstrap -a install` auto-installs instrumentation libraries for detected dependencies such as Flask or Django.
 
-### **Step 4: **Configure Environment Variable
+### **Step 4:**Configure Environment Variable
 
 Set the following environment variables to configure KloudMate OTLP endpoint and service metadata:
 
@@ -287,18 +287,14 @@ By default, the application will export traces and metrics over OTLP/gRPC to the
 
 ## Python Metrics
 
-| **Metric\_name**                    | **Description**                                                                                               |
+| **Metric\_name**|**Description**                                                                                               |
 | ----------------------------------- | ------------------------------------------------------------------------------------------------------------- |
 | cpython\_gc\_collections            | The number of times a generation was collected since interpreter start.                                       |
 | cpython\_gc\_generation             | Value of the garbage collector collection generation.                                                         |
 | cpython\_gc\_collected\_objects     | The total number of objects collected inside a generation since interpreter start.                            |
 | cpython\_gc\_uncollectable\_objects | The total number of objects which were found to be uncollectable inside a generation since interpreter start. |
 
-## **Conclusion**
-
-Remember, OpenTelemetry offers various options for automatic instrumentation, manual instrumentation, and exporting telemetry data. Explore the [official documentation](https://opentelemetry.io/docs/instrumentation/python/) to delve deeper into these topics and further enhance your observability capabilities.
-
-***
+## **Conclusion**Remember, OpenTelemetry offers various options for automatic instrumentation, manual instrumentation, and exporting telemetry data. Explore the [official documentation](https://opentelemetry.io/docs/instrumentation/python/) to delve deeper into these topics and further enhance your observability capabilities.***
 
 For more details and advanced configurations, refer to the official OpenTelemetry documentation:
 

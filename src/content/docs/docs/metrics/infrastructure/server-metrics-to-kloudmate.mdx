@@ -2,7 +2,7 @@
 title: "Server Metrics to KloudMate"
 description: "Documentation for Server Metrics to KloudMate"
 ---
-This guide provides instructions on gathering Linux and Windows Server metrics using the **Host** **Metrics** **Receiver** through **KloudMate Agents**.
+This guide provides instructions on gathering Linux and Windows Server metrics using the **Host** **Metrics** **Receiver**through**KloudMate Agents**.
 
 The Host Metrics Receiver generates metrics about the host system from various sources. It can also collect per-process metrics for applications running on Amazon EC2, Azure VMs, or on-premise servers.
 
@@ -10,12 +10,10 @@ KloudMate Agents use this receiver to ingest these host metrics and send them di
 
 ### **Prerequisites:**
 
-**Install the KloudMate Agents** on the server where metric monitoring is required. Refer to the [KloudMate Agents](<././KloudMate Agents.mdx>) guide for detailed setup instructions.
-
-**Step 1: Access Agents and OpenTelemetry Collector Configuration**
+**Install the KloudMate Agents**on the server where metric monitoring is required. Refer to the [KloudMate Agents](<././KloudMate Agents.mdx>) guide for detailed setup instructions.**Step 1: Access Agents and OpenTelemetry Collector Configuration**
 
 - Navigate to the KloudMate platform and log into your account.
-- Go to **Settings** > **Agents** section.
+- Go to **Settings**>**Agents** section.
 - Here you can:
   - View all installed agents.
   - Access configuration settings for each agent.
@@ -103,7 +101,7 @@ processors:
         from_attribute: host.name
 ```
 
-- **AWS EC2: **
+- **AWS EC2:**
 
 <hint type="info">
   Optional: To retrieve AWS EC2 instance tags along with logs and metrics, you must associate an IAM role with the EC2 instance that includes the `EC2:DescribeTags `policy. The processor below needs to be added:
@@ -134,7 +132,7 @@ processors:
         from_attribute: host.id
 ```
 
-- **Azure Virtual Machines: **
+- **Azure Virtual Machines:**
 
 ```yaml
 processors:
@@ -180,9 +178,7 @@ service:
       exporters: [debug, otlphttp]
 ```
 
-**Step 2:  Save Configuration and Restart Agent**
-
-After updating the configuration, click “**Save Configuration**” in the UI 
+**Step 2:  Save Configuration and Restart Agent**After updating the configuration, click “**Save Configuration**” in the UI 
 
 ![image](https://app.archbee.com/api/optimize/dfeZmyJsGjUXyEH2hgHVe/v50H011QomNhH7lXX1BRP-20251126-110236.png)
 
@@ -209,9 +205,7 @@ These commands will restart the KloudMate agent and display its current status.
 
 Subsequently, monitor the metrics on the KloudMate dashboard and set up an alarm to receive notifications if the potential metrics for a specific application rise. 
 
-### **Default Hostmetrics**
-
-| **Metric**                        | **Description**                                                                     | **Unit**  |
+### **Default Hostmetrics**|**Metric**|**Description**|**Unit**  |
 | --------------------------------- | ----------------------------------------------------------------------------------- | --------- |
 | **cpu**                           |                                                                                     |           |
 | system\_cpu\_time                 | Total seconds each logical CPU spent on each mode.                                  | Seconds   |

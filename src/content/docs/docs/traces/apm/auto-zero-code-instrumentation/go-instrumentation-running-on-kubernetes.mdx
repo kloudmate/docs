@@ -23,7 +23,7 @@ BASH
   ```
 
 
-**Step 2: **Create an OpenTelemetry collector to send telemetry from containers to a collector instead of directly to a backend. 
+**Step 2:**Create an OpenTelemetry collector to send telemetry from containers to a collector instead of directly to a backend. 
 
 For example, here is a demo collector used 
 
@@ -81,7 +81,7 @@ EOF
   Change your Kloudmate workspace API key to configure the collector to export data to Kloudmate.
 </hint>
 
-**Step 3: **Configure automatic instrumentation
+**Step 3:**Configure automatic instrumentation
 
 To be able to manage automatic instrumentation, the Operator needs to be configured to know what pods to the instrument and which automatic instrumentation to use for those pods. This is done via the [Instrumentation CRD](https://github.com/open-telemetry/opentelemetry-operator/blob/main/docs/api/instrumentations.md)
 
@@ -112,7 +112,7 @@ EOF
   The endpoint used under exporter must be the same as the service name of the collector created in Step 2. Use only one instrumentation command as per the requirement.
 </hint>
 
-**Step 4: **Now opt-in your services to automatic instrumentation. This is done by updating your service’s spec.template.metadata.annotations to include a language-specific annotation 
+**Step 4:**Now opt-in your services to automatic instrumentation. This is done by updating your service’s spec.template.metadata.annotations to include a language-specific annotation 
 
 .GO:`instrumentation.opentelemetry.io/inject-go:` "true"
 

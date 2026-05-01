@@ -2,12 +2,12 @@
 title: "Monitoring GKE Autopilot Clusters with OpenTelemetry"
 description: "Documentation for Monitoring GKE Autopilot Clusters with OpenTelemetry"
 ---
-This guide outlines how to configure monitoring for your **Google Kubernetes Engine (GKE)** Autopilot clusters using the **OpenTelemetry Collector**. The integration allows you to collect, process, and export GKE metrics to Kloudmate for observability, alerting, and troubleshooting. By following these steps, you will enable advanced monitoring and actionable insights into your GKE workloads with minimal operational overhead.
+This guide outlines how to configure monitoring for your **Google Kubernetes Engine (GKE) Autopilot** clusters using the **OpenTelemetry Collector**. The integration allows you to collect, process, and export GKE metrics to Kloudmate for observability, alerting, and troubleshooting. By following these steps, you will enable advanced monitoring and actionable insights into your GKE workloads with minimal operational overhead.
 
-###  Prerequisites
+### Prerequisites
 
 1. **A running GKE Autopilot cluster.**
-2. **A GCP Service Account** with the "Monitoring Viewer"
+2. **A GCP Service Account** with the "Monitoring Viewer" role.
 3. The following CLIs are installed & configured:
    - `kubectl`
    - `gcloud`
@@ -56,7 +56,7 @@ text
 
 ### Step 4: Deploy OpenTelemetry Collector
 
-Create a file `deployment.yaml` as follows. **Replace placeholders such as **``** ,**`<API-KEY>`**, **`<CLUSTER_NAME>`** accordingly.**
+Create a file `deployment.yaml` as follows. **Replace placeholders such as**``**,**`<API-KEY>`**,**`<CLUSTER_NAME>`**accordingly.**
 
 ```none
 apiVersion: v1

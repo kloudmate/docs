@@ -42,7 +42,7 @@ Ensure your ASG's IAM Instance Profile has permission to read the SSM parameter:
 }
 ```
 
-If using **SSM Run Command **(Step 5, Option B), also add:
+If using **SSM Run Command**(Step 5, Option B), also add:
 
 ```bash
 {
@@ -133,9 +133,7 @@ Via AWS CLI
 
 ### Step 5: Roll Out to Existing Instances
 
-The new user data only executes on **newly launched** instances. To deploy on your existing 50 instances, choose one of the following:
-
-***Option A: Instance Refresh***
+The new user data only executes on **newly launched**instances. To deploy on your existing 50 instances, choose one of the following:***Option A: Instance Refresh***
 
 **Rolling Replace**
 
@@ -151,9 +149,7 @@ aws autoscaling start-instance-refresh \
   }'
 ```
 
-**How it works:**
-
-- Keeps **90% of instances healthy** at all times
+**How it works:**- Keeps**90% of instances healthy** at all times
 - Replaces \~5 instances at a time (for a fleet of 50)
 - Each batch waits for health checks to pass before proceeding
 - Total rollout time: \~20-30 minutes depending on health check config
@@ -186,14 +182,10 @@ aws ssm send-command \
   --comment "Install kmagent on ASG fleet"
 ```
 
-**How it works:**
-
-- Runs on **10 instances at a time** (--max-concurrency 10)
+**How it works:**- Runs on**10 instances at a time** (--max-concurrency 10)
 - All 50 instances done in **5 batches**
 - Stops if more than 5 instances fail (--max-errors 5)
-- **Zero downtime** — no instance restarts required
-
-**Monitor progress:**
+- **Zero downtime**— no instance restarts required**Monitor progress:**
 
 ```bash
 # Get command ID from send-command output, then
@@ -214,7 +206,7 @@ aws ssm list-command-invocations \
 | Risk           | Lower (clean slate)          | Slightly higher (in-place)   |
 | Use when       | You want clean rollout       | You need it NOW              |
 
-**Recommended approach:** Use **Option B** for the immediate install on all 50 instances today, and the **Launch Template user data** ensures every future instance is covered automatically.
+**Recommended approach:**Use**Option B**for the immediate install on all 50 instances today, and the**Launch Template user data** ensures every future instance is covered automatically.
 
 ## Verification
 
@@ -237,7 +229,7 @@ curl -s http://localhost:13133   # health check endpoint
 
 ## Troubleshooting
 
-| **Issue**                      | **Cause**                                          | **Fix**                                                                                |
+| **Issue**|**Cause**|**Fix**                                                                                |
 | ------------------------------ | -------------------------------------------------- | -------------------------------------------------------------------------------------- |
 | `unable to locate credentials` | IAM Instance Profile missing or no SSM permissions | Attach IAM role with `ssm:GetParameter` to your Launch Template                        |
 | `command not found: aws`       | AWS CLI not installed on instance                  | Add `yum install -y aws-cli or apt install -y awscli` before the SSM call in user data |

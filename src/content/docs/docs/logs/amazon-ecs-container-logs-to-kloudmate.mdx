@@ -6,7 +6,7 @@ This document provides a guide on how to send Amazon ECS container (Fargate laun
 
 In the described setup, Fluentbit is used as the log exporting agent to send logs from the application container. FireLens is the log driver used for exporting logs. The OpenTelemetry plugin allows you to take logs from Fluentbit and submit them to a KloudMate HTTP endpoint. 
 
-**Step 1: ** rerequisites:
+**Step 1:** rerequisites:
 
 - [Fluentbit binaries and packages](https://docs.fluentbit.io/manual/installation/getting-started-with-fluent-bit) as per your system requirement. 
 - An ECS cluster running containers with the desired logs to be sent.
@@ -15,7 +15,7 @@ In the described setup, Fluentbit is used as the log exporting agent to send log
   Recommendation: Use the latest fluentbit image to send container logs. Create a custom AWS fluentbit image with a proper configuration as well as required parsers.
 </hint>
 
-**Step 2: **Create a Dockerfile for fluentbit.
+**Step 2:**Create a Dockerfile for fluentbit.
 
 ```none
 FROM fluent/fluent-bit:latest
@@ -27,7 +27,7 @@ ADD parsers.conf /parsers.conf
   Recommendation: Instead of using AWS firelens image use the official fluentbit image.
 </hint>
 
-**Step 3: **Structure the configuration file for successful log delivery:
+**Step 3:**Structure the configuration file for successful log delivery:
 
 ```none
 [SERVICE]
@@ -60,7 +60,7 @@ ADD parsers.conf /parsers.conf
 
 ```
 
-**Step 4: **Add parsers file as per use case. 
+**Step 4:**Add parsers file as per use case. 
 
 Here is an example of nginx parsers:
 
@@ -76,9 +76,7 @@ Here an example nginx parsers
 
 ```
 
-**Step 5: ** ush this image to the Amazon Elastic Container Registry (ECR).
-
-**Step 6: **Task Definition to update the service:
+**Step 5:**ush this image to the Amazon Elastic Container Registry (ECR).**Step 6:**Task Definition to update the service:
 
 This task definition contains two containers, one is nginx and the other is a fluentbit. Make sure to configure the config file of fluentbit before proceeding with ECS tasks.
 

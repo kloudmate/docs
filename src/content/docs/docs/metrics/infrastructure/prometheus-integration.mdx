@@ -22,7 +22,7 @@ sudo nano /etc/prometheus/prometheus.yml
 
 - Copy the contents of this file and paste them into a text editor, such as Notepad.
 
-**Step 2: **Configure the[ Prometheus receiver ](https://github.com/open-telemetry/opentelemetry-collector-contrib/blob/main/receiver/prometheusreceiver/README.md)in the OpenTelemetry configuration file to send metrics.
+**Step 2:**Configure the[ Prometheus receiver ](https://github.com/open-telemetry/opentelemetry-collector-contrib/blob/main/receiver/prometheusreceiver/README.md)in the OpenTelemetry configuration file to send metrics.
 
 Navigate to the /etc/otel directory and open config.yaml. Paste the copied Prometheus configuration into the config.yaml file.
 
@@ -60,7 +60,7 @@ receivers:
   Please verify the indentation after adding prometheus configuration.
 </hint>
 
-**Step 3:  **Add the required processor and exporter on the edited open telemetry configuration file.
+**Step 3:**Add the required processor and exporter on the edited open telemetry configuration file.
 
 ```none
 processors:
@@ -82,10 +82,9 @@ service:
       exporters: [otlphttp]
 ```
 
-**Step 4: **Execute the provided command to restart and verify the status of the OpenTelemetry (Otel) Collector. Subsequently, monitor metrics on the Kloudmate dashboard. Additionally, configure an alarm in Kloudmate to receive notifications when CPU utilization for a specific application rises.
+**Step 4:**Execute the provided command to restart and verify the status of the OpenTelemetry (Otel) Collector. Subsequently, monitor metrics on the Kloudmate dashboard. Additionally, configure an alarm in Kloudmate to receive notifications when CPU utilization for a specific application rises.
 
 
 > sudo systemctl restart otelcol-contrib
->   sudo systemctl status otelcol-contrib
-
+> sudo systemctl status otelcol-contrib
 

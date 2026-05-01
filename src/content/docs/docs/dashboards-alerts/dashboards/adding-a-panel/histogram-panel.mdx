@@ -11,22 +11,22 @@ When the panel type is set to Histogram, the following settings are available un
 ![image](./images/histogram-panel-1.jpeg)
 
 ### Panel
-- **Name: **Enter a name for your panel. This appears as the panel title on the dashboard.
-- **Description: **Enter a description to provide additional context about what the panel displays.
+- **Name:**Enter a name for your panel. This appears as the panel title on the dashboard.
+- **Description:**Enter a description to provide additional context about what the panel displays.
 
 ### Axes
 The Axes section provides controls to adjust how the distribution is visualized after data is fetched.
 
-- **Bucket Count (default: 30): **Controls how many buckets the data is grouped into. Reducing the bucket count gives a more aggregated view; increasing it reveals finer granularity.
+- **Bucket Count (default: 30):**Controls how many buckets the data is grouped into. Reducing the bucket count gives a more aggregated view; increasing it reveals finer granularity.
 - **Bucket Offset:** Shifts all bucket ranges by a fixed value. For example, an offset of +10 transforms a bucket range of \[x, y] to \[x+10, y+10]. This is useful when you want to align bucket boundaries with a specific baseline.
-- **Min / Max: **Constrains the visible range by discarding buckets that fall outside the specified bounds. Use this to focus on the meaningful portion of the distribution and filter out extreme values or noise.
+- **Min / Max:**Constrains the visible range by discarding buckets that fall outside the specified bounds. Use this to focus on the meaningful portion of the distribution and filter out extreme values or noise.
 
 The goal of these controls is to improve readability and make the distribution easier to interpret depending on the context and characteristics of your data.
 
 ![image](./images/histogram-panel-2.jpeg)
 
 ### Legend
-Choose between **Table** or **List** mode to control how the legend is displayed. Use the **Values** selector to choose which aggregate values (such as Min, Max, or Mean) appear alongside each series label. Leave Values empty to display labels only.
+Choose between **Table**or**List**mode to control how the legend is displayed. Use the**Values** selector to choose which aggregate values (such as Min, Max, or Mean) appear alongside each series label. Leave Values empty to display labels only.
 
 ### Time Range
 Configure time range behavior for this panel independently from the dashboard.

@@ -19,11 +19,11 @@ Deploy the KloudMate agent across any cloud provider or on-premises infrastructu
 
 ### Decision Matrix
 
-If you are provisioning a new VM or Auto-scaling group, you should use **cloud-init** via User Data/Custom Data. If you want faster boot times, use **Packer** to pre-bake the image and cloud-init for config only.
+If you are provisioning a new VM or Auto-scaling group, you should use **cloud-init**via User Data/Custom Data. If you want faster boot times, use**Packer** to pre-bake the image and cloud-init for config only.
 
 If you are managing an existing fleet, use an **Ansible playbook**.
 
-If you are managing infrastructure with **Terraform**, use the **Terraform module**.
+If you are managing infrastructure with **Terraform**, use the**Terraform module**.
 
 ## 1. cloud-init (Universal)
 
@@ -157,7 +157,7 @@ AWS
   ```
 
 
-**Example **`aws_ec2.yml`** configuration:**
+**Example**`aws_ec2.yml`**configuration:**
 
 
 AWS
@@ -307,7 +307,7 @@ Use the resulting image in your Launch Template / Instance Template, with minima
   Never hardcode API keys! Use your cloud's native secret store to securely inject credentials at runtime.
 </hint>
 
-| **Provider** | **Service**         | **Retrieval Command**                                                   |
+| **Provider**|**Service**|**Retrieval Command**                                                   |
 | ------------ | ------------------- | ----------------------------------------------------------------------- |
 | AWS          | SSM Parameter Store | `aws ssm get-parameter --name /kloudmate/api-key --with-decryption`     |
 | AWS          | Secrets Manager     | `aws secretsmanager get-secret-value --secret-id kloudmate-api-key`     |
@@ -320,21 +320,23 @@ Use the resulting image in your Launch Template / Instance Template, with minima
 
 
 > kmagent-deploy/
->   ├── ansible/
->   │   ├── ansible.cfg
->   │   ├── deploy-kmagent.yml          # Main playbook
->   │   ├── inventories/
->   │   │   └── production.ini          # Static inventory (edit with your hosts)
->   │   └── roles/
->   │       └── kmagent/
->   │           ├── defaults/main.yml   # Configurable variables
->   │           ├── handlers/main.yml   # Service reload/restart
->   │           ├── tasks/main.yml      # Install, configure, upgrade, uninstall
->   │           └── templates/
->   │               ├── agent.yaml.j2   # Agent config
->   │               └── kmagent.service.j2  # systemd unit
->   └── terraform/
->       └── modules/
->           └── user-data/
->               └── main.tf              # Reusable user-data module
-
+```text
+kmagent-deploy/
+├── ansible/
+│   ├── ansible.cfg
+│   ├── deploy-kmagent.yml          # Main playbook
+│   ├── inventories/
+│   │   └── production.ini          # Static inventory (edit with your hosts)
+│   └── roles/
+│       └── kmagent/
+│           ├── defaults/main.yml   # Configurable variables
+│           ├── handlers/main.yml   # Service reload/restart
+│           ├── tasks/main.yml      # Install, configure, upgrade, uninstall
+│           └── templates/
+│               ├── agent.yaml.j2   # Agent config
+│               └── kmagent.service.j2  # systemd unit
+└── terraform/
+    └── modules/
+        └── user-data/
+            └── main.tf              # Reusable user-data module
+```

@@ -31,9 +31,7 @@ The TCP Monitor tests the availability and responsiveness of a specific TCP host
 
 Choose the notification channels where alerts will be sent if the TCP monitor detects failure or downtime.
 
-## **TCP Configuration**
-
-- **Send Payload (optional)**
+## **TCP Configuration**-**Send Payload (optional)**
   Specify any data (in text or bytes) to send to the TCP port immediately after a successful connection is established.
 - **Read Size (Bytes)**
   Define how many bytes the monitor should read from the server in response after sending the payload or after connection if no payload is sent.
@@ -57,7 +55,7 @@ Assertions specify what connectivity and response metrics the monitor evaluates:
 
 Metrics available to be monitored in Dashboard section
 
-| **Metric Name**<br /><br />                                   | **Type**<br /><br /> | **Description**<br /><br />                                          | **Labels**<br /><br />                                                     |
+| **Metric Name**<br /><br />                                   |**Type**<br /><br /> |**Description**<br /><br />                                          |**Labels**<br /><br />                                                     |
 | ------------------------------------------------------------- | -------------------- | -------------------------------------------------------------------- | -------------------------------------------------------------------------- |
 | kloudmate\_synthetic\_check\_network\_write\_time<br /><br /> | Gauge<br /><br />    | Time taken to write to the connection (for TCP and UDP)<br /><br />  | check\_id, check\_name, check\_type, target, workspace\_id, location<br /> |
 | kloudmate\_synthetic\_check\_network\_read\_time<br /><br />  | Gauge<br /><br />    | Time taken to read from the connection (for TCP and UDP)<br /><br /> | check\_id, check\_name, check\_type, target, workspace\_id, location<br /> |

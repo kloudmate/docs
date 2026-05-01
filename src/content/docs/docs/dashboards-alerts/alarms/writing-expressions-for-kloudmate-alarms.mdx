@@ -10,9 +10,7 @@ Each query or expression is represented by a unique alphabetical notation (A, B,
 
 KloudMate supports three types of operations in alarm expressions:
 
-- **Math expression**
-- **Reduce**
-- **Condition expression**
+- **Math expression**-**Reduce**-**Condition expression**
 
 ## Math Expression
 
@@ -35,9 +33,7 @@ Math expression takes time series or number data returned by a query or an expre
 - `%` (Modulo)
 - `^` (Exponentiation)
 
-Examples: `++$A`, `$A++`, `$A+1`, `$A-2`, `$A*2`, `$A/6`, `$A%$B`, `$A^2`
-
-**Boolean operations:**
+Examples: `++$A`, `$A++`, `$A+1`, `$A-2`, `$A*2`, `$A/6`, `$A%$B`, `$A^2`**Boolean operations:**
 
 - `==` (Equal to)
 - `!=` (Not equal to)
@@ -99,9 +95,7 @@ To get queried data in a data-per-time-range format (e.g., data/min), divide the
 
 Reduce takes one or more time series or numbers of data returned from a query or an expression and turns them into a single number.
 
-**Inputs:**
-
-- **Reduction function:** Select the function to apply — `mean()`, `max()`, `min()`, `sum()`, `last()`, or `count()`.
+**Inputs:**-**Reduction function:** Select the function to apply — `mean()`, `max()`, `min()`, `sum()`, `last()`, or `count()`.
 
 ![image](./images/writing-expressions-for-kloudmate-alarms-2.png)
 
@@ -124,9 +118,7 @@ The selected reduction function aggregates the values of the query or expression
 
 Condition expression takes one or more time series or numbers of data returned from queries or expressions and gives a boolean value as a result — `0` (False) if the condition is not met, or `1` (True) if it is met.
 
-**Inputs:**
-
-- **WHEN:** Select the reduction function — `last()`, `mean()`, `max()`, `min()`, `sum()`, or `count()`.
+**Inputs:**-**WHEN:** Select the reduction function — `last()`, `mean()`, `max()`, `min()`, `sum()`, or `count()`.
 
 ![image](./images/writing-expressions-for-kloudmate-alarms-4.png)
 
@@ -144,7 +136,7 @@ Condition expression takes one or more time series or numbers of data returned f
 
 The selected reduction function is applied to the selected query or expression to generate a single value. This value is then compared against the provided threshold according to the selected condition. When the input is a collection of time series or number data, the reduction function is applied to each element individually. Each reduced output is evaluated against the condition individually, and the outputs are then combined using the AND operation.
 
-You can add multiple conditions in a condition expression using the **Add condition** button and choose how they work together using **AND** or **OR** logical operators.
+You can add multiple conditions in a condition expression using the **Add condition**button and choose how they work together using**AND**or**OR** logical operators.
 
 # **Nodes**
 

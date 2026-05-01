@@ -2,23 +2,21 @@
 title: "Sum"
 description: "Documentation for Sum"
 ---
-A Sum metric represents a cumulative value that changes over time by either only increasing (monotonic) or both increasing and decreasing (non-monotonic). A Sum metric can be of **Delta** or **Cumulative** temporality.
+A Sum metric represents a cumulative value that changes over time by either only increasing (monotonic) or both increasing and decreasing (non-monotonic). A Sum metric can be of **Delta**or**Cumulative** temporality.
 
 ### Temporal Aggregation (Aggregation within the same time series)
 
 When you specify an interval (e.g., 300 seconds), raw data points from the same time series are grouped into buckets based on that interval. Within each bucket, an aggregation function is applied to the points that fall inside the defined time window.
 
 For Sum metrics, the most meaningful aggregation operations are:
-&#x9;∙  **RATE: **per-second rate of change
-&#x9;∙  **INCREASE: **absolute increase during the interval
-&#x9;∙  **SUM: **sum of all points when the metric temporality is **Delta**. In this case, each point already represents a change, so summing all delta values inside the bucket gives the total increase for that interval.
-
-**How RATE and INCREASE Are Calculated**
+&#x9;∙  **RATE:**per-second rate of change
+&#x9;∙  **INCREASE:**absolute increase during the interval
+&#x9;∙  **SUM:**sum of all points when the metric temporality is **Delta**. In this case, each point already represents a change, so summing all delta values inside the bucket gives the total increase for that interval.**How RATE and INCREASE Are Calculated**
 
 For each interval time window, the system evaluates data points differently based on the Sum temporality:
 
 - For **Cumulative** Sum, the system selects the maximum (typically the last) value inside the time window. This represents the reported counter value within that window and is compared with the value from the previous time window.
-- For **Delta** Sum, each point already represents a change, so the system performs a **SUM** of all values inside the time window. That total represents the increase for that window, and no comparison with the previous window is required.
+- For **Delta**Sum, each point already represents a change, so the system performs a**SUM** of all values inside the time window. That total represents the increase for that window, and no comparison with the previous window is required.
 
 The system automatically detects the metric temporality (Cumulative or Delta) and applies the appropriate aggregation formula internally.
 

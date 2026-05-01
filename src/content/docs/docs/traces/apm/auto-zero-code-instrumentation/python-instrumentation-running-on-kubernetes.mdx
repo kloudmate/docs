@@ -11,7 +11,7 @@ This instrumentation can be done using the OpenTelemetry operator, which support
 1. Running a Kubernetes cluster.
 2. The [cert-manager](https://cert-manager.io/docs/installation/) must be installed. If you use the helm chart, there is an option to generate a self-signed cert instead.
 
-**Step 1: **First, install the [OpenTelemetry Operator](https://github.com/open-telemetry/opentelemetry-operator) into your cluster.
+**Step 1:**First, install the [OpenTelemetry Operator](https://github.com/open-telemetry/opentelemetry-operator) into your cluster.
 
 You can do this with the [Operator release manifest](https://github.com/open-telemetry/opentelemetry-operator#getting-started), the [Operator helm chart](https://github.com/open-telemetry/opentelemetry-helm-charts/tree/main/charts/opentelemetry-operator#opentelemetry-operator-helm-chart), or with [Operator Hub](https://operatorhub.io/operator/opentelemetry-operator).
 
@@ -23,7 +23,7 @@ BASH
   ```
 
 
-**Step 2: **Create an OpenTelemetry collector to send telemetry from containers to a collector instead of directly to a backend. 
+**Step 2:**Create an OpenTelemetry collector to send telemetry from containers to a collector instead of directly to a backend. 
 
 For example, here is a demo collector used 
 
@@ -81,7 +81,7 @@ EOF
   Change your Kloudmate workspace API key to configure the collector to export data to Kloudmate.
 </hint>
 
-**Step 3: **Configure automatic instrumentation
+**Step 3:**Configure automatic instrumentation
 
 To be able to manage automatic instrumentation, the Operator needs to be configured to know what pods to instrument and which automatic instrumentation to use for those pods. This is done via the [Instrumentation CRD](https://github.com/open-telemetry/opentelemetry-operator/blob/main/docs/api/instrumentations.md)
 
@@ -138,7 +138,7 @@ spec:
   The endpoint used under exporter must be the same as the service name of the collector created in Step 2. Use only one instrumentation command as per the requirement.
 </hint>
 
-**Step 4: **Now opt-in your services to automatic instrumentation. This is done by updating your service’s spec.template.metadata.annotations to include a language-specific annotation 
+**Step 4:**Now opt-in your services to automatic instrumentation. This is done by updating your service’s spec.template.metadata.annotations to include a language-specific annotation 
 
 python:`instrumentation.opentelemetry.io/inject-python:` "true"
 

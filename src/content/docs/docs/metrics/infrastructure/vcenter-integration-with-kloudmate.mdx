@@ -18,8 +18,8 @@ Pre-requisites::
 
 To start monitoring with VMware with Otel Collector, you need to configure vcenter receiver 
 
-- **Linux Users: **Open the file located at /etc/otelcol-contrib/config.yamlusing your preferred text editor.
-- **Windows Users: **Create a new file called config.yaml in the C:\Program Files\OpenTelemetry Collector folder. You can use Notepad or any text editor to do this.
+- **Linux Users:**Open the file located at /etc/otelcol-contrib/config.yamlusing your preferred text editor.
+- **Windows Users:**Create a new file called config.yaml in the C:\Program Files\OpenTelemetry Collector folder. You can use Notepad or any text editor to do this.
 
 Add the suitable extensions : 
 
@@ -98,7 +98,7 @@ service:
   extensions: [health_check, pprof, zpages]
 ```
 
-**Step 4:  **To restart and verify the status of the OpenTelemetry (Otel) Collector, follow these steps:
+**Step 4:**To restart and verify the status of the OpenTelemetry (Otel) Collector, follow these steps:
 
 **For Linux:**
 
@@ -123,7 +123,7 @@ Subsequently, monitor the metrics on the KloudMate dashboard and set up an alarm
 
 ## Default Metrics
 
-| **Metrics**                                 | **Description**                                                                                                                 |
+| **Metrics**|**Description**                                                                                                                 |
 | ------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------- |
 | vcenter\_datacenter\_cluster\_count         | The number of clusters in the datacenter.                                                                                       |
 | vcenter\_datacenter\_host\_count            | The number of hosts in the datacenter.                                                                                          |

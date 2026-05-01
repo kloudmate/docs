@@ -17,9 +17,7 @@ This monitoring enables you to:
 <hint type="info">
   This setup also works for managed Kubernetes services such as:
 
-  - **AKS (Azure Kubernetes Service)**
-  - **EKS (Elastic Kubernetes Service)**
-  - **GKE (Google Kubernetes Engine)**
+  - **AKS (Azure Kubernetes Service)**-**EKS (Elastic Kubernetes Service)**-**GKE (Google Kubernetes Engine)**
 </hint>
 
 ## Unified Monitoring for Apps & Databases in Kubernetes
@@ -41,10 +39,10 @@ For detailed setup, refer to:
 
 KloudMate provides visibility into all major Kubernetes components, allowing you to monitor your environment at different levels of abstraction:
 
-- **Clusters – **Overall health, capacity, and scale of each connected cluster
-- **Nodes – ** nfrastructure-level resource usage and node health
+- **Clusters –**Overall health, capacity, and scale of each connected cluster
+- **Nodes –** nfrastructure-level resource usage and node health
 - **Namespaces –** Resource distribution across teams, applications, or environments
-- **Pods – ** od-level performance, restarts, and resource consumption
+- **Pods –** od-level performance, restarts, and resource consumption
 - **Workloads –** Health and availability of deployments, daemonsets, and statefulsets
 
 This layered visibility helps you quickly move from a high-level overview to deep-dive troubleshooting.
@@ -71,13 +69,11 @@ Follow the step-by-step installation guide here: [Kubernetes Agent](../../km-age
 
 Once the agent is installed, your cluster data will automatically appear in:
 
-**Modules → Kubernetes**
-
-# **Kubernetes Module Overview**
+**Modules → Kubernetes**#**Kubernetes Module Overview**
 
 The Kubernetes module in KloudMate provides a centralized interface to explore Kubernetes resources and monitor their resource usage across your environment.
 
-Once a cluster is connected, the module organizes Kubernetes data into dedicated sections, **Clusters**, **Nodes**, **Namespaces**, **Pods**, and **Workloads**, allowing you to easily move between different levels of the Kubernetes hierarchy.
+Once a cluster is connected, the module organizes Kubernetes data into dedicated sections, **Clusters**,**Nodes**,**Namespaces**,**Pods**, and**Workloads**, allowing you to easily move between different levels of the Kubernetes hierarchy.
 
 Each section displays key resource metrics such as CPU and memory usage, helping teams understand how resources are allocated and consumed across the cluster. This organized layout enables:
 
@@ -93,11 +89,11 @@ Before using the Kubernetes Module, ensure that the Kubernetes Agent is installe
 
 The main Kubernetes page is organized into the following component sections:
 
-- **Clusters: ** rovides a high-level overview of each connected Kubernetes cluster. This view displays cluster name, node count, and total allocatable CPU and memory, helping you quickly assess overall cluster capacity and scale.
-- **Nodes: **Shows detailed information for each node within a cluster, including allocatable and actual CPU and memory usage. This helps identify unhealthy or overloaded nodes and track infrastructure-level resource consumption.
-- **Namespaces: **Displays resource usage grouped by namespaces, enabling visibility into how CPU and memory are distributed across teams, services, or environments. This is especially useful for understanding multi-tenant usage patterns.
-- **Pods: **Offers pod-level insights such as CPU and memory requests, limits, restarts, and real-time usage. This view helps validate pod configurations and detect issues like frequent restarts or resource contention.
-- **Workloads: **Focuses on higher-level Kubernetes objects such as deployments, daemonsets, and statefulsets. This view helps monitor workload health, availability, and resource behavior across replicas.
+- **Clusters:** rovides a high-level overview of each connected Kubernetes cluster. This view displays cluster name, node count, and total allocatable CPU and memory, helping you quickly assess overall cluster capacity and scale.
+- **Nodes:**Shows detailed information for each node within a cluster, including allocatable and actual CPU and memory usage. This helps identify unhealthy or overloaded nodes and track infrastructure-level resource consumption.
+- **Namespaces:**Displays resource usage grouped by namespaces, enabling visibility into how CPU and memory are distributed across teams, services, or environments. This is especially useful for understanding multi-tenant usage patterns.
+- **Pods:**Offers pod-level insights such as CPU and memory requests, limits, restarts, and real-time usage. This view helps validate pod configurations and detect issues like frequent restarts or resource contention.
+- **Workloads:**Focuses on higher-level Kubernetes objects such as deployments, daemonsets, and statefulsets. This view helps monitor workload health, availability, and resource behavior across replicas.
 
 ![image](https://app.archbee.com/api/optimize/dfeZmyJsGjUXyEH2hgHVe/iKREtIN4b_I05GGrzisLW-20251006-082722.png)
 
@@ -121,13 +117,9 @@ These insights help with advanced troubleshooting and root-cause analysis.
 
 ![image](https://images.archbee.com/dfeZmyJsGjUXyEH2hgHVe/H9bOuEP-ATToD-iwC5JEC-20251006-083225.png?format=webp)
 
-## **Post-Integration Data Validation**
+## **Post-Integration Data Validation**Verify data flow in**Modules → Kubernetes → Clusters view**. Metrics appear within 2-5 minutes post-agent restart for immediate visual confirmation.
 
-Verify data flow in **Modules → Kubernetes → Clusters view**. Metrics appear within 2-5 minutes post-agent restart for immediate visual confirmation.
-
-## **Standard Kubernetes Dashboards**
-
-KloudMate provides **prebuilt Kubernetes dashboards** through [dashboard templates](https://templates.kloudmate.com/). These dashboards visualize:
+## **Standard Kubernetes Dashboards**KloudMate provides**prebuilt Kubernetes dashboards** through [dashboard templates](https://templates.kloudmate.com/). These dashboards visualize:
 
 - Cluster health
 - Node performance
@@ -137,11 +129,7 @@ KloudMate provides **prebuilt Kubernetes dashboards** through [dashboard templat
 To import and start using these templates, follow the steps described in [Import from Templates](https://docs.kloudmate.com/creating-a-dashboard#Sfk3g).
 These dashboards auto-populate with your cluster data once the agent is running.
 
-## **Kubernetes Default Metrics**
-
-When Kubernetes Monitoring is enabled, KloudMate automatically collects a set of commonly used Kubernetes metrics. No additional configuration is required.
-
-**Cluster & Workload Metrics **
+## **Kubernetes Default Metrics**When Kubernetes Monitoring is enabled, KloudMate automatically collects a set of commonly used Kubernetes metrics. No additional configuration is required.**Cluster & Workload Metrics**
 
 - k8s\_container\_cpu\_limit
 - k8s\_container\_cpu\_request
@@ -152,7 +140,7 @@ When Kubernetes Monitoring is enabled, KloudMate automatically collects a set of
 - k8s\_deployment\_available
 - k8s\_deployment\_desired
 
-**Node & Container Metrics **
+**Node & Container Metrics**
 
 - container\_cpu\_time
 - container\_cpu\_usage

@@ -61,7 +61,7 @@ extensions:
 
 Two receivers are used:
 
-- **MySQL Receiver – **collects metrics
+- **MySQL Receiver –**collects metrics
 - **File Log Receiver –** collects logs (general, error, slow queries)
 
 If you only need metrics, configure only the MySQL receiver.
@@ -245,20 +245,16 @@ service:
   extensions: [health_check, pprof, zpages, file_storage]
 ```
 
-### **Step 5: Save Configuration and Restart Agent**
-
-After updating the configuration, click **Save Configuration** in the KloudMate UI.
+### **Step 5: Save Configuration and Restart Agent**After updating the configuration, click**Save Configuration** in the KloudMate UI.
 
 ![image](./images/mysql-monitoring-2.png)
 
 These commands restart the KloudMate Agent and display its current status.
 
-**For Windows**
-
-1. Open the **Services** window
+**For Windows**1. Open the**Services** window
    - Press `Win + R`, type `services.msc`, and press `OK`
    - Or search for **Services** from the Start menu
-2. Locate the **KloudMate Agent **service.
+2. Locate the **KloudMate Agent**service.
 3. Right-click the service and select **Restart**.
 
 After restarting the agent, verify that MySQL metrics and logs are visible in the KloudMate dashboard.
@@ -270,8 +266,7 @@ Verify that metrics are flowing into KloudMate using the **Explore** view.
 After the agent restarts:
 
 1. Log in to KloudMate
-2. Navigate to **Explore**
-3. Select **OpenTelemetry → Metrics**
+2. Navigate to **Explore**3. Select**OpenTelemetry → Metrics**
 4. Choose a MySQL metric and run the query
 
 Seeing time-series data confirms that MySQL telemetry is flowing successfully. 

@@ -19,8 +19,7 @@ From the **more options (⋯)** icon on any alarm, you can:
 &#x9;•  **View State History** of the alarm
 &#x9;•  **Edit** the alarm configuration
 &#x9;•  **Duplicate** the alarm
-&#x9;•  **Pause Evaluation** or **Pause Notifications**
-&#x9;•  **Delete** the alarm
+&#x9;•  **Pause Evaluation**or**Pause Notifications**&#x9;•**Delete** the alarm
 
 ![image](./images/setting-up-kloudmate-alarms-1.jpeg)
 
@@ -30,7 +29,7 @@ To learn about the key concepts of KloudMate Alarms, see [Understanding KloudMat
 
 Click the **Create Alarm** button at the top-right corner of the Alarms screen. This opens the Create Alarm page, which is divided into four sections.
 
-You can create multiple queries and expressions using the **Add Query** and **Add Expression** buttons. Each query or expression is assigned a unique alphabetical notation (A, B, C, and so on). You can duplicate any query or expression using the copy icon at the top-right corner of each block.
+You can create multiple queries and expressions using the **Add Query**and**Add Expression** buttons. Each query or expression is assigned a unique alphabetical notation (A, B, C, and so on). You can duplicate any query or expression using the copy icon at the top-right corner of each block.
 
 ## Step 1: Setup Query Conditions and Expressions
 
@@ -40,9 +39,9 @@ Select OpenTelemetry or KloudMate as the data source from the first dropdown.
 
 ![image](./images/setting-up-kloudmate-alarms-2.png)
 
-- **Data Set: **Select the dataset you want to retrieve from your data source.
+- **Data Set:**Select the dataset you want to retrieve from your data source.
 - **Metric to Aggregate:** Select the metric associated with the selected dataset that you want to monitor.
-- **Group By: **Enter the attributes to group the data points.
+- **Group By:**Enter the attributes to group the data points.
 - **Filters:** Add filters to narrow down the retrieved data points.
 
 OpenTelemetry users can also use Prometheus query language to retrieve data and set alarms.
@@ -74,10 +73,7 @@ Expressions let you apply logic to query results. Reference any configured query
 
 Choose from the following expression types:
 
-**Math Expression**
-Enter a mathematical expression to apply to the value of a query or expression. Examples: `$A+1`, `$A<$B`, `$A && $C`. For more information, see [Writing Expressions for KloudMate Alarms](<./Writing Expressions for KloudMate Alarms.mdx>).
-
-**Reduce**
+**Math Expression**Enter a mathematical expression to apply to the value of a query or expression. Examples: `$A+1`, `$A<$B`, `$A && $C`. For more information, see [Writing Expressions for KloudMate Alarms](<./Writing Expressions for KloudMate Alarms.mdx>).**Reduce**
 Select a function to aggregate the values of a query or expression into a single number, then select the target query or expression from the Input dropdown. Available functions include:
 &#x9;•  `mean()` — Average value
 &#x9;•  `max()` — Maximum value
@@ -86,8 +82,7 @@ Select a function to aggregate the values of a query or expression into a single
 &#x9;•  `last()` — Last value
 &#x9;•  `count()` — Total number of values
 
-**Condition Expression**
-Select a function and a query or expression, then choose a condition and provide a threshold value to evaluate against. You can add multiple conditions and combine them using **AND** or **OR** logical operators.
+**Condition Expression**Select a function and a query or expression, then choose a condition and provide a threshold value to evaluate against. You can add multiple conditions and combine them using**AND**or**OR** logical operators.
 
 Click **Run Queries** to execute all configured queries and expressions.
 
@@ -126,9 +121,7 @@ Add tags to the alarm to route notifications through a matching notification pol
 
 ## Step 5: Save the Alarm
 
-Click **Save** to save the alarm, or **Save & Close** to save and return to the Alarms screen.
-
-***
+Click **Save**to save the alarm, or**Save & Close**to save and return to the Alarms screen.***
 
 ## Related Resources
 

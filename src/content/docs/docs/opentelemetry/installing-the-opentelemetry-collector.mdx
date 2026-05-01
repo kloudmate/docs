@@ -11,7 +11,7 @@ This guide will walk you through the process of setting up and using the OpenTel
 Using the OpenTelemetry collector is not mandatory but is recommended as a best practice. Since it provides a local collector agent as the default location for instrumentation libraries to export their telemetry data, the applications can quickly offload the data to the collector. This makes it particularly beneficial in complex and dynamic environments where the telemetry data is generated and consumed by a variety of systems and tools. It streamlines the collection and processing of the telemetry data and can also take care of additional handling such as retries, batching, encryption, granular data filtering, and more.
 
 ## Installing the OpenTelemetry Collector
-**Prerequisites: ** A system where you can install the OpenTelemetry Collector. This can be a physical or virtual machine or a container orchestration platform like Kubernetes.
+**Prerequisites:** A system where you can install the OpenTelemetry Collector. This can be a physical or virtual machine or a container orchestration platform like Kubernetes.
 
 ## **Linux Server:** 
 Linux [releases](https://github.com/open-telemetry/opentelemetry-collector-releases/releases) are available for various architectures. You can download the file containing the binary and install it on your machine manually:
@@ -19,7 +19,7 @@ Linux [releases](https://github.com/open-telemetry/opentelemetry-collector-rele
 Every Collector release includes APK, DEB, and RPM packaging for Linux amd64/arm64/i386 systems. You can find the default configuration in /etc/otelcol-contrib/config.yaml after installation.
 
 <hint type="info">
-  system * is required for automatic service configuration.*
+  Installing the collector with a package manager on Linux is required for automatic service configuration.
 </hint>
 
 **DEB Installation:**
@@ -107,17 +107,9 @@ AMD64
 
 
 ## Windows Server: 
-**Download the OpenTelemetry Collector for Windows**
-
-1. **Choose the Correct Version:** Select the appropriate version of the OpenTelemetry Collector for Windows. Each Collector [release ](https://github.com/open-telemetry/opentelemetry-collector-releases/releases)includes an otelcol-contrib.exe executable that you can run after unpacking.
+**Download the OpenTelemetry Collector for Windows**1.**Choose the Correct Version:** Select the appropriate version of the OpenTelemetry Collector for Windows. Each Collector [release ](https://github.com/open-telemetry/opentelemetry-collector-releases/releases)includes an otelcol-contrib.exe executable that you can run after unpacking.
 2. **Run the Installer:**
    - Locate the downloaded installer executable for otelcol-contrib (choose either [x64](https://github.com/open-telemetry/opentelemetry-collector-releases/releases/download/v0.116.0/otelcol-contrib_0.116.0_windows_x64.msi) or [x86](https://github.com/open-telemetry/opentelemetry-collector-releases/releases/download/v0.116.0/otelcol-contrib_0.116.0_windows_x86.msi)).
-   - Right-click on the installer file and select **"Run as administrator."**
-   - Follow the instructions in the installation wizard to complete the installation
-
-***
-
-## **Related Resources**
+   - Right-click on the installer file and select **"Run as administrator."**- Follow the instructions in the installation wizard to complete the installation***##**Related Resources**
 
 [Using OpenTelemetry Collector](https://docs.kloudmate.com/using-opentelemetry-collector)
-
