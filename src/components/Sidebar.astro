@@ -31,9 +31,22 @@ const sectionSidebar = currentSidebar.flatMap((entry) => {
 ---
 
 <SidebarPersister>
-	<SidebarSublist sublist={sectionSidebar} />
+	<div class="section-sidebar">
+		<SidebarSublist sublist={sectionSidebar} />
+	</div>
 </SidebarPersister>
 
 <div class="md:sl-hidden">
 	<MobileMenuFooter />
 </div>
+
+<style>
+	@layer brand-overrides {
+		.section-sidebar :global([aria-current='page']),
+		.section-sidebar :global([aria-current='page']:hover),
+		.section-sidebar :global([aria-current='page']:focus) {
+			background: transparent;
+			color: #f45b26;
+		}
+	}
+</style>
