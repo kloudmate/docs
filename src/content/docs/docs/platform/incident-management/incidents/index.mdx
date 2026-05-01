@@ -1,53 +1,23 @@
 ---
 title: "Incidents"
-description: "Documentation for Incidents"
+description: "Documentation for Incidents Overview"
+sidebar:
+  label: "Introduction"
 ---
-An **incident** is any unplanned event that causes or has the potential to cause disruption to your services, operations, or end users.
+The Incident Management Overview screen provides a bird’s-eye view of all incidents within your infrastructure. It gives you access to all important incident stats and your assigned incidents in one place.
 
-To navigate to the Incidents screen, click **Incidents** in the left navigation menu, then select **Incidents**.
+To navigate to the Overview screen, click **Incidents** in the left navigation menu, then select **Overview**.
 
-![image](./images/incidents-1.jpeg)
 
-The screen displays a list of all existing incidents along with key details, title, severity, triggered time, responders, and status.
 
-## Filtering Incidents
+## Incident Statuses
 
-You can filter the incidents list using the dropdown menus at the top of the screen:
+An incident within KloudMate goes through three status indicators within its lifecycle:
 
-- **Status —** Filter incidents by their current status: **Triggered**, **Acknowledged**, or **Resolved**.
-- **Services —** Filter incidents based on the service they belong to.
-- **Integrations —** Filter incidents based on the integration they came through.
-- **Escalation Policies —** Filter incidents based on the escalation policy applied.
+- **Triggered — **Any issue declared as an incident starts in the Triggered state, indicating that it needs to be reviewed by the relevant team.
+- **Acknowledged —** This status indicates that the incident has reached the relevant team and is being actively reviewed.
+- **Resolved —** This status indicates that the incident has been fixed and closed by the relevant team.
 
-Use the **Show Resolved** toggle to include resolved incidents in the list, and the **Assigned to me** toggle to view only incidents assigned to you.
+At the top of the screen, you will see key stats across all incidents, the **total count** of incidents in each status, **MTTA** (Mean Time to Acknowledge), and **MTTR** (Mean Time to Resolve).
 
-![image](./images/incidents-2.jpeg)
-
-## Adding Responders
-
-You can assign one or more responders to an incident to make them responsible for actively investigating and resolving it. 
-
-To add a responder, locate the incident in the list and click **Add** under the Responders column.
-
-![image](./images/incidents-3.jpeg)
-
-## Updating Incident Status
-
-An incident starts with the **Triggered** status as soon as it is created. Once the relevant responders have reviewed or resolved it, the status needs to be updated accordingly.
-
-To update the status, select the incident from the list using the checkbox. Once selected, **Acknowledge** and Resolve action buttons appear at the top of the list. 
-
-![image](./images/incidents-1.png)
-
-Click the relevant action to update the status, a confirmation message will appear once the status has been updated successfully, and the change will be reflected immediately in the Status column.
-
-![image](./images/incidents-4.jpeg)
-
-***
-
-## **Related Resources**
-
-[Incident Details](https://docs.kloudmate.com/incident-details)
-
-[Creating an Incident](https://docs.kloudmate.com/creating-an-incident)
-
+Below the stats, the **My Incidents** list displays the incidents assigned to you, along with relevant details such as title, severity, triggered time, responders, and current status. Click **View All** to see the complete list of incidents across your workspace.

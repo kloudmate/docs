@@ -4,6 +4,7 @@ import starlightHeadingBadges from 'starlight-heading-badges';
 import starlightScrollToTop from 'starlight-scroll-to-top';
 import starlightLlmsTxt from 'starlight-llms-txt';
 import starlightAutoSidebar from 'starlight-auto-sidebar'
+import starlightUtils from '@lorenzo_lewis/starlight-utils';
 
 export default defineConfig({
   site: 'https://docs.kloudmate.com',
@@ -13,7 +14,12 @@ export default defineConfig({
         starlightHeadingBadges(),
         starlightScrollToTop(),
         starlightLlmsTxt(),
-        starlightAutoSidebar()
+        starlightAutoSidebar(),
+        starlightUtils({
+          navLinks: {
+            leading: { useSidebarLabelled: 'HeaderNavLinks' },
+          },
+        })
       ],
       title: 'KloudMate Docs',
       description: 'Documentation for KloudMate observability platform',
@@ -27,15 +33,26 @@ export default defineConfig({
         { icon: 'github', label: 'GitHub', href: 'https://github.com/kloudmate' },
       ],
       components: {
-        Header: './src/components/Header.astro',
         Sidebar: './src/components/Sidebar.astro',
         ThemeProvider: './src/components/ThemeProvider.astro',
+        ThemeSelect: './src/components/ThemeToggleButton.astro',
       },
       sidebar: [
         {
+          label: 'HeaderNavLinks',
+          items: [
+            { label: 'Docs', link: '/docs/kloudmate/' },
+            { label: 'Guides', link: '/guides/' },
+            { label: 'API', link: '/api/' },
+          ],
+        },
+        {
           label: 'Platform Docs',
           items: [
-            { label: 'Getting Started', autogenerate: { directory: 'docs/getting-started' } },
+            { label: 'KloudMate', slug: 'docs/kloudmate' },
+            { label: 'Setting Up KloudMate', slug: 'docs/setting-up-kloudmate' },
+            { label: 'Get Started', slug: 'docs/get-started' },
+            { label: 'Get Help', slug: 'docs/get-help' },
             { label: 'KM Agent', autogenerate: { directory: 'docs/km-agent' } },
             { label: 'Metrics', autogenerate: { directory: 'docs/metrics' } },
             { label: 'Traces', autogenerate: { directory: 'docs/traces' } },
