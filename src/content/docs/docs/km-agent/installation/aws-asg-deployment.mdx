@@ -1,6 +1,8 @@
 ---
 title: "AWS ASG Deployment"
 description: "Documentation for AWS ASG Deployment"
+sidebar:
+  order: 6
 ---
 Deploy `kmagent` across an Auto Scaling Group with zero manual per-instance work. Configure once in the Launch Template, every instance (existing + future scale-outs) gets the agent automatically.
 
@@ -242,4 +244,3 @@ curl -s http://localhost:13133   # health check endpoint
 | `kmagent failed to start`      | Port conflict or config error                      | Check `journalctl -u kmagent -n 50` on the instance                                    |
 | SSM command stuck in `Pending` | SSM Agent not running                              | Ensure `amazon-ssm-agent` is installed and running                                     |
 | Instance refresh stuck         | Health check failing on new instances              | Check your ASG health check grace period and target group settings                     |
-

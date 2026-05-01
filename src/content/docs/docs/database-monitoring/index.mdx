@@ -1,8 +1,9 @@
 ---
 title: "Database Monitoring"
-description: "Documentation for Database Monitoring"
+description: "Compare KloudMate's database monitoring approaches and choose the right setup for your environment."
 sidebar:
-  label: "Introduction"
+  label: "Overview"
+  order: 1
 ---
 The KloudMate Agent provides three approaches to database monitoring, from zero-configuration kernel-level profiling to deep SQL-level query analytics, so you can choose the right level of visibility for your environment.
 
@@ -18,21 +19,21 @@ The KloudMate Agent provides three approaches to database monitoring, from zero-
 
   
 
-    ### [Database Access Monitoring (DAM)](<./Database Monitoring/Database Access Monitoring _DAM_.mdx>)
+    ### [Database Activity Monitoring (DAM)](./database-activity-monitoring-dam/index.mdx)
 
-    eBPF-powered, zero-configuration database profiling at the kernel level. No database-side agents or plugins needed.
+    eBPF-powered, zero-configuration database profiling at the kernel level. Includes DAM-specific workflows such as the ML classifier deployment guide.
   
 
   
 
-    ### [OpenTelemetry Database Monitoring](<./Database Monitoring/OpenTelemetry Database Monitoring.mdx>)
+    ### [OpenTelemetry Database Monitoring](./opentelemetry-database-monitoring.mdx)
 
     Use OpenTelemetry SDK instrumentation for rich database query tracing with custom attributes.
   
 
   
 
-    ### [Direct Database Monitoring](<./Database Monitoring/Direct Database Monitoring.mdx>)
+    ### [Direct Database Monitoring](./direct-database-monitoring.mdx)
 
     SQL-based setup with a dedicated monitoring user for deep query metrics, execution plans, and schema discovery.
   
@@ -64,4 +65,3 @@ The KloudMate Agent provides three approaches to database monitoring, from zero-
 | **Linux kernel requirement**         | ≥ 5.8              | None                  | None                       |
 
 ****
-

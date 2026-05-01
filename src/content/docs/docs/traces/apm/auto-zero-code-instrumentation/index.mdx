@@ -1,8 +1,9 @@
 ---
-title: "Auto / Zero-Code Instrumentation"
-description: "Documentation for Auto / Zero-Code Instrumentation"
+title: "Auto-Instrumentation"
+description: "Instrument supported runtimes without changing application source code."
 sidebar:
-  label: "Introduction"
+  label: "Overview"
+  order: 1
 ---
 Zero Code Instrumentation allows you to instrument your applications without modifying source code. This approach attaches APM agents to your application runtimes that auto-instrument standard libraries and frameworks.
 
@@ -27,27 +28,27 @@ OpenTelemetry auto-instrumentation agents hook into your application's runtime t
 
   
 
-    ###                 [Python](https://docs.kloudmate.com/python-instrumentation-running-on-kubernetes)
+    ### [Python](./python-instrumentation-running-on-kubernetes.mdx)
   
 
   
 
-    ###                      [Go](https://docs.kloudmate.com/go-instrumentation-running-on-kubernetes)  
+    ### [Go](./go-instrumentation-running-on-kubernetes.mdx)
   
 
   
 
-    ###                 [Node.js](https://docs.kloudmate.com/nodejs-instrumentation-running-on-kubernetes)
+    ### [Node.js](./nodejs-instrumentation-running-on-kubernetes.mdx)
   
 
   
 
-    ###                   [Java](https://docs.kloudmate.com/java-instrumentation-running-on-kubernetes)
+    ### [Java](./java-instrumentation-running-on-kubernetes.mdx)
   
 
   
 
-    ###                   [.NET](https://docs.kloudmate.com/net-instrumentation-running-on-kubernetes)
+    ### [.NET](./dotnet-instrumentation-running-on-kubernetes.mdx)
   
 
 
@@ -62,7 +63,7 @@ In Kubernetes environments, the KloudMate Agent can automatically inject instrum
 
 ## Comparison with eBPF
 
-Unlike [Zero-Downtime O11y (eBPF)](<./Zero-Downtime O11y _eBPF_.mdx>), zero-code instrumentation:
+Unlike [Zero-Downtime O11y (eBPF)](../zero-downtime-o11y-ebpf.mdx), zero-code instrumentation:
 
 - Requires application restarts to inject the agent
 - Provides richer library-specific instrumentation detail

@@ -11,13 +11,13 @@
   },
   "dependencies": {
     "@astrojs/starlight": "^0.38.3",
-    "@lorenzo_lewis/starlight-utils": "^0.3.2",
     "astro": "^6.1.7",
     "sharp": "^0.33.5",
     "starlight-auto-sidebar": "^0.3.0",
     "starlight-heading-badges": "^0.7.0",
     "starlight-llms-txt": "^0.8.1",
-    "starlight-scroll-to-top": "^1.0.1"
+    "starlight-scroll-to-top": "^1.0.1",
+    "starlight-theme-nova": "^0.11.9"
   },
   "devDependencies": {
     "markdownlint-cli2": "^0.22.0"

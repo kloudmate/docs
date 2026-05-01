@@ -1,0 +1,51 @@
+@layer starlight, nova, brand-overrides;
+
+@layer brand-overrides {
+  :root,
+  :root[data-theme='light'],
+  [data-theme='light'] ::backdrop {
+    --sl-color-accent: #f45b26;
+    --sl-color-accent-low: hsl(15, 94%, 93%);
+    --sl-color-accent-high: #f45b26;
+    --sl-color-text-accent: #f45b26;
+    --sl-color-bg-accent: #f45b26;
+    --sl-color-text-invert: hsl(0, 0%, 100%);
+  }
+
+  :root[data-theme='dark'],
+  [data-theme='dark'] ::backdrop {
+    --sl-color-accent: #f45b26;
+    --sl-color-accent-low: hsl(15, 32%, 20%);
+    --sl-color-accent-high: #f45b26;
+    --sl-color-text-accent: #f45b26;
+    --sl-color-bg-accent: #f45b26;
+    --sl-color-text-invert: hsl(0, 0%, 100%);
+  }
+
+  @media print {
+    :root {
+      --sl-color-accent: #f45b26;
+      --sl-color-accent-low: hsl(15, 94%, 93%);
+      --sl-color-accent-high: #f45b26;
+      --sl-color-text-accent: #f45b26;
+      --sl-color-bg-accent: #f45b26;
+      --sl-color-text-invert: hsl(0, 0%, 100%);
+    }
+  }
+
+  .top-nav-link {
+    color: var(--sl-color-gray-3);
+  }
+
+  .top-nav-link:hover,
+  .top-nav-link:focus-visible {
+    color: var(--sl-color-white);
+  }
+
+  .top-nav-link.is-active,
+  .top-nav-link[aria-current='page'],
+  .top-nav-link[aria-current='location'] {
+    color: #f45b26;
+    font-weight: 600;
+  }
+}

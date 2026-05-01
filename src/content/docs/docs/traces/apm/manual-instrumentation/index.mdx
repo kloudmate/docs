@@ -2,7 +2,8 @@
 title: "Manual Instrumentation"
 description: "Documentation for Manual Instrumentation"
 sidebar:
-  label: "Introduction"
+  label: "Overview"
+  order: 1
 ---
 Manual instrumentation gives you full control over your observability data by using OpenTelemetry SDKs directly in your application code. This approach is ideal when you need custom business logic attributes, fine-grained span management, or specialized metrics.
 
@@ -21,37 +22,37 @@ The KloudMate Agent works with any OpenTelemetry SDK. Configure your SDK to expo
 
   
 
-    ###                 [Python](https://docs.kloudmate.com/python)
+    ### [Python](./python.mdx)
   
 
   
 
-    ###                      [Go](https://docs.kloudmate.com/go)
+    ### [Go](./go.mdx)
   
 
   
 
-    ###                [Node.js](https://docs.kloudmate.com/nodejs)
+    ### [Node.js](./node-js.mdx)
   
 
   
 
-    ###                   [Java](https://docs.kloudmate.com/java)
+    ### [Java](./java.mdx)
   
 
   
 
-    ###                    [.NET](https://docs.kloudmate.com/net)
+    ### [.NET](./dotnet.mdx)
   
 
   
 
-    ###                    [PHP](https://docs.kloudmate.com/php)
+    ### [PHP](./php.mdx)
   
 
   
 
-    ###                   [Ruby](https://docs.kloudmate.com/ruby)
+    ### [Ruby](./ruby.mdx)
   
 
 
@@ -67,4 +68,4 @@ OTEL_SERVICE_NAME="your-service-name"
 
 ## Combining with eBPF
 
-**💡 Recommended approach:** Start with [Zero-Downtime O11y (eBPF)](<./Zero-Downtime O11y _eBPF_.mdx>) for instance, broad coverage, then strategically enrich with manual OpenTelemetry SDK instrumentation where you need custom business logic attributes.
+**💡 Recommended approach:** Start with [Zero-Downtime O11y (eBPF)](../zero-downtime-o11y-ebpf.mdx) for broad coverage, then strategically enrich with manual OpenTelemetry SDK instrumentation where you need custom business logic attributes.

@@ -1,0 +1,136 @@
+---
+const { hasSidebar } = Astro.locals.starlightRoute;
+
+import LanguageSelect from 'virtual:starlight/components/LanguageSelect';
+import Search from 'virtual:starlight/components/Search';
+import SiteTitle from 'virtual:starlight/components/SiteTitle';
+import SocialIcons from 'virtual:starlight/components/SocialIcons';
+import ThemeSelect from 'virtual:starlight/components/ThemeSelect';
+import starlightConfig from 'virtual:starlight/user-config';
+
+import options from 'virtual:starlight-theme-nova/user-config';
+import MobileMenuToggle from 'starlight-theme-nova/components/MobileMenuToggle.astro';
+
+const route = Astro.locals.starlightRoute;
+const currentPath = normalizePath(Astro.url.pathname);
+const navItems = (options.nav ?? []).map((item) => {
+  const href = normalizePath(getI18nText(item.href, route));
+  const sectionRoot = getSectionRoot(href, route.locale);
+  const isExact = currentPath === href;
+  const isActive =
+    href.startsWith('/') &&
+    (isExact ||
+      currentPath === sectionRoot ||
+      currentPath.startsWith(`${sectionRoot}/`));
+
+  return {
+    href,
+    label: getI18nText(item.label, route),
+    isExact,
+    isActive,
+  };
+});
+
+/**
+ * Normalizes route paths so section matching behaves the same with or without a trailing slash.
+ */
+function normalizePath(pathname) {
+  if (pathname.length > 1 && pathname.endsWith('/')) {
+    return pathname.slice(0, -1);
+  }
+
+  return pathname;
+}
+
+/**
+ * Collapses a page URL to its section root so top-level header links stay highlighted inside a section.
+ */
+function getSectionRoot(pathname, locale) {
+  const segments = normalizePath(pathname).split('/').filter(Boolean);
+
+  if (segments.length === 0) {
+    return '/';
+  }
+
+  const hasLocalePrefix = Boolean(locale) && segments[0] === locale;
+  const rootSegments = hasLocalePrefix ? segments.slice(0, 2) : segments.slice(0, 1);
+
+  return `/${rootSegments.join('/')}`;
+}
+
+/**
+ * Resolves translated Nova nav labels and hrefs using the active Starlight locale.
+ */
+function getI18nText(value, activeRoute) {
+  if (typeof value === 'string') {
+    return value;
+  }
+
+  const { lang, locale } = activeRoute;
+
+  if (value[lang]) {
+    return value[lang];
+  }
+
+  if (
+    starlightConfig.defaultLocale.lang === lang ||
+    starlightConfig.defaultLocale.locale === locale
+  ) {
+    if (value.root) {
+      return value.root;
+    }
+  }
+
+  if (locale && value[locale]) {
+    return value[locale];
+  }
+
+  throw new Error(
+    `[Header] Missing translation for language "${lang}" in nav item ${JSON.stringify(value)}.`
+  );
+}
+---
+
+<div class="box-border flex h-full items-center gap-2">
+  <div
+    class:list={[
+      '-m-3 overflow-clip p-3',
+      'flex min-w-0',
+    ]}
+  >
+    <SiteTitle />
+  </div>
+  <nav
+    class="flex flex-1 flex-row gap-4 overflow-x-auto py-3 pr-4 pl-4 text-sm font-medium max-md:**:hidden xl:gap-6 xl:pl-6"
+  >
+    {
+      navItems.map((item) => (
+        <a
+          aria-current={item.isExact ? 'page' : item.isActive ? 'location' : undefined}
+          class:list={[
+            'top-nav-link -m-1.5 rounded-md p-1.5 no-underline focus-visible:outline-offset-0 transition',
+            item.isActive && 'is-active font-semibold',
+          ]}
+          href={item.href}
+        >
+          {item.label}
+        </a>
+      ))
+    }
+  </nav>
+  <div class="flex md:max-w-60 md:flex-1 print:hidden">
+    <Search />
+  </div>
+  <div class="hidden items-center gap-2 md:flex print:hidden">
+    <SocialIcons />
+    <LanguageSelect />
+    <ThemeSelect />
+  </div>
+  {
+    hasSidebar && (
+      <div class="flex items-center gap-2 md:hidden print:hidden">
+        <MobileMenuToggle />
+      </div>
+    )
+  }
+</div>

@@ -1,6 +1,9 @@
 ---
-title: "Database Access Monitoring (DAM)"
-description: "Documentation for Database Access Monitoring (DAM)"
+title: "Database Activity Monitoring (DAM)"
+description: "Use eBPF-powered monitoring to inspect database traffic without adding database-side agents."
+sidebar:
+  label: "Overview"
+  order: 1
 ---
 The eBPF Receiver includes built-in **Database Activity Monitoring** that automatically profiles database traffic at the kernel level. No database-side agents or plugins needed.
 
@@ -33,8 +36,12 @@ The eBPF Receiver includes built-in **Database Activity Monitoring** that automa
 - When running on Linux with kernel ≥ 5.8
 - When you want to monitor traffic across **all** supported databases and messaging systems from a single agent
 
+## Related DAM Workflows
+
+- [ML Classifier Deployment Guide](./ml-classifier-deployment-guide.mdx)
+
 <hint type="info">
-  For deeper query analytics, including execution plans and schema discovery, see [Direct Database Monitoring](<./Direct Database Monitoring.mdx>). For distributed trace context from your application SDKs, see [OpenTelemetry Database Monitoring](<./OpenTelemetry Database Monitoring.mdx>).
+  For deeper query analytics, including execution plans and schema discovery, see [Direct Database Monitoring](../direct-database-monitoring.mdx). For distributed trace context from your application SDKs, see [OpenTelemetry Database Monitoring](../opentelemetry-database-monitoring.mdx).
 </hint>
 
 ### Configuration
@@ -52,4 +59,4 @@ ebpf:
 
 - Linux kernel ≥ 5.8 (recommended; some features work on 4.18+)
 - Root privileges or `CAP_SYS_ADMIN` + `CAP_BPF capabilities`
-- The eBPF Receiver must be enabled in the agent configuration (see [Configuration](<././KloudMate Agents/Configuration.mdx>))
+- The eBPF Receiver must be enabled in the agent configuration (see [Configuration](../../km-agent/configuration.mdx)).

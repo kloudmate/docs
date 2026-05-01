@@ -1,29 +1,28 @@
 import { defineConfig } from 'astro/config';
 import starlight from '@astrojs/starlight';
-import starlightHeadingBadges from 'starlight-heading-badges';
 import starlightScrollToTop from 'starlight-scroll-to-top';
 import starlightLlmsTxt from 'starlight-llms-txt';
 import starlightAutoSidebar from 'starlight-auto-sidebar'
-import starlightUtils from '@lorenzo_lewis/starlight-utils';
+import starlightThemeNova from 'starlight-theme-nova';
 
 export default defineConfig({
   site: 'https://docs.kloudmate.com',
   integrations: [
     starlight({
       plugins: [
-        starlightHeadingBadges(),
+        starlightThemeNova({
+          nav: [
+            { label: 'Docs', href: '/docs/getting-started/what-is-kloudmate/' },
+            { label: 'Guides', href: '/guides/' },
+            { label: 'API', href: '/api/' },
+          ],
+        }),
         starlightScrollToTop(),
         starlightLlmsTxt(),
         starlightAutoSidebar(),
-        starlightUtils({
-          navLinks: {
-            leading: { useSidebarLabelled: 'HeaderNavLinks' },
-          },
-        })
       ],
       title: 'KloudMate Docs',
       description: 'Documentation for KloudMate observability platform',
-      customCss: ['/src/styles/starlight.css'],
       logo: {
         light: './src/assets/logo-light.png',
         dark: './src/assets/logo-dark.png',
@@ -32,27 +31,16 @@ export default defineConfig({
       social: [
         { icon: 'github', label: 'GitHub', href: 'https://github.com/kloudmate' },
       ],
+      customCss: ['./src/styles/brand.css'],
       components: {
+        Header: './src/components/Header.astro',
         Sidebar: './src/components/Sidebar.astro',
-        ThemeProvider: './src/components/ThemeProvider.astro',
-        ThemeSelect: './src/components/ThemeToggleButton.astro',
       },
       sidebar: [
         {
-          label: 'HeaderNavLinks',
-          items: [
-            { label: 'Docs', link: '/docs/kloudmate/' },
-            { label: 'Guides', link: '/guides/' },
-            { label: 'API', link: '/api/' },
-          ],
-        },
-        {
           label: 'Platform Docs',
           items: [
-            { label: 'KloudMate', slug: 'docs/kloudmate' },
-            { label: 'Setting Up KloudMate', slug: 'docs/setting-up-kloudmate' },
-            { label: 'Get Started', slug: 'docs/get-started' },
-            { label: 'Get Help', slug: 'docs/get-help' },
+            { label: 'Getting Started', autogenerate: { directory: 'docs/getting-started' } },
             { label: 'KM Agent', autogenerate: { directory: 'docs/km-agent' } },
             { label: 'Metrics', autogenerate: { directory: 'docs/metrics' } },
             { label: 'Traces', autogenerate: { directory: 'docs/traces' } },
