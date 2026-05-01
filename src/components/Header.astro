@@ -2,7 +2,7 @@
 import config from 'virtual:starlight/user-config';
 import Search from '@astrojs/starlight/components/Search.astro';
 import SiteTitle from '@astrojs/starlight/components/SiteTitle.astro';
-import ThemeSelect from '@astrojs/starlight/components/ThemeSelect.astro';
+import ThemeToggleButton from './ThemeToggleButton.astro';
 /**
  * Normalize route comparisons so top-level tabs stay active with or without trailing slashes.
  */
@@ -31,7 +31,7 @@ const shouldRenderSearch =
 
 	<div class="desktop-actions sl-hidden md:sl-flex print:hidden">
 		<div class="desktop-search">
-			{shouldRenderSearch && <Search />}
+			{shouldRenderSearch && <Search class="header-search" />}
 		</div>
 
 		<nav class="header-tabs" aria-label="Documentation sections">
@@ -56,7 +56,7 @@ const shouldRenderSearch =
 		</nav>
 
 		<div class="right-group">
-			<ThemeSelect />
+			<ThemeToggleButton />
 		</div>
 	</div>
 

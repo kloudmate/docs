@@ -1,38 +1,63 @@
 <script is:inline>
 	window.StarlightThemeProvider = (() => {
 		const storageKey = 'starlight-theme';
-		const storedTheme = typeof localStorage !== 'undefined' && localStorage.getItem(storageKey);
+		const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+		const parseTheme = (theme) =>
+			theme === 'auto' || theme === 'dark' || theme === 'light' ? theme : 'light';
+		const loadTheme = () =>
+			parseTheme(typeof localStorage !== 'undefined' && localStorage.getItem(storageKey));
+		const resolveTheme = (theme) => (theme === 'auto' ? (mediaQuery.matches ? 'dark' : 'light') : theme);
+		const updatePickers = (theme = loadTheme()) => {
+			document.querySelectorAll('starlight-theme-select').forEach((picker) => {
+				const select = picker.querySelector('select');
+				if (select) select.value = theme;
+				/** @type {HTMLTemplateElement | null} */
+				const template = document.querySelector('#theme-icons');
+				const nextIcon = template && template.content.querySelector('.' + theme);
+				if (nextIcon) {
+					const currentIcon = picker.querySelector('svg.label-icon');
+					if (currentIcon) {
+						currentIcon.replaceChildren(...nextIcon.cloneNode(true).childNodes);
+					}
+				}
+			});
+		};
+		const updateToggleButtons = () => {
+			const currentTheme = document.documentElement.dataset.theme === 'dark' ? 'dark' : 'light';
+			const nextTheme = currentTheme === 'dark' ? 'light' : 'dark';
 
-		if (typeof localStorage !== 'undefined' && !storedTheme) {
+			document.querySelectorAll('[data-theme-toggle]').forEach((button) => {
+				button.dataset.themeTarget = nextTheme;
+				button.setAttribute('aria-label', `Switch to ${nextTheme} theme`);
+				button.setAttribute('title', `Switch to ${nextTheme} theme`);
+			});
+		};
+		const applyTheme = (theme) => {
+			document.documentElement.dataset.theme = resolveTheme(theme);
+			updatePickers(theme);
+			updateToggleButtons();
+		};
+		const setTheme = (theme) => {
+			if (typeof localStorage !== 'undefined') {
+				localStorage.setItem(storageKey, theme);
+			}
+			applyTheme(theme);
+		};
+
+		if (typeof localStorage !== 'undefined' && !localStorage.getItem(storageKey)) {
 			localStorage.setItem(storageKey, 'light');
 		}
 
-		const requestedTheme = storedTheme || 'light';
-		const resolvedTheme =
-			requestedTheme === 'auto'
-				? window.matchMedia('(prefers-color-scheme: dark)').matches
-					? 'dark'
-					: 'light'
-				: requestedTheme;
-
-		document.documentElement.dataset.theme = resolvedTheme === 'dark' ? 'dark' : 'light';
+		applyTheme(loadTheme());
 
 		return {
-			updatePickers(theme = storedTheme || 'light') {
-				document.querySelectorAll('starlight-theme-select').forEach((picker) => {
-					const select = picker.querySelector('select');
-					if (select) select.value = theme;
-					/** @type {HTMLTemplateElement | null} */
-					const template = document.querySelector('#theme-icons');
-					const nextIcon = template && template.content.querySelector('.' + theme);
-					if (nextIcon) {
-						const currentIcon = picker.querySelector('svg.label-icon');
-						if (currentIcon) {
-							currentIcon.replaceChildren(...nextIcon.cloneNode(true).childNodes);
-						}
-					}
-				});
+			setTheme,
+			toggleTheme() {
+				const nextTheme = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark';
+				setTheme(nextTheme);
 			},
+			updatePickers,
+			updateToggleButtons,
 		};
 	})();
 </script>

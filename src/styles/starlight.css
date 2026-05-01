@@ -7,9 +7,9 @@
 		--sl-content-width: 49rem;
 		--sl-content-pad-x: 1.5rem;
 		--sl-sidebar-pad-x: 1.25rem;
-		--sl-color-accent: hsl(146, 55%, 42%);
-		--sl-color-accent-low: hsl(146, 45%, 92%);
-		--sl-color-accent-high: hsl(146, 52%, 26%);
+		--sl-color-accent: #f45b26;
+		--sl-color-accent-low: hsl(15, 94%, 93%);
+		--sl-color-accent-high: hsl(15, 80%, 34%);
 	}
 
 	:root,
@@ -40,13 +40,6 @@
 		--sl-shadow-md: 0 10px 24px hsla(220, 22%, 18%, 0.08);
 		--sl-shadow-lg: 0 24px 48px hsla(220, 22%, 18%, 0.14);
 	}
-
-	:root[data-theme='dark'],
-	[data-theme='dark'] ::backdrop {
-		--sl-color-accent: hsl(146, 50%, 56%);
-		--sl-color-accent-low: hsl(146, 28%, 20%);
-		--sl-color-accent-high: hsl(146, 70%, 76%);
-	}
 }
 
 @layer starlight.core {
@@ -54,6 +47,21 @@
 		--sl-nav-height: 3.5rem;
 		--sl-nav-pad-y: 0.5rem;
 		--sl-nav-pad-x: 1.5rem;
+	}
+
+	:root,
+	:root[data-theme='light'],
+	[data-theme='light'] ::backdrop {
+		--sl-color-accent: #f45b26;
+		--sl-color-accent-low: hsl(15, 94%, 93%);
+		--sl-color-accent-high: hsl(15, 80%, 34%);
+	}
+
+	:root[data-theme='dark'],
+	[data-theme='dark'] ::backdrop {
+		--sl-color-accent: hsl(15, 90%, 55%);
+		--sl-color-accent-low: hsl(15, 32%, 20%);
+		--sl-color-accent-high: hsl(15, 100%, 78%);
 	}
 
 	a.site-title img {
@@ -140,16 +148,37 @@
 		background: color-mix(in srgb, var(--sl-color-accent) 5%, var(--sl-color-black));
 	}
 
-	site-search button[data-open-modal] {
-		max-width: none;
-	}
-
 	starlight-theme-select :global(label) {
 		color: var(--sl-color-gray-2);
 	}
 
 	starlight-theme-select :global(label:hover) {
 		color: var(--sl-color-gray-1);
+	}
+
+	site-search.header-search {
+		display: block;
+		width: 100%;
+	}
+
+	site-search.header-search button[data-open-modal] {
+		display: grid;
+		grid-template-columns: auto 1fr auto;
+		align-items: center;
+		column-gap: 0.5rem;
+		width: 100%;
+		max-width: none;
+		height: 2.25rem;
+	}
+
+	site-search.header-search button[data-open-modal] > kbd:last-child {
+		justify-self: end;
+	}
+
+	site-search.header-search button[data-open-modal] > span {
+		justify-self: start;
+		width: max-content;
+		text-align: left;
 	}
 
 	@media (min-width: 120rem) {

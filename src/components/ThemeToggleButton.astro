@@ -1,0 +1,102 @@
+<starlight-theme-toggle>
+	<button type="button" class="theme-toggle-button" data-theme-toggle aria-label="Switch theme">
+		<span class="sr-only">Toggle color theme</span>
+		<svg
+			aria-hidden="true"
+			class="theme-icon theme-icon-light"
+			viewBox="0 0 24 24"
+			fill="none"
+			stroke="currentColor"
+			stroke-linecap="round"
+			stroke-linejoin="round"
+			stroke-width="1.8"
+		>
+			<circle cx="12" cy="12" r="4" />
+			<path d="M12 2.75v2.5" />
+			<path d="M12 18.75v2.5" />
+			<path d="m4.93 4.93 1.77 1.77" />
+			<path d="m17.3 17.3 1.77 1.77" />
+			<path d="M2.75 12h2.5" />
+			<path d="M18.75 12h2.5" />
+			<path d="m4.93 19.07 1.77-1.77" />
+			<path d="m17.3 6.7 1.77-1.77" />
+		</svg>
+		<svg
+			aria-hidden="true"
+			class="theme-icon theme-icon-dark"
+			viewBox="0 0 24 24"
+			fill="currentColor"
+		>
+			<path d="M20.2 14.1A8.7 8.7 0 0 1 9.9 3.8a.75.75 0 0 0-.95-.95A10.2 10.2 0 1 0 21.15 15a.75.75 0 0 0-.95-.9Z" />
+		</svg>
+	</button>
+</starlight-theme-toggle>
+
+<script>
+	class StarlightThemeToggle extends HTMLElement {
+		constructor() {
+			super();
+
+			const button = this.querySelector('button');
+			button?.addEventListener('click', () => {
+				window.StarlightThemeProvider?.toggleTheme();
+			});
+
+			window.StarlightThemeProvider?.updateToggleButtons();
+		}
+	}
+
+	if (!customElements.get('starlight-theme-toggle')) {
+		customElements.define('starlight-theme-toggle', StarlightThemeToggle);
+	}
+</script>
+
+<style>
+	@layer starlight.core {
+		starlight-theme-toggle {
+			display: flex;
+		}
+
+		.theme-toggle-button {
+			display: inline-flex;
+			align-items: center;
+			justify-content: center;
+			width: 2.25rem;
+			height: 2.25rem;
+			padding: 0;
+			border: 0;
+			border-radius: 999px;
+			background: transparent;
+			color: var(--sl-color-gray-2);
+			cursor: pointer;
+			transition:
+				color 0.2s ease,
+				background-color 0.2s ease;
+		}
+
+		.theme-toggle-button:hover {
+			color: var(--sl-color-gray-1);
+			background: var(--sl-color-gray-6);
+		}
+
+		.theme-toggle-button:focus-visible {
+			outline: 2px solid var(--sl-color-accent);
+			outline-offset: 2px;
+		}
+
+		.theme-icon {
+			width: 1rem;
+			height: 1rem;
+		}
+
+		.theme-icon-light,
+		.theme-icon-dark {
+			display: none;
+		}
+
+		.theme-toggle-button[data-theme-target='light'] .theme-icon-light,
+		.theme-toggle-button[data-theme-target='dark'] .theme-icon-dark {
+			display: block;
+		}
+	}
+</style>
