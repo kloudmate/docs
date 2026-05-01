@@ -41,17 +41,17 @@ export default defineConfig({
           label: 'Platform Docs',
           items: [
             { label: 'Getting Started', autogenerate: { directory: 'docs/getting-started' } },
-            { label: 'KM Agent', autogenerate: { directory: 'docs/km-agent' } },
-            { label: 'Metrics', autogenerate: { directory: 'docs/metrics' } },
-            { label: 'Traces', autogenerate: { directory: 'docs/traces' } },
-            { label: 'Logs', autogenerate: { directory: 'docs/logs' } },
-            { label: 'Profiling', autogenerate: { directory: 'docs/profiling' } },
-            { label: 'Database Monitoring', autogenerate: { directory: 'docs/database-monitoring' } },
-            { label: 'Security Observability', autogenerate: { directory: 'docs/security-observability' } },
-            { label: 'Integrations', autogenerate: { directory: 'docs/integrations' } },
-            { label: 'Dashboards & Alerts', autogenerate: { directory: 'docs/dashboards-alerts' } },
-            { label: 'Platform', autogenerate: { directory: 'docs/platform' } },
-            { label: 'Troubleshooting & FAQ', autogenerate: { directory: 'docs/troubleshooting' } }
+            { label: 'KM Agent', autogenerate: { directory: 'docs/km-agent', collapsed: true }, collapsed: true },
+            { label: 'Metrics', autogenerate: { directory: 'docs/metrics', collapsed: true }, collapsed: true },
+            { label: 'Traces', autogenerate: { directory: 'docs/traces', collapsed: true }, collapsed: true },
+            { label: 'Logs', autogenerate: { directory: 'docs/logs', collapsed: true }, collapsed: true },
+            { label: 'Profiling', autogenerate: { directory: 'docs/profiling', collapsed: true }, collapsed: true },
+            { label: 'Database Monitoring', autogenerate: { directory: 'docs/database-monitoring', collapsed: true }, collapsed: true },
+            { label: 'Security Observability', autogenerate: { directory: 'docs/security-observability', collapsed: true }, collapsed: true },
+            { label: 'Integrations', autogenerate: { directory: 'docs/integrations', collapsed: true }, collapsed: true },
+            { label: 'Dashboards & Alerts', autogenerate: { directory: 'docs/dashboards-alerts', collapsed: true }, collapsed: true },
+            { label: 'Platform', autogenerate: { directory: 'docs/platform', collapsed: true }, collapsed: true },
+            { label: 'Troubleshooting & FAQ', autogenerate: { directory: 'docs/troubleshooting', collapsed: true }, collapsed: true }
           ]
         },
         {
