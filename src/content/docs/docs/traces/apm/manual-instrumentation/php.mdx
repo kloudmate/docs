@@ -1,0 +1,136 @@
+---
+title: "PHP"
+description: "Documentation for PHP"
+---
+In this guide, we will walk you through the process of setting up and using OpenTelemetry in PHP. You will learn how to instrument a simple PHP application to produce traces, metrics, and logs and export them to KloudMate.
+
+**Step 1: Prerequisites**
+
+OpenTelemetry requires PHP 8.0+ for automatic instrumentation. Before moving forward ensure that you have the following installed:
+
+- [PHP 8.0+](https://www.php.net/)
+- [PECL](https://pecl.php.net/)
+- [composer](https://getcomposer.org/)
+
+**Step 2: Install PHP and setup the app**
+****
+1\.  Create a dice-rolling application
+
+```bash
+mkdir <project-name> && cd <project-name>
+
+composer init \
+ --no-interaction \
+ --stability beta \
+ --require slim/slim:"^4" \
+ --require slim/psr7:"^1"
+composer update
+```
+
+2\.  Write the application code.  Create an index.php file in the \<project-name> folder and add the following code. The following sample code simulates a dice rolling game that rolls a dice and returns a random number in the range of one to six:
+
+```bash
+<?php
+use Psr\Http\Message\ResponseInterface as Response;
+use Psr\Http\Message\ServerRequestInterface as Request;
+use Slim\Factory\AppFactory;
+
+require __DIR__ . '/vendor/autoload.php';
+
+$app = AppFactory::create();
+
+$app->get('/rolldice', function (Request $request, Response $response) {
+ $result = random_int(1,6);
+ $response->getBody()->write(strval($result));
+ return $response;
+});
+
+$app->run();
+```
+
+**Step 2: setup the Opentelemetry auto instrument**
+****
+1\.  Download the tools that are required to build the OpenTelemetry PHP extension.
+
+```none
+sudo apt-get install gcc make autoconf
+sudo apt update
+sudo apt install php-pear php-dev zlib1g-dev libgrpc-dev
+```
+
+ 2\.  Use PECL to build the OpenTelemetry PHP extension.
+
+```none
+pecl install opentelemetry
+```
+
+ The result of the above command
+
+```none
+Build process completed successfully
+Installing '/usr/lib/php/20230831/opentelemetry.so'
+install ok: channel://pecl.php.net/opentelemetry-1.1.0
+configuration option "php_ini" is not set to php.ini location
+You should add "extension=opentelemetry.so" to php.ini
+```
+
+3\.  Enable the OpenTelemetry PHP extension. If the `Extension opentelemetry enabled in php.ini` message is returned in the previous step, skip this step.
+
+Add the following code to the `/etc/php/<version>/cli/php.ini` file:
+
+```none
+[opentelemetry]
+extension=opentelemetry.so
+```
+
+4\.  Verify whether the OpenTelemetry PHP extension is built and enabled.
+
+Method 1:
+
+`php -m | grep opentelemetry`
+
+Expected output:
+
+`opentelemetry`
+
+5\.  Add additional dependencies required for OpenTelemetry SDK for PHP to perform automatic instrumentation on the dice-rolling application.
+
+```none
+pecl install grpc
+```
+
+The above command will run for an extended period of time.
+
+After successful completion run the below command
+
+```none
+composer config allow-plugins.php-http/discovery false
+composer require \
+  open-telemetry/sdk \
+  open-telemetry/exporter-otlp \
+  php-http/guzzle7-adapter \
+  open-telemetry/opentelemetry-auto-slim
+```
+
+6\.  Set environment variables and run the app
+
+```none
+env OTEL_PHP_AUTOLOAD_ENABLED=true \
+ OTEL_SERVICE_NAME=myapp \
+ OTEL_TRACES_EXPORTER=otlp \
+ OTEL_EXPORTER_OTLP_ENDPOINT=https://otel.kloudmate.com:4318 \
+ OTEL_EXPORTER_OTLP_HEADERS=Authorization=<token> \
+ OTEL_PROPAGATORS=baggage,tracecontext \
+ php -S localhost:8080
+```
+
+Replace `<token>`with your API key
+
+***
+
+ 
+
+*Source URL for the example application: *[](https://opentelemetry.io/docs/instrumentation/net/getting-started/)
+
+
+

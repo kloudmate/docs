@@ -1,0 +1,307 @@
+---
+title: "Python"
+description: "Documentation for Python"
+---
+This guide walks you through setting up OpenTelemetry auto-instrumentation for **Python applications** and configuring KloudMate to collect telemetry data (traces, metrics, logs) without modifying your application code.
+
+### Step 1: Prerequisites
+
+- Python 3.6 or higher is installed on your machine.
+- KloudMate workspace API key (used to authorize telemetry ingestion).
+
+### **Step 2: Example Application**
+
+For demonstration, we'll use a simple Flask and Django application. You can adapt the same instructions for any other supported framework. 
+
+1\. Create a Project Directory 
+
+
+Flask
+
+  ```bash
+  mkdir otel-getting-started
+  cd otel-getting-started
+  ```
+
+  Django
+
+  ```bash
+  mkdir hello_django
+  cd hello_django
+  ```
+
+
+2\. Create a Virtual Environment and Activate It 
+
+
+Flask
+
+  ```bash
+  python3 -m venv venv
+  source ./venv/bin/activate
+  ```
+
+  Django
+
+  ```bash
+  python3 -m venv venv
+  source ./venv/bin/activate
+  ```
+
+
+3\. Install the Framework
+
+
+Flask
+
+  ```bash
+  pip install flask
+  ```
+
+  Django
+
+  ```bash
+  pip install django
+  ```
+
+
+4\. Create the Application
+
+**Flask**
+
+- Create a file named `app.py` with the following code: 
+
+```python
+from random import randint
+from flask import Flask
+
+app = Flask(__name__)
+
+@app.route("/rolldice")
+def roll_dice():
+    return str(do_roll())
+
+def do_roll():
+    return randint(1, 6)
+
+if __name__ == "__main__":
+    app.run(debug=True)
+```
+
+**Django**
+
+- Create a Django project and app:
+
+```bash
+django-admin startproject mysite .
+python manage.py startapp hello
+```
+
+- Add the App to INSTALLED\_APPS
+  Edit `mysite/settings.py` and add `'hello'`, to the `INSTALLED_APPS` list.
+
+```python
+INSTALLED_APPS = [
+    'django.contrib.admin',
+    'django.contrib.auth',
+    ...
+    'hello',
+]
+```
+
+- Create a simple view in `hello/views.py`:
+
+```python
+from django.http import HttpResponse
+
+def hello_world(request):
+    return HttpResponse("Hello, World!")
+```
+
+- Create a URL mapping in `hello/urls.py` (new file):
+
+```python
+from django.urls import path
+from .views import hello_world
+
+urlpatterns = [
+    path('', hello_world),
+]
+```
+
+- And include it in `mysite/urls.py`:
+
+```python
+from django.contrib import admin
+from django.urls import path, include
+
+urlpatterns = [
+    path('admin/', admin.site.urls),
+    path('', include('hello.urls')),
+]
+```
+
+5\. Run the Application
+
+**Flask**
+
+```bash
+flask run -p 8080
+```
+
+Verify that the application is running by visiting[ http://localhost:8080/rolldice](http://localhost:8080/rolldice) in your browser.
+
+**Django**
+Run Migrations and Start Server 
+
+```bash
+python manage.py migrate
+python manage.py runserver 127.0.0.1:8000
+```
+
+You can now access the app at: [http://localhost:8000/](http://localhost:8000/)
+
+### **Step 3: ** nstallation & Setup
+
+Run the following commands in your project environment to install the essential OpenTelemetry packages and exporters:
+
+```bash
+pip install opentelemetry-distro opentelemetry-exporter-otlp
+opentelemetry-bootstrap -a install
+```
+
+- `opentelemetry-distro` includes OpenTelemetry API, SDK, and tools.
+- `opentelemetry-bootstrap -a install` auto-installs instrumentation libraries for detected dependencies such as Flask or Django.
+
+### **Step 4: **Configure Environment Variable
+
+Set the following environment variables to configure KloudMate OTLP endpoint and service metadata:
+
+```bash
+export OTEL_EXPORTER_OTLP_ENDPOINT=https://otel.kloudmate.com:4318
+export OTEL_EXPORTER_OTLP_HEADERS="Authorization=<private key>"
+export OTEL_SERVICE_NAME=<service_name> 
+```
+
+<hint type="info">
+  Replace `<private key>`with your KloudMate workspace API key and `<service_name>`with your application name.
+</hint>
+
+### Step 5: Run Your Application with Auto-Instrumentation
+
+Run your application using the OpenTelemetry CLI wrapper to enable telemetry collection. This enables automatic telemetry collection from supported libraries.
+
+
+Flask
+
+  ```bash
+  opentelemetry-instrument --traces_exporter otlp --metrics_exporter otlp python app.py
+  ```
+
+  Django
+
+  ```bash
+  export DJANGO_SETTINGS_MODULE=mysite.settings
+  opentelemetry-instrument --traces_exporter otlp --metrics_exporter otlp --exporter_otlp_protocol http/protobuf python manage.py runserver --noreload
+  ```
+
+
+<hint type="info">
+  Ensure you set `DJANGO_SETTINGS_MODULE` appropriately for your Django app. In this example, the Django project is named `mysite.settings` .
+</hint>
+
+The traces and metrics generated will be sent automatically to KloudMate.
+
+### **Step 6: Sending Telemetry to an OpenTelemetry Collector**
+
+In most production deployments, it’s beneficial to use an OpenTelemetry Collector. Follow these steps to configure and run a local collector.
+
+1. Create a file named otel-collector-config.yaml in the /tmp/ directory and save the following configuration code to it:
+
+```yaml
+receivers:
+  otlp:
+    protocols:
+      grpc:
+        endpoint: 0.0.0.0:4317
+
+exporters:
+  debug:
+    verbosity: detailed
+  
+  otlphttp:
+    endpoint: https://otel.kloudmate.com:4318
+    headers:
+      Authorization: 
+
+processors:
+  
+  batch:
+    send_batch_size: 5000
+    timeout: 10s
+
+service:
+  pipelines:
+    traces:
+      receivers: [otlp]
+      exporters: [debug, otlphttp]
+      processors: [batch]
+   
+    metrics:
+      receivers: [otlp]
+      exporters: [debug, otlphttp]
+      processors: [batch]
+    
+    logs:
+      receivers: [otlp]
+      exporters: [debug, otlphttp]
+      processors: [batch]
+
+```
+
+<hint type="info">
+  The otlphttp exporter in config.yml, along with the KloudMate API-Key as the Authorization header, will send the data from the collector to KloudMate. 
+</hint>
+
+2\. Run the following Docker command to start the collector using the configuration file:
+
+```bash
+docker run -p 4317:4317 \
+ -v /tmp/otel-collector-config.yaml:/etc/otel-collector-config.yaml \ otel/opentelemetry-collector:latest \
+ -- config=/etc/otel-collector-config.yaml
+```
+
+3\. Modify the command to export spans and metrics via OTLP by installing the OTLP exporter package:
+
+```bash
+pip install opentelemetry-exporter-otlp
+```
+
+4\. Run the application again, but this time it will export telemetry data to the collector via OTLP:
+
+```bash
+opentelemetry-instrument flask run -p 8080
+```
+
+By default, the application will export traces and metrics over OTLP/gRPC to the collector running on localhost:4317.
+
+## Python Metrics
+
+| **Metric\_name**                    | **Description**                                                                                               |
+| ----------------------------------- | ------------------------------------------------------------------------------------------------------------- |
+| cpython\_gc\_collections            | The number of times a generation was collected since interpreter start.                                       |
+| cpython\_gc\_generation             | Value of the garbage collector collection generation.                                                         |
+| cpython\_gc\_collected\_objects     | The total number of objects collected inside a generation since interpreter start.                            |
+| cpython\_gc\_uncollectable\_objects | The total number of objects which were found to be uncollectable inside a generation since interpreter start. |
+
+## **Conclusion**
+
+Remember, OpenTelemetry offers various options for automatic instrumentation, manual instrumentation, and exporting telemetry data. Explore the [official documentation](https://opentelemetry.io/docs/instrumentation/python/) to delve deeper into these topics and further enhance your observability capabilities.
+
+***
+
+For more details and advanced configurations, refer to the official OpenTelemetry documentation:
+
+- [Zero-Code Instrumentation for Python](https://opentelemetry.io/docs/zero-code/python/)
+- [Getting Started with OpenTelemetry in Python](https://opentelemetry.io/docs/languages/python/getting-started/)
+

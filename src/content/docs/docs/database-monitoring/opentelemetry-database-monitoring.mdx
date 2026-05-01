@@ -1,0 +1,48 @@
+---
+title: "OpenTelemetry Database Monitoring"
+description: "Documentation for OpenTelemetry Database Monitoring"
+---
+In addition to the eBPF-based [Database Access Monitoring (DAM)](<./Database Access Monitoring _DAM_.mdx>), you can use OpenTelemetry SDK instrumentation to capture detailed database query traces with custom attributes.
+
+## How It Works
+
+OpenTelemetry auto-instrumentation agents and SDKs provide library-specific hooks that capture database operations as trace spans. These spans include:
+
+- SQL query text (sanitized)
+- Database system and name
+- Operation type (SELECT, INSERT, UPDATE, DELETE)
+- Duration and status
+- Connection details
+
+## When to Use
+
+- When you need rich, library-specific database query details
+- When you want custom attributes on database spans
+- When your application already uses OpenTelemetry SDKs
+- When combined [Manual Instrumentation](<././APM/Manual Instrumentation.mdx>) for the business context
+
+## Supported Database Libraries
+
+| ### Language | ### Libraries Auto-Instrumented           |
+| ------------ | ----------------------------------------- |
+| **Java**     | JDBC, Hibernate, Spring Data              |
+| **Python**   | SQLAlchemy, psycopg2, PyMySQL, Django ORM |
+| **Node.js**  | pg, mysql2, mongoose, Prisma              |
+| **.NET**     | Entity Framework, Npgsql, MySqlConnector  |
+| **Go**       | database/sql, GORM, pgx                   |
+
+## Configuration
+
+Configure your OpenTelemetry SDK to export to the KloudMate Agent OTLP endpoint:
+
+```bash
+OTEL_EXPORTER_OTLP_ENDPOINT="http://localhost:4318"
+OTEL_SERVICE_NAME="your-service-name"
+```
+
+Database spans will automatically be captured when using supported auto-instrumentation libraries.
+
+<hint type="info">
+  For zero-configuration kernel-level profiling, see [Database Access Monitoring (DAM)](<./Database Access Monitoring _DAM_.mdx>). For deep query analytics with execution plans and schema discovery, see [Direct Database Monitoring](<./Direct Database Monitoring.mdx>).
+</hint>
+

@@ -1,0 +1,95 @@
+---
+title: "Server Logs to KloudMate"
+description: "Documentation for Server Logs to KloudMate"
+---
+This document explains how to send logs from a file to KloudMate by **configuring the file log receiver** within the **KloudMate Agent**.
+
+The KloudMate Agent acts as the log forwarding service that collects and securely transmits log data to KloudMate for analysis and troubleshooting.
+
+## **Prerequisites**
+
+- KloudMate Agent installed on the target server
+- Agent must be running and connected to KloudMate
+- Access to modify the agent collector configuration
+
+## **Step 1: Access Agent and Collector Configuration**
+
+1. Log in to the **KloudMate** platform
+2. Navigate to **Settings → Agents**
+3. Select the agent running on the target server
+4. Click **Actions → Collector Configuration**
+5. The YAML configuration editor opens
+
+## **Step 2: Configure File Log Receiver**
+
+Add the following configuration to enable file-based log collection.
+
+Modify the log file path as per your application.
+
+```javascript
+extensions:
+  file_storage:
+    create_directory: true
+    
+processors:
+  batch:
+    send_batch_size: 5000
+    timeout: 10s
+    
+receivers:
+  filelog/app:
+    include: [ /tmp/app.log ] # Update with your log file path
+    start_at: end
+    storage: file_storage  
+      
+exporters:
+  otlphttp:
+    endpoint: 'https://otel.kloudmate.com:4318'
+    headers:
+      Authorization: xxxxxxxx  # Use your auth key
+      
+service:
+  pipelines:
+    logs:
+      receivers: [filelog/app]
+      processors: [batch]
+      exporters: [otlphttp]
+  extensions: [file_storage]
+```
+
+<hint type="info">
+  Set start\_at: beginning if you want to ingest historical logs.
+</hint>
+
+## **Step 3: Save Configuration and Restart Agent**
+
+After updating the configuration, click Save Configuration in the KloudMate UI.
+
+You can also restart the agent manually.
+
+**For Linux:**
+
+1. Execute the following commands:
+
+```none
+systemctl restart kmagent
+systemctl status kmagent
+```
+
+These commands restart the KloudMate Agent and display its current status.
+
+**For Windows**
+
+1. Open the **Services** window
+   - Press `Win + R`, type `services.msc`, and press `OK`
+   - Or search for **Services** from the Start menu
+2. Locate the **KloudMate Agent **service.
+3. Right-click the service and select **Restart**.
+
+## **Step 4: Validate Log Ingestion**
+
+1. Log in to **KloudMate**
+2. Navigate to **Log Explorer**
+3. Search using **host name** or **log attributes**
+4. Confirm logs are visible
+

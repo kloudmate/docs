@@ -1,0 +1,134 @@
+---
+title: "Amazon ECS Container Logs to KloudMate"
+description: "Documentation for Amazon ECS Container Logs to KloudMate"
+---
+This document provides a guide on how to send Amazon ECS container (Fargate launch type) logs to KloudMate using OpenTelemetry.
+
+In the described setup, Fluentbit is used as the log exporting agent to send logs from the application container. FireLens is the log driver used for exporting logs. The OpenTelemetry plugin allows you to take logs from Fluentbit and submit them to a KloudMate HTTP endpoint. 
+
+**Step 1: ** rerequisites:
+
+- [Fluentbit binaries and packages](https://docs.fluentbit.io/manual/installation/getting-started-with-fluent-bit) as per your system requirement. 
+- An ECS cluster running containers with the desired logs to be sent.
+
+<hint type="info">
+  Recommendation: Use the latest fluentbit image to send container logs. Create a custom AWS fluentbit image with a proper configuration as well as required parsers.
+</hint>
+
+**Step 2: **Create a Dockerfile for fluentbit.
+
+```none
+FROM fluent/fluent-bit:latest
+ADD logDestinations.conf /fluentbit-config.conf
+ADD parsers.conf /parsers.conf
+```
+
+<hint type="info">
+  Recommendation: Instead of using AWS firelens image use the official fluentbit image.
+</hint>
+
+**Step 3: **Structure the configuration file for successful log delivery:
+
+```none
+[SERVICE]
+    Flush                5
+    Log_Level            debug
+    Daemon               off
+    Parsers_File         /parsers.conf
+
+[INPUT]
+    Name                 forward
+    Listen               0.0.0.0
+    Port                 2020
+    Buffer_Chunk_Size    1M
+    Buffer_Max_Size      6M
+    Tag_Prefix           ecs.
+
+[OUTPUT]
+    Name                 opentelemetry
+    Match                *
+    Host                 otel.kloudmate.com
+    Port                 4318
+    Logs_uri             /v1/logs
+    Log_response_payload True
+    Header               Authorization <Auth token>
+    Tls                  On
+    Tls.verify           Off
+    # add user-defined labels
+    add_label            app fluent-bit
+    add_label            <Container tag>
+
+```
+
+**Step 4: **Add parsers file as per use case. 
+
+Here is an example of nginx parsers:
+
+```none
+Here an example nginx parsers 
+
+[PARSER]
+    Name     nginx
+    Format     regex
+    Regex     ^(?<remote>[^ ]*) (?<host>[^ ]*) (?<user>[^ ]*) \[(?<time>[^\]]*)\] "(?<method>\S+)(?: +(?<path>[^\"]*?)(?: +\S*)?)?" (?<code>[^ ]*) (?<size>[^ ]*)(?: "(?<referer>[^\"]*)" "(?<agent>[^\"]*)")
+    Time_Key   time
+    Time_Format   %d/%b/%Y:%H:%M:%S %z
+
+```
+
+**Step 5: ** ush this image to the Amazon Elastic Container Registry (ECR).
+
+**Step 6: **Task Definition to update the service:
+
+This task definition contains two containers, one is nginx and the other is a fluentbit. Make sure to configure the config file of fluentbit before proceeding with ECS tasks.
+
+```none
+"containerDefinitions": [
+        {
+            "name": "nginx",
+            "image": "",
+            "cpu": 0,
+            "essential": true,
+            "environment": [],
+            "mountPoints": [],
+            "volumesFrom": [],
+            "logConfiguration": {
+                "logDriver": "awsfirelens",
+                "options": {
+                    "Host": "127.0.0.1",
+                    "Name": "forward",
+                    "Port": "2020",
+                    "Retry_Limit": "2"
+                }
+            }
+        },
+        {
+            "name": "log_router",
+            "image": "",
+            "cpu": 0,
+            "portMappings": [],
+            "essential": true,
+            "environment": [],
+            "mountPoints": [],
+            "volumesFrom": [],
+            "user": "0",
+            "logConfiguration": {
+                "logDriver": "awslogs",
+                "options": {
+                    "awslogs-create-group": "true",
+                    "awslogs-group": "firelens-container",
+                    "awslogs-region": "us-east-2",
+                    "awslogs-stream-prefix": "firelens"
+                }
+            },
+            "firelensConfiguration": {
+                "type": "fluentbit",
+                "options": {
+                    "config-file-type": "file",
+                    "config-file-value": "/fluentbit-config.conf"
+                }
+            }
+        }
+    ],
+```
+

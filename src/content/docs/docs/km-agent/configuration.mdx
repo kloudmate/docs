@@ -1,0 +1,63 @@
+---
+title: "Configuration"
+description: "Documentation for Configuration"
+---
+## Remote Configuration
+
+The KloudMate Agent supports remote configuration through a web-based YAML editor. This eliminates the need for SSH access to your target machines and ensures your configurations are properly synchronized and persisted across your infrastructure.
+
+The agent watches for remote configuration changes (via a REST endpoint) and passes the updated configuration to the Collector when changes are detected.
+
+### Recommended Approach
+
+Manually updating ConfigMaps for the DaemonSet or Deployment agents is **not recommended**, as these configurations may be overwritten by updates sent from KloudMate APIs. Use the **KloudMate Agent Config Editor** instead — a web-based YAML editor for centralized configuration management.
+
+## Feature Flags
+
+You can control which telemetry signals the agent collects using feature flags:
+
+| Flag                    | Default | Description                                |
+| ----------------------- | ------- | ------------------------------------------ |
+| featuresEnabled.metrics | true    | Enables metrics collection                 |
+| featuresEnabled.traces  | true    | Enables trace collection                   |
+| featuresEnabled.apm     | false   | Enables application performance monitoring |
+| featuresEnabled.logs    | false   | Enables log collection                     |
+
+## eBPF Configuration
+
+The eBPF Receiver is enabled through the agent's `config.yaml`. Below is a standard configuration:
+
+```yaml
+metrics:
+  features:
+    - application          # HTTP, gRPC, SQL operation metrics (RED metrics)
+    - application_span     # Trace spans for transactions
+    - network              # L3/L4 Network flow metrics
+
+discovery:
+  services:
+    - name: all-services
+      namespace: default
+      open_ports: '80, 443, 8080, 8443, 5432, 3306, 6379, 9092, 27017'
+
+network:
+  enable: true
+  source: tc
+  direction: both
+
+attributes:
+  kubernetes:
+    enable: true
+```
+
+## Database Monitoring Configuration
+
+Enable heuristic SQL detection and tune caches for high-load environments:
+
+```yaml
+ebpf:
+  heuristic_sql_detect: true
+  mysql_prepared_statements_cache_size: 1024
+  postgres_prepared_statements_cache_size: 1024
+```
+

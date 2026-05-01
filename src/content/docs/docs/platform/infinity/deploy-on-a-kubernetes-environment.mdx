@@ -1,0 +1,45 @@
+---
+title: "Deploy on a Kubernetes environment"
+description: "Documentation for Deploy on a Kubernetes environment"
+---
+## Infra. Prerequisites
+- A running Kubernetes cluster can be either self-hosted or used on a cloud Kubernetes service ( such as EKS, AKS, GKE, etc...)
+- Kubernetes version `>= 1.22`
+- Only `x86-64/amd64` workloads are supported (no arm64 architecture)
+- Helm version must be `>= 3.14.3`
+- Persistent Volumes/Storage Classes are set up in the cluster with a minimum of 1TB of storage.
+- A k8s LoadBalancer is set up in the cluster if you plan to provision multiple nodes. This is not required if you plan to use a single node in which case you should ensure ports 80, 443, and 4318 are exposed on the node
+- A domain name with a wildcard SSL certificate for it
+- SMTP credentials for sending email notifications
+- A Stripe account \[Optional] (Only if online billing is required).
+- Kubectl and access to the cluster master node is required
+
+| **Hardware**        | **Minimum/POC&#xD;**&#xA;**&#xD;** | **Minimum Prod &#xD;** |
+| ------------------- | ---------------------------------- | ---------------------- |
+| Nodes               | 3                                  | 5&#xD;&#xA;&#xD;       |
+| CPU/&#xD;&#xA;&#xD; | 8 core                             | 16 core                |
+| Memory              | 16 GB                              | 32 GB                  |
+| Storage             | 500 GB                             | 1 TB                   |
+
+### **Cluster Setup (3 Control, 2 Data Nodes) - Moderate workload**
+
+The following setup can handle 1TB of data ingestion per month
+
+| **Component&#xD;**&#xA;&#xD; | **Node Count&#xD;**&#xA;**&#xD;** | **vCPUs (Each Node)&#xD;**&#xA;**&#xD;** | **RAM (Each Node)&#xD;**&#xA;**&#xD;** | **Storage (Each Node)&#xD;**&#xA;**&#xD;** |
+| ---------------------------- | --------------------------------- | ---------------------------------------- | -------------------------------------- | ------------------------------------------ |
+| Control Plane&#xD;&#xA;&#xD; | 3                                 | 4–8 vCPUs&#xD;                           | 8–16 GB&#xD;&#xA;                      | 50 GB (OS, etcd)&#xD;&#xA;&#xD;            |
+| Data Nodes&#xD;&#xA;&#xD;    | 2                                 | 8–16 vCPUs&#xD;&#xA;&#xD;                | 32–64 GB&#xD;&#xA;&#xD;                | 1–2 TB NVMe SSD&#xD;&#xA;&#xD;             |
+
+### **Cluster Setup (3 Control, 4 Data Nodes) - High workload**
+
+The following spec is required for a workload that can handle **millions of rows per second**
+
+| **Node Type&#xD;**&#xA;**&#xD;** | **Count&#xD;**&#xA;&#xD; | **vCPUs (Each Node)&#xD;**&#xA;**&#xD;** | **RAM (Each Node)&#xD;**&#xA;**&#xD;** | **Storage (Each Node)&#xD;**&#xA;**&#xD;** |
+| -------------------------------- | ------------------------ | ---------------------------------------- | -------------------------------------- | ------------------------------------------ |
+| Control Plane&#xD;&#xA;&#xD;     | 3                        | 4 vCPUs                                  | 8–16 GB&#xD;&#xA;                      | 50 GB &#xD;&#xA;&#xD;                      |
+| Data Nodes&#xD;&#xA;&#xD;        | 4                        | 16–32 vCPUs&#xD;&#xA;&#xD;               | 64–128 GB&#xD;&#xA;&#xD;               | 1–2 TB (NVMe)&#xD;&#xA;&#xD;               |
+
+These prerequisites are essential for deploying KloudMate Infinity on your Kubernetes infrastructure, ensuring a smooth and efficient setup.
+
+Once completed, please [drop us a message](https://www.kloudmate.com/contact) for a quick deployment of KloudMate. 
+

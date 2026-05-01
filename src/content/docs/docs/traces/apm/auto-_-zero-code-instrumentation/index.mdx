@@ -1,0 +1,68 @@
+---
+title: "Auto / Zero-Code Instrumentation"
+description: "Documentation for Auto / Zero-Code Instrumentation"
+---
+Zero Code Instrumentation allows you to instrument your applications without modifying source code. This approach attaches APM agents to your application runtimes that auto-instrument standard libraries and frameworks.
+
+## How It Works
+
+OpenTelemetry auto-instrumentation agents hook into your application's runtime to automatically capture:
+
+- HTTP request/response traces
+- Database query spans
+- External service calls
+- Message queue operations
+
+## When to Use
+
+- When you want comprehensive tracing without modifying application code
+- When your application uses well-supported frameworks and libraries
+- When you can perform application restarts to inject the instrumentation agent
+
+## Supported Languages
+
+
+
+  
+
+    ###                 [Python](https://docs.kloudmate.com/python-instrumentation-running-on-kubernetes)
+  
+
+  
+
+    ###                      [Go](https://docs.kloudmate.com/go-instrumentation-running-on-kubernetes)  
+  
+
+  
+
+    ###                 [Node.js](https://docs.kloudmate.com/nodejs-instrumentation-running-on-kubernetes)
+  
+
+  
+
+    ###                   [Java](https://docs.kloudmate.com/java-instrumentation-running-on-kubernetes)
+  
+
+  
+
+    ###                   [.NET](https://docs.kloudmate.com/net-instrumentation-running-on-kubernetes)
+  
+
+
+
+## Kubernetes Auto-Instrumentation
+
+In Kubernetes environments, the KloudMate Agent can automatically inject instrumentation agents into your application pods using the OpenTelemetry Operator's Instrumentation CRD. This requires:
+
+1. The kloudmate-crd to be installed in the cluster
+2. The featuresEnabled.apm flag set to true during Helm installation
+3. Annotating target pods or namespaces for instrumentation
+
+## Comparison with eBPF
+
+Unlike [Zero-Downtime O11y (eBPF)](<./Zero-Downtime O11y _eBPF_.mdx>), zero-code instrumentation:
+
+- Requires application restarts to inject the agent
+- Provides richer library-specific instrumentation detail
+- Is language-dependent (requires a compatible runtime agent)
+- Can capture custom attributes from supported frameworks

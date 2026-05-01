@@ -1,0 +1,86 @@
+---
+title: "Understanding KloudMate Alarms"
+description: "Documentation for Understanding KloudMate Alarms"
+---
+Developers create custom KloudMate alarms to monitor events critical to their applications. These alarms use a set of evaluation criteria to determine whether the alarm triggers.
+
+# Key Concepts
+
+### Alarm Rule
+
+An alarm rule contains evaluation criteria: one or more queries, expressions, and conditions. It specifies the evaluation frequency and the duration a condition must remain true before the alarm triggers.
+
+### Alarm Query
+
+A query provides configurational instructions to request data from a source. KloudMate alarms support AWS CloudWatch or KloudMate as data sources.
+
+### Alarm Expressions
+
+Expressions manipulate, reduce, or transform data from queries using math operations and reduction functions. They set conditions against raw query data or transformed results.
+
+### Notification Channel
+
+Notification channels are ChatOps and communication platforms that receive alarm notifications. KloudMate integrates with popular tools like Slack, Email, and more.
+
+### Notification Tags
+
+Tags add name-value attributes to alarms, enabling cross-referencing and mapping to notification policies.
+
+### Notification Policies
+
+Notification policies define when, where, and how to send alarm notifications. They route alerts to a specific channel when an alarm’s tags match the policy’s tags.
+
+### Alarm Labels
+
+Alarm labels are key-value pairs with additional information about the alarm rule.
+
+- KloudMate assigns labels to alarm queries based on query dimensions.
+- Alarm expressions inherit labels from their source queries.
+- Labels determine if operations between queries/expressions are allowed.
+- Operations work if labels match exactly or one is a subset of the other.
+- View labels when previewing alarms.
+
+### Multi-dimensional Alarms
+
+KloudMate supports multiple alarms per rule, called multi-dimensional alarms. For example, a rule checking Lambda throttling creates one alarm per throttled function.
+
+## Workflow of KloudMate Alarms
+
+An alarm rule:
+
+1. Retrieves data from the selected source using queries.
+2. Reduces or transforms query results with expressions.
+3. Compares queries, expressions, or thresholds using conditions.
+4. Triggers only if the condition holds for the defined duration.
+
+Once the condition is met and remains true for the defined duration, KloudMate compares the notification tags added to the alarm against the tags specified in notification policies. When tags match exactly (all policy tags must exist on the alarm), KloudMate sends the notification to the notification channel configured in that matching policy.
+
+<hint type="info">
+  If **no tags are specified** in a notification policy, it matches all alarms regardless of their tags.
+</hint>
+
+The following diagram gives a general outline of the lifecycle of a KloudMate alarm:
+
+
+
+# KloudMate Alarm States
+
+Alarm states show current status. Filter and view alarms by state:
+
+- **Firing/Alerting:** Alarm active longer than configured duration.
+- **Pending:** Alarm active but shorter than threshold duration.
+- **Normal:** No firing or pending—everything works as expected.
+- **Error:** Error occurred during evaluation.
+- **No Data:** No data received for the configured time window.
+
+***
+
+## Related Resources
+
+- [Setting Up KloudMate Alarms](https://docs.kloudmate.com/setting-up-kloudmate-alarms)
+- [Writing Expressions for KloudMate Alarms](https://docs.kloudmate.com/writing-expressions-for-kloudmate-alarms)
+
+###
+
+ 
+

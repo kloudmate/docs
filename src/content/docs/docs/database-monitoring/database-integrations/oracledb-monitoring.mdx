@@ -1,0 +1,225 @@
+---
+title: "OracleDB Monitoring"
+description: "Documentation for OracleDB Monitoring"
+---
+Oracle Database (OracleDB) is foundational for many enterprise applications, and robust monitoring is essential for maintaining performance and reliability. KloudMate provides comprehensive visibility into OracleDB by delivering real-time insights through logs and metrics using the KloudMate Agent powered by OpenTelemetry.
+
+OracleDB Monitoring in KloudMate enables centralized monitoring of Oracle Database instances running on AWS EC2, Azure Virtual Machines, or on-premise servers.
+
+# OracleDB Integration using KloudMate Agents
+
+### What This Integration Provides
+
+With OracleDB Monitoring enabled, KloudMate collects telemetry that provides visibility into:
+
+•  Database session and system statistics
+•  Tablespace utilization and data file metrics
+•  Resource limits and consumption patterns
+•  Performance bottlenecks and resource contention
+•  Server logs and operational events
+
+This visibility helps identify capacity issues, performance degradation, storage constraints, and availability problems.
+
+### Prerequisites
+
+•  Oracle Database must be installed and running
+•  KloudMate Agent installed on the OracleDB host (see agent installation for [Linux](https://docs.kloudmate.com/linux-agent) and [Windows](https://docs.kloudmate.com/windows-agent))
+
+### Required Permissions
+
+Monitoring database user requires:
+
+```sql
+GRANT SELECT ON V_$SESSION TO <username>;
+GRANT SELECT ON V_$SYSSTAT TO <username>;
+GRANT SELECT ON V_$RESOURCE_LIMIT TO <username>;
+GRANT SELECT ON DBA_TABLESPACES TO <username>;
+GRANT SELECT ON DBA_DATA_FILES TO <username>;
+GRANT SELECT ON DBA_TABLESPACE_USAGE_METRICS TO <username>;
+```
+
+## **Configuration Overview**
+
+### **Step 1: Access Agents and OpenTelemetry Collector Configuration**
+
+- Log in to the KloudMate platform
+- Go to **Settings → Agents**
+- Select the agent running on the PostgreSQL host
+- Click **Actions → Collector Configuration**
+- YAML editor opens for configuration
+
+![image](./images/mongodb-monitoring-1.png)
+
+### **Step 2: Configure the OracleDB Receiver**
+
+```yaml
+receivers:
+  oracledb:
+    datasource: "oracle://otel:passwd@<host-ip-address>/XEPDB1"
+```
+
+Connection string format: `oracle://username:password@host:port/service_name`
+
+Replace:
+•  `otel` → monitoring username
+•  `passwd` → monitoring user password
+•  `<host-ip-address>` → OracleDB host IP
+•  `XEPDB1` → PDB/service name (adjust for your database)
+
+### Step 3: Export Data to KloudMate
+
+```yaml
+exporters:
+  otlphttp:
+    endpoint: 'https://otel.kloudmate.com:4318'
+    headers:
+      Authorization: <API-Key>
+```
+
+This enables forwarding telemetry to KloudMate for analysis and visualization.
+
+### **Sample Configuration:**
+
+```yaml
+extensions:
+  health_check:
+  pprof:
+    endpoint: 0.0.0.0:1777
+  zpages:
+    endpoint: 0.0.0.0:55679
+
+receivers:
+  otlp:
+    protocols:
+      grpc:
+        endpoint: 0.0.0.0:4317
+      http:
+        endpoint: 0.0.0.0:4318
+
+  opencensus:
+    endpoint: 0.0.0.0:55678
+
+  oracledb:
+    datasource: "oracle://otel:passwd@<host-ip-address>/XEPDB1"
+
+  # Collect own metrics
+  prometheus:
+    config:
+      scrape_configs:
+      - job_name: 'otel-collector'
+        scrape_interval: 10s
+        static_configs:
+        - targets: ['0.0.0.0:8888']
+
+  jaeger:
+    protocols:
+      grpc:
+        endpoint: 0.0.0.0:14250
+      thrift_binary:
+        endpoint: 0.0.0.0:6832
+      thrift_compact:
+        endpoint: 0.0.0.0:6831
+      thrift_http:
+        endpoint: 0.0.0.0:14268
+
+  zipkin:
+    endpoint: 0.0.0.0:9411
+
+processors:
+  memory_limiter:
+    check_interval: 1s
+    limit_mib: 1000
+    spike_limit_mib: 800
+  batch:
+    send_batch_size: 1000
+    timeout: 10s
+
+exporters:
+  debug:
+    verbosity: detailed
+  otlphttp:
+    endpoint: 'https://otel.kloudmate.com:4318'
+    headers:
+      Authorization: <API-Key>
+
+service:
+
+  pipelines:
+
+    traces:
+      receivers: [otlp, opencensus, jaeger, zipkin]
+      processors: [batch]
+      exporters: [debug, otlphttp]
+
+    metrics:
+      receivers: [oracledb]
+      processors: [memory_limiter, batch]
+      exporters: [debug, otlphttp]
+
+    logs:
+      receivers: [otlp, oracledb]
+      processors: [memory_limiter, batch]
+      exporters: [debug, otlphttp]
+
+  extensions: [health_check, pprof, zpages]
+```
+
+## Post‑Integration Data Validation
+
+Verify that metrics are flowing into KloudMate using the **Explore** view.
+
+After the agent restarts:
+
+1. Log in to KloudMate
+2. Navigate to **Explore**
+3. Select **OpenTelemetry → Metrics**
+4. Choose a OracleDB metric and run the query
+
+Seeing time-series data confirms that OracleDB telemetry is flowing successfully. 
+
+### Set Up KloudMate Dashboards and Alerts
+
+Access KloudMate and create dashboards to visualize OracleDB metrics and logs. Configure alerting rules for critical thresholds and unusual activity.
+
+![image](https://lh7-rt.googleusercontent.com/docsz/AD_4nXcp9ByEpItmbQQ-2PLWRiN9UoHEzg95EcQqUf_D5XC4Nc3u_mMrSsD0Xh3dS7f1CxBEkiiA4SZR51fXLGuCpc3H3DBqYTYyaYtGdynxVFwU9XUknqF9ODpqROBuaiKpfuBEQ4EHAna66CAQ0oDygqr37LHk?key=yOqtikL5-HBgd08NCIVsvg)
+
+## **Default Metrics:**
+
+| **Default Metrics**                 |
+| ----------------------------------- |
+| oracledb\_cpu\_time                 |
+| oracledb\_dml\_locks\_limit         |
+| oraclb\_dml\_locks\_usage           |
+| oracledb\_enqueue\_deadlocks        |
+| oracledb\_enqueue\_locks\_limit     |
+| oracledb\_enqueue\_locks\_usage     |
+| oracledb\_enqueue\_resources\_limit |
+| oracledb\_enqueue\_resources\_usage |
+| oracledb\_exchange\_deadlocks       |
+| oracledb\_executions                |
+| oracledb\_hard\_parses              |
+| Oracledb\_logical\_reads            |
+| oracledb\_parse\_calls              |
+| oracledb\_pga\_memory               |
+| oracledb\_physical\_reads           |
+| oracledb\_processes\_limit          |
+| oracledb\_processes\_usage          |
+| oracledb\_sessions\_limit           |
+| oracledb\_sessions\_usage           |
+| oracledb\_tablespace\_size\_limit   |
+| Oracledb\_tablespace\_size\_usage   |
+| oracledb\_transactions\_limit       |
+| oracledb\_transactions\_usage       |
+| oracledb\_user\_commits             |
+| oracledb\_user\_rollbacks           |
+
+| **Optional Metrics**       |
+| -------------------------- |
+| oracledb\_consistent\_gets |
+| oracledb\_db\_block\_gets  |
+
+For the complete metrics list, refer to the [metrics reference](https://github.com/open-telemetry/opentelemetry-collector-contrib/blob/main/receiver/oracledbreceiver/documentation.md).
+
+****
+
+ 

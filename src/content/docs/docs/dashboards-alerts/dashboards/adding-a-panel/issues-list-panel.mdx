@@ -1,0 +1,28 @@
+---
+title: "Issues List Panel"
+description: "Documentation for Issues List Panel"
+---
+The Issues List Panel displays a list of captured issues within the selected time range. The list can be filtered based on available attributes to surface relevant issues directly on your dashboard.
+
+When the panel type is set to Issues List, the following settings are available under the **General** tab:
+
+![image](./images/issues-list-panel-1.jpeg)
+
+### Panel
+
+- **Name:** Enter a name for your panel. This appears as the panel title on the dashboard.
+- **Description:** Enter a description to provide additional context about what the panel displays.
+
+### Time Range
+
+Configure time range behavior for this panel independently from the dashboard.
+
+- **Override Dashboard Time Range:** Individual panels can use their own time range configuration. Enable this to override the time range set at the dashboard level.
+- **Time Shift:** Shift the panel’s start and end time by a specified time shift expression. Use the minus (`-`) operator to subtract time, with the same units supported by the dashboard time range expressions. 
+
+Refer to [Time Range Expressions and Settings](<./Time Range Expressions and Settings.mdx>) for supported units and syntax.
+
+<hint type="info">
+  At the query level, you can apply Filters to narrow down which issues are displayed, use Order by to sort results, and set a Limit to control how many issues appear in the panel.
+</hint>
+

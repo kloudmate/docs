@@ -1,0 +1,95 @@
+---
+title: "Setting Up Notifications"
+description: "Documentation for Setting Up Notifications"
+---
+To receive notifications from KloudMate about incidents in your infrastructure, you need to set up notification channels and notification policies. A notification policy configures how and where you get notified for alarms or issues, while notification channels are the communication platforms where those notifications are sent.
+
+KloudMate supports the following notification channels:
+
+- **Email**
+- **Slack**
+- **SNS**
+- **MS Teams**
+- **Webhook**
+- **Jira**
+
+<hint type="info">
+  In the case of multiple workspaces and AWS accounts, you must set up notifications for each account in their respective **Settings**.
+</hint>
+
+### How Notifications Work
+
+1. The user creates KloudMate alarms.
+2. The user configures their preferred notification channels such as Email, Slack, MS Teams, and more.
+3. The user creates a notification policy, adding the alarm and the channel where they want to be notified.
+4. When an alarm is triggered, the notification policy determines which notifications are sent via which channels.
+
+To learn how to create a KloudMate alarm, see [Setting Up KloudMate Alarms](<./Setting Up KloudMate Alarms.mdx>).
+
+## Setting Up Notification Channels
+
+Navigate to **Settings** > **Notification Channels**. The screen displays all existing channels with their name, type, and address.
+
+![image](./images/setting-up-notifications-1.jpeg)
+
+**Step 1:** Click the **Create** button at the top-right corner.
+
+**Step 2:** Select the desired channel type from the dropdown.
+
+![image](./images/setting-up-notifications-1.png)
+
+**Step 3:** Enter a **Name** and the corresponding **Address** (e.g., email address or webhook URL) for the channel.
+
+**Step 4:** Click **Submit**.
+
+![image](./images/setting-up-notifications-2.png)
+
+Once created, the channel appears in the list. You can **Edit** or **Delete** any channel using the more options (⋯) icon. 
+
+![image](./images/setting-up-notifications-2.jpeg)
+
+## Setting Up Notification Policies
+
+Navigate to **Settings** > **Notification Policies**. The screen displays all existing policies with their name, assigned channels, conditions, and enabled status.
+
+![image](./images/setting-up-notifications-3.jpeg)
+
+**Step 1:** Click the **Create** button at the top-right corner.
+
+**Step 2:** Enter a **Policy name.**
+
+**Step 3:** Select one or more Notification channels from the dropdown. The dropdown displays channels created for the same workspace you are currently working in.
+
+![image](./images/setting-up-notifications-3.png)
+
+**Step 4:** Click **Add condition** to define when this policy should trigger. You can add multiple conditions to a single policy.
+
+**For Alarm conditions:**
+
+- Select the **alarm(s)** from the Select alarms dropdown.
+- Optionally **add tags** (Name and Value) to match specific alarm tags. If no tags are specified, the condition will match all alarm tags.
+
+![image](./images/setting-up-notifications-4.png)
+
+**For Issue conditions:**
+
+- Select the **Issue type** — New issues or New and regression.
+- Select the **Target issue(s)** from the dropdown.
+
+![image](./images/setting-up-notifications-5.png)
+
+**Step 5:** Use the **Disable this policy** toggle if you want to save the policy without activating it immediately.
+
+**Step 6:** Click **Save policy**.
+
+<hint type="info">
+  You can add multiple notification channels and multiple conditions in a single notification policy.
+</hint>
+
+***
+
+## Related Resources
+
+- [Understanding KloudMate Alarms](https://docs.kloudmate.com/understanding-kloudmate-alarms)
+- [Setting Up KloudMate](https://docs.kloudmate.com/setting-up-kloudmate-alarms)
+

@@ -1,0 +1,64 @@
+---
+title: "Using OpenTelemetry Collector"
+description: "Documentation for Using OpenTelemetry Collector"
+---
+If you are already running OpenTelemetry Collector and want to send your telemetry data to KloudMate, then you will need to modify your YAML config file as shown in the following sample config file.
+
+<hint type="info">
+  Add a new `otlphttp` exporter in your `config.yml`, along with the KloudMate API-Key as your Authorization header.
+</hint>
+
+
+config.yml
+
+  ```yaml
+  receivers:
+    otlp:
+      protocols:
+        grpc:
+        http:
+
+  processors:
+    batch:
+
+  exporters:
+    otlphttp:
+      endpoint: https://otel.kloudmate.com:4318
+      headers:
+          Authorization: 
+
+  extensions:
+    health_check:
+    pprof:
+    zpages:
+
+  service:
+    extensions: [health_check, pprof, zpages]
+    pipelines:
+      traces:
+        receivers: [otlp]
+        processors: [batch]
+        exporters: [otlphttp]
+      metrics:
+        receivers: [otlp]
+        processors: [batch]
+        exporters: [otlphttp]
+      logs:
+        receivers: [otlp]
+        processors: [batch]
+        exporters: [otlphttp]
+        
+  processors:
+    batch:
+      send_batch_size: 5000
+      timeout: 10s
+
+  ```
+
+
+***
+
+## **Related Resources**
+
+[Installing the opentelemetry collector](https://docs.kloudmate.com/installing-the-opentelemetry-collector)
+

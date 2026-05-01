@@ -1,0 +1,38 @@
+---
+title: "Histogram"
+description: "Documentation for Histogram"
+---
+A Histogram is an aggregated metric type that represents the distribution of recorded values by grouping them into predefined buckets (ranges). Each recorded value is placed into a bucket based on its range.
+
+An OpenTelemetry Histogram maintains the following for each measurement:
+
+- **Bucket counts:** how many values fell into each range
+- **Sum: **total of all recorded values
+- **Count:** total number of measurements
+
+### **Storage in KloudMate**
+
+When an OpenTelemetry Histogram is ingested into KloudMate, it is stored as three separate metrics:
+
+1. **Bucket time series**
+   Naming format: `<histogram_metric_name>_bucket`
+   Example: `http_server_duration_bucket`
+   This is the most commonly used metric. Each time series represents a bucket range. The value is the count of measurements that fell into that bucket, and the bucket boundary is stored using the Prometheus-style `le` (less than or equal) attribute/label.
+2. **Sum time series**
+   Naming format: `<histogram_metric_name>_sum`
+   Represents the total sum of all recorded measurements.
+3. **Count time series**
+   Naming format: `<histogram_metric_name>_count`
+   Represents the total number of recorded measurements.
+
+### Quantiles
+
+The most useful aggregations derived from histogram buckets are quantiles (percentiles).
+
+Quantiles from histograms are calculated using the [quantilePrometheusHistogram](https://clickhouse.com/docs/sql-reference/aggregate-functions/reference/quantilePrometheusHistogram) ClickHouse function, which is functionally equivalent to Prometheus’ [histogram\_quantile](https://prometheus.io/docs/prometheus/latest/querying/functions/#histogram_quantile). 
+
+The function operates on histogram bucket time series and estimates percentiles such as P99, P95, P90, P75, and P50 based on the bucket distribution. It uses cumulative bucket counts along with the bucket boundaries (`le`) to interpolate quantile values.
+
+Applying a quantile (e.g., P90) on a histogram metric in the Explore page is equivalent to:
+`histogram_quantile(0.90, rate(http_request_duration_seconds_bucket[]))`
+

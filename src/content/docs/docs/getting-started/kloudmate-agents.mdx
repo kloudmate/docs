@@ -1,0 +1,63 @@
+---
+title: "KloudMate Agents"
+description: "Documentation for KloudMate Agents"
+---
+**KM-Agent is an OpenTelemetry Collector distribution** that extends the upstream OpenTelemetry Collector with additional capabilities for simplified deployment, remote configuration management, automated instrumentation, and **eBPF-powered kernel-level observability**. We've bundled a curated set of components optimized for observability in Kubernetes, Linux, Docker, Windows environments, and even on Edge.
+
+## Key Problems Solved
+
+- **Complex Configuration**: Eliminates the steep learning curve of OpenTelemetry Collector configuration
+- **Manual Installation**: Provides automated installation scripts for multiple environments
+- **Configuration Management**: Enables remote configuration through a web interface without SSH access
+- **Blind Spots in Observability**: Using eBPF, get instant, zero-code visibility across all services — no SDK integration, no code changes, no restarts
+- **Database Visibility**: Built-in Database Activity Monitoring (DAM) captures SQL operations, latencies, and throughput at the kernel level
+
+### Features
+
+- **Automated Installation**: One-command deployment across Linux, Docker, and Kubernetes
+- **Remote Configuration**: Configure agents through a web interface without accessing your target machine
+- **Lifecycle Management**: Comprehensive management of OpenTelemetry Collector
+- **Synthetic Monitoring**: Built-in health checks and monitoring capabilities
+- **Multi-Platform Support**: Native support for various deployment environments (including ARM64)
+- **Real-time Dashboards**: Unique agent identification for centralized monitoring
+- **eBPF-Powered Observability**: Kernel-level, zero-code instrumentation for instant application and network visibility
+- **Database Activity Monitoring (DAM)**: Automatic profiling of MySQL and PostgreSQL. Even messaging systems like Redis, Kafka, etc.
+- **Zero Downtime Instrumentation**: Observe all services without code changes or application restarts
+
+## Supported Environments
+
+- **Linux** (Debian/Ubuntu, RHEL/CentOS) — x86\_64 and ARM64 (aarch64)
+- **Docker** (Host metrics and log collection)
+- **Kubernetes** (via DaemonSet and Deployment)
+- **Windows** (Windows Server 2016+)
+
+
+
+  
+
+    ###  [Linux Agent](<./KloudMate Agents/Installation/Installation/Linux Agent.mdx>)
+  
+
+  
+
+    ###  [Docker Agent](<./KloudMate Agents/Installation/Installation/Docker Agent.mdx>)
+  
+
+  
+
+    ###  [Windows Agent](<./KloudMate Agents/Installation/Installation/Windows Agent.mdx>)
+  
+
+  
+
+    ### [Kubernetes Agent](<./KloudMate Agents/Installation/Installation/Kubernetes Agent.mdx>)
+  
+
+
+
+### Future Support
+
+In future releases, the agent can also be installed in:
+
+- Mac
+- OCI (Oracle Cloud Infrastructure)

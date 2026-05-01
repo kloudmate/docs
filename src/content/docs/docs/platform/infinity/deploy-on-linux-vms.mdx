@@ -1,0 +1,24 @@
+---
+title: "Deploy on Linux VMs"
+description: "Documentation for Deploy on Linux VMs"
+---
+## Infra. Prerequisites 
+- A domain name with a wildcard SSL certificate for it
+- SMTP credentials for sending email notifications
+- A Stripe account \[Optional] (Only if online billing is required)
+
+**VM 1**:
+
+- A Linux machine running **Ubuntu **(on the same network as the applications or devices to be monitored)
+- **Port 4318** should be opened
+- Config - 8 core CPU / 16GB Memory / Storage - 1TB
+- An active internet connection 
+
+**VM 2 (smaller config):**
+
+- A Linux machine running **Ubuntu** (on the same network to install the collector)
+- **Port 4318** should be opened
+- Config - 2 core CPU / 4GB Memory / Storage - 100GB
+- An active internet connection 
+
+Once completed, please [drop us a message](https://www.kloudmate.com/contact) for a quick deployment of KloudMate. 

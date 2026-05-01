@@ -1,0 +1,295 @@
+---
+title: "ML Classifier Deployment Guide"
+description: "Documentation for ML Classifier Deployment Guide"
+---
+The **KloudMate ML Classifier** is an AI-powered data security module that natively integrates with your telemetry pipeline. By leveraging advanced Machine Learning engines alongside pattern-matching rules, it automatically inspects database queries in real-time to meticulously detect sensitive information, such as PII (Personally Identifiable Information) and PHI (Protected Health Information). It then dynamically enriches your traces with risk fingerprints before your telemetry ever leaves your infrastructure.
+
+This guide covers two strategies for deploying the **KloudMate ML Classifier**:
+
+1. Standalone deployment via **Docker Compose** on a simple machine.
+2. Enterprise deployment via **Kubernetes (K8s)**.
+
+## Strategy 1: Standalone Machine via Docker Compose
+
+<hint type="info">
+  **When to use this strategy?**
+
+  Use this strategy if you are running the classifier on a single VM or physical host where the KM-Agent is already running.
+</hint>
+
+### Prerequisites
+
+- Docker Engine and Docker Compose are installed.
+- The `KM-Agent` is running on the host machine, listening to OTLP HTTP traffic on port `4318`.
+
+
+### Prepare the Compose File
+
+
+Create a `docker-compose.yaml `file on your machine. It is configured to run the classifier with optimized CPU/Memory limits to handle the ML NLP models.
+
+If you need the ML Classifier to reach out to the KM Agent running directly on the host machine, Docker uses the special DNS `host.docker.internal` to route traffic to the host.
+
+`docker-compose.yaml`
+
+```yaml
+version: '3.8'
+
+services:
+  ml-classifier:
+    image:  ghcr.io/kloudmate/dam-classifierr:latest
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: km-ml-classifier
+    ports:
+      - "8080:8080"
+    environment:
+      - HTTP_WORKERS=2
+      - LOG_LEVEL=INFO
+    volumes:
+      - ./config.yaml:/app/config.yaml:ro
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 4G
+        reservations:
+          memory: 512M
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    networks:
+      - km-network
+
+networks:
+  km-network:
+    driver: bridge
+```
+
+
+### Start the Classifier
+
+
+Navigate to the directory containing `docker-compose.yaml` and run:
+
+```bash
+# Start the classifier in detached mode
+docker compose up -d
+
+# Check the logs to ensure models are loaded
+docker compose logs -f
+```
+
+
+### Configure KM-Agent
+
+
+Update your host Agent's configuration to route traces to the classifier container. Since the classifier exposes port `8080` to the host:
+
+```yaml
+processors:
+  # ...
+  km_classifier:
+    endpoint: "http://localhost:8080"  # The classifier is bound to localhost:8080
+    timeout: 500ms
+    batch_timeout: 2s
+    max_batch_size: 100
+```
+
+## **Strategy 2: Enterprise Cluster via Kubernetes**
+
+<hint type="info">
+  **When to use this strategy?**
+
+  Use this strategy if you are deploying the classifier to a Kubernetes cluster alongside the KloudMate agent ecosystem.
+</hint>
+
+### Prerequisites
+
+- Active Kubernetes cluster with `kubectl `access.
+- Helm or standard K8s networking setup.
+
+
+### Deploy the Configuration
+
+
+The classifier relies on a ConfigMap (`configmap.yaml`) to define the Presidio patterns and GLiNER labels.
+
+```bash
+kubectl apply -f k8s/configmap.yaml
+```
+
+
+### Deploy the Service & Application
+
+
+Apply the Kubernetes service and deployment manifests. The deployment automatically allocates `4Gi` of memory and spins up `2` HTTP workers for concurrent classification.
+
+`service.yaml`
+
+```yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: ml-classifier
+  namespace: km-agent
+  labels:
+    app: ml-classifier
+    component: dam-classifier
+spec:
+  type: ClusterIP
+  selector:
+    app: ml-classifier
+  ports:
+    - name: http
+      port: 8080
+      targetPort: 8080
+      protocol: TCP
+```
+
+`deployment.yaml`
+
+```yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ml-classifier
+  namespace: km-agent
+  labels:
+    app: ml-classifier
+    component: dam-classifier
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ml-classifier
+  template:
+    metadata:
+      labels:
+        app: ml-classifier
+        component: dam-classifier
+    spec:
+      containers:
+        - name: classifier
+          image:  ghcr.io/kloudmate/dam-classifier:latest
+          imagePullPolicy: Always
+          ports:
+            - name: http
+              containerPort: 8080
+              protocol: TCP
+          resources:
+            # GLiNER small model (~400MB)
+            requests:
+              memory: "512Mi"
+              cpu: "250m"
+            limits:
+              memory: "4Gi"
+              cpu: "2"
+          env:
+            - name: KM_AGENT_ENDPOINT
+              value: "km-agent-svc.km-agent.svc.cluster.local:4318"
+            - name: LOG_LEVEL
+              value: "INFO"
+            - name: HTTP_WORKERS
+              value: "2"
+          volumeMounts:
+            - name: config
+              mountPath: /app/config.yaml
+              subPath: config.yaml
+              readOnly: true
+      volumes:
+        - name: config
+          configMap:
+            name: ml-classifier-config
+      # Ensure pods are spread across nodes
+      topologySpreadConstraints:
+        - maxSkew: 1
+          topologyKey: kubernetes.io/hostname
+          whenUnsatisfiable: ScheduleAnyway
+          labelSelector:
+            matchLabels:
+              app: ml-classifier
+```
+
+```bash
+kubectl apply -f service.yaml
+kubectl apply -f deployment.yaml
+```
+
+
+### Verify Deployment
+
+
+Verify that the pod has started properly and the GLiNER models have been downloaded into memory.
+
+```bash
+# Check if the pod is Running
+kubectl get pods -n km-agent -l app=ml-classifier
+
+# Verify model loading logs
+kubectl logs -n km-agent -l app=ml-classifier -f
+```
+
+
+### Configure KM-Agent in K8s
+
+
+In your KM Agent's config (if deployed as a separate pod in the same namespace), configure the processor to hit the fully qualified internal DNS of the service we just created.
+
+`otel-collector-config.yaml`
+
+```yaml
+# Agent configuration with DAM processor
+receivers:
+  otlp:
+    protocols:
+      grpc:
+        endpoint: 0.0.0.0:4317
+      http:
+        endpoint: 0.0.0.0:4318
+
+processors:
+  batch:
+    timeout: 1s
+    send_batch_size: 1024
+
+  memory_limiter:
+    check_interval: 1s
+    limit_mib: 512
+    spike_limit_mib: 128
+
+  # DAM Classifier processor (using the correct type name from factory.go)
+  km_classifier:
+    endpoint: "http://ml-classifier.km-agent.svc.cluster.local:8080"  # Fully qualified K8s Service URL
+    timeout: 500ms
+    batch_timeout: 2s
+    max_batch_size: 100
+    enable_batching: true
+    skip_if_no_query: true
+    max_idle_conns: 100
+    max_conns_per_host: 100
+
+exporters:
+  otlp:
+    endpoint: "https://otel.kloudmate.com:4318"
+    tls:
+      insecure: true
+
+  debug:
+    verbosity: detailed
+
+service:
+  pipelines:
+    traces:
+      receivers: [otlp]
+      processors: [memory_limiter, km_classifier, batch]
+      exporters: [otlp]
+```
+
+## Verifying Classification is Working
+
+Regardless of the deployment strategy, you can verify the setup by observing the KM Agent logs (ensure `level: debug` is enabled temporarily). The traced applications will start showing `dam.lineage.fingerprint`, `dam.lineage.risk`, and extracted `PII/PHI` properties dynamically added to the payload before arriving at your backend.

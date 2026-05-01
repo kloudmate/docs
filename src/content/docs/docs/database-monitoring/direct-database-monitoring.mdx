@@ -1,0 +1,490 @@
+---
+title: "Direct Database Monitoring"
+description: "Documentation for Direct Database Monitoring"
+---
+The KloudMate Agent can connect directly to your database using a dedicated monitoring user to collect deep query metrics, execution plans, and schema metadata. This approach provides the richest level of database insight — including per-query latency breakdowns, explain plans, and wait event analysis — across both self-hosted and managed database services.
+
+<hint type="info">
+  When to Use
+
+  Use Direct Database Monitoring when you need deep query-level analytics, including execution plans, query digest metrics, wait event analysis, and schema discovery. This is the most comprehensive monitoring approach and works on any environment — self-hosted, RDS, Aurora, Cloud SQL, Azure, or AlloyDB.
+</hint>
+
+## How It Works
+
+1. You create a dedicated `kloudmate `database user with minimal read-only permissions
+2. Helper procedures/functions (using `SECURITY DEFINER`) allow the agent to access query stats and run `EXPLAIN` without needing superuser privileges
+3. The KM Agent connects using this user and periodically collects query metrics, live queries, execution plans, and schema metadata
+
+## MySQL Setup
+
+### 1. Create Monitoring User
+
+Connect as a user with admin privileges (for RDS/Aurora, use the master user):
+
+```sql
+CREATE USER IF NOT EXISTS 'kloudmate'@'%'
+  IDENTIFIED BY '';
+
+-- Limit connections to prevent exhausting the pool
+ALTER USER 'kloudmate'@'%' WITH MAX_USER_CONNECTIONS 5;
+```
+
+### **2. Grant Base Permissions**
+
+```sql
+-- PROCESS: See all running threads and queries
+-- REPLICATION CLIENT: Check replication lag and binary log position
+-- SELECT on perf_schema: Read query digest stats, wait events, etc.
+
+GRANT REPLICATION CLIENT ON *.* TO 'kloudmate'@'%';
+GRANT PROCESS ON *.* TO 'kloudmate'@'%';
+GRANT SELECT ON performance_schema.* TO 'kloudmate'@'%';
+```
+
+### 3. Create Helper Procedures
+
+Create a dedicated schema and the helper procedures the agent uses:
+
+```sql
+CREATE SCHEMA IF NOT EXISTS kloudmate;
+GRANT EXECUTE ON kloudmate.* TO 'kloudmate'@'%';
+```
+
+**Enable Performance Schema, Consumers**
+
+On RDS/Aurora/Cloud SQL, you cannot permanently enable `performance_schema `consumers via config. This procedure lets the agent enable them at runtime:
+
+```sql
+DELIMITER $$
+CREATE PROCEDURE IF NOT EXISTS kloudmate.enable_events_statements_consumers()
+SQL SECURITY DEFINER
+BEGIN
+    UPDATE performance_schema.setup_consumers
+       SET enabled = 'YES'
+     WHERE name LIKE 'events_statements_%';
+
+    UPDATE performance_schema.setup_consumers
+       SET enabled = 'YES'
+     WHERE name = 'events_waits_current';
+END $$
+DELIMITER ;
+
+GRANT EXECUTE ON PROCEDURE kloudmate.enable_events_statements_consumers TO 'kloudmate'@'%';
+```
+
+**Explain Statement**
+
+Collects JSON execution plans for sampled queries:
+
+```sql
+DELIMITER $$
+CREATE PROCEDURE IF NOT EXISTS kloudmate.explain_statement(IN query TEXT)
+SQL SECURITY DEFINER
+BEGIN
+    SET @explain := CONCAT('EXPLAIN FORMAT=json ', query);
+    PREPARE stmt FROM @explain;
+    EXECUTE stmt;
+    DEALLOCATE PREPARE stmt;
+END $$
+DELIMITER ;
+
+GRANT EXECUTE ON PROCEDURE kloudmate.explain_statement TO 'kloudmate'@'%';
+```
+
+### **4. Enable Performance Schema**
+
+<hint type="warning">
+  RDS / Aurora
+
+  Performance Schema must be enabled via the **Parameter Group** in the AWS Console or CLI — it cannot be set via SQL.
+
+  Set the following parameters and **reboot** the instance:
+
+  - `performance_schema = 1`
+  - `max_digest_length = 4096`
+  - `performance_schema_max_digest_length = 4096`
+  - `performance_schema_max_sql_text_length = 4096`
+</hint>
+
+**Self-Hosted** — add to your `my.cnf `/ `mysqld.cnf`:
+
+```ini
+[mysqld]
+performance_schema = ON
+performance-schema-consumer-events-statements-current = ON
+performance-schema-consumer-events-statements-history = ON
+performance-schema-consumer-events-statements-history-long = ON
+performance-schema-consumer-events-waits-current = ON
+max_digest_length = 4096
+performance_schema_max_digest_length = 4096
+performance_schema_max_sql_text_length = 4096
+```
+
+### 5. Optional: Schema Collection
+
+To enable the KloudMate Schema Explorer, grant `SELECT` on the databases the agent should discover:
+
+```sql
+-- Option A: All databases
+GRANT SELECT ON *.* TO 'kloudmate'@'%';
+
+-- Option B: Specific databases only
+GRANT SELECT ON your_app_db.* TO 'kloudmate'@'%';
+```
+
+<hint type="info">
+  The agent queries `information_schema` for metadata — it does **not** read your actual row data.
+</hint>
+
+### **6. Finalize**
+
+```sql
+FLUSH PRIVILEGES;
+```
+
+### 7. Verify Setup
+
+Run these as the `kloudmate` user:
+
+```sql
+-- Check performance_schema is enabled
+SELECT @@performance_schema;
+
+-- Check consumers are active
+SELECT name, enabled FROM performance_schema.setup_consumers
+ WHERE name LIKE 'events_statements_%' OR name = 'events_waits_current';
+
+-- Check query digests are being collected
+SELECT COUNT(*) FROM performance_schema.events_statements_summary_by_digest;
+
+-- Verify procedures exist
+SHOW PROCEDURE STATUS WHERE db = 'kloudmate';
+
+-- Test explain
+CALL kloudmate.explain_statement('SELECT 1');
+```
+
+### **MySQL Agent Configuration**
+
+```yaml
+receivers:
+  kloudmate_mysql:
+    endpoint: ":3306"
+    username: "kloudmate"
+    password: "${KLOUDMATE_DB_PASSWORD}"
+    database: ""                           # empty = monitor all databases
+    collect_query_metrics: true
+    collect_query_samples: true
+    collect_explain_plans: true
+    collect_schema: true                   # requires SELECT grants (step 5)
+    collection_interval: 10s
+    query_samples_rate: 1                  # sample every Nth query
+    tls:
+      enabled: true                        # recommended for RDS
+      skip_verify: false
+```
+
+For RDS with IAM authentication:
+
+```yaml
+receivers:
+  kloudmate_mysql:
+    endpoint: "<RDS_ENDPOINT>:3306"
+    auth_type: "iam"
+    username: "kloudmate"
+    aws:
+      region: "ap-south-1"
+      instance_endpoint: "<RDS_ENDPOINT>"
+```
+
+***
+
+## PostgreSQL Setup
+
+### 1. Create Monitoring User
+
+Connect as a superuser (or rds\_superuser on RDS/Aurora) to the postgres database:
+
+```sql
+CREATE USER kloudmate WITH PASSWORD '';
+```
+
+### **2. Grant Base Permissions**
+
+```sql
+-- pg_monitor: Built-in role (PG 10+) granting read access to
+-- pg_stat_activity, pg_stat_replication, pg_stat_database, and more.
+GRANT pg_monitor TO kloudmate;
+```
+
+### 3. Enable pg\_stat\_statements
+
+`pg_stat_statements` is the primary data source for query metrics (latency, calls, rows):
+
+```sql
+CREATE EXTENSION IF NOT EXISTS pg_stat_statements SCHEMA public;
+```
+
+<hint type="warning">
+  RDS / Aurora
+
+  Add `pg_stat_statements` to s`hared_preload_libraries` in your RDS parameter group and **reboot** the instance.
+</hint>
+
+**Self-Hosted** — add to `postgresql.conf`:
+
+```sql
+shared_preload_libraries = 'pg_stat_statements'
+pg_stat_statements.track = all
+pg_stat_statements.max = 10000
+track_activity_query_size = 4096
+```
+
+### 4. Create Helper Functions
+
+Create a dedicated schema and the SECURITY DEFINER wrapper functions:
+
+```sql
+CREATE SCHEMA IF NOT EXISTS kloudmate;
+GRANT USAGE ON SCHEMA kloudmate TO kloudmate;
+GRANT USAGE ON SCHEMA public TO kloudmate;
+```
+
+<hint type="info">
+  The `SECURITY DEFINER` pattern means these functions execute with the privileges of the admin who created them, not the `kloudmate `user calling them. This is how the agent gains full visibility into query stats and activity on managed databases without requiring superuser access.
+</hint>
+
+**pg\_stat\_activity Wrapper**
+
+Ensures full visibility into all sessions' query text (required on RDS where non-superusers have restricted access):
+
+```sql
+CREATE OR REPLACE FUNCTION kloudmate.pg_stat_activity()
+RETURNS SETOF pg_stat_activity
+AS $$
+    SELECT * FROM pg_catalog.pg_stat_activity;
+$$
+LANGUAGE sql
+SECURITY DEFINER;
+```
+
+**pg\_stat\_statements Wrapper**
+
+Ensures full visibility into all query statistics:
+
+```sql
+CREATE OR REPLACE FUNCTION kloudmate.pg_stat_statements()
+RETURNS SETOF pg_stat_statements
+AS $$
+    SELECT * FROM pg_stat_statements;
+$$
+LANGUAGE sql
+SECURITY DEFINER;
+```
+
+**Explain Statement**
+
+Collects JSON execution plans for sampled queries:
+
+```sql
+CREATE OR REPLACE FUNCTION kloudmate.explain_statement(
+    l_query TEXT,
+    OUT explain JSON
+)
+RETURNS SETOF JSON
+AS $$
+DECLARE
+    curs REFCURSOR;
+    plan JSON;
+BEGIN
+    OPEN curs FOR EXECUTE pg_catalog.concat('EXPLAIN (FORMAT JSON) ', l_query);
+    LOOP
+        FETCH curs INTO plan;
+        EXIT WHEN NOT FOUND;
+        RETURN QUERY SELECT plan;
+    END LOOP;
+    CLOSE curs;
+    RETURN;
+END;
+$$
+LANGUAGE plpgsql
+SECURITY DEFINER;
+```
+
+### 5. Optional Functions
+
+**Stats Reset**
+
+Safe way to reset `pg_stat_statements` counters without direct superuser access:
+
+```sql
+CREATE OR REPLACE FUNCTION kloudmate.pg_stat_statements_reset()
+RETURNS VOID
+AS $$
+    SELECT pg_stat_statements_reset();
+$$
+LANGUAGE sql
+SECURITY DEFINER;
+```
+
+**Replication Monitoring**
+
+Only needed on the **primary / writer** instance for monitoring replication lag:
+
+```sql
+CREATE OR REPLACE FUNCTION kloudmate.pg_stat_replication()
+RETURNS SETOF pg_stat_replication
+AS $$
+    SELECT * FROM pg_catalog.pg_stat_replication;
+$$
+LANGUAGE sql
+SECURITY DEFINER;
+```
+
+### 6. Configure Parameters
+
+<hint type="warning">
+  RDS / Aurora Parameter Group
+
+  Set the following in the AWS Console or CLI and **reboot**:
+
+  - `shared_preload_libraries = 'pg_stat_statements'`
+  - `track_activity_query_size = 4096`
+  - `pg_stat_statements.track = all`
+  - `pg_stat_statements.max = 10000 `(recommended)
+</hint>
+
+**Self-Hosted** — add to `postgresql.conf:`
+
+```sql
+shared_preload_libraries = 'pg_stat_statements'
+pg_stat_statements.track = all
+pg_stat_statements.max = 10000
+track_activity_query_size = 4096
+track_io_timing = on                     # required for I/O metrics
+log_min_duration_statement = 1000        # log slow queries (ms)
+```
+
+### 7. Optional: auto\_explain
+
+For full `EXPLAIN ANALYZE` plans (actual execution times, not just estimates):
+
+```sql
+shared_preload_libraries = 'pg_stat_statements,auto_explain'
+auto_explain.log_min_duration = 1000
+auto_explain.log_analyze = true
+auto_explain.log_buffers = true
+auto_explain.log_timing = true
+auto_explain.log_triggers = true
+auto_explain.log_verbose = true
+auto_explain.log_format = json
+auto_explain.log_nested_statements = true
+auto_explain.sample_rate = 1             # 1 = all, 0.1 = 10% sample
+```
+
+<hint type="warning">
+  `auto_explain` with l`og_analyze=true` adds overhead because it executes the query plan. Use `sample_rate < 1 `in production.
+</hint>
+
+### **8. Repeat for Each Database**
+
+<hint type="info">
+  `pg_stat_statements `and the kloudmate functions must exist in **every** database the agent monitors. The agent connects to one database at a time.
+</hint>
+
+For each additional database (e.g. `app_db`, `analytics_db`), connect and re-run the extension + function creation:
+
+```sql
+for db in $(psql -t -c "SELECT datname FROM pg_database WHERE datistemplate = false"); do
+  psql -d "$db" -f kloudmate_functions.sql
+done
+```
+
+### 9. Verify Setup
+
+Run as the `kloudmate` user:
+
+```sql
+-- Check pg_stat_statements is loaded
+SELECT count(*) FROM pg_stat_statements;
+
+-- Check functions exist
+SELECT routine_name FROM information_schema.routines
+ WHERE routine_schema = 'kloudmate';
+
+-- Test pg_stat_activity wrapper
+SELECT count(*) FROM kloudmate.pg_stat_activity();
+
+-- Test explain
+SELECT * FROM kloudmate.explain_statement('SELECT 1');
+
+-- Check track_activity_query_size
+SHOW track_activity_query_size;
+
+-- Check track_io_timing
+SHOW track_io_timing;
+```
+
+**PostgreSQL Agent Configuration**
+
+```yaml
+receivers:
+  kloudmate_postgresql:
+    endpoint: ":5432"
+    username: "kloudmate"
+    password: "${KLOUDMATE_DB_PASSWORD}"
+    database: "postgres"                   # primary connection database
+    databases_to_monitor:                  # additional databases
+      - "app_db"
+      - "analytics_db"
+    collect_query_metrics: true
+    collect_query_samples: true
+    collect_explain_plans: true
+    collect_schema: true
+    collect_replication_stats: true
+    collection_interval: 10s
+    tls:
+      mode: "require"                      # require | verify-ca | verify-full
+      ca_cert: "/path/to/rds-ca-bundle.pem"
+```
+
+For RDS with IAM authentication:
+
+```yaml
+receivers:
+  kloudmate_postgresql:
+    endpoint: "<RDS_ENDPOINT>:5432"
+    auth_type: "iam"
+    username: "kloudmate"
+    database: "postgres"
+    aws:
+      region: "ap-south-1"
+      instance_endpoint: "<RDS_ENDPOINT>"
+```
+
+***
+
+## Cleanup / Uninstall
+
+### MySQL
+
+```sql
+DROP PROCEDURE IF EXISTS kloudmate.enable_events_statements_consumers;
+DROP PROCEDURE IF EXISTS kloudmate.explain_statement;
+DROP SCHEMA IF EXISTS kloudmate;
+DROP USER IF EXISTS 'kloudmate'@'%';
+```
+
+### **PostgreSQL**
+
+```sql
+DROP FUNCTION IF EXISTS kloudmate.pg_stat_activity();
+DROP FUNCTION IF EXISTS kloudmate.pg_stat_statements();
+DROP FUNCTION IF EXISTS kloudmate.explain_statement(TEXT);
+DROP FUNCTION IF EXISTS kloudmate.pg_stat_statements_reset();
+DROP FUNCTION IF EXISTS kloudmate.pg_stat_replication();
+DROP SCHEMA IF EXISTS kloudmate;
+DROP USER IF EXISTS kloudmate;
+```
+

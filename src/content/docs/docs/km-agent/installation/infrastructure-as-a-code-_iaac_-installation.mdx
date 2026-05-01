@@ -1,0 +1,339 @@
+---
+title: "Infrastructure as a Code (IaaC) Installation"
+description: "Documentation for Infrastructure as a Code (IaaC) Installation"
+---
+# Infrastructure as a Code (IaaC) Installation
+
+Deploy the KloudMate agent across any cloud provider or on-premises infrastructure using Infrastructure as a Code (IaaC) and automation tools.
+
+## Deployment Approaches
+
+| Method               | Best For                    | Cloud Support           |
+| -------------------- | --------------------------- | ----------------------- |
+| **cloud-init**       | New VMs, ASGs, Scale Sets   | All providers           |
+| **Ansible**          | Existing VM fleets          | All providers + on-prem |
+| **Terraform module** | IaaC-managed infrastructure | All providers           |
+| **Packer**           | Pre-baked machine images    | AWS, GCP, Azure         |
+
+### Decision Matrix
+
+If you are provisioning a new VM or Auto-scaling group, you should use **cloud-init** via User Data/Custom Data. If you want faster boot times, use **Packer** to pre-bake the image and cloud-init for config only.
+
+If you are managing an existing fleet, use an **Ansible playbook**.
+
+If you are managing infrastructure with **Terraform**, use the **Terraform module**.
+
+## 1. cloud-init (Universal)
+
+Works on every provider that supports cloud-init (AWS, GCP, Azure, DigitalOcean, Alibaba, Hetzner, Vultr, Linode, etc.)
+
+
+AWS
+
+  ```null
+  # Encode and attach to launch template
+  base64 -w0 cloud-init/cloud-init.yaml > /tmp/userdata.b64
+
+  aws ec2 create-launch-template \
+    --launch-template-name kmagent-template \
+    --launch-template-data '{
+      "UserData": "'$(cat /tmp/userdata.b64)'"
+    }'
+  ```
+
+  GCP
+
+  ```none
+  gcloud compute instance-templates create kmagent-template \
+    --metadata-from-file user-data=cloud-init/cloud-init.yaml \
+    --machine-type e2-medium \
+    --image-family ubuntu-2204-lts \
+    --image-project ubuntu-os-cloud
+  ```
+
+  Azure
+
+  ```text
+  az vmss create \
+    --name kmagent-vmss \
+    --resource-group myResourceGroup \
+    --image Ubuntu2204 \
+    --custom-data cloud-init/cloud-init.yaml
+  ```
+
+  DigitalOcean
+
+  ```curl
+  doctl compute droplet create kmagent-node \
+    --image ubuntu-22-04-x64 \
+    --size s-1vcpu-1gb \
+    --user-data-file cloud-init/cloud-init.yaml
+  ```
+
+  Alibaba Cloud
+
+  ```json
+  Paste cloud-init.yaml content into: ECS Console → Instance → Advanced Options → User Data
+  ```
+
+
+## 2. Ansible
+
+Ansible is perfect for deploying the KloudMate agent to existing VM fleets.
+
+**Navigate to the Ansible directory**
+
+```none
+cd ansible/
+```
+
+**Set your API key**
+
+```bash
+export KM_API_KEY="your-kloudmate-api-key"
+```
+
+**Edit your inventory**
+
+Add your hosts to the inventory file:
+
+```bash
+vim inventories/production.ini
+```
+
+**Deploy**
+
+
+All Hosts
+
+  ```bash
+  ansible-playbook -i inventories/production.ini deploy-kmagent.yml \
+    -e "km_api_key=$KM_API_KEY km_endpoint=https://otel.kloudmate.com"
+  ```
+
+  Specific Group
+
+  ```none
+  ansible-playbook -i inventories/production.ini deploy-kmagent.yml \
+    -e "km_api_key=$KM_API_KEY km_endpoint=https://otel.kloudmate.com" \
+    --limit aws
+  ```
+
+  Dry Run
+
+  ```null
+  ansible-playbook -i inventories/production.ini deploy-kmagent.yml \
+    -e "km_api_key=$KM_API_KEY km_endpoint=https://otel.kloudmate.com" \
+    --check --diff
+  ```
+
+
+### Dynamic Inventory (Auto-discover VMs)
+
+Instead of static inventory files, use cloud-native dynamic inventory plugins:
+
+
+AWS
+
+  ```null
+  pip install boto3
+  ansible-playbook -i aws_ec2.yml deploy-kmagent.yml
+  ```
+
+  GCP
+
+  ```none
+  pip install google-auth
+  ansible-playbook -i gcp_compute.yml deploy-kmagent.yml
+  ```
+
+  Azure
+
+  ```text
+  pip install azure-identity azure-mgmt-compute
+  ansible-playbook -i azure_rm.yml deploy-kmagent.yml
+  ```
+
+
+**Example **`aws_ec2.yml`** configuration:**
+
+
+AWS
+
+  ```yaml
+  plugin: amazon.aws.aws_ec2
+  regions:
+    - us-east-1
+    - us-west-2
+    - ap-south-1
+  filters:
+    tag:Environment: production
+    instance-state-name: running
+  keyed_groups:
+    - key: tags.Role
+      prefix: role
+    - key: placement.region
+      prefix: region
+  compose:
+    ansible_host: private_ip_address
+  ```
+
+
+### **Useful Ansible Commands**
+
+```yaml
+# Upgrade agent on all hosts
+ansible-playbook deploy-kmagent.yml --tags upgrade \
+  -e "kmagent_version=1.2.0"
+
+# Only reconfigure (no reinstall)
+ansible-playbook deploy-kmagent.yml --tags configure
+
+# Uninstall from specific hosts
+ansible-playbook deploy-kmagent.yml \
+  -e "kmagent_state=absent" --limit "gcp"
+
+# Check agent status across fleet
+ansible all -i inventories/production.ini -m shell \
+  -a "systemctl status kmagent | head -5"
+```
+
+## 3. Terraform Module
+
+You can easily embed kmagent into your Terraform deployments across any provider using our user-data module.
+
+
+Module Usage
+
+  ```none
+  module "kmagent" {
+    source      = "./modules/user-data"
+    km_api_key  = var.km_api_key
+    km_endpoint = "https://otel.kloudmate.com"
+    kmagent_tags = {
+      env  = "production"
+      team = "platform"
+    }
+  }
+  ```
+
+  AWS
+
+  ```null
+  resource "aws_launch_template" "app" {
+    name_prefix = "app-"
+    user_data   = base64encode(module.kmagent.cloud_init)
+  }
+
+  resource "aws_autoscaling_group" "app" {
+    launch_template {
+      id      = aws_launch_template.app.id
+      version = "$Latest"
+    }
+    min_size = 2
+    max_size = 20
+  }
+  ```
+
+  GCP
+
+  ```text
+  resource "google_compute_instance_template" "app" {
+    metadata = {
+      user-data = module.kmagent.cloud_init
+    }
+  }
+  ```
+
+  Azure
+
+  ```curl
+  resource "azurerm_linux_virtual_machine_scale_set" "app" {
+    custom_data = base64encode(module.kmagent.cloud_init)
+  }
+  ```
+
+  DigitalOcean
+
+  ```json
+  resource "digitalocean_droplet" "app" {
+    user_data = module.kmagent.cloud_init
+  }
+  ```
+
+
+## 4. Packer (Pre-baked Images)
+
+Best when you want zero install-time latency. The agent binary is baked into the image; only the config (API key) is injected at boot.
+
+**Navigate to the Packer directory**
+
+```bash
+cd packer/
+```
+
+**Build your images**
+
+
+AWS AMI
+
+  ```bash
+  packer build -only=amazon-ebs.kmagent \
+    -var 'kmagent_version=1.2.0' \
+    kmagent-image.pkr.hcl
+  ```
+
+  GCP Image
+
+  ```none
+  ```
+
+  Build All
+
+  ```null
+  packer build kmagent-image.pkr.hcl
+  ```
+
+
+**Deploy**
+
+Use the resulting image in your Launch Template / Instance Template, with minimal user-data that only injects the API key.
+
+## Secret Management
+
+<hint type="warning">
+  Never hardcode API keys! Use your cloud's native secret store to securely inject credentials at runtime.
+</hint>
+
+| **Provider** | **Service**         | **Retrieval Command**                                                   |
+| ------------ | ------------------- | ----------------------------------------------------------------------- |
+| AWS          | SSM Parameter Store | `aws ssm get-parameter --name /kloudmate/api-key --with-decryption`     |
+| AWS          | Secrets Manager     | `aws secretsmanager get-secret-value --secret-id kloudmate-api-key`     |
+| GCP          | Secret Manager      | `gcloud secrets versions access latest --secret=kloudmate-api-key`      |
+| Azure        | Key Vault           | `az keyvault secret show --name kloudmate-api-key --vault-name myvault` |
+| DigitalOcean | Reserved env vars   | Set via doctl or Terraform                                              |
+| Alibaba      | KMS                 | `aliyun kms GetSecretValue --SecretName kloudmate-api-key`              |
+
+## **Directory Structure**
+
+
+> kmagent-deploy/
+>   ├── ansible/
+>   │   ├── ansible.cfg
+>   │   ├── deploy-kmagent.yml          # Main playbook
+>   │   ├── inventories/
+>   │   │   └── production.ini          # Static inventory (edit with your hosts)
+>   │   └── roles/
+>   │       └── kmagent/
+>   │           ├── defaults/main.yml   # Configurable variables
+>   │           ├── handlers/main.yml   # Service reload/restart
+>   │           ├── tasks/main.yml      # Install, configure, upgrade, uninstall
+>   │           └── templates/
+>   │               ├── agent.yaml.j2   # Agent config
+>   │               └── kmagent.service.j2  # systemd unit
+>   └── terraform/
+>       └── modules/
+>           └── user-data/
+>               └── main.tf              # Reusable user-data module
+
+

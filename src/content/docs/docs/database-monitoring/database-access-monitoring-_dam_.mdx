@@ -1,0 +1,55 @@
+---
+title: "Database Access Monitoring (DAM)"
+description: "Documentation for Database Access Monitoring (DAM)"
+---
+The eBPF Receiver includes built-in **Database Activity Monitoring** that automatically profiles database traffic at the kernel level. No database-side agents or plugins needed.
+
+### Supported Databases
+
+| ### **Database** | ### Captured Metrics                                                         |
+| ---------------- | ---------------------------------------------------------------------------- |
+| **MySQL**        | Query operations, latency (avg + P99), prepared statements, read/write ratio |
+| **PostgreSQL**   | Query operations, latency (avg + P99), prepared statements, read/write ratio |
+| **Redis**        | Query operations, latency (avg + P99), prepared statements, read/write ratio |
+
+### Supported Messaging Systems
+
+| ### System        | ### Captured Metrics                    |
+| ----------------- | --------------------------------------- |
+| **Kafka**         | Producer/Consumer metrics, throughput   |
+| **Elasticsearch** | Request operations, latency, throughput |
+
+### Key DAM Capabilities
+
+- **Table-level hotspot detection** — identify your most queried and slowest tables
+- **Read vs. Write ratio analysis** — understand workload characteristics per table
+- **P99 latency tracking** — surface tail latency issues before they impact users
+- **Zero configuration** — automatically detected via eBPF kernel hooks; no database credentials required
+
+### When to Use
+
+- When you need instant database visibility with **zero setup**
+- When you cannot or prefer not to create a monitoring user on the database
+- When running on Linux with kernel ≥ 5.8
+- When you want to monitor traffic across **all** supported databases and messaging systems from a single agent
+
+<hint type="info">
+  For deeper query analytics, including execution plans and schema discovery, see [Direct Database Monitoring](<./Direct Database Monitoring.mdx>). For distributed trace context from your application SDKs, see [OpenTelemetry Database Monitoring](<./OpenTelemetry Database Monitoring.mdx>).
+</hint>
+
+### Configuration
+
+Enable heuristic SQL detection and tune caches for high-load environments:
+
+```yaml
+ebpf:
+  heuristic_sql_detect: true
+  mysql_prepared_statements_cache_size: 1024
+  postgres_prepared_statements_cache_size: 1024
+```
+
+### Prerequisites
+
+- Linux kernel ≥ 5.8 (recommended; some features work on 4.18+)
+- Root privileges or `CAP_SYS_ADMIN` + `CAP_BPF capabilities`
+- The eBPF Receiver must be enabled in the agent configuration (see [Configuration](<././KloudMate Agents/Configuration.mdx>))

@@ -1,0 +1,180 @@
+---
+title: "Java"
+description: "Documentation for Java"
+---
+In this guide, we will walk you through the process of setting up and using OpenTelemetry in Java. You will learn how to instrument a simple Java application to produce traces, metrics, and logs.
+
+**Step 1: Prerequisites**
+
+Before diving into OpenTelemetry, be sure that you have the following installed locally:
+
+- Java JDK
+- [Gradle](https://gradle.org/)
+
+**Step 2: Example Application**
+
+For this tutorial, we will be using a basic [Spring Boot](https://spring.io/guides/gs/spring-boot/) application. However, OpenTelemetry Java is compatible with other web frameworks like Apache Wicket and Play as well. Feel free to adapt the instructions to your preferred framework.
+
+**Step 3: Installation**
+
+1\. Set up an environment in a new directory called `java-simple`. Create a file `build.gradle.kts` in that directory and add the following content to it.
+
+```java
+plugins {
+  id("java")
+  id("org.springframework.boot") version "3.0.6"
+  id("io.spring.dependency-management") version "1.1.0"
+}
+
+sourceSets {
+  main {
+    java.setSrcDirs(setOf("."))
+  }
+}
+
+repositories {
+  mavenCentral()
+}
+
+dependencies {
+  implementation("org.springframework.boot:spring-boot-starter-web")
+}
+
+```
+
+2\. Create another file called `DiceApplication.java` in the same directory and add the following content to it:
+
+```java
+package otel;
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.Banner;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+
+@SpringBootApplication
+public class DiceApplication {
+  public static void main(String[] args) {
+    SpringApplication app = new SpringApplication(DiceApplication.class);
+    app.setBannerMode(Banner.Mode.OFF);
+    app.run(args);
+  }
+}
+
+```
+
+3\. Create another file called `RollController.java` in the same directory and add the following content to it:
+
+```java
+package otel;
+
+import java.util.Optional;
+import java.util.concurrent.ThreadLocalRandom;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
+@RestController
+public class RollController {
+  private static final Logger logger = LoggerFactory.getLogger(RollController.class);
+
+  @GetMapping("/rolldice")
+  public String index(@RequestParam("player") Optional<String> player) {
+    int result = this.getRandomNumber(1, 6);
+    if (player.isPresent()) {
+      logger.info("{} is rolling the dice: {}", player.get(), result);
+    } else {
+      logger.info("Anonymous player is rolling the dice: {}", result);
+    }
+    return Integer.toString(result);
+  }
+
+  public int getRandomNumber(int min, int max) {
+    return ThreadLocalRandom.current().nextInt(min, max + 1);
+  }
+}
+
+```
+
+4\. Run the application using the following command then open http\://localhost:8080/rolldice in your web browser to ensure it is working.
+
+```java
+gradle assemble
+java -jar ./build/libs/java-simple.jar
+```
+
+**Step 4: Instrumentation**
+
+Now we are going to use Java agent to automatically instrument the application at launch time. We will configure the Java agent using environment variables.
+
+1\. Download the [opentelemetry-javaagent.jar](https://github.com/open-telemetry/opentelemetry-java-instrumentation/releases/latest/download/opentelemetry-javaagent.jar) from [Releases](https://github.com/open-telemetry/opentelemetry-java-instrumentation/releases) of the `opentelemetry-java-instrumentation` repository. The JAR file contains the agent and all automatic instrumentation packages:
+
+
+text
+
+  ```none
+  https://github.com/open-telemetry/opentelemetry-java-instrumentation/releases
+  ```
+
+
+2\. Set and export variables that specify the Java agent JAR and a [console exporter.](https://github.com/open-telemetry/opentelemetry-java/blob/main/sdk-extensions/autoconfigure/README.md#logging-exporter)
+
+```none
+export JAVA_TOOL_OPTIONS="-javaagent:PATH/TO/opentelemetry-javaagent.jar" \
+  OTEL_TRACES_EXPORTER=otlp \
+  OTEL_METRICS_EXPORTER=otlp \
+  OTEL_LOGS_EXPORTER=otlp \
+  OTEL_EXPORTER_OTLP_PROTOCOL=http/protobuf \
+  OTEL_EXPORTER_OTLP_ENDPOINT=https://otel.kloudmate.com:4318 \
+  OTEL_EXPORTER_OTLP_HEADERS="Authorization="
+  
+```
+
+<hint type="info">
+   The exporter URL mentioned above, along with the KloudMate API-Key as the Authorization header will send the data to KloudMate.
+</hint>
+
+Replace `PATH/TO` above, with your path to the JAR file.
+
+3\. Run your application using the following command:
+
+```java
+$ java -jar ./build/libs/java-simple.jar
+...
+```
+
+Note the output from the `otel.javaagent`.
+
+4\. Send a request using `curl` from another terminal. You will see trace & log output from the server and client.
+
+```java
+curl localhost:8080/rolldice
+```
+
+5\. Stop the server process to see an output of all the metrics collected.
+
+## Java Metrics
+
+| ### Name                        | ### Description                                                                                    |
+| ------------------------------- | -------------------------------------------------------------------------------------------------- |
+| jvm\_classes\_loaded            | The number of loaded classes                                                                       |
+| jvm\_gc\_collections\_count     | The total number of garbage collections that have occurred                                         |
+| jvm\_gc\_collections\_elapsed   | The approximate accumulated collection elapsed time                                                |
+| jvm\_memory\_heap\_init         | The initial amount of memory that the JVM requests from the operating system for the heap          |
+| jvm\_memory\_heap\_max          | The maximum amount of memory can be used for the heap                                              |
+| jvm\_memory\_heap\_used         | The current heap memory usage                                                                      |
+| jvm\_memory\_heap\_committed    | The amount of memory that is guaranteed to be available for the heap                               |
+| jvm\_memory\_nonheap\_init      | The initial amount of memory that the JVM requests from the operating system for non-heap purposes |
+| jvm\_memory\_nonheap\_max       | The maximum amount of memory can be used for non-heap purposes                                     |
+| jvm\_memory\_nonheap\_used      | The current non-heap memory usage                                                                  |
+| jvm\_memory\_nonheap\_committed | The amount of memory that is guaranteed to be available for non-heap purposes                      |
+| jvm\_memory\_pool\_init         | The initial amount of memory that the JVM requests from the operating system for the memory pool   |
+| jvm\_memory\_pool\_max          | The maximum amount of memory can be used for the memory pool                                       |
+| jvm\_memory\_pool\_used         | The current memory pool memory usage                                                               |
+| jvm\_memory\_pool\_committed    | The amount of memory that is guaranteed to be available for the memory pool                        |
+| jvm\_threads\_count             | The current number of threads                                                                      |
+
+***
+
+*Source URL for the example application: *[https://opentelemetry.io/docs/instrumentation/java/getting-started/](https://opentelemetry.io/docs/instrumentation/java/getting-started/)

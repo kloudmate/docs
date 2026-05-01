@@ -1,0 +1,132 @@
+---
+title: ".NET Instrumentation (Running on Kubernetes)"
+description: "Documentation for .NET Instrumentation (Running on Kubernetes)"
+---
+This document explains how to instrument the .NET application with KloudMate, using OpenTelemetry.
+
+This instrumentation can be possible using the OpenTelemetry operator, which supports injecting and configuring auto-instrumentation libraries for .NET, Java, Node.js, Python, and Go service.
+
+**Pre-requisites:**
+
+1. Running a Kubernetes cluster.
+2. The [cert-manager](https://cert-manager.io/docs/installation/) must be installed. If you use the helm chart, there is an option to generate a self-signed cert instead.
+
+**Step 1:** First, install the [OpenTelemetry Operator](https://github.com/open-telemetry/opentelemetry-operator) into your cluster.
+
+You can do this with the [Operator release manifest](https://github.com/open-telemetry/opentelemetry-operator#getting-started), the [Operator helm chart](https://github.com/open-telemetry/opentelemetry-helm-charts/tree/main/charts/opentelemetry-operator#opentelemetry-operator-helm-chart), or with [Operator Hub](https://operatorhub.io/operator/opentelemetry-operator).
+
+
+BASH
+
+  ```none
+  kubectl apply -f https://github.com/open-telemetry/opentelemetry-operator/releases/latest/download/opentelemetry-operator.yaml
+  ```
+
+
+**Step 2:** Create an OpenTelemetry collector to send telemetry from containers to a collector instead of directly to a backend. 
+
+For example, here is a demo collector used 
+
+```yaml
+kubectl apply -f - <<EOF
+apiVersion: opentelemetry.io/v1beta1
+kind: OpenTelemetryCollector
+metadata:
+  name: demo
+  namespace: default #change namespace
+spec:
+  config:
+    receivers:
+      otlp:
+        protocols:
+          grpc:
+            endpoint: 0.0.0.0:4317
+          http:
+            endpoint: 0.0.0.0:4318
+
+    processors:
+      memory_limiter:
+        check_interval: 1s
+        limit_percentage: 75
+        spike_limit_percentage: 15
+      batch:
+        send_batch_size: 10000
+        timeout: 10s
+
+    exporters:
+      debug: {}
+      otlphttp:
+        endpoint: 'https://otel.kloudmate.com:4318'
+        headers:
+          Authorization: KLOUDMATE-API-KEY     
+
+    service:
+      pipelines:
+        traces:
+          receivers: [otlp]
+          processors: [memory_limiter, batch]
+          exporters: [debug, otlphttp]
+        metrics:
+          receivers: [otlp]
+          processors: [memory_limiter, batch]
+          exporters: [debug, otlphttp]
+        logs:
+          receivers: [otlp]
+          processors: [memory_limiter, batch]
+          exporters: [debug, otlphttp]
+EOF
+```
+
+<hint type="info">
+  Change your Kloudmate workspace API key to configure the collector to export data to Kloudmate.
+</hint>
+
+**Step 3:** Configure automatic instrumentation
+
+To be able to manage automatic instrumentation, the Operator needs to be configured to know what pods to the instrument and which automatic instrumentation to use for those pods. This is done via the [Instrumentation CRD](https://github.com/open-telemetry/opentelemetry-operator/blob/main/docs/api/instrumentations.md)
+
+For our example, we used .NET SDK auto instrumentation.
+
+The following command creates a basic Instrumentation resource that is configured for instrumenting .NET services to get metrics, logs, and traces.
+
+
+YAML
+
+  ```yaml
+  kubectl apply -f - <<EOF
+  apiVersion: opentelemetry.io/v1alpha1
+  kind: Instrumentation
+  metadata:
+    name: demo-instrumentation
+    namespace: default #change namespace
+  spec:
+    exporter:
+      endpoint: http://demo-collector:4318
+    propagators:
+      - tracecontext
+      - baggage
+    sampler:
+      type: parentbased_traceidratio
+      argument: "1"
+  EOF
+  ```
+
+
+<hint type="info">
+  The endpoint used under exporter must be the same as the service name of the collector created in Step 2. Use only one instrumentation command as per the requirement.
+</hint>
+
+**Step 4: **Now opt-in your services to automatic instrumentation. This is done by updating your service’s spec.template.metadata.annotations to include a language-specific annotation 
+
+.NET: `instrumentation.opentelemetry.io/inject-dotnet:` "true"
+
+To patch your existing .NET application with the necessary annotation use the below command
+
+
+BASH
+
+  ```yaml
+  kubectl patch deployment <deployment-name> -n <namespace> -p '{"spec":{"template":{"metadata":{"annotations":{"instrumentation.opentelemetry.io/inject-dotnet": "true"}}}}}' 
+  ```
+
+

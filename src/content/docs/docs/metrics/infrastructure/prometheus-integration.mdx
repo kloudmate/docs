@@ -1,0 +1,91 @@
+---
+title: "Prometheus Integration"
+description: "Documentation for Prometheus Integration"
+---
+This document is primarily designed for users who have previously integrated Prometheus with their services and are using it for metrics monitoring.
+
+Prometheus is an open-source tool for monitoring metrics. It collects and stores data as a time series, capturing metrics that evolve over time.
+
+**Prerequisite:**
+
+1. The OpenTelemetry Collector must be [installed](https://docs.kloudmate.com/installing-the-opentelemetry-collector) and running. It is recommended that the collector be run on the same server as Prometheus.
+2. The user must sign up for KloudMate and obtain an API authentication key.
+3. The user must have access to the Prometheus YAML configuration file.
+
+**Step 1:**
+
+- Access the server and open the Prometheus configuration file located at /etc/prometheus/prometheus.yaml.
+
+```none
+sudo nano /etc/prometheus/prometheus.yml
+```
+
+- Copy the contents of this file and paste them into a text editor, such as Notepad.
+
+**Step 2: **Configure the[ Prometheus receiver ](https://github.com/open-telemetry/opentelemetry-collector-contrib/blob/main/receiver/prometheusreceiver/README.md)in the OpenTelemetry configuration file to send metrics.
+
+Navigate to the /etc/otel directory and open config.yaml. Paste the copied Prometheus configuration into the config.yaml file.
+
+```none
+receivers:
+  prometheus:
+    config:
+```
+
+For example,
+
+```none
+receivers:
+    prometheus:
+      config:
+        scrape_configs:
+          - job_name: 'otel-collector'
+            scrape_interval: 5s
+            static_configs:
+              - targets: ['0.0.0.0:8888']
+          - job_name: k8s
+            kubernetes_sd_configs:
+            - role: pod
+            relabel_configs:
+            - source_labels: [__meta_kubernetes_pod_annotation_prometheus_io_scrape]
+              regex: "true"
+              action: keep
+            metric_relabel_configs:
+            - source_labels: [__name__]
+              regex: "(request_duration_seconds.*|response_duration_seconds.*)"
+              action: keep
+```
+
+<hint type="info">
+  Please verify the indentation after adding prometheus configuration.
+</hint>
+
+**Step 3:  **Add the required processor and exporter on the edited open telemetry configuration file.
+
+```none
+processors:
+  batch:
+    send_batch_size: 5000
+    timeout: 10s
+
+exporters:
+  otlphttp:
+    endpoint: 'https://otel.kloudmate.com:4318'
+    headers:
+      Authorization: xxxxxxxx  # Use the auth key
+
+service:
+  pipelines:
+    metrics:
+      receivers: [prometheus]
+      processors: [batch] 
+      exporters: [otlphttp]
+```
+
+**Step 4: **Execute the provided command to restart and verify the status of the OpenTelemetry (Otel) Collector. Subsequently, monitor metrics on the Kloudmate dashboard. Additionally, configure an alarm in Kloudmate to receive notifications when CPU utilization for a specific application rises.
+
+
+> sudo systemctl restart otelcol-contrib
+>   sudo systemctl status otelcol-contrib
+
+

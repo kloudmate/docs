@@ -1,0 +1,106 @@
+---
+title: "Redis Monitoring"
+description: "Documentation for Redis Monitoring"
+---
+Redis is an in-memory data structure store commonly used as a database, cache, and message broker. It is designed for high performance and low latency, making it suitable for real-time applications such as caching, session management, analytics, messaging queues, and leaderboards. Redis supports multiple data structures and offers features such as persistence, replication, and clustering for scalability and high availability.
+
+Redis Monitoring in KloudMate helps you observe the health, performance, and behavior of your Redis servers by collecting metrics using the **KloudMate Agent** powered by OpenTelemetry. This enables centralized monitoring of Redis instances running on cloud virtual machines or on-premise servers.
+
+### What This Integration Provides
+
+With Redis Monitoring enabled, KloudMate collects telemetry that provides visibility into:
+
+- Command execution and throughput
+- Memory usage and fragmentation
+- Client connections and blocked clients
+- Network input and output
+- Replication and persistence behavior
+- Redis server uptime and CPU time
+
+This visibility helps detect performance degradation, memory pressure, command latency issues, connection limits, and replication problems.
+
+### **Configuring Redis Metrics Collection**
+
+You can achieve Redis performance monitoring by using the KloudMate Agent, which automatically collects Redis metrics and sends them to KloudMate for analysis and visualization.
+
+If you are already running the KloudMate Agent and want to configure it to send Redis telemetry data to KloudMate, update your YAML configuration as shown below.
+
+### **Agent Configuration**
+
+```yaml
+extensions:
+  health_check:
+  pprof:
+    endpoint: 0.0.0.0:1777
+  zpages:
+    endpoint: 0.0.0.0:55679
+
+receivers:
+  otlp:
+    protocols:
+      grpc:
+      http:
+
+  redis:
+    endpoint: localhost:6379
+    collection_interval: 10s
+
+processors:
+  resourcedetection:
+    detectors: [env, system]
+  cumulativetodelta:
+  batch:
+    send_batch_size: 5000
+    timeout: 10s
+
+exporters:
+  otlphttp:
+    endpoint: 'https://otel.kloudmate.com:4318'
+    headers:
+      Authorization: <token>
+
+service:
+
+  pipelines:
+
+    metrics:
+      receivers: [otlp, opencensus, prometheus, redis]
+      processors: [cumulativetodelta, batch, resourcedetection]
+      exporters: [otlphttp]
+
+  extensions: [health_check, pprof, zpages]
+```
+
+## **Post-Integration Data Validation**
+
+Verify that Redis metrics are flowing into KloudMate using the Explore view.
+
+After the agent restarts:
+
+1. Log in to your KloudMate account
+2. Navigate to **Explore**
+3. Select **OpenTelemetry – Metrics**
+4. Choose a Redis metric exposed by the integration
+5. Click **Run Query** to view time-series data
+
+Seeing data confirms that Redis telemetry is being collected successfully.
+
+![image](./images/mongodb-monitoring-2.png)
+
+## Redis metrics
+
+| **Name**                            | **Description**                                                    |
+| ----------------------------------- | ------------------------------------------------------------------ |
+| redis\_commands                     | Number of commands processed per second                            |
+| redis\_cmd\_latency                 | Command execution latency                                          |
+| redis\_memory\_used                 | Total number of bytes allocated by Redis using its allocator       |
+| redis\_memory\_fragmentation\_ratio | Ratio between used\_memory\_rss and used\_memory                   |
+| redis\_clients\_connected           | Number of client connections (excluding connections from replicas) |
+| redis\_keys\_evicted                | Number of evicted keys due to maxmemory limit                      |
+| redis\_net\_input                   | The total number of bytes read from the network                    |
+| redis\_net\_output                  | The total number of bytes written to the network                   |
+| redis\_replication\_offset          | The serverâ€™s current replication offset                          |
+| redis\_uptime                       | Number of seconds since the Redis server started                   |
+
+For the complete Redis metrics list, refer to the [metrics reference](https://github.com/open-telemetry/opentelemetry-collector-contrib/blob/main/receiver/redisreceiver/documentation.md).
+

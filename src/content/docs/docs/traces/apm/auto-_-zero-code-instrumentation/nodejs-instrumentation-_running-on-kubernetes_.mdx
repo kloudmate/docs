@@ -1,0 +1,147 @@
+---
+title: "Nodejs Instrumentation (Running on Kubernetes)"
+description: "Documentation for Nodejs Instrumentation (Running on Kubernetes)"
+---
+This document explains how to instrument the node js application with KloudMate, using OpenTelemetry.
+
+This instrumentation can be done using the OpenTelemetry operator, which supports injecting and configuring auto-instrumentation libraries for .NET, Java, Node.js, Python, and Go service.
+
+**Pre-requisites:**
+
+1. Running a Kubernetes cluster.
+2. The [cert manager](https://cert-manager.io/docs/installation/) must be installed. If you use the helm chart, there is an option to generate a self-signed cert instead.
+
+**Step 1: **First, install the [OpenTelemetry Operator](https://github.com/open-telemetry/opentelemetry-operator) into your cluster.
+
+You can do this with the [Operator release manifest](https://github.com/open-telemetry/opentelemetry-operator#getting-started), the [Operator helm chart](https://github.com/open-telemetry/opentelemetry-helm-charts/tree/main/charts/opentelemetry-operator#opentelemetry-operator-helm-chart), or with [Operator Hub](https://operatorhub.io/operator/opentelemetry-operator).
+
+
+BASH
+
+  ```none
+  kubectl apply -f https://github.com/open-telemetry/opentelemetry-operator/releases/latest/download/opentelemetry-operator.yaml  
+  ```
+
+
+**Step 2: **Create an OpenTelemetry collector to send telemetry from containers to a collector instead of directly to a backend. 
+
+For example, here is a demo collector used 
+
+```yaml
+kubectl apply -f - <<EOF
+
+apiVersion: opentelemetry.io/v1alpha1
+kind: OpenTelemetryCollector
+metadata:
+  name: demo
+  namespace: kloudmate-backend #change namespace
+spec:
+  config: |
+    receivers:
+      otlp:
+        protocols:
+          grpc:
+            endpoint: 0.0.0.0:4317
+          http:
+            endpoint: 0.0.0.0:4318
+    processors:
+      memory_limiter:
+        check_interval: 1s
+        limit_percentage: 75
+        spike_limit_percentage: 15
+      batch:
+        send_batch_size: 10000
+        timeout: 10s
+
+    exporters:
+      debug:
+      otlphttp:
+        endpoint: 'https://otel.kloudmate.com:4318'
+        headers:
+          Authorization: KLOUDMATE-API-KEY   
+
+    service:
+      pipelines:
+        traces:
+          receivers: [otlp]
+          processors: [memory_limiter, batch]
+          exporters: [debug, otlphttp]
+        metrics:
+          receivers: [otlp]
+          processors: [memory_limiter, batch]
+          exporters: [debug, otlphttp]
+        logs:
+          receivers: [otlp]
+          processors: [memory_limiter, batch]
+          exporters: [debug, otlphttp]
+
+EOF
+```
+
+<hint type="info">
+  Change your Kloudmate organization API key to configure the collector to export data to Kloudmate.
+</hint>
+
+**Step 3: **Configure automatic instrumentation
+
+To be able to manage automatic instrumentation, the Operator needs to be configured to know what pods to instrument and which automatic instrumentation to use for those pods. This is done via the [Instrumentation CRD](https://github.com/open-telemetry/opentelemetry-operator/blob/main/docs/api/instrumentations.md)
+
+For our example, we used node js SDK auto instrumentation.
+
+The following command creates a basic Instrumentation resource that is configured for instrumenting Node.js services.
+
+```yaml
+kubectl apply -f - <<EOF
+apiVersion: opentelemetry.io/v1alpha1
+kind: Instrumentation
+metadata:
+  name: demo-instrumentation
+  namespace: kloudmate-backend  #change namespace
+spec:
+  exporter:
+    endpoint: http://demo-collector:4317
+  propagators:
+    - tracecontext
+    - baggage
+  sampler:
+    type: parentbased_traceidratio
+    argument: "1"
+EOF
+```
+
+<hint type="info">
+  The endpoint used under exporter must be the same as the service name of the collector created in Step 2.
+</hint>
+
+**Step 4:**
+
+Now to opt in your services to automatic instrumentation. This is done by updating your service’s spec.template.metadata.annotations to include a language-specific annotation 
+
+Node.js:`instrumentation.opentelemetry.io/inject-nodejs:` "true"
+
+To patch your existing node js application with the necessary annotation use the below command
+
+
+BASH
+
+  ```none
+  kubectl  patch deployment otlp-http-deployment -n kloudmate-backend -p '{"spec":{"template":{"metadata":{"annotations":{"instrumentation.opentelemetry.io/inject-nodejs": "true"}}}}}'    
+  ```
+
+
+Following the above steps, you can get the necessary telemetry data on KloudMate.
+
+# Node.js Runtime Metrics
+
+| **Name**                         | **Description**                                                    | **Unit** |
+| -------------------------------- | ------------------------------------------------------------------ | -------- |
+| nodejs\_eventloop\_delay\_min    | Event loop minimum delay.                                          | seconds  |
+| nodejs\_eventloop\_delay\_max    | Event loop maximum delay.                                          | seconds  |
+| nodejs\_eventloop\_delay\_mean   | Event loop mean delay.                                             | seconds  |
+| nodejs\_eventloop\_delay\_stddev | Event loop standard deviation delay.                               | seconds  |
+| nodejs\_eventloop\_delay\_p50    | Event loop 50 percentile delay.                                    | seconds  |
+| nodejs\_eventloop\_delay\_p90    | Event loop 90 percentile delay.                                    | seconds  |
+| nodejs\_eventloop\_delay\_p99    | Event loop 99 percentile delay.                                    | seconds  |
+| nodejs\_eventloop\_utilization   | Event loop utilization.                                            | one      |
+| nodejs\_eventloop\_time          | Cumulative duration of time the event loop has been in each state. | seconds  |
+

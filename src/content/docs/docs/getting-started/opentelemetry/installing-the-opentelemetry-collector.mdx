@@ -1,0 +1,123 @@
+---
+title: "Installing the OpenTelemetry Collector"
+description: "Documentation for Installing the OpenTelemetry Collector"
+---
+OpenTelemetry Collector is a powerful, vendor-agnostic, and flexible component in the OpenTelemetry ecosystem that simplifies the collection, processing, and export of telemetry data from various sources.
+
+This guide will walk you through the process of setting up and using the OpenTelemetry Collector.
+
+# When to Use OpenTelemetry Collector?
+
+Using the OpenTelemetry collector is not mandatory but is recommended as a best practice. Since it provides a local collector agent as the default location for instrumentation libraries to export their telemetry data, the applications can quickly offload the data to the collector. This makes it particularly beneficial in complex and dynamic environments where the telemetry data is generated and consumed by a variety of systems and tools. It streamlines the collection and processing of the telemetry data and can also take care of additional handling such as retries, batching, encryption, granular data filtering, and more.
+
+## Installing the OpenTelemetry Collector
+**Prerequisites: ** A system where you can install the OpenTelemetry Collector. This can be a physical or virtual machine or a container orchestration platform like Kubernetes.
+
+## **Linux Server:** 
+Linux [releases](https://github.com/open-telemetry/opentelemetry-collector-releases/releases) are available for various architectures. You can download the file containing the binary and install it on your machine manually:
+
+Every Collector release includes APK, DEB, and RPM packaging for Linux amd64/arm64/i386 systems. You can find the default configuration in /etc/otelcol-contrib/config.yaml after installation.
+
+<hint type="info">
+  system * is required for automatic service configuration.*
+</hint>
+
+**DEB Installation:**
+
+You can choose from the following packages based on your system architecture:
+
+- `linux_386.deb`: Linux package for Intel/AMD 32-bit architecture in Debian package format
+- `linux_amd64.deb`: Linux package for Intel/AMD 64-bit architecture in Debian package format
+- `linux_arm64.deb`: Linux package for ARM 64-bit architecture in Debian package format
+- `linux_armv7.deb`: Linux package for ARM 32-bit architecture in Debian package format
+- `linux_ppc64le.deb`: Linux package for PowerPC 64-bit Little-Endian architecture in Debian package format
+- `linux_s390x.deb`: Linux package for IBM System Z architecture in Debian package format
+
+To get started on Debian systems run the following commands:
+
+
+AMD64
+
+  ```none
+  sudo apt-get update
+  sudo apt-get -y install wget systemctl
+  wget https://github.com/open-telemetry/opentelemetry-collector-releases/releases/download/v0.116.0/otelcol-contrib_0.116.0_linux_amd64.deb
+  sudo dpkg -i otelcol-contrib_0.116.0_linux_amd64.deb
+  ```
+
+  ARM64
+
+  ```none
+  sudo apt-get update
+  sudo apt-get -y install wget systemctl
+  wget https://github.com/open-telemetry/opentelemetry-collector-releases/releases/download/v0.116.0/otelcol-contrib_0.116.0_linux_arm64.deb
+  sudo dpkg -i otelcol-contrib_0.116.0_linux_arm64.deb
+  ```
+
+  i386
+
+  ```none
+  sudo apt-get update
+  sudo apt-get -y install wget systemctl
+  wget https://github.com/open-telemetry/opentelemetry-collector-releases/releases/download/v0.116.0/otelcol-contrib_0.116.0_linux_386.deb
+  sudo dpkg -i otelcol-contrib_0.116.0_linux_386.deb
+  ```
+
+
+**RPM Installation:**
+
+You can choose from the following packages based on your system architecture:
+
+- `linux_386.rpm`: Linux package for Intel/AMD 32-bit architecture in RPM package format
+- `linux_amd64.rpm`: Linux package for Intel/AMD 64-bit architecture in RPM package format
+- `linux_arm64.rpm`: Linux package for ARM 64-bit architecture in RPM package format
+- `linux_armv7.rpm`: Linux package for ARM 32-bit architecture in RPM package format
+- `linux_ppc64le.rpm`: Linux package for PowerPC 64-bit Little-Endian architecture in RPM package format
+- `linux_s390x.rpm`: Linux package for IBM System Z architecture in RPM package format
+
+To get started on Red Hat systems run the following commands:
+
+
+AMD64
+
+  ```none
+  sudo yum update
+  sudo yum -y install wget systemctl
+  wget https://github.com/open-telemetry/opentelemetry-collector-releases/releases/download/v0.114.0/otelcol-contrib_0.116.0_linux_amd64.rpm
+  sudo rpm -ivh otelcol-contrib_0.116.0_linux_amd64.rpm
+  ```
+
+  ARM64
+
+  ```none
+  sudo yum update
+  sudo yum -y install wget systemctl
+  wget https://github.com/open-telemetry/opentelemetry-collector-releases/releases/download/v0.116.0/otelcol-contrib_0.116.0_linux_arm64.rpm
+  sudo rpm -ivh otelcol-contrib_0.116.0_linux_arm64.rpm
+  ```
+
+  i386
+
+  ```none
+  sudo yum update
+  sudo yum -y install wget systemctl
+  wget https://github.com/open-telemetry/opentelemetry-collector-releases/releases/download/v0.116.0/otelcol-contrib_0.116.0_linux_386.rpm
+  sudo rpm -ivh otelcol-contrib_0.116.0_linux_386.rpm
+  ```
+
+
+## Windows Server: 
+**Download the OpenTelemetry Collector for Windows**
+
+1. **Choose the Correct Version:** Select the appropriate version of the OpenTelemetry Collector for Windows. Each Collector [release ](https://github.com/open-telemetry/opentelemetry-collector-releases/releases)includes an otelcol-contrib.exe executable that you can run after unpacking.
+2. **Run the Installer:**
+   - Locate the downloaded installer executable for otelcol-contrib (choose either [x64](https://github.com/open-telemetry/opentelemetry-collector-releases/releases/download/v0.116.0/otelcol-contrib_0.116.0_windows_x64.msi) or [x86](https://github.com/open-telemetry/opentelemetry-collector-releases/releases/download/v0.116.0/otelcol-contrib_0.116.0_windows_x86.msi)).
+   - Right-click on the installer file and select **"Run as administrator."**
+   - Follow the instructions in the installation wizard to complete the installation
+
+***
+
+## **Related Resources**
+
+[Using OpenTelemetry Collector](https://docs.kloudmate.com/using-opentelemetry-collector)
+

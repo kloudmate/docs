@@ -1,0 +1,69 @@
+---
+title: "Gauge"
+description: "Documentation for Gauge"
+---
+A gauge shows the current value of something at a specific point in time. It doesn’t care about history or totals; it simply reflects **“what is the value right now?”** and it can go up or down every time it is read.
+
+The table below shows raw data points of a sample gauge metric collected at various timestamps.
+
+| Series                | 12:05      | 12:07      | 12:09      | 12:11      | 12:13      | 12:15      | 12:17      | 12:18      | 12:19      |
+| --------------------- | ---------- | ---------- | ---------- | ---------- | ---------- | ---------- | ---------- | ---------- | ---------- |
+| cpu=cpu1, state=idle  | 0.80       | 0.80       | 0.80       | 0.90       | 0.90       | 0.75       | 0.75       | 0.75       | 0.75       |
+| cpu=cpu1, state=user  | 0.15       | 0.15<br /> | 0.15<br /> | 0.05<br /> | 0.05<br /> | 0.20<br /> | 0.15<br /> | 0.20<br /> | 0.10<br /> |
+| cpu=cpu1, state=wait  | 0.05<br /> | 0.05<br /> | 0.05<br /> | 0.05<br /> | 0.05<br /> | 0.05       | 0.10<br /> | 0.05<br /> | 0.15<br /> |
+| cpu=cpu2, state=idle  | 0.70<br /> | 0.75<br /> | 0.75<br /> | 0.80<br /> | 0.80<br /> | 0.70<br /> | 0.70<br /> | 0.70<br /> | 0.70<br /> |
+| cpu=cpu2, state=user  | 0.25<br /> | 0.15<br /> | 0.15<br /> | 0.10<br /> | 0.05<br /> | 0.20<br /> | 0.15<br /> | 0.20<br /> | 0.10<br /> |
+| cpu=cpu2, state=wait  | 0.05<br /> | 0.10<br /> | 0.10<br /> | 0.10<br /> | 0.15<br /> | 0.10<br /> | 0.10<br /> | 0.10<br /> | 0.20<br /> |
+
+**Temporal Aggregation (Aggregation within the same time series)**
+
+If you specify an interval (e.g., 300 seconds), the data points are grouped into multiple buckets within the same time series based on the given interval. It is recommended to leave this field set to Auto so the system can determine the appropriate interval based on the time range, unless there is a specific need to adjust it.
+
+You can then select an available aggregation function to apply to all data points within each interval for each series. For example, if you select AVG for temporal aggregation, the table below shows the calculation within each interval.
+
+**Example Interval: 300s, Aggregation: AVG, Start Timestamp: 12:05, End Timestamp: 12:25**
+
+| Series<br /><br />    | 12:05<br /><br />                  | 12:07<br /><br />                  | 12:09<br /><br />                  | 12:11<br /><br /> | 12:13<br /><br /> | 12:15<br /><br /> | 12:17<br /><br /> | 12:18<br /><br /> | 12:19<br /><br /> |
+| --------------------- | ---------------------------------- | ---------------------------------- | ---------------------------------- | ----------------- | ----------------- | ----------------- | ----------------- | ----------------- | ----------------- |
+| cpu=cpu1, state=idle  | AVG(0.80, 0.80, 0.80) = 0.80<br /> | AVG(0.90, 0.90, 0.75) = 0.85<br /> | AVG(0.75, 0.75, 0.75) = 0.75<br /> |                   |                   |                   |                   |                   |                   |
+| cpu=cpu1, state=user  | AVG(0.15, 0.15, 0.15) = 0.15<br /> | AVG(0.05, 0.05, 0.20) = 0.10       | AVG(0.15, 0.20, 0.10) = 0.15<br /> |                   |                   |                   |                   |                   |                   |
+| cpu=cpu1, state=wait  | AVG(0.05, 0.05, 0.05) = 0.05<br /> | AG(0.05, 0.05, 0.05) = 0.05<br />  | AVG(0.10, 0.05, 0.15) = 0.10<br /> |                   |                   |                   |                   |                   |                   |
+| cpu=cpu2, state=idle  | AVG(0.70, 0.75, 0.75) = 0.73<br /> | AVG(0.80, 0.80, 0.70) = 0.77<br /> | AVG(0.70, 0.70, 0.70) = 0.70<br /> |                   |                   |                   |                   |                   |                   |
+| cpu=cpu2, state=user  | AVG(0.25, 0.15, 0.15) = 0.18<br /> | AVG(0.10, 0.05, 0.20) = 0.12<br /> | AVG(0.15, 0.20, 0.10) = 0.15<br /> |                   |                   |                   |                   |                   |                   |
+| cpu=cpu2, state=wait  | AVG(0.05, 0.10, 0.10) = 0.08<br /> | AVG(0.10, 0.15, 0.10) = 0.12<br /> | AVG(0.10, 0.10, 0.20) = 0.13<br /> |                   |                   |                   |                   |                   |                   |
+
+### Spatial Aggregation (Aggregation across multiple time series)
+
+Spatial aggregation aggregates values across multiple time series.
+**Example Aggregation: SUM, No Grouping**
+
+For example, if you choose SUM for spatial aggregation without any grouping, the aggregation will be applied across all available series.
+
+| Series<br /><br />    | 12:05<br /><br />                                                                              | 12:07<br /><br />                                                                              | 12:09<br /><br />                                                                        | 12:11<br /><br /> | 12:13<br /><br /> | 12:15<br /><br /> | 12:17<br /><br /> | 12:18<br /><br /> | 12:19<br /><br /> |
+| --------------------- | ---------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------- | ----------------- | ----------------- | ----------------- | ----------------- | ----------------- | ----------------- |
+| cpu=cpu1, state=idle  | <br /><br /><br /><br /><br /><br />SUM(0.80, 0.15, 0.05, 0.73, 0.18, 0.08) = 1.99<br /><br /> | <br /><br /><br /><br /><br /><br />SUM(0.85, 0.10, 0.05, 0.77, 0.12, 0.12) = 2.01<br /><br /> | <br /><br /><br /><br /><br />SUM(0.75, 0.15, 0.10, 0.70, 0.15, 0.13) = 1.98<br /><br /> |                   |                   |                   |                   |                   |                   |
+| cpu=cpu1, state=user  |                                                                                                |                                                                                                |                                                                                          |                   |                   |                   |                   |                   |                   |
+| cpu=cpu1, state=wait  |                                                                                                |                                                                                                |                                                                                          |                   |                   |                   |                   |                   |                   |
+| cpu=cpu2, state=idle  |                                                                                                |                                                                                                |                                                                                          |                   |                   |                   |                   |                   |                   |
+| cpu=cpu2, state=user  |                                                                                                |                                                                                                |                                                                                          |                   |                   |                   |                   |                   |                   |
+| cpu=cpu2, state=wait  |                                                                                                |                                                                                                |                                                                                          |                   |                   |                   |                   |                   |                   |
+
+GroupBy applies to spatial aggregation.
+
+For example, if user choose **SUM** with **GroupBy (cpu)**
+
+| Series<br /><br />    | 12:05<br /><br />                                    | 12:07<br /><br />                                    | 12:09<br /><br />                                    | 12:11<br /><br /> | 12:13<br /><br /> | 12:15<br /><br /> | 12:17<br /><br /> | 12:18<br /><br /> | 12:19<br /><br /> |
+| --------------------- | ---------------------------------------------------- | ---------------------------------------------------- | ---------------------------------------------------- | ----------------- | ----------------- | ----------------- | ----------------- | ----------------- | ----------------- |
+| cpu=cpu1, state=idle  | <br /><br /><br />SUM (0.80, 0.15, 0.05)<br /><br /> | <br /><br /><br />SUM (0.85, 0.10, 0.05)<br /><br /> | <br /><br /><br />SUM (075, 0.15, 0.10)<br /><br />  |                   |                   |                   |                   |                   |                   |
+| cpu=cpu1, state=user  |                                                      |                                                      |                                                      |                   |                   |                   |                   |                   |                   |
+| cpu=cpu1, state=wait  |                                                      |                                                      |                                                      |                   |                   |                   |                   |                   |                   |
+| cpu=cpu2, state=idle  | <br /><br /><br />SUM (0.73,0.18,0.08)<br /><br />   | <br /><br /><br />SUM (0.77, 0.12, 0.12)<br /><br /> | <br /><br /><br />SUM (0.70, 0.15, 0.13)<br /><br /> |                   |                   |                   |                   |                   |                   |
+| cpu=cpu2, state=user  |                                                      |                                                      |                                                      |                   |                   |                   |                   |                   |                   |
+| cpu=cpu2, state=wait  |                                                      |                                                      |                                                      |                   |                   |                   |                   |                   |                   |
+
+The final result will look like:
+
+| Series    | 12:05                  | 12:10                  | 12:15                 |
+| --------- | ---------------------- | ---------------------- | --------------------- |
+| cpu=cpu1  | SUM (0.80, 0.15, 0.05) | SUM (0.85, 0.10, 0.05) | SUM (075, 0.15, 0.10) |
+

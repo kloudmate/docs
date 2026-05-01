@@ -1,0 +1,245 @@
+---
+title: "AWS ASG Deployment"
+description: "Documentation for AWS ASG Deployment"
+---
+Deploy `kmagent` across an Auto Scaling Group with zero manual per-instance work. Configure once in the Launch Template, every instance (existing + future scale-outs) gets the agent automatically.
+
+## Prerequisites
+
+- AWS CLI configured with appropriate permissions
+- An existing ASG with a Launch Template
+- IAM Instance Profile attached to your ASG instances
+- SSM Agent running on instances (default on Amazon Linux / Ubuntu AMIs)
+
+### Step 1: Store API Key in SSM Parameter Store
+
+Never hardcode secrets in user data. Use SSM Parameter Store with encryption:
+
+```bash
+aws ssm put-parameter \
+  --name "/kloudmate/api-key" \
+  --value "your-actual-km-api-key" \
+  --type SecureString \
+  --region ap-south-1
+```
+
+### Step 2: IAM Permissions
+
+Ensure your ASG's IAM Instance Profile has permission to read the SSM parameter:
+
+```bash
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": "ssm:GetParameter",
+      "Resource": "arn:aws:ssm:ap-south-1:YOUR_ACCOUNT_ID:parameter/kloudmate/*"
+    }
+  ]
+}
+```
+
+If using **SSM Run Command **(Step 5, Option B), also add:
+
+```bash
+{
+  "Effect": "Allow",
+  "Action": [
+    "ssm:SendCommand",
+    "ssm:ListCommandInvocations"
+  ],
+  "Resource": "*"
+}
+```
+
+### Step 3: Create the User Data Script
+
+Save this as `userdata.sh`:
+
+```bash
+#!/bin/bash
+set -euo pipefail
+
+# -----------------------------------------------
+# Fetch API key from SSM (IMDSv2 compatible)
+# -----------------------------------------------
+REGION=$(curl -sf http://169.254.169.254/latest/meta-data/placement/region)
+TOKEN=$(curl -sf -X PUT "http://169.254.169.254/latest/api/token" \
+  -H "X-aws-ec2-metadata-token-ttl-seconds: 60")
+
+KM_API_KEY=$(aws ssm get-parameter \
+  --name "/kloudmate/api-key" \
+  --with-decryption \
+  --query "Parameter.Value" \
+  --output text \
+  --region "$REGION")
+
+# -----------------------------------------------
+# Install kmagent
+# -----------------------------------------------
+curl -fsSL https://raw.githubusercontent.com/kloudmate/km-agent/main/install.sh \
+  | bash -s -- \
+    --api-key "$KM_API_KEY" \
+    --colector-endpoint "https://otel.kloudmate.com"
+
+# -----------------------------------------------
+# Verify
+# -----------------------------------------------
+if systemctl is-active --quiet kmagent; then
+  echo "[kloudmate] Agent installed and running"
+else
+  echo "[kloudmate] ERROR: Agent failed to start"
+  journalctl -u kmagent --no-pager -n 20
+  exit 1
+fi
+```
+
+### Step 4: Apply User Data to Launch Template
+
+
+Via AWS CLI
+
+  ```bash
+  # Create a new Launch Template version with user data
+  aws ec2 create-launch-template-version \
+    --launch-template-name your-template-name \
+    --source-version '$Latest' \
+    --launch-template-data '{
+      "UserData": "'$(base64 -w0 userdata.sh)'"
+    }'
+
+  # Point ASG to use the latest version
+  aws autoscaling update-auto-scaling-group \
+    --auto-scaling-group-name your-asg-name \
+    --launch-template "LaunchTemplateName=your-template-name,Version=\$Latest"
+  ```
+
+  Via AWS Console
+
+  ```none
+  Go to EC2 → Launch Templates → your-template
+  Click Actions → Modify template (Create new version)
+  Scroll to Advanced details → User data
+  Paste the contents of userdata.sh
+  Click Create template version
+  Go to Auto Scaling Groups → your-asg
+  Click Edit → Launch Template → Version → Latest
+  Save
+  ```
+
+
+### Step 5: Roll Out to Existing Instances
+
+The new user data only executes on **newly launched** instances. To deploy on your existing 50 instances, choose one of the following:
+
+***Option A: Instance Refresh***
+
+**Rolling Replace**
+
+Terminates and replaces instances in batches. Each new instance boots with the updated user data and gets kmagent automatically.
+
+```bash
+aws autoscaling start-instance-refresh \
+  --auto-scaling-group-name your-asg-name \
+  --preferences '{
+    "MinHealthyPercentage": 90,
+    "MaxHealthyPercentage": 110,
+    "InstanceWarmup": 120
+  }'
+```
+
+**How it works:**
+
+- Keeps **90% of instances healthy** at all times
+- Replaces \~5 instances at a time (for a fleet of 50)
+- Each batch waits for health checks to pass before proceeding
+- Total rollout time: \~20-30 minutes depending on health check config
+
+**Monitor progress:**
+
+```bash
+aws autoscaling describe-instance-refreshes \
+  --auto-scaling-group-name your-asg-name
+```
+
+***Option B: SSM Run Command***
+
+**In-Place Install, No Downtime**
+
+Installs the agent on running instances without replacing them. Fastest path to full coverage.
+
+```bash
+aws ssm send-command \
+  --targets "Key=tag:aws:autoscaling:groupName,Values=your-asg-name" \
+  --document-name "AWS-RunShellScript" \
+  --parameters 'commands=[
+    "REGION=$(curl -sf http://169.254.169.254/latest/meta-data/placement/region)",
+    "TOKEN=$(curl -sf -X PUT http://169.254.169.254/latest/api/token -H X-aws-ec2-metadata-token-ttl-seconds:60)",
+    "KM_API_KEY=$(aws ssm get-parameter --name /kloudmate/api-key --with-decryption --query Parameter.Value --output text --region $REGION)",
+    "curl -fsSL https://raw.githubusercontent.com/kloudmate/km-agent/main/install.sh | bash -s -- --api-key $KM_API_KEY --collector-endpoint https://otel.kloudmate.com"
+  ]' \
+  --max-concurrency "10" \
+  --max-errors "5" \
+  --comment "Install kmagent on ASG fleet"
+```
+
+**How it works:**
+
+- Runs on **10 instances at a time** (--max-concurrency 10)
+- All 50 instances done in **5 batches**
+- Stops if more than 5 instances fail (--max-errors 5)
+- **Zero downtime** — no instance restarts required
+
+**Monitor progress:**
+
+```bash
+# Get command ID from send-command output, then
+aws ssm list-command-invocations \
+  --command-id "COMMAND_ID" \
+  --details \
+  --query "CommandInvocations[].{Instance:InstanceId,Status:Status}" \
+  --output table
+```
+
+**Which Option to Choose?**
+
+| Criteria       | Option A (Instance Refresh)  | Option B (SSM Run Command)   |
+| -------------- | ---------------------------- | ---------------------------- |
+| Downtime       | Brief per-instance (rolling) | None                         |
+| Speed          | \~20-30 min                  | \~5-10 min                   |
+| Instance state | Fresh instances              | Existing instances preserved |
+| Risk           | Lower (clean slate)          | Slightly higher (in-place)   |
+| Use when       | You want clean rollout       | You need it NOW              |
+
+**Recommended approach:** Use **Option B** for the immediate install on all 50 instances today, and the **Launch Template user data** ensures every future instance is covered automatically.
+
+## Verification
+
+After deployment, verify the agent is running across your fleet:
+
+```bash
+# Check all instances via SSM
+aws ssm send-command \
+  --targets "Key=tag:aws:autoscaling:groupName,Values=your-asg-name" \
+  --document-name "AWS-RunShellScript" \
+  --parameters 'commands=["systemctl status kmagent | head -5"]' \
+  --max-concurrency "50" \
+  --output text
+
+# Or SSH into any instance and check
+systemctl status kmagent
+journalctl -u kmagent -f        # follow logs
+curl -s http://localhost:13133   # health check endpoint
+```
+
+## Troubleshooting
+
+| **Issue**                      | **Cause**                                          | **Fix**                                                                                |
+| ------------------------------ | -------------------------------------------------- | -------------------------------------------------------------------------------------- |
+| `unable to locate credentials` | IAM Instance Profile missing or no SSM permissions | Attach IAM role with `ssm:GetParameter` to your Launch Template                        |
+| `command not found: aws`       | AWS CLI not installed on instance                  | Add `yum install -y aws-cli or apt install -y awscli` before the SSM call in user data |
+| `kmagent failed to start`      | Port conflict or config error                      | Check `journalctl -u kmagent -n 50` on the instance                                    |
+| SSM command stuck in `Pending` | SSM Agent not running                              | Ensure `amazon-ssm-agent` is installed and running                                     |
+| Instance refresh stuck         | Health check failing on new instances              | Check your ASG health check grace period and target group settings                     |
+

@@ -1,0 +1,88 @@
+---
+title: "Syntax for Log Querying"
+description: "Documentation for Syntax for Log Querying"
+---
+This guide explains the powerful and concise syntax for building precise queries.
+
+## The Basics
+
+The core of a filter is a simple expression with three parts: a **field**, an **operator**, and a **value**.
+
+
+> ?filter=\<field>\<operator>\<value>
+
+
+**Example:** To find all logs with an `active` status, you would use:
+
+
+> /logs?filter=status=active
+
+
+### Combining Multiple Filters
+
+To combine multiple conditions, simply add another `filter` parameter. All filters are joined with a logical **AND**, meaning all conditions must be true for an item to be included in the results.
+
+## Operators Reference
+
+The following table details all available operators, from simple equality checks to powerful string and existence matching.
+
+| Operator                      | Name                     | Description                                                                  | Example (User-Typed)                  |
+| ----------------------------- | ------------------------ | ---------------------------------------------------------------------------- | ------------------------------------- |
+| **Equality & Set Operations** |                          |                                                                              |                                       |
+| `=`                           | Equals                   | Finds items where the field is an exact match for a single value.            | `level=error`                         |
+| `=`                           | In                       | Finds items where the field matches **any** value in a comma-separated list. | `http.status=404,500,503`             |
+| `!=`                          | Not Equals               | Finds items where the field does not match a single value.                   | `env!=local`                          |
+| `!=`                          | Not In                   | Finds items where the field does not match **any** value in a list.          | `k8s.namespace!=kube-system, default` |
+| **Numeric Comparisons**       |                          |                                                                              |                                       |
+| `>`                           | Greater Than             | Finds items where the field's numeric value is greater than the given value. | `latency_ms>500`                      |
+| `<`                           | Less Than                | Finds items where the field's numeric value is less than the given value.    | `cpu.usage<0.5`                       |
+| `>=`                          | Greater Than or Equal To | Finds items where the field's value is greater than or equal to the value.   | `retries>=3`                          |
+| `<=`                          | Less Than or Equal To    | Finds items where the field's value is less than or equal to the value.      | `stock_count<=10`                     |
+| **String Matching**           |                          |                                                                              |                                       |
+| `~`                           | Contains                 | Finds items where the field contains the given substring (case-insensitive). | `message~database connection`         |
+| `!~`                          | Does Not Contain         | Finds items where the field does not contain the given substring.            | `path!~healthcheck`                   |
+| `^`                           | Starts With              | Finds items where the field starts with the given string.                    | `user.name^alex`                      |
+| **Existence Checks**          |                          |                                                                              |                                       |
+| `+`                           | Field Exists             | Finds items where the specified field exists (is not null).                  | `+error.code`                         |
+| `-`                           | Field Does Not Exist     | Finds items where the specified field does not exist (is null).              | `-http.user_agent`                    |
+
+**Example 1: Debugging Production Errors**
+
+**Goal:** Find all erroror criticallevel logs from the productionenvironment that are related to the auth-serviceand have an error.codefield present.
+
+
+> /logs?filter=env=production\&filter=service=auth-service\&filter=level=error,critical\&filter=+error.code
+
+
+**Example 2: Monitoring API Performance**
+
+**Goal:** Find slow API requests (> 1000ms) that resulted in a server error, excluding routine health checks from the monitoring system.
+
+
+> /logs?filter=latency\_ms>1000\&filter=http.status>=500\&filter=source!\~monitoring-bot
+
+
+**Example 3: Auditing User Activity**
+
+**Goal:** Find all login attempts for users whose email does not start with "test" and who were logging in from a country other than the "US" or "CA".
+
+
+> /logs?filter=action=user\_login\&filter=user.email!^test\&filter=geo.country!=US,CA
+
+
+## Quick Reference Cheatsheet
+
+| Syntax             | Action                              |
+| ------------------ | ----------------------------------- |
+| `field=value`      | Field is equal to `value`.          |
+| `field=val1,val2`  | Field is IN (`val1` OR `val2`).     |
+| `field!=value`     | Field is not equal to `value`.      |
+| `field!=val1,val2` | Field is NOT IN (`val1` OR `val2`). |
+| `field>500`        | Field is greater than `500`.        |
+| `field~text`       | Field contains `text`.              |
+| `field!~text`      | Field does not contain `text`.      |
+| `field^prefix`     | Field starts with `prefix`.         |
+| `+field`           | `field` must exist.                 |
+| `-field`           | `field` must not exist.             |
+| `...&filter=...`   | Combine filters with AND.           |
+

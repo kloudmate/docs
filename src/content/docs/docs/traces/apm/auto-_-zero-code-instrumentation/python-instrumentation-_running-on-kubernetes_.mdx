@@ -1,0 +1,307 @@
+---
+title: "Python Instrumentation (Running on Kubernetes)"
+description: "Documentation for Python Instrumentation (Running on Kubernetes)"
+---
+This document explains how to instrument the Python application with KloudMate, using OpenTelemetry.
+
+This instrumentation can be done using the OpenTelemetry operator, which supports injecting and configuring auto-instrumentation libraries for .NET, Java, Node.js, Python, and Go service.
+
+**Pre-requisites:**
+
+1. Running a Kubernetes cluster.
+2. The [cert-manager](https://cert-manager.io/docs/installation/) must be installed. If you use the helm chart, there is an option to generate a self-signed cert instead.
+
+**Step 1: **First, install the [OpenTelemetry Operator](https://github.com/open-telemetry/opentelemetry-operator) into your cluster.
+
+You can do this with the [Operator release manifest](https://github.com/open-telemetry/opentelemetry-operator#getting-started), the [Operator helm chart](https://github.com/open-telemetry/opentelemetry-helm-charts/tree/main/charts/opentelemetry-operator#opentelemetry-operator-helm-chart), or with [Operator Hub](https://operatorhub.io/operator/opentelemetry-operator).
+
+
+BASH
+
+  ```none
+  kubectl apply -f https://github.com/open-telemetry/opentelemetry-operator/releases/latest/download/opentelemetry-operator.yaml
+  ```
+
+
+**Step 2: **Create an OpenTelemetry collector to send telemetry from containers to a collector instead of directly to a backend. 
+
+For example, here is a demo collector used 
+
+```yaml
+kubectl apply -f - <<EOF
+apiVersion: opentelemetry.io/v1beta1
+kind: OpenTelemetryCollector
+metadata:
+  name: demo
+  namespace: default #change namespace
+spec:
+  config:
+    receivers:
+      otlp:
+        protocols:
+          grpc:
+            endpoint: 0.0.0.0:4317
+          http:
+            endpoint: 0.0.0.0:4318
+
+    processors:
+      memory_limiter:
+        check_interval: 1s
+        limit_percentage: 75
+        spike_limit_percentage: 15
+      batch:
+        send_batch_size: 10000
+        timeout: 10s
+
+    exporters:
+      debug: {}
+      otlphttp:
+        endpoint: 'https://otel.kloudmate.com:4318'
+        headers:
+          Authorization: KLOUDMATE-API-KEY     
+
+    service:
+      pipelines:
+        traces:
+          receivers: [otlp]
+          processors: [memory_limiter, batch]
+          exporters: [debug, otlphttp]
+        metrics:
+          receivers: [otlp]
+          processors: [memory_limiter, batch]
+          exporters: [debug, otlphttp]
+        logs:
+          receivers: [otlp]
+          processors: [memory_limiter, batch]
+          exporters: [debug, otlphttp]
+EOF
+```
+
+<hint type="info">
+  Change your Kloudmate workspace API key to configure the collector to export data to Kloudmate.
+</hint>
+
+**Step 3: **Configure automatic instrumentation
+
+To be able to manage automatic instrumentation, the Operator needs to be configured to know what pods to instrument and which automatic instrumentation to use for those pods. This is done via the [Instrumentation CRD](https://github.com/open-telemetry/opentelemetry-operator/blob/main/docs/api/instrumentations.md)
+
+For our example, we used Python SDK auto instrumentation.
+
+The following command creates a basic Instrumentation resource that is configured for instrumenting Python services.
+
+```yaml
+kubectl apply -f - <<EOF
+apiVersion: opentelemetry.io/v1alpha1
+kind: Instrumentation
+metadata:
+  name: demo-instrumentation
+spec:
+  exporter:
+    endpoint: http://demo-collector:4318
+  propagators:
+    - tracecontext
+    - baggage
+  sampler:
+    type: parentbased_traceidratio
+    argument: "1"
+EOF
+```
+
+By default, Python logs auto-instrumentation is disabled. By applying the above instrumentation user can only able to get the metrics and traces. To enable this feature(logs), you must set the OTEL\_LOGS\_EXPORTER and 
+OTEL\_PYTHON\_LOGGING\_AUTO\_INSTRUMENTATION\_ENABLED environment variables as needed.
+
+The following command creates instrumentation for metrics, logs, and traces.
+
+```yaml
+apiVersion: opentelemetry.io/v1alpha1
+kind: Instrumentation
+metadata:
+  name: demo-instrumentation
+spec:
+  exporter:
+    endpoint: http://demo-collector.default.svc.cluster.local:4318
+  propagators:
+    - tracecontext
+    - baggage
+  sampler:
+    type: parentbased_traceidratio
+    argument: "1"
+  python:
+    env:
+      - name: OTEL_LOGS_EXPORTER
+        value: otlp_proto_http
+      - name: OTEL_PYTHON_LOGGING_AUTO_INSTRUMENTATION_ENABLED
+        value: 'true'
+```
+
+<hint type="info">
+  The endpoint used under exporter must be the same as the service name of the collector created in Step 2. Use only one instrumentation command as per the requirement.
+</hint>
+
+**Step 4: **Now opt-in your services to automatic instrumentation. This is done by updating your service’s spec.template.metadata.annotations to include a language-specific annotation 
+
+python:`instrumentation.opentelemetry.io/inject-python:` "true"
+
+To patch your existing Python application with the necessary annotation use the below command
+
+
+BASH
+
+  ```none
+  kubectl patch deployment <deployment-name> -n <namespace> -p '{"spec":{"template":{"metadata":{"annotations":{"instrumentation.opentelemetry.io/inject-python": "true"}}}}}' 
+  ```
+
+
+## **Python application logging with file log receiver:**
+
+Python auto-instrumentation logs only work with certain libraries. After instrumentation, it's possible that some logs are missing. To fix this issue file log receiver could be a great choice.
+
+To set up the file log receiver you only have to make some changes on the collector yaml file. 
+
+The example collector yaml file:
+
+```yaml
+apiVersion: opentelemetry.io/v1beta1
+kind: OpenTelemetryCollector
+metadata:
+  name: demo
+spec:
+  mode: daemonset
+  image: otel/opentelemetry-collector-contrib:latest
+#  securityContext
+ #   runAsUser: 0
+  volumeMounts:
+    - name: varlogpods
+      mountPath: /var/log/pods
+      readOnly: true
+    - name: varlibdockercontainers
+      mountPath: /var/lib/docker/containers
+      readOnly: true
+  config:
+    receivers:
+      otlp:
+        protocols:
+          grpc:
+            endpoint: 0.0.0.0:4317
+          http:
+            endpoint: 0.0.0.0:4318
+      filelog:
+        include:
+          - /var/log/pods/*/*/*.log
+        exclude:
+          # Exclude logs from all containers named otel-collector
+          - /var/log/pods/*/otel-collector/*.log
+        start_at: end
+        include_file_path: true
+        include_file_name: false
+        operators:
+          # Determine log format used by Kubernetes
+          - type: router
+            id: get-format
+            routes:
+              - output: parser-docker
+                expr: 'body matches "^\\{"'
+              - output: parser-crio
+                expr: 'body matches "^[^ Z]+ "'
+              - output: parser-containerd
+                expr: 'body matches "^[^ Z]+Z"'
+          # Parse CRI-O format
+          - type: regex_parser
+            id: parser-crio
+            regex: '^(?P<time>[^ Z]+) (?P<stream>stdout|stderr) (?P<logtag>[^ ]*) ?(?P<log>.*)$'
+            output: extract_metadata_from_filepath
+            timestamp:
+              parse_from: attributes.time
+              layout_type: gotime
+              layout: '2006-01-02T15:04:05.999999999Z07:00'
+          # Parse CRI-Containerd format
+          - type: regex_parser
+            id: parser-containerd
+            regex: '^(?P<time>[^ ^Z]+Z) (?P<stream>stdout|stderr) (?P<logtag>[^ ]*) ?(?P<log>.*)$'
+            output: extract_metadata_from_filepath
+            timestamp:
+              parse_from: attributes.time
+              layout: '%Y-%m-%dT%H:%M:%S.%LZ'
+          # Parse Docker format
+          - type: json_parser
+            id: parser-docker
+            output: extract_metadata_from_filepath
+            timestamp:
+              parse_from: attributes.time
+              layout: '%Y-%m-%dT%H:%M:%S.%LZ'
+          # Extract metadata from file path
+          - type: regex_parser
+            id: extract_metadata_from_filepath
+            regex: '^.*\/(?P<namespace>[^_]+)_(?P<pod_name>[^_]+)_(?P<uid>[a-f0-9\-]{36})\/(?P<container_name>[^\._]+)\/(?P<restart_count>\d+)\.log$'
+            parse_from: attributes["log.file.path"]
+            cache:
+              size: 128  # default maximum amount of Pods per Node is 110
+          # Update body field after all parsing
+          - type: move
+            from: attributes.log
+            to: body
+          # Rename attributes
+          - type: move
+            from: attributes.stream
+            to: attributes["log.iostream"]
+          - type: move
+            from: attributes.container_name
+            to: resource["k8s.container.name"]
+          - type: move
+            from: attributes.namespace
+            to: resource["k8s.namespace.name"]
+          - type: move
+            from: attributes.pod_name
+            to: resource["k8s.pod.name"]
+          - type: move
+            from: attributes.restart_count
+            to: resource["k8s.container.restart_count"]
+          - type: move
+            from: attributes.uid
+            to: resource["k8s.pod.uid"]
+
+    processors:
+      memory_limiter:
+        check_interval: 1s
+        limit_percentage: 75
+        spike_limit_percentage: 15
+      batch:
+        send_batch_size: 10000
+        timeout: 10s
+
+    exporters:
+      debug: {}
+      otlphttp:
+        endpoint: 'https://otel.kloudmate.com:4318'
+        headers:
+          Authorization: KLOUDMATE-API-KEY
+
+    service:
+      pipelines:
+        traces:
+          receivers: [otlp]
+          processors: [memory_limiter, batch]
+          exporters: [debug, otlphttp]
+        metrics:
+          receivers: [otlp]
+          processors: [memory_limiter, batch]
+          exporters: [debug, otlphttp]
+        logs:
+          receivers: [otlp, filelog]
+          processors: [memory_limiter, batch]
+          exporters: [debug, otlphttp]
+  volumes:
+    - name: varlogpods
+      hostPath:
+        path: /var/log/pods
+    - name: varlibdockercontainers
+      hostPath:
+        path: /var/lib/docker/containers
+```
+
+The above YAML configuration file is designed to configure a file log receiver that collects pod logs and exports them to KloudMate. Additionally, it is set up to export metrics and trace them to KloudMate. 
+
+<hint type="info">
+  If you're using the file log receiver to export logs instead of auto instrumentation, ensure that auto instrumentation logging is disabled. Otherwise, duplicate logs may appear. (The user can use the instrumentation command for metrics and traces)
+</hint>
+
