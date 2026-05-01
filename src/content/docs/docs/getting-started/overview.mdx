@@ -3,6 +3,8 @@ title: Overview
 description: An introduction to KloudMate and its core observability capabilities.
 ---
 
+import { LinkCard, CardGrid } from '@astrojs/starlight/components';
+
 ## What is KloudMate?
 
 KloudMate is a unified observability platform that helps engineering teams monitor logs, metrics, traces, and synthetic checks from a single interface.
@@ -27,11 +29,13 @@ KloudMate connects to your cloud infrastructure via lightweight agents or OpenTe
 
 ## Next steps
 
-- Follow the [Quickstart](/docs/getting-started/quickstart) to connect your first service.
-- Browse [Integrations](/docs/integrations/overview) to find your platform.
+<CardGrid>
+  <LinkCard title="Quickstart" description="Connect your first service to KloudMate." href="/docs/getting-started/quickstart" />
+  <LinkCard title="Integrations" description="Find the right integration for your platform." href="/docs/integrations/overview" />
+</CardGrid>
 
 ## Related
 
-- [Quickstart](/docs/getting-started/quickstart)
-- [Integrations](/docs/integrations/overview)
-- [Billing overview](/docs/billing/overview)
+<CardGrid>
+  <LinkCard title="Billing overview" href="/docs/billing/overview" />
+</CardGrid>
