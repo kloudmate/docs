@@ -4,6 +4,9 @@ import starlightScrollToTop from 'starlight-scroll-to-top';
 import starlightLlmsTxt from 'starlight-llms-txt';
 import starlightAutoSidebar from 'starlight-auto-sidebar'
 import starlightThemeNova from 'starlight-theme-nova';
+import starlightLinksValidator from 'starlight-links-validator';
+import starlightImageZoom from 'starlight-image-zoom';
+import starlightOpenAPI, { openAPISidebarGroups } from 'starlight-openapi';
 
 const deploymentOrigin = process.env.DOCS_SITE_URL ?? 'https://docs.kloudmate.com';
 const assetsPrefix = process.env.DOCS_ASSETS_PREFIX;
@@ -16,6 +19,15 @@ export default defineConfig({
   integrations: [
     starlight({
       plugins: [
+        starlightOpenAPI([
+          {
+            base: 'api',
+            label: 'API Reference',
+            schema: './openapi.yaml',
+          },
+        ]),
+        starlightLinksValidator(),
+        starlightImageZoom(),
         starlightThemeNova({
           nav: [
             { label: 'Docs', href: '/docs/getting-started/what-is-kloudmate/' },
@@ -66,12 +78,7 @@ export default defineConfig({
             { label: 'Overview', slug: 'guides' },
           ],
         },
-        {
-          label: 'API Reference',
-          items: [
-            { label: 'Overview', slug: 'api' },
-          ],
-        },
+        ...openAPISidebarGroups,
       ],
     }),
   ],

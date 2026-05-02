@@ -1,0 +1,12 @@
+openapi: 3.0.0
+info:
+  title: KloudMate API
+  version: 1.0.0
+  description: Public API for KloudMate observability platform.
+paths:
+  /ping:
+    get:
+      summary: Ping the API
+      responses:
+        '200':
+          description: OK
