@@ -45,8 +45,7 @@ function normalizeDeployPrefix(pathname) {
 }
 
 /**
- * Prefixes root-level routes for temporary project-page deploys,
- * while leaving the existing `/docs/...` section routes untouched.
+ * Prefixes internal routes for temporary GitHub Pages project deploys.
  */
 function withDeployPrefix(pathname) {
   if (!pathname.startsWith('/') || !deployPrefix) {
@@ -59,10 +58,6 @@ function withDeployPrefix(pathname) {
 
   if (pathname === '/') {
     return `${deployPrefix}/`;
-  }
-
-  if (pathname.startsWith('/docs/')) {
-    return pathname;
   }
 
   return `${deployPrefix}${pathname}`;
