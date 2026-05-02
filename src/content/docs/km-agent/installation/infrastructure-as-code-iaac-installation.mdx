@@ -4,7 +4,7 @@ description: "Documentation for Infrastructure as a Code (IaaC) Installation"
 sidebar:
   order: 7
 ---
-# Infrastructure as a Code (IaaC) Installation
+import { Tabs, TabItem } from '@astrojs/starlight/components';
 
 Deploy the KloudMate agent across any cloud provider or on-premises infrastructure using Infrastructure as a Code (IaaC) and automation tools.
 
@@ -19,64 +19,62 @@ Deploy the KloudMate agent across any cloud provider or on-premises infrastructu
 
 ### Decision Matrix
 
-If you are provisioning a new VM or Auto-scaling group, you should use **cloud-init**via User Data/Custom Data. If you want faster boot times, use**Packer** to pre-bake the image and cloud-init for config only.
+If you are provisioning a new VM or Auto-scaling group, you should use **cloud-init** via User Data/Custom Data. If you want faster boot times, use **Packer** to pre-bake the image and cloud-init for config only.
 
 If you are managing an existing fleet, use an **Ansible playbook**.
 
-If you are managing infrastructure with **Terraform**, use the**Terraform module**.
+If you are managing infrastructure with **Terraform**, use the **Terraform module**.
 
 ## 1. cloud-init (Universal)
 
 Works on every provider that supports cloud-init (AWS, GCP, Azure, DigitalOcean, Alibaba, Hetzner, Vultr, Linode, etc.)
 
 
-AWS
+<Tabs>
+<TabItem label="AWS">
+```bash
+# Encode and attach to launch template
+base64 -w0 cloud-init/cloud-init.yaml > /tmp/userdata.b64
 
-  ```null
-  # Encode and attach to launch template
-  base64 -w0 cloud-init/cloud-init.yaml > /tmp/userdata.b64
-
-  aws ec2 create-launch-template \
-    --launch-template-name kmagent-template \
-    --launch-template-data '{
-      "UserData": "'$(cat /tmp/userdata.b64)'"
-    }'
-  ```
-
-  GCP
-
-  ```none
-  gcloud compute instance-templates create kmagent-template \
-    --metadata-from-file user-data=cloud-init/cloud-init.yaml \
-    --machine-type e2-medium \
-    --image-family ubuntu-2204-lts \
-    --image-project ubuntu-os-cloud
-  ```
-
-  Azure
-
-  ```text
-  az vmss create \
-    --name kmagent-vmss \
-    --resource-group myResourceGroup \
-    --image Ubuntu2204 \
-    --custom-data cloud-init/cloud-init.yaml
-  ```
-
-  DigitalOcean
-
-  ```curl
-  doctl compute droplet create kmagent-node \
-    --image ubuntu-22-04-x64 \
-    --size s-1vcpu-1gb \
-    --user-data-file cloud-init/cloud-init.yaml
-  ```
-
-  Alibaba Cloud
-
-  ```json
-  Paste cloud-init.yaml content into: ECS Console → Instance → Advanced Options → User Data
-  ```
+aws ec2 create-launch-template \
+  --launch-template-name kmagent-template \
+  --launch-template-data '{
+    "UserData": "'$(cat /tmp/userdata.b64)'"
+  }'
+```
+</TabItem>
+<TabItem label="GCP">
+```bash
+gcloud compute instance-templates create kmagent-template \
+  --metadata-from-file user-data=cloud-init/cloud-init.yaml \
+  --machine-type e2-medium \
+  --image-family ubuntu-2204-lts \
+  --image-project ubuntu-os-cloud
+```
+</TabItem>
+<TabItem label="Azure">
+```bash
+az vmss create \
+  --name kmagent-vmss \
+  --resource-group myResourceGroup \
+  --image Ubuntu2204 \
+  --custom-data cloud-init/cloud-init.yaml
+```
+</TabItem>
+<TabItem label="DigitalOcean">
+```bash
+doctl compute droplet create kmagent-node \
+  --image ubuntu-22-04-x64 \
+  --size s-1vcpu-1gb \
+  --user-data-file cloud-init/cloud-init.yaml
+```
+</TabItem>
+<TabItem label="Alibaba Cloud">
+```text
+Paste cloud-init.yaml content into: ECS Console → Instance → Advanced Options → User Data
+```
+</TabItem>
+</Tabs>
 
 
 ## 2. Ansible
@@ -106,28 +104,28 @@ vim inventories/production.ini
 **Deploy**
 
 
-All Hosts
-
-  ```bash
-  ansible-playbook -i inventories/production.ini deploy-kmagent.yml \
-    -e "km_api_key=$KM_API_KEY km_endpoint=https://otel.kloudmate.com"
-  ```
-
-  Specific Group
-
-  ```none
-  ansible-playbook -i inventories/production.ini deploy-kmagent.yml \
-    -e "km_api_key=$KM_API_KEY km_endpoint=https://otel.kloudmate.com" \
-    --limit aws
-  ```
-
-  Dry Run
-
-  ```null
-  ansible-playbook -i inventories/production.ini deploy-kmagent.yml \
-    -e "km_api_key=$KM_API_KEY km_endpoint=https://otel.kloudmate.com" \
-    --check --diff
-  ```
+<Tabs>
+<TabItem label="All Hosts">
+```bash
+ansible-playbook -i inventories/production.ini deploy-kmagent.yml \
+  -e "km_api_key=$KM_API_KEY km_endpoint=https://otel.kloudmate.com"
+```
+</TabItem>
+<TabItem label="Specific Group">
+```bash
+ansible-playbook -i inventories/production.ini deploy-kmagent.yml \
+  -e "km_api_key=$KM_API_KEY km_endpoint=https://otel.kloudmate.com" \
+  --limit aws
+```
+</TabItem>
+<TabItem label="Dry Run">
+```bash
+ansible-playbook -i inventories/production.ini deploy-kmagent.yml \
+  -e "km_api_key=$KM_API_KEY km_endpoint=https://otel.kloudmate.com" \
+  --check --diff
+```
+</TabItem>
+</Tabs>
 
 
 ### Dynamic Inventory (Auto-discover VMs)
@@ -135,50 +133,51 @@ All Hosts
 Instead of static inventory files, use cloud-native dynamic inventory plugins:
 
 
-AWS
-
-  ```null
-  pip install boto3
-  ansible-playbook -i aws_ec2.yml deploy-kmagent.yml
-  ```
-
-  GCP
-
-  ```none
-  pip install google-auth
-  ansible-playbook -i gcp_compute.yml deploy-kmagent.yml
-  ```
-
-  Azure
-
-  ```text
-  pip install azure-identity azure-mgmt-compute
-  ansible-playbook -i azure_rm.yml deploy-kmagent.yml
-  ```
-
-
-**Example**`aws_ec2.yml`**configuration:**
+<Tabs>
+<TabItem label="AWS">
+```bash
+pip install boto3
+ansible-playbook -i aws_ec2.yml deploy-kmagent.yml
+```
+</TabItem>
+<TabItem label="GCP">
+```bash
+pip install google-auth
+ansible-playbook -i gcp_compute.yml deploy-kmagent.yml
+```
+</TabItem>
+<TabItem label="Azure">
+```bash
+pip install azure-identity azure-mgmt-compute
+ansible-playbook -i azure_rm.yml deploy-kmagent.yml
+```
+</TabItem>
+</Tabs>
 
 
-AWS
+**Example** `aws_ec2.yml` **configuration:**
 
-  ```yaml
-  plugin: amazon.aws.aws_ec2
-  regions:
-    - us-east-1
-    - us-west-2
-    - ap-south-1
-  filters:
-    tag:Environment: production
-    instance-state-name: running
-  keyed_groups:
-    - key: tags.Role
-      prefix: role
-    - key: placement.region
-      prefix: region
-  compose:
-    ansible_host: private_ip_address
-  ```
+<Tabs>
+<TabItem label="AWS">
+```yaml
+plugin: amazon.aws.aws_ec2
+regions:
+  - us-east-1
+  - us-west-2
+  - ap-south-1
+filters:
+  tag:Environment: production
+  instance-state-name: running
+keyed_groups:
+  - key: tags.Role
+    prefix: role
+  - key: placement.region
+    prefix: region
+compose:
+  ansible_host: private_ip_address
+```
+</TabItem>
+</Tabs>
 
 
 ### **Useful Ansible Commands**
@@ -205,63 +204,61 @@ ansible all -i inventories/production.ini -m shell \
 You can easily embed kmagent into your Terraform deployments across any provider using our user-data module.
 
 
-Module Usage
-
-  ```none
-  module "kmagent" {
-    source      = "./modules/user-data"
-    km_api_key  = var.km_api_key
-    km_endpoint = "https://otel.kloudmate.com"
-    kmagent_tags = {
-      env  = "production"
-      team = "platform"
-    }
+<Tabs>
+<TabItem label="Module Usage">
+```hcl
+module "kmagent" {
+  source      = "./modules/user-data"
+  km_api_key  = var.km_api_key
+  km_endpoint = "https://otel.kloudmate.com"
+  kmagent_tags = {
+    env  = "production"
+    team = "platform"
   }
-  ```
+}
+```
+</TabItem>
+<TabItem label="AWS">
+```hcl
+resource "aws_launch_template" "app" {
+  name_prefix = "app-"
+  user_data   = base64encode(module.kmagent.cloud_init)
+}
 
-  AWS
-
-  ```null
-  resource "aws_launch_template" "app" {
-    name_prefix = "app-"
-    user_data   = base64encode(module.kmagent.cloud_init)
+resource "aws_autoscaling_group" "app" {
+  launch_template {
+    id      = aws_launch_template.app.id
+    version = "$Latest"
   }
-
-  resource "aws_autoscaling_group" "app" {
-    launch_template {
-      id      = aws_launch_template.app.id
-      version = "$Latest"
-    }
-    min_size = 2
-    max_size = 20
+  min_size = 2
+  max_size = 20
+}
+```
+</TabItem>
+<TabItem label="GCP">
+```hcl
+resource "google_compute_instance_template" "app" {
+  metadata = {
+    user-data = module.kmagent.cloud_init
   }
-  ```
-
-  GCP
-
-  ```text
-  resource "google_compute_instance_template" "app" {
-    metadata = {
-      user-data = module.kmagent.cloud_init
-    }
-  }
-  ```
-
-  Azure
-
-  ```curl
-  resource "azurerm_linux_virtual_machine_scale_set" "app" {
-    custom_data = base64encode(module.kmagent.cloud_init)
-  }
-  ```
-
-  DigitalOcean
-
-  ```json
-  resource "digitalocean_droplet" "app" {
-    user_data = module.kmagent.cloud_init
-  }
-  ```
+}
+```
+</TabItem>
+<TabItem label="Azure">
+```hcl
+resource "azurerm_linux_virtual_machine_scale_set" "app" {
+  custom_data = base64encode(module.kmagent.cloud_init)
+}
+```
+</TabItem>
+<TabItem label="DigitalOcean">
+```hcl
+resource "digitalocean_droplet" "app" {
+  user_data = module.kmagent.cloud_init
+}
+```
+</TabItem>
+</Tabs>
 
 
 ## 4. Packer (Pre-baked Images)
@@ -277,24 +274,25 @@ cd packer/
 **Build your images**
 
 
-AWS AMI
-
-  ```bash
-  packer build -only=amazon-ebs.kmagent \
-    -var 'kmagent_version=1.2.0' \
-    kmagent-image.pkr.hcl
-  ```
-
-  GCP Image
-
-  ```none
-  ```
-
-  Build All
-
-  ```null
-  packer build kmagent-image.pkr.hcl
-  ```
+<Tabs>
+<TabItem label="AWS AMI">
+```bash
+packer build -only=amazon-ebs.kmagent \
+  -var 'kmagent_version=1.2.0' \
+  kmagent-image.pkr.hcl
+```
+</TabItem>
+<TabItem label="GCP Image">
+```bash
+# Add your gcp specific packer build command here
+```
+</TabItem>
+<TabItem label="Build All">
+```bash
+packer build kmagent-image.pkr.hcl
+```
+</TabItem>
+</Tabs>
 
 
 **Deploy**

@@ -5,7 +5,18 @@ sidebar:
   label: "Overview"
   order: 1
 ---
-**KM-Agent is an OpenTelemetry Collector distribution**that extends the upstream OpenTelemetry Collector with additional capabilities for simplified deployment, remote configuration management, automated instrumentation, and**eBPF-powered kernel-level observability**. We've bundled a curated set of components optimized for observability in Kubernetes, Linux, Docker, Windows environments, and even on Edge.
+
+import { LinkCard, CardGrid } from '@astrojs/starlight/components';
+
+**KM-Agent is an OpenTelemetry Collector distribution** that extends the upstream OpenTelemetry Collector with additional capabilities for simplified deployment, remote configuration management, automated instrumentation, and **eBPF-powered kernel-level observability**. We've bundled a curated set of components optimized for observability in Kubernetes, Linux, Docker, Windows environments, and even on Edge.
+
+## Architecture
+
+The KloudMate Agent is installed as a service on the host system, a Docker container, or a DaemonSet on Kubernetes. It is set up during the installation process. The agent is responsible for managing the lifecycle of the Collector. The Agent is not an implementation of the Collector itself — instead, it runs and manages the lifecycle of the existing OTel Collector.
+
+It is also primarily responsible for watching remote configuration (via a REST endpoint) and passing the configuration to the Collector when changes are detected. It has other functionalities, such as synthetic monitoring that can be used to monitor the agent's status, and various logs for monitoring purposes.
+
+Each agent is uniquely identifiable, so it can be used to build dashboards for users to monitor the agents and configure them using a web interface.
 
 ## Key Problems Solved
 
@@ -34,29 +45,12 @@ sidebar:
 - **Kubernetes** (via DaemonSet and Deployment)
 - **Windows** (Windows Server 2016+)
 
-
-
-  
-
-### [Linux Agent](installation/linux-agent/)
-  
-
-  
-
-### [Docker Agent](installation/docker-agent/)
-  
-
-  
-
-### [Windows Agent](installation/windows-agent/)
-  
-
-  
-
-### [Kubernetes Agent](installation/kubernetes-agent/)
-  
-
-
+<CardGrid>
+  <LinkCard title="Linux Agent" href="installation/linux-agent/" description="Install the KM Agent on Debian, Ubuntu, RHEL, or CentOS." />
+  <LinkCard title="Docker Agent" href="installation/docker-agent/" description="Deploy the KM Agent as a Docker container." />
+  <LinkCard title="Windows Agent" href="installation/windows-agent/" description="Install the KM Agent on Windows Server 2016 and above." />
+  <LinkCard title="Kubernetes Agent" href="installation/kubernetes-agent/" description="Deploy the KM Agent via DaemonSet and Deployment." />
+</CardGrid>
 
 ### Future Support
 

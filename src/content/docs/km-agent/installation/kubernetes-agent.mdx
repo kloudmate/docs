@@ -4,15 +4,17 @@ description: "Documentation for Kubernetes Agent"
 sidebar:
   order: 2
 ---
-This document will guide you to instrument Kubernetes using the **KloudMate Agent**via**DaemonSet**&**Deployment**.**What the Kubernetes Agent Monitors**
+This document will guide you to instrument Kubernetes using the **KloudMate Agent** via **DaemonSet** & **Deployment**.
+
+**What the Kubernetes Agent Monitors**
 
 Once installed, the Kubernetes Agent collects:
 
 - **Cluster metrics:** CPU, memory, disk, network usage
-- **Node metrics:** esource usage, health, availability
+- **Node metrics:** Resource usage, health, availability
 - **Namespace metrics:** Workloads, events per namespace
 - **Pod metrics:** CPU, memory, restarts, and lifecycle events
-- **Workload metrics:**Deployment and replica status, resource utilization
+- **Workload metrics:** Deployment and replica status, resource utilization
 - **Container logs:** stdout/stderr from pods
 - **Cluster events:** Pod failures, scaling events, and other events
 - **Optional APM metrics:** Instrumented applications (Python, Node.js, Java, .NET, Go)
@@ -21,7 +23,11 @@ Once installed, the Kubernetes Agent collects:
   These are the raw metrics and logs collected by the agent. Visualization, alerts, and dashboards are accessed separately.
 </hint>
 
-## **Accessing Your Data**View all Kubernetes data in these KloudMate sections:**1. Kubernetes Monitoring**
+## **Accessing Your Data**
+
+View all Kubernetes data in these KloudMate sections:
+
+**1. Kubernetes Monitoring**
 
 - Explore metrics and events for your cluster, nodes, namespaces, pods, and workloads
 - Track availability, resource usage, pod restarts, and workload health
@@ -44,7 +50,7 @@ Once installed, the Kubernetes Agent collects:
 - Search and filter pod logs and cluster events
 - Correlate logs with metrics to troubleshoot container or application issues
 
-[Log Explorer](../../../logs/log-explorer/)**
+[Log Explorer](../../../logs/log-explorer/)
 
 ## Install Agent
 
@@ -154,7 +160,9 @@ In some cases, the agent may not automatically detect certain applications. In s
 
 2\. You can enable APM using either of the following methods:
 
-### **Java:**-**Option 1 – Patch command**
+### **Java:**
+
+- **Option 1 – Patch command**
 
 ```bash
 kubectl patch deployment <name> -n <ns> -p '{"spec":{"template":{"metadata":{"annotations":{"instrumentation.opentelemetry.io/inject-java":"km-agent/km-agent-instrumentation-crd"}}}}}'
@@ -167,7 +175,9 @@ kubectl patch deployment <name> -n <ns> -p '{"spec":{"template":{"metadata":{"an
     instrumentation.opentelemetry.io/inject-java: km-agent/km-agent-instrumentation-crd   
 ```
 
-### **Python:**-**Option 1 – Patch command**
+### **Python:**
+
+- **Option 1 – Patch command**
 
 ```bash
 kubectl patch deployment <name> -n <ns> -p '{"spec":{"template":{"metadata":{"annotations":{"instrumentation.opentelemetry.io/inject-python":"km-agent/km-agent-instrumentation-crd"}}}}}'
@@ -180,7 +190,9 @@ annotations
       instrumentation.opentelemetry.io/inject-python: km-agent/km-agent-instrumentation-crd 
 ```
 
-### **Node.js:**-**Option 1 – Patch command**
+### **Node.js:**
+
+- **Option 1 – Patch command**
 
 ```bash
 kubectl patch deployment <name> -n <ns> -p '{"spec":{"template":{"metadata":{"annotations":{"instrumentation.opentelemetry.io/inject-nodejs":"km-agent/km-agent-instrumentation-crd"}}}}}'
@@ -193,7 +205,9 @@ annotations
     instrumentation.opentelemetry.io/inject-nodejs: km-agent/km-agent-instrumentation-crd
 ```
 
-### **.NET:**-**Option 1 – Patch command**
+### **.NET:**
+
+- **Option 1 – Patch command**
 
 ```bash
 kubectl patch deployment <name> -n <ns> -p '{"spec":{"template":{"metadata":{"annotations":{"instrumentation.opentelemetry.io/inject-dotnet":"km-agent/km-agent-instrumentation-crd"}}}}}'
@@ -208,5 +222,9 @@ annotations
 
 3\. Restart the deployments after adding the annotations.
 
-## **Next Steps**- Open**Kubernetes Monitoring**to view metrics and events for your*cluster*,**nodes**,**namespaces**,**pods**, and**workloads**- Use**Dashboards**to create visualizations or view**pre-built dashboards**- Use**Log Explorer** to investigate logs and correlate them with metrics
+## **Next Steps**
+
+- Open **Kubernetes Monitoring** to view metrics and events for your *cluster*, **nodes**, **namespaces**, **pods**, and **workloads**
+- Use **Dashboards** to create visualizations or view **pre-built dashboards**
+- Use **Log Explorer** to investigate logs and correlate them with metrics
 - Configure **alerts** for any of these components based on thresholds
