@@ -38,10 +38,10 @@ The eBPF Receiver includes built-in **Database Activity Monitoring** that automa
 
 ## Related DAM Workflows
 
-- [ML Classifier Deployment Guide](./ml-classifier-deployment-guide.mdx)
+- [ML Classifier Deployment Guide](/database-monitoring/database-activity-monitoring-dam/ml-classifier-deployment-guide/)
 
 <hint type="info">
-  For deeper query analytics, including execution plans and schema discovery, see [Direct Database Monitoring](../direct-database-monitoring.mdx). For distributed trace context from your application SDKs, see [OpenTelemetry Database Monitoring](../opentelemetry-database-monitoring.mdx).
+  For deeper query analytics, including execution plans and schema discovery, see [Direct Database Monitoring](/database-monitoring/direct-database-monitoring/). For distributed trace context from your application SDKs, see [OpenTelemetry Database Monitoring](/database-monitoring/opentelemetry-database-monitoring/).
 </hint>
 
 ### Configuration
@@ -59,4 +59,4 @@ ebpf:
 
 - Linux kernel ≥ 5.8 (recommended; some features work on 4.18+)
 - Root privileges or `CAP_SYS_ADMIN` + `CAP_BPF capabilities`
-- The eBPF Receiver must be enabled in the agent configuration (see [Configuration](../../km-agent/configuration.mdx)).
+- The eBPF Receiver must be enabled in the agent configuration (see [Configuration](/km-agent/configuration/)).

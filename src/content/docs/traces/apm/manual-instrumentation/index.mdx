@@ -22,37 +22,37 @@ The KloudMate Agent works with any OpenTelemetry SDK. Configure your SDK to expo
 
   
 
-    ### [Python](./python.mdx)
+    ### [Python](/traces/apm/manual-instrumentation/python/)
   
 
   
 
-    ### [Go](./go.mdx)
+    ### [Go](/traces/apm/manual-instrumentation/go/)
   
 
   
 
-    ### [Node.js](./node-js.mdx)
+    ### [Node.js](/traces/apm/manual-instrumentation/node-js/)
   
 
   
 
-    ### [Java](./java.mdx)
+    ### [Java](/traces/apm/manual-instrumentation/java/)
   
 
   
 
-    ### [.NET](./dotnet.mdx)
+    ### [.NET](/traces/apm/manual-instrumentation/dotnet/)
   
 
   
 
-    ### [PHP](./php.mdx)
+    ### [PHP](/traces/apm/manual-instrumentation/php/)
   
 
   
 
-    ### [Ruby](./ruby.mdx)
+    ### [Ruby](/traces/apm/manual-instrumentation/ruby/)
   
 
 
@@ -61,9 +61,9 @@ The KloudMate Agent works with any OpenTelemetry SDK. Configure your SDK to expo
 
 Point your OpenTelemetry SDK exporter to the KloudMate Agent's OTLP endpoint:
 
-    OTEL_EXPORTER_OTLP_ENDPOINT="http://localhost:4318"
+    OTEL_EXPORTER_OTLP_ENDPOINT="http://KM_AGENT_HOST:4318"
     OTEL_SERVICE_NAME="your-service-name"
 
 ## Combining with eBPF
 
-**💡 Recommended approach:** Start with [Zero-Downtime O11y (eBPF)](../zero-downtime-o11y-ebpf.mdx) for broad coverage, then strategically enrich with manual OpenTelemetry SDK instrumentation where you need custom business logic attributes.
+**💡 Recommended approach:** Start with [Zero-Downtime O11y (eBPF)](/traces/apm/zero-downtime-o11y-ebpf/) for broad coverage, then strategically enrich with manual OpenTelemetry SDK instrumentation where you need custom business logic attributes.
