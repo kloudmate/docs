@@ -1,5 +1,5 @@
 ---
-title: "Redis Monitoring"
+title: "Redis"
 description: "Documentation for Redis Monitoring"
 ---
 Redis is an in-memory data structure store commonly used as a database, cache, and message broker. It is designed for high performance and low latency, making it suitable for real-time applications such as caching, session management, analytics, messaging queues, and leaderboards. Redis supports multiple data structures and offers features such as persistence, replication, and clustering for scalability and high availability.
@@ -78,7 +78,8 @@ Verify that Redis metrics are flowing into KloudMate using the Explore view.
 After the agent restarts:
 
 1. Log in to your KloudMate account
-2. Navigate to **Explore**3. Select**OpenTelemetry – Metrics**
+2. Navigate to **Explore**
+3. Select **OpenTelemetry → Metrics**
 4. Choose a Redis metric exposed by the integration
 5. Click **Run Query** to view time-series data
 
@@ -88,7 +89,7 @@ Seeing data confirms that Redis telemetry is being collected successfully.
 
 ## Redis metrics
 
-| **Name**|**Description**                                                    |
+| **Name** | **Description**                                                    |
 | ----------------------------------- | ------------------------------------------------------------------ |
 | redis\_commands                     | Number of commands processed per second                            |
 | redis\_cmd\_latency                 | Command execution latency                                          |
@@ -98,7 +99,7 @@ Seeing data confirms that Redis telemetry is being collected successfully.
 | redis\_keys\_evicted                | Number of evicted keys due to maxmemory limit                      |
 | redis\_net\_input                   | The total number of bytes read from the network                    |
 | redis\_net\_output                  | The total number of bytes written to the network                   |
-| redis\_replication\_offset          | The serverâ€™s current replication offset                          |
+| redis\_replication\_offset          | The server's current replication offset                            |
 | redis\_uptime                       | Number of seconds since the Redis server started                   |
 
 For the complete Redis metrics list, refer to the [metrics reference](https://github.com/open-telemetry/opentelemetry-collector-contrib/blob/main/receiver/redisreceiver/documentation.md).

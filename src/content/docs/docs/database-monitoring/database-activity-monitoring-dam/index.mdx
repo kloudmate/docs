@@ -9,7 +9,7 @@ The eBPF Receiver includes built-in **Database Activity Monitoring** that automa
 
 ### Supported Databases
 
-| ### **Database** | ### Captured Metrics                                                         |
+| **Database** | **Captured Metrics**                                                         |
 | ---------------- | ---------------------------------------------------------------------------- |
 | **MySQL**        | Query operations, latency (avg + P99), prepared statements, read/write ratio |
 | **PostgreSQL**   | Query operations, latency (avg + P99), prepared statements, read/write ratio |
@@ -17,7 +17,7 @@ The eBPF Receiver includes built-in **Database Activity Monitoring** that automa
 
 ### Supported Messaging Systems
 
-| ### System        | ### Captured Metrics                    |
+| **System**        | **Captured Metrics**                    |
 | ----------------- | --------------------------------------- |
 | **Kafka**         | Producer/Consumer metrics, throughput   |
 | **Elasticsearch** | Request operations, latency, throughput |
@@ -58,5 +58,5 @@ ebpf:
 ### Prerequisites
 
 - Linux kernel ≥ 5.8 (recommended; some features work on 4.18+)
-- Root privileges or `CAP_SYS_ADMIN` + `CAP_BPF capabilities`
+- Root privileges or `CAP_SYS_ADMIN` + `CAP_BPF` capabilities
 - The eBPF Receiver must be enabled in the agent configuration (see [Configuration](../../km-agent/configuration/)).

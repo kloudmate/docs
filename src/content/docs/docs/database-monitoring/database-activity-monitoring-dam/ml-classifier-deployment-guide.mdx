@@ -28,7 +28,7 @@ This guide covers two strategies for deploying the **KloudMate ML Classifier**:
 ### Prepare the Compose File
 
 
-Create a `docker-compose.yaml `file on your machine. It is configured to run the classifier with optimized CPU/Memory limits to handle the ML NLP models.
+Create a `docker-compose.yaml` file on your machine. It is configured to run the classifier with optimized CPU/Memory limits to handle the ML NLP models.
 
 If you need the ML Classifier to reach out to the KM Agent running directly on the host machine, Docker uses the special DNS `host.docker.internal` to route traffic to the host.
 
@@ -39,7 +39,7 @@ version: '3.8'
 
 services:
   ml-classifier:
-    image:  ghcr.io/kloudmate/dam-classifierr:latest
+    image:  ghcr.io/kloudmate/dam-classifier:latest
     build:
       context: .
       dockerfile: Dockerfile
@@ -112,7 +112,7 @@ processors:
 
 ### Prerequisites
 
-- Active Kubernetes cluster with `kubectl `access.
+- Active Kubernetes cluster with `kubectl` access.
 - Helm or standard K8s networking setup.
 
 

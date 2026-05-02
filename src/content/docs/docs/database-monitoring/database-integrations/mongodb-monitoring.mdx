@@ -1,5 +1,5 @@
 ---
-title: "MongoDB Monitoring"
+title: "MongoDB"
 description: "Documentation for MongoDB Monitoring"
 ---
 MongoDB is a widely used NoSQL database designed for scalability and flexibility. It stores data in a JSON-like format (BSON), enabling dynamic schema design and efficient handling of unstructured data. MongoDB is known for its high performance in read- and write-heavy environments and is commonly used for real-time analytics, content management, and IoT systems. It supports horizontal scaling through sharding and provides built-in replication for high availability.
@@ -214,7 +214,9 @@ service:
   extensions: [health_check, pprof, zpages, file_storage]
 ```
 
-### **Step 5: Save Configuration and Restart Agent**After updating the configuration, click**Save Configuration** in the KloudMate UI.
+### **Step 5: Save Configuration and Restart Agent**
+
+After updating the configuration, click **Save Configuration** in the KloudMate UI.
 
 ![image](https://app.archbee.com/api/optimize/dfeZmyJsGjUXyEH2hgHVe/v50H011QomNhH7lXX1BRP-20251126-110236.png)
 
@@ -231,10 +233,12 @@ systemctl status kmagent
 
 These commands restart the KloudMate Agent and display its current status.
 
-**For Windows**1. Open the**Services** window
+**For Windows**
+
+1. Open the **Services** window
    - Press `Win + R`, type `services.msc`, and press `OK`
    - Or search for **Services** from the Start menu
-2. Locate the **KloudMate Agent**service.
+2. Locate the **KloudMate Agent** service.
 3. Right-click the service and select **Restart**.
 
 After restarting the agent, verify that MongoDB metrics and logs are visible in the KloudMate dashboard.
@@ -246,7 +250,8 @@ Verify that metrics are flowing into KloudMate using the **Explore** view.
 After the agent restarts:
 
 1. Log in to KloudMate
-2. Navigate to **Explore**3. Select**OpenTelemetry → Metrics**
+2. Navigate to **Explore**
+3. Select **OpenTelemetry → Metrics**
 4. Choose a MongoDB metric and run the query
 
 Seeing time-series data confirms that MongoDB telemetry is flowing successfully.
@@ -257,7 +262,7 @@ Seeing time-series data confirms that MongoDB telemetry is flowing successfully.
 
 KloudMate provides prebuilt MongoDB dashboards through [dashboard templates](https://templates.kloudmate.com/mongo-db/index.html). These dashboards visualize MongoDB server performance, operations, storage, and resource usage.
 
-To import and start using these templates, follow the steps described in [Import from Templates](../../../dashboards-alerts/dashboards/create-a-dashboard/).
+To import and start using these templates, follow the steps described in [Import from Templates](../../../dashboards/create-a-dashboard/).
 
 ## **Default MongoDB Metrics**
 
@@ -265,7 +270,7 @@ MongoDB Monitoring automatically collects commonly used MongoDB metrics when ena
 
 Example Metrics
 
-| **Metric Name**|**Description**                                                          |
+| **Metric Name**                   | **Description**                                                          |
 | --------------------------------- | ------------------------------------------------------------------------ |
 | mongodb\_connection\_count        | The number of connections.                                               |
 | mongodb\_operation\_count         | The number of operations executed.                                       |

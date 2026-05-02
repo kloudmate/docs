@@ -1,0 +1,43 @@
+---
+
+title: "KloudMate Metrics"
+description: "Documentation for KloudMate Metrics"
+sidebar:
+  order: 8
+---
+## **Usage Metrics**
+
+| Name                                  | Description                            | Unit  |
+| ------------------------------------- | -------------------------------------- | ----- |
+| **KloudMateIngestedMetricPoints**     | Number of metric data points ingested. | Count |
+| **KloudMateIngestedTraceVolume**      | The volume of traces ingested.         | Bytes |
+| **KloudMateIngestedSpanCount**  | Number of spans ingested.              | Count |
+| **KloudMateIngestedLogsVolume** | The volume of logs ingested.           | Bytes |
+| **KloudMateIngestedLogCount**   | Number of logs ingested.               | Count |
+
+All usage metrics have the following attributes:
+
+- `workspaceId`: ID of the workspace to which metrics were sent.
+- `orgId`: ID of the organization of the workspace to which metrics were sent.
+
+## **Service Map Metrics**
+
+| Name                                  | Description                                                                                                                                                 | Unit        |
+| ------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------- |
+| **KloudMateServiceMapRequests**       | Number of requests between a source and target service.                                                                                                     | Count       |
+| **KloudMateServiceMapFailedRequests** | Number of failed requests between a source and target service. A request is considered failed if either the source span or target span's status.code is 2.  | Count       |
+| **KloudMateServiceMapDuration**       | Duration of requests between source and target.                                                                                                             | Nanoseconds |
+
+All service map metrics have the following attributes:
+
+- `source.service.name`: Source service name.
+- `target.service.name`: Target service name.
+- `source.isError`: A boolean which is true if the source span's status.code is 2.
+- `target.isError`: A boolean which is true if the target span's status.code is 2.
+
+***
+
+## Related Resources
+
+[Managing Dashboards and Panels](../managing-panels/)
+

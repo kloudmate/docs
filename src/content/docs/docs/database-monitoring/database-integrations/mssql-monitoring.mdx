@@ -1,5 +1,5 @@
 ---
-title: "MSSQL Monitoring"
+title: "MSSQL"
 description: "Documentation for MSSQL Monitoring"
 ---
 Microsoft SQL Server (MSSQL) is a robust relational database management system from Microsoft, renowned for its enterprise-grade performance, high availability features, and advanced analytics capabilities. It powers mission-critical applications, data warehousing, and business intelligence workloads.
@@ -401,7 +401,9 @@ service:
   extensions: [health_check, pprof, zpages, file_storage]
 ```
 
-### **Step 6: Save Configuration and Restart Agent**After updating the configuration, click**Save Configuration** in the KloudMate UI.
+### **Step 6: Save Configuration and Restart Agent**
+
+After updating the configuration, click **Save Configuration** in the KloudMate UI.
 
 ![image](https://app.archbee.com/api/optimize/dfeZmyJsGjUXyEH2hgHVe/v50H011QomNhH7lXX1BRP-20251126-110236.png)
 
@@ -418,10 +420,12 @@ systemctl status kmagent
 
 These commands restart the KloudMate Agent and display its current status.
 
-**For Windows**1. Open the**Services** window
+**For Windows**
+
+1. Open the **Services** window
    - Press `Win + R`, type `services.msc`, and press `OK`
    - Or search for **Services** from the Start menu
-2. Locate the **KloudMate Agent**service.
+2. Locate the **KloudMate Agent** service.
 3. Right-click the service and select **Restart**.
 
 After restarting the agent, verify that MSSQL metrics and logs are visible in the KloudMate dashboard.
@@ -433,7 +437,8 @@ Verify that metrics are flowing into KloudMate using the **Explore** view.
 After the agent restarts:
 
 1. Log in to KloudMate
-2. Navigate to **Explore**3. Select**OpenTelemetry → Metrics**
+2. Navigate to **Explore**
+3. Select **OpenTelemetry → Metrics**
 4. Choose a MSSQL metric and run the query
 
 Seeing time-series data confirms that MSSQL telemetry is flowing successfully. 
@@ -444,11 +449,11 @@ Seeing time-series data confirms that MSSQL telemetry is flowing successfully.
 
 KloudMate provides prebuilt MSSQL dashboards through [dashboard templates](https://templates.kloudmate.com/mssql/index.html). These dashboards visualize MSSQL database performance, query operations, connections, and resource usage.
 
-To import and start using these templates, follow the steps described in [Import from Templates](../../../dashboards-alerts/dashboards/create-a-dashboard/).
+To import and start using these templates, follow the steps described in [Import from Templates](../../../dashboards/create-a-dashboard/).
 
 ## Default Metrics
 
-| **Metrics**|**Description**|**Type**|**Unit**     |
+| **Metrics** | **Description** | **Type** | **Unit** |
 | ------------------------------------------------------- | -------------------------------------------------------------------------------------- | -------------------- | ------------ |
 | sqlserver\_user\_connection\_count                      | Number of users connected to the SQL Server.                                           | Gauge&#xD;&#xA;&#xD; | number       |
 | sqlserver\_lock\_wait\_time\_avg                        | Average wait time for all lock requests that had to wait.                              | Gauge&#xD;&#xA;      | milliseconds |

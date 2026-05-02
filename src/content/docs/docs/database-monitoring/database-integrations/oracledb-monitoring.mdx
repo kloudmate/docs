@@ -1,5 +1,5 @@
 ---
-title: "OracleDB Monitoring"
+title: "OracleDB"
 description: "Documentation for OracleDB Monitoring"
 ---
 Oracle Database (OracleDB) is foundational for many enterprise applications, and robust monitoring is essential for maintaining performance and reliability. KloudMate provides comprehensive visibility into OracleDB by delivering real-time insights through logs and metrics using the KloudMate Agent powered by OpenTelemetry.
@@ -38,7 +38,9 @@ GRANT SELECT ON DBA_DATA_FILES TO <username>;
 GRANT SELECT ON DBA_TABLESPACE_USAGE_METRICS TO <username>;
 ```
 
-## **Configuration Overview**###**Step 1: Access Agents and OpenTelemetry Collector Configuration**
+## **Configuration Overview**
+
+### **Step 1: Access Agents and OpenTelemetry Collector Configuration**
 
 - Log in to the KloudMate platform
 - Go to **Settings → Agents**
@@ -169,7 +171,8 @@ Verify that metrics are flowing into KloudMate using the **Explore** view.
 After the agent restarts:
 
 1. Log in to KloudMate
-2. Navigate to **Explore**3. Select**OpenTelemetry → Metrics**
+2. Navigate to **Explore**
+3. Select **OpenTelemetry → Metrics**
 4. Choose a OracleDB metric and run the query
 
 Seeing time-series data confirms that OracleDB telemetry is flowing successfully. 
@@ -180,7 +183,9 @@ Access KloudMate and create dashboards to visualize OracleDB metrics and logs. C
 
 ![image](https://lh7-rt.googleusercontent.com/docsz/AD_4nXcp9ByEpItmbQQ-2PLWRiN9UoHEzg95EcQqUf_D5XC4Nc3u_mMrSsD0Xh3dS7f1CxBEkiiA4SZR51fXLGuCpc3H3DBqYTYyaYtGdynxVFwU9XUknqF9ODpqROBuaiKpfuBEQ4EHAna66CAQ0oDygqr37LHk?key=yOqtikL5-HBgd08NCIVsvg)
 
-## **Default Metrics:**|**Default Metrics**                 |
+## **Default Metrics:**
+
+| **Default Metrics**                 |
 | ----------------------------------- |
 | oracledb\_cpu\_time                 |
 | oracledb\_dml\_locks\_limit         |

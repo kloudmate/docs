@@ -1,6 +1,8 @@
 ---
 title: "OpenTelemetry Database Monitoring"
 description: "Documentation for OpenTelemetry Database Monitoring"
+sidebar:
+  order: 3
 ---
 In addition to the eBPF-based [Database Access Monitoring (DAM)](../database-activity-monitoring-dam/), you can use OpenTelemetry SDK instrumentation to capture detailed database query traces with custom attributes.
 
@@ -19,11 +21,11 @@ OpenTelemetry auto-instrumentation agents and SDKs provide library-specific hook
 - When you need rich, library-specific database query details
 - When you want custom attributes on database spans
 - When your application already uses OpenTelemetry SDKs
-- When combined [Manual Instrumentation](../../traces/apm/manual-instrumentation/) for the business context
+- When combined with [Manual Instrumentation](../../traces/apm/manual-instrumentation/) for the business context
 
 ## Supported Database Libraries
 
-| ### Language | ### Libraries Auto-Instrumented           |
+| **Language** | **Libraries Auto-Instrumented**           |
 | ------------ | ----------------------------------------- |
 | **Java**     | JDBC, Hibernate, Spring Data              |
 | **Python**   | SQLAlchemy, psycopg2, PyMySQL, Django ORM |

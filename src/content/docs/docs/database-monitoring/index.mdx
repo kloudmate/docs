@@ -10,35 +10,22 @@ The KloudMate Agent provides three approaches to database monitoring, from zero-
 <hint type="info">
   Which approach should I use?
 
-  **eBPF (DAM)**is the fastest way to get started, zero configuration, no database credentials needed. For deep query analytics with execution plans and schema discovery, use**Direct Database Monitoring**.**OpenTelemetry** is ideal when your application already uses OTel SDKs, and you want database spans as part of your distributed traces.
+  **eBPF (DAM)** is the fastest way to get started, zero configuration, no database credentials needed. For deep query analytics with execution plans and schema discovery, use **Direct Database Monitoring**. **OpenTelemetry** is ideal when your application already uses OTel SDKs, and you want database spans as part of your distributed traces.
 </hint>
 
 ## Monitoring Approaches
 
+### [Database Activity Monitoring (DAM)](database-activity-monitoring-dam/)
 
+eBPF-powered, zero-configuration database profiling at the kernel level. Includes DAM-specific workflows such as the ML classifier deployment guide.
 
-  
+### [OpenTelemetry Database Monitoring](opentelemetry-database-monitoring/)
 
-    ### [Database Activity Monitoring (DAM)](database-activity-monitoring-dam/)
+Use OpenTelemetry SDK instrumentation for rich database query tracing with custom attributes.
 
-    eBPF-powered, zero-configuration database profiling at the kernel level. Includes DAM-specific workflows such as the ML classifier deployment guide.
-  
+### [Direct Database Monitoring](direct-database-monitoring/)
 
-  
-
-    ### [OpenTelemetry Database Monitoring](opentelemetry-database-monitoring/)
-
-    Use OpenTelemetry SDK instrumentation for rich database query tracing with custom attributes.
-  
-
-  
-
-    ### [Direct Database Monitoring](direct-database-monitoring/)
-
-    SQL-based setup with a dedicated monitoring user for deep query metrics, execution plans, and schema discovery.
-  
-
-
+SQL-based setup with a dedicated monitoring user for deep query metrics, execution plans, and schema discovery.
 
 ## Supported Databases
 
@@ -51,7 +38,7 @@ The KloudMate Agent provides three approaches to database monitoring, from zero-
 
 ## Comparison
 
-| ### **Feature**| ###**eBPF (DAM)**| ###**OpenTelemetry**| ###**Direct (SQL Setup)** |
+| **Feature** | **eBPF (DAM)** | **OpenTelemetry** | **Direct (SQL Setup)** |
 | ------------------------------------ | ------------------ | --------------------- | -------------------------- |
 | **Setup complexity**                 | None               | SDK integration       | SQL scripts + agent config |
 | **Database credentials**             | Not required       | Not required          | Required                   |
