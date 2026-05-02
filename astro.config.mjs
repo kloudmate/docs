@@ -5,8 +5,14 @@ import starlightLlmsTxt from 'starlight-llms-txt';
 import starlightAutoSidebar from 'starlight-auto-sidebar'
 import starlightThemeNova from 'starlight-theme-nova';
 
+const deploymentOrigin = process.env.DOCS_SITE_URL ?? 'https://docs.kloudmate.com';
+const assetsPrefix = process.env.DOCS_ASSETS_PREFIX;
+
 export default defineConfig({
-  site: 'https://docs.kloudmate.com',
+  site: deploymentOrigin,
+  build: {
+    assetsPrefix,
+  },
   integrations: [
     starlight({
       plugins: [
