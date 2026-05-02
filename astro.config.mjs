@@ -62,9 +62,9 @@ export default defineConfig({
         dark: './src/assets/logo-dark.png',
         replacesTitle: true,
       },
-      social: [
-        { icon: 'github', label: 'GitHub', href: 'https://github.com/kloudmate' },
-      ],
+      // social: [
+      //   { icon: 'github', label: 'GitHub', href: 'https://github.com/kloudmate' },
+      // ],
       customCss: ['./src/styles/brand.css'],
       components: {
         Header: './src/components/Header.astro',
@@ -72,7 +72,7 @@ export default defineConfig({
       },
       sidebar: [
         {
-          label: 'Platform Docs',
+          label: 'Docs',
           autogenerate: { directory: 'docs' },
         },
         {
