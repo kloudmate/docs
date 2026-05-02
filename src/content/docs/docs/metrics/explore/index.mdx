@@ -1,0 +1,69 @@
+---
+title: "Explore"
+description: "Documentation for Explore"
+sidebar:
+  label: "Overview"
+  order: 1
+---
+Explore is a dedicated section in KloudMate where you can quickly query and visualize your observability data, without needing to create or save a dashboard first. It’s ideal for ad-hoc investigation, debugging, and building queries before committing them to a dashboard.
+
+## Explore Walkthrough
+
+1. **Navigate to Explore**
+   Open the Explore section from the left-hand navigation menu. An empty, untitled panel will load and is ready for use immediately.
+
+![image]()
+
+2. **Configure the Visualization**
+   Use the panel settings on the right-hand side (or bottom on smaller screens) to control how results are displayed.
+   Select the visualization type from the dropdown at the top (e.g., TimeSeries, Table, Stat).
+   The settings panel has two tabs:
+
+- **General:** Contains collapsible sections for configuring the panel’s appearance and behavior. Expand any section to adjust its settings as needed.
+
+
+
+
+
+- **Overrides:** Allows you to apply field-level customizations on top of the General settings. Add one or more field overrides using the Add Field Override button, each targeting a specific series or field to override its display properties independently.
+
+
+
+
+
+2. **Configure Your Data Source and Signal Type**
+   At the top of the query editor, select your data source (e.g., OpenTelemetry) and signal type (e.g., Metrics, Logs, Traces) using the dropdowns. You can also set a query Interval; this defaults to Auto, which lets KloudMate determine the appropriate resolution automatically.
+3. **Build Your Query**
+   In the Query Builder tab, type the name of the metric you want to explore. Select an aggregation function (e.g., Avg) from the dropdown next to the metric name.
+
+- Click **Customize aggregation** next to the aggregation function to access advanced aggregation controls. See the Metrics Aggregations section for details.
+- Use **Add filters** to narrow results by specific attribute values.
+
+
+
+- Use **Group by** to break down the metric by a dimension such as k8s\_replicaset\_name.
+
+![image]()
+
+- Use **Ranking** to control how series are ordered (defaults to None).
+
+![image]()
+
+- Use **Legend Format** to customize how series labels appear in the visualization. 
+  For users who prefer writing queries directly, switch to the **PromQL** tab to enter a raw PromQL expression.
+
+4. **Add Multiple Queries and Expressions**- Use the**Add Query** button to layer multiple metric queries on the same panel. 
+- Use **Add Expression**to create derived values from your queries, including math expressions, reduce functions, and condition expressions. Refer to[Writing Expressions for KloudMate Alarms](../../dashboards-alerts/alarms/writing-expressions-for-kloudmate-alarms/) for full expression syntax.
+
+![image]()
+
+6. **Run Your Query**
+   Click Run Query to execute and visualize the results in the panel above.
+
+![image]()
+
+8. **Save to Dashboard**Once your queries are ready, use the**Save to Dashboard** button (top right) to save the panel to an existing dashboard or create a new one. Saved dashboards are accessible from the Dashboards section.
+
+![image]()
+
+##

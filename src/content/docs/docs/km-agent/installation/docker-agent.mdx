@@ -1,0 +1,100 @@
+---
+title: "Docker Agent"
+description: "Documentation for Docker Agent"
+sidebar:
+  order: 4
+---
+This document guides you through installing the **KloudMate Agent** on your host using Docker for **host metrics** and **log collection**.
+
+## **What the Docker Agent Monitors**
+
+Once installed, the Docker Agent collects:
+
+- **Container metrics:** CPU, memory, network, and disk usage for each running container
+- **Container lifecycle events:** start, stop, restart
+- **Host metrics:** CPU, memory, disk, and network usage of the Docker host
+- **Container and host logs:** stdout/stderr from containers and system logs from host
+- **Alerts:** Configure thresholds for containers or the host to notify on performance issues
+- **Dashboards:** Pre-built views for container-level and host-level performance
+
+This allows you to monitor **containers and host together**, troubleshoot performance issues, and correlate logs with metrics.
+
+## **Accessing Your Data**
+
+View all collected data in these KloudMate sections:
+
+**1. Infrastructure Monitoring**
+
+- Monitor Docker host metrics (CPU, memory, disk, network)
+- See all running containers and their resource usage
+- Track availability and uptime for containers and host   
+
+[Infrastructure Monitoring](../../../infrastructure-monitoring/)
+
+**2. Dashboards**
+
+- Build custom dashboards tailored for your containers or host metrics
+
+ [Creating a Dashboard](../../../dashboards-alerts/dashboards/)
+
+**3. Log Explorer**
+
+- Search logs per container or host
+- Filter logs by container name, severity, or timestamp
+- Correlate container logs with metrics to troubleshoot issues
+
+[Log Explorer](../../../logs/log-explorer/) 
+
+## Pre-requisites
+
+- Docker must be installed on the system.
+
+<hint type="info">
+  The Docker agent requires `docker.sock` to be mounted to the agent container.
+</hint>
+
+<hint type="info">
+  The commands below are for reference only. Log in to KloudMate and copy your account-specific command to install the Agent.
+</hint>
+
+## Install Agent
+
+**Step 1:** Navigate to the **Settings → Agents** section in your KloudMate account.
+
+**Step 2:** Select **Docker** from the list of available integrations.
+
+**Step 3:** Copy and run the Docker agent install command in your terminal to download and install the agent.
+
+![image](./images/docker-agent-1.png)
+
+**Step 4:** Run the following command to verify the agent is running correctly.
+
+![image](./images/docker-agent-2.png)
+
+## **Log Integration**
+
+By default, the KloudMate Agent collects basic system logs.
+
+To configure custom application logs and enable file-based log monitoring, refer to:
+
+[Server Logs to KloudMate](../../../logs/server-logs-to-kloudmate/) documentation
+
+This guide explains how to:
+
+- Configure the file log receiver
+- Add custom log file paths
+- Enable multiline log parsing
+- Validate logs in Log Explorer
+
+## **Next Steps**
+
+- Open **Infrastructure Monitoring** to see all running containers and host metrics
+- Go to **Dashboards** to visualize container and host performance
+- Use **Log Explorer** to investigate container logs and host logs
+- Configure **alerts** for container or host thresholds
+
+## Uninstall Agent
+
+Run the following command to uninstall the agent.
+
+![image](./images/docker-agent-3.png)

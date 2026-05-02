@@ -1,0 +1,20 @@
+---
+title: "Azure Integration"
+description: "Connect Azure services to KloudMate using Azure Monitor and Event Hub integrations."
+sidebar:
+  label: "Overview"
+  order: 1
+---
+
+Use these guides to connect Azure platform metrics and logs to KloudMate through Azure Monitor and Event Hub.
+
+import { LinkCard, CardGrid } from '@astrojs/starlight/components';
+
+## Available Guides
+
+<CardGrid>
+  <LinkCard title="Auto-Integration with Azure Monitor" description="A faster CLI-driven setup." href="./auto-integration-with-azure-monitor-azure-cli-access-required/" />
+  <LinkCard title="Manual Integration of Azure Monitor" description="When you want to configure the collector yourself." href="./manual-integration-of-azure-monitor/" />
+  <LinkCard title="Enable Service Principal Azure" description="Required before configuring authenticated Azure Monitor collection." href="./enable-service-principal-azure/" />
+  <LinkCard title="Azure Application Gateway Log Monitoring using Event Hub" description="For Azure log ingestion through Event Hub." href="./azure-application-gateway-log-monitoring-using-event-hub/" />
+</CardGrid>

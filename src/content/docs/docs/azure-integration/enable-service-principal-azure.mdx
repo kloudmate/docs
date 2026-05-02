@@ -1,0 +1,38 @@
+---
+title: "Enable Service Principal Azure"
+description: "Documentation for Enable Service Principal Azure"
+sidebar:
+  order: 5
+---
+This document demonstrates how to enable service principals on Azure to integrate Azure monitor with KloudMate
+
+1\.  Navigate to Microsoft Entra ID and register a new app.
+
+
+![image](https://t37214417.p.clickup-attachments.com/t37214417/fcc8aaa4-90ab-4a4a-b228-4894498e29f5/Untitled%20design%20(1).png)
+
+
+
+![image](https://t37214417.p.clickup-attachments.com/t37214417/97bba1bc-5f9c-4e4a-bfcd-e4151cb24614/Untitled%20design%20(1).png)
+
+
+After successful registration, you can get the client\_id and tenent\_id on the overview page.
+
+2\.  Now need to create a secret for client. To create secret go to Manage ➝ Certificates & secrets ➝ New client secret. 
+
+From this step, the secret value needs to be copied.
+
+3\.  In step 3 the service principal needs access to subscription. 
+
+To allow access please navigate to subscription ➝ IAM ➝ Add Role assignment ➝ select the role "Reader" ➝ Assign access to "User, group, or service principal" ➝ Select member and enter service principal name ➝ create a role.
+
+
+![image](https://t37214417.p.clickup-attachments.com/t37214417/797331ea-fe9a-4e38-89b3-537531c64a88/image.png)
+
+
+
+![image](https://t37214417.p.clickup-attachments.com/t37214417/e7368b64-8405-4fcf-bcf4-217e47eee3c6/image.png)
+
+
+Once access is given the Open telemetry collector needs to be configured accordingly.
+

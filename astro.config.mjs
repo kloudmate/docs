@@ -45,7 +45,7 @@ export default defineConfig({
         starlightImageZoom(),
         starlightThemeNova({
           nav: [
-            { label: 'Docs', href: '/getting-started/what-is-kloudmate/' },
+            { label: 'Docs', href: '/docs/getting-started/what-is-kloudmate/' },
             { label: 'Guides', href: '/guides/' },
             { label: 'API', href: '/api/' },
           ],
@@ -73,26 +73,11 @@ export default defineConfig({
       sidebar: [
         {
           label: 'Platform Docs',
-          items: [
-            { label: 'Getting Started', autogenerate: { directory: 'getting-started' } },
-            { label: 'KM Agent', autogenerate: { directory: 'km-agent', collapsed: true }, collapsed: true },
-            { label: 'Metrics', autogenerate: { directory: 'metrics', collapsed: true }, collapsed: true },
-            { label: 'Traces', autogenerate: { directory: 'traces', collapsed: true }, collapsed: true },
-            { label: 'Logs', autogenerate: { directory: 'logs', collapsed: true }, collapsed: true },
-            { label: 'Profiling', autogenerate: { directory: 'profiling', collapsed: true }, collapsed: true },
-            { label: 'Database Monitoring', autogenerate: { directory: 'database-monitoring', collapsed: true }, collapsed: true },
-            { label: 'Security Observability', autogenerate: { directory: 'security-observability', collapsed: true }, collapsed: true },
-            { label: 'Integrations', autogenerate: { directory: 'integrations', collapsed: true }, collapsed: true },
-            { label: 'Dashboards & Alerts', autogenerate: { directory: 'dashboards-alerts', collapsed: true }, collapsed: true },
-            { label: 'Platform', autogenerate: { directory: 'platform', collapsed: true }, collapsed: true },
-            { label: 'Troubleshooting & FAQ', autogenerate: { directory: 'troubleshooting', collapsed: true }, collapsed: true }
-          ]
+          autogenerate: { directory: 'docs' },
         },
         {
           label: 'Guides',
-          items: [
-            { label: 'Overview', slug: 'guides' },
-          ],
+          autogenerate: { directory: 'guides' },
         },
         ...openAPISidebarGroups,
       ],

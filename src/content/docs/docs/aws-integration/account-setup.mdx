@@ -1,0 +1,41 @@
+---
+title: "AWS Account Setup"
+description: "Connect your AWS account to KloudMate using the built-in AWS integration flow."
+sidebar:
+  label: "AWS Account Setup"
+  order: 2
+---
+
+Use the AWS integration flow when you want to connect an AWS account to KloudMate without instrumenting each workload individually.
+
+## Connect Your AWS Account
+
+1. Sign in to KloudMate and choose **AWS Integration** in the **Send Data to KloudMate** step.
+2. Enter a name for the AWS account you want to connect.
+3. Open the hyperlink shown in step 1 of the KloudMate onboarding flow.
+
+![image](../images/setting-up-kloudmate-6.png)
+
+4. Sign in to AWS with an administrator account if required.
+5. Review the generated CloudFormation stack and click **Create Stack**.
+
+![image](../images/setting-up-kloudmate-7.png)
+
+6. Wait for the IAM role to be created. This usually takes up to two minutes.
+7. Open the **Outputs** tab in CloudFormation and copy the generated **ARN Value**.
+
+![image](../images/setting-up-kloudmate-8.png)
+
+8. Paste the ARN into the **Role ARN** field in KloudMate and click **Next**.
+
+![image](../images/setting-up-kloudmate-9.png)
+
+Your AWS account is now connected to KloudMate.
+
+***
+
+## Related Resources
+
+- [AWS Integration](./)
+- [AWS Lambda Monitoring](./lambda-monitoring/)
+- [Sending Data to KloudMate](../getting-started/sending-data-to-kloudmate/)

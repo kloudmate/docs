@@ -1,0 +1,15 @@
+---
+title: "Application Metrics"
+description: "Overview of Application Metrics"
+sidebar:
+  order: 1
+---
+
+Application metrics allow you to monitor the internal state and performance of your applications. KloudMate supports gathering metrics from applications instrumented with OpenTelemetry.
+
+KloudMate complements its agent with language-specific OpenTelemetry SDKs that support automatic instrumentation with minimal code changes:
+
+- **Node.js**: Utilize `opentelemetry/sdk-node` and `@opentelemetry/auto-instrumentations-node` packages, configuring the OTLP exporter to send traces and metrics securely to KloudMate with your API key in headers.
+- **Python**: Leverage the `opentelemetry-instrument` CLI for auto-instrumentation and configure the environment for KloudMate's OTLP endpoint.
+- **Java**: Attach OpenTelemetry Java agents to the JVM via JVM arguments, pointing exporters to KloudMate's collector endpoint, including API key headers.
+- **Go and .NET**: Use provided auto-instrumentation libraries with standard SDK configurations targeting KloudMate with required authentication steps.

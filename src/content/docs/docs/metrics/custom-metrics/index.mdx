@@ -1,0 +1,14 @@
+---
+title: "Custom Metrics"
+description: "Overview of Custom Metrics using OpenTelemetry SDK"
+sidebar:
+  order: 1
+---
+
+Custom metrics allow you to track specific business logic or technical indicators unique to your application. By using the OpenTelemetry SDKs, you can define, record, and send custom metrics to KloudMate.
+
+To send custom metrics:
+1. Initialize the OpenTelemetry Meter Provider in your application.
+2. Create instruments (e.g., Counters, Histograms, Gauges) to measure your data.
+3. Record measurements at relevant points in your code.
+4. Export the data to KloudMate using the OTLP exporter.
