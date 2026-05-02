@@ -41,8 +41,9 @@ The project uses `markdownlint-cli2`. Custom rules are defined in `.markdownlint
 - **Note:** Inline HTML is permitted (`MD033: false`), and line lengths are not strictly enforced (`MD013: false`). Follow existing file patterns.
 
 ### Cross-Linking & References
-- When linking between sections (e.g., from `/docs/` to `/guides/`), ensure you use the correct root-relative paths. 
-- Avoid hardcoding absolute URLs (like `https://docs.kloudmate.com`); use relative paths so local testing and GitHub Pages deployments work seamlessly.
+- When linking between sections or pages, ensure you use strictly relative paths (e.g., `./` or `../`).
+- **CRITICAL:** Do NOT use root-relative paths starting with a forward slash (like `/docs/getting-started/`) because the `starlight-links-validator` strictly enforces link checking based on the configured deployment `base` path (e.g., in `astro.config.mjs`). Root-relative paths will break the build during the `astro:build:done` hook.
+- Avoid hardcoding absolute domain URLs (like `https://docs.kloudmate.com`); use relative paths so local testing and GitHub Pages deployments work seamlessly.
 
 ## 6. API Documentation Rules
 API documentation is intended to be generated from OpenAPI/Swagger specifications rather than hand-written to avoid errors and save time. 

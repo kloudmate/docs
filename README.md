@@ -120,14 +120,35 @@ import { LinkCard, CardGrid } from '@astrojs/starlight/components';
 ## Next steps
 
 <CardGrid>
-  <LinkCard title="Quickstart Guide" description="Connect your first service." href="/docs/getting-started/quickstart" />
-  <LinkCard title="Integrations" description="Find your platform." href="/docs/integrations/overview" />
+  <LinkCard title="Quickstart Guide" description="Connect your first service." href="../getting-started/quickstart/" />
+  <LinkCard title="Integrations" description="Find your platform." href="../integrations/overview/" />
 </CardGrid>
 ```
 
 ---
 
-## 4. Validation & Deployment
+## 4. Cross-Linking & References (CRITICAL)
+
+Because the site uses a base path configuration (e.g. deployed to a subdirectory or relying on `starlight-links-validator`), you **MUST** use strictly relative paths for internal links.
+
+- **Use relative paths** like `./`, `../`, or `../../` to navigate between pages and sections.
+- **Do NOT use root-relative paths** starting with a forward slash (e.g., `/docs/getting-started/`). These will break during the `astro build` process when the link validator runs.
+- **Do NOT hardcode absolute URLs** for internal pages (e.g., `https://docs.kloudmate.com/docs/...`).
+
+**Example of correct linking:**
+```mdx
+<!-- Good -->
+[Getting Started](../../docs/getting-started/what-is-kloudmate/)
+<LinkCard href="../overview/" />
+
+<!-- Bad -->
+[Getting Started](/docs/getting-started/what-is-kloudmate/)
+<LinkCard href="/docs/overview/" />
+```
+
+---
+
+## 5. Validation & Deployment
 
 We have strict CI/CD pipelines in place. If your content fails validation, **your pull request cannot be merged**. 
 
