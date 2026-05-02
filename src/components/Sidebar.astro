@@ -14,7 +14,34 @@ function normalizePath(pathname) {
 	return pathname;
 }
 
-const currentPath = normalizePath(Astro.url.pathname);
+/**
+ * Sidebar section switching should be based on the docs route, not the deploy base prefix.
+ */
+function stripBasePath(pathname) {
+	const normalizedBasePath = normalizeBasePath(import.meta.env.BASE_URL);
+
+	if (normalizedBasePath === '/') {
+		return pathname;
+	}
+
+	if (pathname === normalizedBasePath.slice(0, -1)) {
+		return '/';
+	}
+
+	return pathname.startsWith(normalizedBasePath)
+		? pathname.slice(normalizedBasePath.length - 1)
+		: pathname;
+}
+
+function normalizeBasePath(pathname) {
+	if (!pathname || pathname === '/') {
+		return '/';
+	}
+
+	return `/${pathname.replace(/^\/+|\/+$/g, '')}/`;
+}
+
+const currentPath = normalizePath(stripBasePath(Astro.url.pathname));
 const activeGroupLabel = currentPath.startsWith('/guides')
 	? 'Guides'
 	: currentPath.startsWith('/api')

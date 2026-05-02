@@ -33,7 +33,7 @@ Before configuring MySQL Monitoring, ensure the following:
 4. To collect query samples, `performance_schema` must be enabled and the monitoring user must be granted access:
    `` `GRANT SELECT ON performance_schema.* TO <your-user>@'%';` ``
 5. KloudMate Agent installed on the MySQL host
-   - Refer to Agent installation for [Linux](https://docs.kloudmate.com/linux-agent) or [Windows](https://docs.kloudmate.com/windows-agent).
+   - Refer to Agent installation for [Linux](../../../km-agent/installation/linux-agent/) or [Windows](../../../km-agent/installation/windows-agent/).
 6. MySQL username and password for authentication.
 7. MySQL logs must be enabled from configurations.
 
@@ -277,7 +277,7 @@ Seeing time-series data confirms that MySQL telemetry is flowing successfully.
 
 KloudMate provides prebuilt MYSQL dashboards through [dashboard templates](https://templates.kloudmate.com/MySql/index.html). These dashboards visualize MYSQL database performance, query operations, connections, and resource usage.
 
-To import and start using these templates, follow the steps described in [Import from Templates](https://docs.kloudmate.com/creating-a-dashboard#Sfk3g).
+To import and start using these templates, follow the steps described in [Import from Templates](../../../dashboards-alerts/dashboards/create-a-dashboard/).
 
 ## Default Metrics
 

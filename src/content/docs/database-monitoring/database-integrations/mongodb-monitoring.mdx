@@ -25,7 +25,7 @@ Before configuring MongoDB Monitoring, ensure the following:
 1. MongoDB server is running
 2. Supported MongoDB versions: 4.0+, 5.0, 6.0, 7.0
 3. KloudMate Agent installed on the MongoDB host
-   - Refer to Agent installation for [Linux](https://docs.kloudmate.com/linux-agent) or [Windows](https://docs.kloudmate.com/windows-agent)
+   - Refer to Agent installation for [Linux](../../../km-agent/installation/linux-agent/) or [Windows](../../../km-agent/installation/windows-agent/)
 4. MongoDB user configured with least-privilege access. 
 
 MongoDB recommends creating a user with the [clusterMonitor role](https://www.mongodb.com/docs/v5.0/reference/built-in-roles/#mongodb-authrole-clusterMonitor) to collect metrics. Refer to [lpu.sh](https://github.com/open-telemetry/opentelemetry-collector-contrib/blob/main/receiver/mongodbreceiver/testdata/integration/scripts/lpu.sh) for an example of how to configure these permissions.
@@ -257,7 +257,7 @@ Seeing time-series data confirms that MongoDB telemetry is flowing successfully.
 
 KloudMate provides prebuilt MongoDB dashboards through [dashboard templates](https://templates.kloudmate.com/mongo-db/index.html). These dashboards visualize MongoDB server performance, operations, storage, and resource usage.
 
-To import and start using these templates, follow the steps described in [Import from Templates](https://docs.kloudmate.com/creating-a-dashboard#Sfk3g).
+To import and start using these templates, follow the steps described in [Import from Templates](../../../dashboards-alerts/dashboards/create-a-dashboard/).
 
 ## **Default MongoDB Metrics**
 

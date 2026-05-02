@@ -2,7 +2,7 @@
 title: "OpenTelemetry Database Monitoring"
 description: "Documentation for OpenTelemetry Database Monitoring"
 ---
-In addition to the eBPF-based [Database Access Monitoring (DAM)](/database-monitoring/Database Access Monitoring _DAM_/), you can use OpenTelemetry SDK instrumentation to capture detailed database query traces with custom attributes.
+In addition to the eBPF-based [Database Access Monitoring (DAM)](../database-activity-monitoring-dam/), you can use OpenTelemetry SDK instrumentation to capture detailed database query traces with custom attributes.
 
 ## How It Works
 
@@ -19,7 +19,7 @@ OpenTelemetry auto-instrumentation agents and SDKs provide library-specific hook
 - When you need rich, library-specific database query details
 - When you want custom attributes on database spans
 - When your application already uses OpenTelemetry SDKs
-- When combined [Manual Instrumentation](/database-monitoring/APM/Manual Instrumentation/) for the business context
+- When combined [Manual Instrumentation](../../traces/apm/manual-instrumentation/) for the business context
 
 ## Supported Database Libraries
 
@@ -43,6 +43,6 @@ OTEL_SERVICE_NAME="your-service-name"
 Database spans will automatically be captured when using supported auto-instrumentation libraries.
 
 <hint type="info">
-  For zero-configuration kernel-level profiling, see [Database Access Monitoring (DAM)](/database-monitoring/Database Access Monitoring _DAM_/). For deep query analytics with execution plans and schema discovery, see [Direct Database Monitoring](/database-monitoring/Direct Database Monitoring/).
+  For zero-configuration kernel-level profiling, see [Database Access Monitoring (DAM)](../database-activity-monitoring-dam/). For deep query analytics with execution plans and schema discovery, see [Direct Database Monitoring](../direct-database-monitoring/).
 </hint>
 

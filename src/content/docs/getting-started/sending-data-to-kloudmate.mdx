@@ -21,31 +21,31 @@ Choose the ingestion path that matches your environment and how much control you
 
 <LinkCard
   title="KM Agent"
-  href="/km-agent/"
+  href="../../km-agent/"
   description="Best default for most teams. Install one agent to collect infrastructure telemetry, logs, traces, and eBPF-powered observability."
 />
 
 <LinkCard
   title="OpenTelemetry Collector"
-  href="/opentelemetry/"
+  href="../../opentelemetry/"
   description="Use this when you already run OpenTelemetry and want to export telemetry to KloudMate without changing your collector-first architecture."
 />
 
 <LinkCard
   title="Prometheus Integration"
-  href="/metrics/infrastructure/"
+  href="../../metrics/infrastructure/"
   description="Use this when your metrics already live in Prometheus and you want KloudMate to ingest them through an OpenTelemetry-based path."
 />
 
 <LinkCard
   title="AWS Integration"
-  href="/getting-started/setting-up-kloudmate/#using-aws-integration"
+  href="../setting-up-kloudmate/#using-aws-integration"
   description="Connect AWS accounts through a CloudWatch-backed integration when you want fast onboarding without per-service instrumentation."
 />
 
 <LinkCard
   title="Azure Integration"
-  href="/metrics/infrastructure/azure-monitoring/"
+  href="../../metrics/infrastructure/azure-monitoring/"
   description="Use Azure Monitor receivers and integrations to bring Azure platform telemetry into KloudMate."
 />
 
@@ -53,21 +53,21 @@ Choose the ingestion path that matches your environment and how much control you
 
 | If your goal is... | Start here |
 | --- | --- |
-| Fastest overall onboarding | [KM Agent](/km-agent/) |
-| Reuse existing OTel pipelines | [OpenTelemetry Collector](/opentelemetry/) |
-| Import Prometheus metrics | [Prometheus Integration](/metrics/infrastructure/) |
-| Onboard AWS with minimal setup | [Setting Up KloudMate](/getting-started/setting-up-kloudmate/#using-aws-integration) |
-| Onboard Azure services | [Azure Monitoring](/metrics/infrastructure/azure-monitoring/) |
+| Fastest overall onboarding | [KM Agent](../../km-agent/) |
+| Reuse existing OTel pipelines | [OpenTelemetry Collector](../../opentelemetry/) |
+| Import Prometheus metrics | [Prometheus Integration](../../metrics/infrastructure/) |
+| Onboard AWS with minimal setup | [Setting Up KloudMate](../setting-up-kloudmate/#using-aws-integration) |
+| Onboard Azure services | [Azure Monitoring](../../metrics/infrastructure/azure-monitoring/) |
 
 ## Common Rollout Pattern
 
-1. Start with [KM Agent](/km-agent/) for baseline telemetry and infrastructure visibility.
-2. Add [OpenTelemetry](/opentelemetry/) where you need richer application tracing or custom instrumentation.
+1. Start with [KM Agent](../../km-agent/) for baseline telemetry and infrastructure visibility.
+2. Add [OpenTelemetry](../../opentelemetry/) where you need richer application tracing or custom instrumentation.
 3. Layer in cloud-specific integrations for AWS, Azure, or Prometheus where those data sources already exist.
 
 ***
 
 ## Related Resources
 
-- [Setting Up KloudMate](/getting-started/setting-up-kloudmate/)
-- [Get Help](/getting-started/get-help/)
+- [Setting Up KloudMate](../setting-up-kloudmate/)
+- [Get Help](../get-help/)

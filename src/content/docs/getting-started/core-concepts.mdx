@@ -1,0 +1,46 @@
+---
+title: Core Concepts
+description: A quick introduction to OpenTelemetry, Signals, and eBPF to help you understand how KloudMate collects and processes observability data.
+draft: true
+sidebar:
+  order: 2
+---
+
+KloudMate relies on industry-standard observability frameworks to seamlessly collect and analyze data from your infrastructure and applications. Before you begin integrating your systems, it is helpful to understand three fundamental concepts: **Signals**, **OpenTelemetry**, and **eBPF**.
+
+This 2-minute primer provides the essential context you need to get started.
+
+## 1. Observability Signals
+
+Observability is built upon three primary pillars of data, often referred to as "Signals". KloudMate correlates these signals to give you a unified view of your system's health.
+
+- **Logs:** Discrete, timestamped records of events that happened over time (e.g., an error message, a user login). They provide the granular context of *why* something happened.
+- **Metrics:** Numerical representations of data measured over intervals of time (e.g., CPU usage, memory consumption, request latency). They are excellent for spotting trends and triggering alerts.
+- **Traces:** A representation of the end-to-end journey of a single request as it moves across distributed systems and microservices. They are vital for identifying performance bottlenecks and understanding *where* an issue occurred.
+
+## 2. OpenTelemetry (OTel)
+
+[OpenTelemetry (OTel)](https://opentelemetry.io/) is an open-source, vendor-neutral standard for generating, collecting, and exporting observability signals (Logs, Metrics, and Traces). 
+
+KloudMate uses OTel as its primary data integration layer. This is a significant advantage for you:
+- **No Vendor Lock-in:** You instrument your code once using OTel standards. You don't need proprietary KloudMate code in your applications.
+- **Standardized Data:** OTel ensures that the data sent to KloudMate is uniformly structured, making correlation and analysis much more powerful.
+- **The Collector:** OTel provides a "Collector" component that can receive, process, and export data. When you set up KloudMate integrations, you are often configuring an OTel Collector to forward data to the KloudMate platform.
+
+*For more details, see our dedicated [OpenTelemetry Guide](../../opentelemetry/).*
+
+## 3. eBPF (Extended Berkeley Packet Filter)
+
+[eBPF](https://ebpf.io/) is a revolutionary technology that allows programs to run directly within the operating system kernel safely and efficiently, without requiring kernel source code changes or loading kernel modules.
+
+In the context of observability and the KloudMate Agent (KM Agent):
+- **Zero-Code Instrumentation:** eBPF allows the agent to observe network traffic, application performance, and system calls automatically. You do not need to modify your application code to get deep insights.
+- **Low Overhead:** Because eBPF runs in the kernel, it can collect high-fidelity data (like detailed network metrics or process executions) with extremely low performance overhead.
+- **Immediate Visibility:** By deploying the KM Agent (which leverages eBPF), you gain instant visibility into your infrastructure without manual configuration.
+
+## Next Steps
+
+Now that you understand the core concepts of how data is generated (Signals), standardized (OpenTelemetry), and efficiently collected (eBPF), you are ready to start sending data to KloudMate.
+
+- [Setting up KloudMate](../setting-up-kloudmate/)
+- [Learn about the KM Agent](../../km-agent/)

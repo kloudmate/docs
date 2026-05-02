@@ -11,13 +11,23 @@ import starlightAutoDrafts from 'starlight-auto-drafts'
 
 
 const deploymentOrigin = process.env.DOCS_SITE_URL ?? 'https://docs.kloudmate.com';
-const assetsPrefix = process.env.DOCS_ASSETS_PREFIX;
+const deploymentBasePath = normalizeBasePath(process.env.DOCS_BASE_PATH ?? '/');
+
+/**
+ * Astro expects `base` to either be `/` or a single normalized path segment with
+ * leading and trailing slashes.
+ */
+function normalizeBasePath(pathname) {
+  if (!pathname || pathname === '/') {
+    return '/';
+  }
+
+  return `/${pathname.replace(/^\/+|\/+$/g, '')}/`;
+}
 
 export default defineConfig({
   site: deploymentOrigin,
-  build: {
-    assetsPrefix,
-  },
+  base: deploymentBasePath,
   integrations: [
     starlight({
       plugins: [
@@ -28,7 +38,10 @@ export default defineConfig({
             schema: './openapi.yaml',
           },
         ]),
-        starlightLinksValidator(),
+        starlightLinksValidator({
+          errorOnRelativeLinks: false,
+          sameSitePolicy: 'error',
+        }),
         starlightImageZoom(),
         starlightThemeNova({
           nav: [

@@ -30,9 +30,9 @@ Before configuring PostgreSQL Monitoring, ensure the following:
 2. Monitoring user must have SELECT permission on pg\_stat\_database
 3. PostgreSQL is installed and running
 4. KloudMate Agent installed on the PostgreSQL host
-   - Refer to Agent installation for [Linux](https://docs.kloudmate.com/linux-agent) or [Windows](https://docs.kloudmate.com/windows-agent)
+   - Refer to Agent installation for [Linux](../../../km-agent/installation/linux-agent/) or [Windows](../../../km-agent/installation/windows-agent/)
 5. PostgreSQL username and password
-6. PostgreSQL logging [enabled](https://docs.kloudmate.com/enable-logging-in-postgresql) from configurations
+6. PostgreSQL logging enabled in the server configuration
 
 ### **Step 1: Access Agents and OpenTelemetry Collector Configuration**
 
@@ -278,7 +278,7 @@ Seeing time-series data confirms that PostgreSQL telemetry is flowing successful
 
 KloudMate provides prebuilt PostgreSQL dashboards through [dashboard templates](https://templates.kloudmate.com/postgress/index.html). These dashboards visualize PostgreSQL database performance, query operations, connections, and resource usage.
 
-To import and start using these templates, follow the steps described in [Import from Templates](https://docs.kloudmate.com/creating-a-dashboard#Sfk3g).
+To import and start using these templates, follow the steps described in [Import from Templates](../../../dashboards-alerts/dashboards/create-a-dashboard/).
 
 ## Default Metrics for PostgreSQL
 
@@ -296,4 +296,3 @@ To import and start using these templates, follow the steps described in [Import
 For the complete metrics list, refer to the [metrics reference](https://github.com/open-telemetry/opentelemetry-collector-contrib/blob/main/receiver/postgresqlreceiver/documentation.md).
 
 For complete observability, ensure **PostgreSQL logging** is enabled first. See: [PostgreSQL Logging: Enable Slow Query Logs & JSON Output (v15+)](https://blog.kloudmate.com/postgresql-logging-enable-slow-query-logs-json-output-v15-6ad493f28241)
-
