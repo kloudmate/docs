@@ -15,7 +15,7 @@ For example, if you want to propagate trace context headers to `https://api.exam
 ```javascript
 KloudMateRum.init({
   endpoint: 'https://otel.kloudmate.dev:4318',
-  rumAccessToken: '(YOUR_PUBLIC_API_KEY>',
+  rumAccessToken: '<YOUR_PUBLIC_API_KEY>',
   applicationName: 'my-app',
   version: '1',
   deploymentEnvironment: 'prod',
@@ -42,7 +42,7 @@ This will add context propagation headers to backend requests. The backend can t
 
 **Sample Integration:**
 
-1.Once the RUM and backend are integrated you can view the corresponding backend trace of a frontend request
+1. Once the RUM and backend are integrated you can view the corresponding backend trace of a frontend request
 
 ![image](./images/correlate-rum-traces-with-opentelemetry-backends-1.png)
 
@@ -54,6 +54,6 @@ This will add context propagation headers to backend requests. The backend can t
 
 ### Related Resources
 
-- [What Is Real User Monitoring (RUM)?](../)
-- [KloudMate RUM Interface](../rum-interface/)
+- [What Is Real User Monitoring (RUM)?](./index.mdx)
+- [KloudMate RUM Interface](./rum-interface.mdx)
 

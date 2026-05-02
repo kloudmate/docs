@@ -1,11 +1,10 @@
 ---
-title: "Get Started With RUM"
-description: "Documentation for Get Started With RUM"
+title: "Instrumentation Guide"
+description: "Learn how to instrument and set up Real User Monitoring (RUM) with KloudMate."
 sidebar:
-  label: "Introduction"
+  order: 2
 ---
 This guide helps you set up Real User Monitoring (RUM) with KloudMate for your websites.
-Setting Up Real User Monitoring with KloudMate
 
 <hint type="info">
   The RUM agent is compatible with all the supported versions of the following browsers:
@@ -47,9 +46,10 @@ Setting Up Real User Monitoring with KloudMate
 
 ![image](./images/get-started-with-rum-3.png)
 
-- To verify installation, click the Verify Installation button , which shows the integration status.
+- To verify installation, click the Verify Installation button, which shows the integration status.
 
 ## Managing User Details 
+
 - To capture the current user's ID and email, if available, add the following code: 
 
 ```javascript
@@ -73,7 +73,7 @@ Initializes the RUM SDK.
 | Property              | Type                                                                                                                            | Description                                                                                                           |
 | --------------------- | ------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------- |
 | applicationName       | string                                                                                                                          | The application's name.                                                                                               |
-| endpoint              | string (required)                                                                                                               | KLoudMate's collector endpoint.https\://otel.kloudmate.com:4318                                                       |
+| endpoint              | string (required)                                                                                                               | KloudMate's collector endpoint: `https://otel.kloudmate.com:4318`                                                       |
 | rumAccessToken        | string (required)                                                                                                               | KloudMate workspace's Public API key                                                                                  |
 | deploymentEnvironment | string                                                                                                                          | The application's environment. Example: dev, prod, staging                                                            |
 | version               | string                                                                                                                          | The applications' version. Example: 0.0.1, 1                                                                          |
@@ -91,10 +91,33 @@ Initializes the RUM SDK.
 
 Returns the global attributes. 
 
+## Data Attributes
+
+Some of the important attributes collected by the RUM SDK
+
+| **Attributes** | **Description** |
+| -------------- | -------------------------------------------------------------------------------- |
+| serviceName    | The RUM application name.                                                        |
+| rumSessionId   | The RUM session's id                                                             |
+| origin         | Origin of the app instrumented.  Eg., [https://example.com](https://example.com) |
+| route          | Part of the app's URL excluding origin and search                                |
+| search         | Search params of the app's URL                                                   |
+| component      | The instrumentation name that produced the span                                  |
+| eventType      | The type of user interaction. eg. click, submit etc                              |
+| userId         | User's synthetic id                                                              |
+| userEmail      | User's email                                                                     |
+| browser        | User's browser name                                                              |
+| browserVersion | User's browser version                                                           |
+| country        | User's country                                                                   |
+| city           | User's city                                                                      |
+| os             | User's operating system                                                          |
+| osVersion      | User's operating system's version                                                |
+| device         | User's device                                                                    |
+| deviceType     | User's device type                                                               |
+
 ***
 
-Related Resources
+## Related Resources
 
-- [What Is Real User Monitoring (RUM)?](../)
-- [RUM Interface](../rum-interface/)
-
+- [What Is Real User Monitoring (RUM)?](./index.mdx)
+- [RUM Interface](./rum-interface.mdx)
