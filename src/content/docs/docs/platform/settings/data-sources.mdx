@@ -1,56 +1,73 @@
 ---
 title: "Data Sources"
-description: "Documentation for Data Sources"
+description: "Connect and manage AWS data sources in KloudMate."
+sidebar:
+  label: "Data Sources"
+  order: 5
 ---
-Users can connect multiple AWS accounts with KloudMate. It takes **less than 5 minutes to connect the AWS account(s) and set up KloudMate**. Once the setup is complete, KloudMate automatically starts monitoring your synced services, pulls in the logs, traces, and metrics either through OpenTelemetry or CloudWatch, and weaves a comprehensible data fabric for the developers that is presented using visualizations.
+Use **Data Sources** to connect AWS accounts, review sync settings, and control which resources are imported into KloudMate.
 
- [Click here ](../../../aws-integration/account-setup/)to link your AWS account with KloudMate.
+## Connect an AWS Account
 
-### Managing AWS Account(s) 
-KloudMate lets you view, add, [delete](../deleting-your-aws-account-from-kloudmate/), and edit **all the linked AWS account(s) under one window.**
+KloudMate can connect multiple AWS accounts and begin ingesting supported logs, metrics, and traces after setup.
 
-<hint type="info">
-  At present, this page displays all of your AWS Data Sources. In the coming days, you will also be able to access your OTel configurations and sources in this same section.
-</hint>
+To connect a new account, follow [AWS Account Setup](../../aws-integration/account-setup/).
 
-- To add multiple AWS accounts, go to **Settings > Data sources**- Click on the**Connect AWS Account**button located at the top right corner
+## Manage Connected Accounts
+
+Open **Settings -> Data Sources** to view all connected AWS accounts.
+
+From this page, you can:
+
+- Add additional AWS accounts
+- Open account details
+- Review or update sync settings
+- Access CloudWatch log subscription controls
+- Remove an AWS account
 
 ![image](./images/data-sources-1.png)
 
-- Enter the account name, click on next, and follow the on-screen instructions
+Enter the AWS account name and follow the on-screen setup flow when adding a new account.
 
 ![image](./images/data-sources-2.png)
 
-### **Managing Sync Settings for Each AWS Account**- Navigate to the data sources screen by clicking on**Settings > Data sources**
-- You will see a list of all the connected AWS Accounts
+## Review Sync Settings
+
+The data sources page shows every connected AWS account.
 
 ![image](./images/data-sources-3.png)
 
-- To view further details about any AWS account click on the **Edit**button of the respective AWS account
+Open the account details screen for the AWS account you want to manage.
 
 ![image](./images/data-sources-4.png)
 
-- Click on the **Settings** icon of the respective AWS account for which you want to modify the sync settings or view the CloudWatch logs.
-- The Sync settings screen will display the list of all the AWS services that are synced with KloudMate.
+Use the account settings view to control sync behavior and review CloudWatch log options.
 
 ![image](./images/data-sources-5.png)
 
-- Click on any service to enable or disable its sync setting with KloudMate. Toggle off the regions where there are no resources.
+Enable or disable sync for individual services and regions based on what you want KloudMate to monitor.
 
 ![image](./images/data-sources-6.png)
 
 ## Tag Filtering
 
-KloudMate also lets users choose the resources they want to sync with KloudMate based on the tags assigned to their AWS resources. By setting up tag-based filtering policy users can define certain tags and KloudMate will only sync resources that match any of those tags.
+Tag filtering lets you limit syncing to AWS resources that match specific tags.
 
-- Navigate to the **Sync Settings Screen**by clicking on **Settings > Sync settings.**- Click on the**Add Tags**button under Tag Filtering
+1. Open the sync settings screen.
+2. Click **Add Tags** under **Tag Filtering**.
 
 ![image](./images/data-sources-7.png)
 
-- Provide the tags of your choice and click on the **Save**button
+3. Enter the tags you want to use.
+4. Save the configuration.
 
 ![image](./images/data-sources-8.png)
 
-- If you have configured tags, you will see the **Edit**button under Tag Filtering, which can be used to remove or add more tags.
+If tags are already configured, use the edit action to update or remove them.
 
 ![image](./images/data-sources-9.png)
+
+## Related Resources
+
+- [AWS Account Setup](../../aws-integration/account-setup/)
+- [CloudWatch Logs](../../aws-integration/cloudwatch-logs/)

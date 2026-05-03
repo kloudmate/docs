@@ -1,10 +1,21 @@
 ---
-title: "Send Winston Logs to KloudMate Using OTel (Node.js)"
-description: "Documentation for Send Winston Logs to KloudMate Using OTel (Node.js)"
+title: "Send Winston Logs with OpenTelemetry (Node.js)"
+description: "Use OpenTelemetry to export Winston logs from a Node.js application to KloudMate."
+sidebar:
+  label: "Winston with OpenTelemetry"
+  order: 2
 ---
-In this guide, we will see how your existing apps that are already using [winston](https://npmjs.com/package/winston) for logging can send those logs to KloudMate with minimal changes.
+This guide shows how to forward logs from an existing [Winston](https://npmjs.com/package/winston) setup to KloudMate with OpenTelemetry.
 
-Let's consider a simple Express app that logs some data using winston. This app writes logs to the console.
+## Prerequisites
+
+- A Node.js application that already uses Winston
+- A KloudMate private key
+- The ability to install additional npm packages
+
+## Example Application
+
+Assume your Express application already writes logs with Winston:
 
 `index.ts`
 
@@ -29,7 +40,9 @@ app.listen(port, () => {
 })
 ```
 
-In order to send these logs to KloudMate you will need to install a few helper packages.
+## Install OpenTelemetry Packages
+
+Install the packages required to emit OpenTelemetry logs:
 
 ```shell
 npm i @opentelemetry/exporter-logs-otlp-http \
@@ -38,7 +51,9 @@ npm i @opentelemetry/exporter-logs-otlp-http \
 @opentelemetry/semantic-conventions
 ```
 
-Next, create a file `customLogger.ts` that will be overriding the winston logger.
+## Create a Winston Wrapper
+
+Create a `customLogger.ts` file that forwards Winston logs to KloudMate and still writes them to the console.
 
 ```typescript
 import { createLogger, transports } from 'winston'
@@ -73,7 +88,6 @@ loggerProvider.addLogRecordProcessor(logProcessor)
 const formatLog = (args: any) =>
   typeof args === 'string' ? args : JSON.stringify(args)
 
-// your winston implementation
 const consoleTransport = new transports.Console()
 const logger = createLogger({
   transports: [consoleTransport],
@@ -97,13 +111,22 @@ export const customLogger = {
 }
 ```
 
-Here we are overriding the `info` and `error` methods so that they also emit logs to KloudMate. You will have to replace `KM_PRIVATE_KEY` with your KloudMate workspaces's private key.
+Replace `KM_PRIVATE_KEY` with your KloudMate workspace private key.
 
-With this in place, we can replace the winston logger in `index.ts` with the new modified logger.
+## Replace the Existing Logger
+
+Update `index.ts` to use the wrapped logger:
 
 ```typescript
 import { customLogger as logger } from './customLogger'
 // ...same code as before
 ```
 
-After starting the app, you should be able to see winston logs in your KloudMate account's [Logs page](https://app.kloudmate.com/logs).
+## Verify Log Delivery
+
+Start the application and generate a few requests. You should then see the emitted Winston logs in [Log Explorer](../../../docs/logs/log-explorer/).
+
+## Related Resources
+
+- [Logs Overview](../../../docs/logs/)
+- [Log Explorer](../../../docs/logs/log-explorer/)

@@ -1,22 +1,35 @@
 ---
 title: "Deploy on Linux VMs"
-description: "Documentation for Deploy on Linux VMs"
+description: "Infrastructure prerequisites for deploying KloudMate Infinity on Linux virtual machines."
+sidebar:
+  label: "Deploy on Linux VMs"
+  order: 2
 ---
-## Infra. Prerequisites 
-- A domain name with a wildcard SSL certificate for it
+Use this deployment model when you want to run KloudMate Infinity on Linux virtual machines instead of Kubernetes.
+
+## Infrastructure Prerequisites
+
+- A domain name with a wildcard SSL certificate
 - SMTP credentials for sending email notifications
-- A Stripe account \[Optional] (Only if online billing is required)
+- A Stripe account if online billing is required
 
-**VM 1**:
+## VM 1 Requirements
 
-- A Linux machine running **Ubuntu**(on the same network as the applications or devices to be monitored)
-- **Port 4318** should be opened
-- Config - 8 core CPU / 16GB Memory / Storage - 1TB
-- An active internet connection 
+- A Linux machine running **Ubuntu**
+- Network access to the applications or devices you want to monitor
+- Port `4318` exposed
+- `8` CPU cores
+- `16 GB` memory
+- `1 TB` storage
+- An active internet connection
 
-**VM 2 (smaller config):**- A Linux machine running**Ubuntu** (on the same network to install the collector)
-- **Port 4318** should be opened
-- Config - 2 core CPU / 4GB Memory / Storage - 100GB
-- An active internet connection 
+## VM 2 Requirements
 
-Once completed, please [drop us a message](https://www.kloudmate.com/contact) for a quick deployment of KloudMate. 
+- A Linux machine running **Ubuntu**
+- Port `4318` exposed
+- `2` CPU cores
+- `4 GB` memory
+- `100 GB` storage
+- An active internet connection
+
+After completing the prerequisites, [contact KloudMate](https://www.kloudmate.com/contact) to proceed with deployment.

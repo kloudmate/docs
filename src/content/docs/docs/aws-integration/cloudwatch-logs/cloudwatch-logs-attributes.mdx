@@ -1,0 +1,32 @@
+---
+title: "Lambda Log Attributes"
+description: "Reference for AWS Lambda log attributes available in KloudMate."
+sidebar:
+  label: "Lambda Log Attributes"
+  order: 2
+---
+Use these attributes to filter and inspect ingested AWS Lambda logs in KloudMate.
+
+| Attribute          | Description                                                                                                                                   |
+| ------------------ | --------------------------------------------------------------------------------------------------------------------------------------------- |
+| @functionName      | Name of the Lambda function                                                                                                                   |
+| @version           | Lambda function version                                                                                                                       |
+| @region            | Region in which the function is hosted                                                                                                        |
+| @accountId         | AWS account ID                                                                                                                                |
+| @requestId         | Invocation ID of the Lambda request                                                                                                           |
+| @logGroup          | CloudWatch log group name                                                                                                                     |
+| @logStream         | CloudWatch log stream name                                                                                                                    |
+| @type              | Type of message in your log, such as `REPORT`, `START`, or `END`                                                                             |
+| @functionError     | Lambda invocation errors such as `crash`, `timeout`, or `early_exit`                                                                         |
+| @duration          | Time taken to execute the Lambda function                                                                                                     |
+| @billedDuration    | Time for which the Lambda execution is billed                                                                                                 |
+| @memorySize        | Allocated memory for the Lambda function                                                                                                      |
+| @maxMemoryUsed     | Total memory used by the Lambda function                                                                                                      |
+| @traceid           | Trace ID from AWS X-Ray                                                                                                                       |
+| @segmentid         | Trace subsegment ID                                                                                                                           |
+| @coldStartDuration | Cold start duration of the Lambda function                                                                                                    |
+
+## Related Resources
+
+- [Subscribe to AWS CloudWatch Logs](./)
+- [Log Explorer](../../logs/log-explorer/)

@@ -1,30 +1,29 @@
 ---
-title: "Syntax for Log Querying"
-description: "Documentation for Syntax for Log Querying"
+title: "Log Query Syntax"
+description: "Reference for the filter syntax used in KloudMate Log Explorer."
+sidebar:
+  label: "Query Syntax"
+  order: 2
 ---
-This guide explains the powerful and concise syntax for building precise queries.
+Use filter expressions in Log Explorer to narrow large log sets quickly and consistently.
 
 ## The Basics
 
-The core of a filter is a simple expression with three parts: a **field**, an**operator**, and a**value**.
+Each filter expression has three parts: a **field**, an **operator**, and a **value**.
 
+> `?filter=<field><operator><value>`
 
-> ?filter=\<field>\<operator>\<value>
+For example, to find all logs with an `active` status:
 
-
-**Example:** To find all logs with an `active` status, you would use:
-
-
-> /logs?filter=status=active
-
+> `/logs?filter=status=active`
 
 ### Combining Multiple Filters
 
-To combine multiple conditions, simply add another `filter` parameter. All filters are joined with a logical **AND**, meaning all conditions must be true for an item to be included in the results.
+To combine multiple conditions, add another `filter` parameter. All filters are joined with a logical **AND**, meaning every condition must match for a log entry to be included.
 
 ## Operators Reference
 
-The following table details all available operators, from simple equality checks to powerful string and existence matching.
+The table below lists the supported operators.
 
 | Operator                      | Name                     | Description                                                                  | Example (User-Typed)                  |
 | ----------------------------- | ------------------------ | ---------------------------------------------------------------------------- | ------------------------------------- |
@@ -32,7 +31,7 @@ The following table details all available operators, from simple equality checks
 | `=`                           | Equals                   | Finds items where the field is an exact match for a single value.            | `level=error`                         |
 | `=`                           | In                       | Finds items where the field matches **any** value in a comma-separated list. | `http.status=404,500,503`             |
 | `!=`                          | Not Equals               | Finds items where the field does not match a single value.                   | `env!=local`                          |
-| `!=`                          | Not In                   | Finds items where the field does not match **any** value in a list.          | `k8s.namespace!=kube-system, default` |
+| `!=`                          | Not In                   | Finds items where the field does not match **any** value in a list.          | `k8s.namespace!=kube-system,default`  |
 | **Numeric Comparisons**       |                          |                                                                              |                                       |
 | `>`                           | Greater Than             | Finds items where the field's numeric value is greater than the given value. | `latency_ms>500`                      |
 | `<`                           | Less Than                | Finds items where the field's numeric value is less than the given value.    | `cpu.usage<0.5`                       |
@@ -46,31 +45,27 @@ The following table details all available operators, from simple equality checks
 | `+`                           | Field Exists             | Finds items where the specified field exists (is not null).                  | `+error.code`                         |
 | `-`                           | Field Does Not Exist     | Finds items where the specified field does not exist (is null).              | `-http.user_agent`                    |
 
+## Example Queries
+
 **Example 1: Debugging Production Errors**
 
-**Goal:** Find all erroror criticallevel logs from the productionenvironment that are related to the auth-serviceand have an error.codefield present.
+**Goal:** Find all `error` or `critical` logs from the `production` environment for `auth-service` where `error.code` is present.
 
-
-> /logs?filter=env=production\&filter=service=auth-service\&filter=level=error,critical\&filter=+error.code
-
+> `/logs?filter=env=production&filter=service=auth-service&filter=level=error,critical&filter=+error.code`
 
 **Example 2: Monitoring API Performance**
 
-**Goal:** Find slow API requests (> 1000ms) that resulted in a server error, excluding routine health checks from the monitoring system.
+**Goal:** Find slow API requests greater than `1000ms` that resulted in a server error, excluding routine health checks from the monitoring system.
 
-
-> /logs?filter=latency\_ms>1000\&filter=http.status>=500\&filter=source!\~monitoring-bot
-
+> `/logs?filter=latency_ms>1000&filter=http.status>=500&filter=source!~monitoring-bot`
 
 **Example 3: Auditing User Activity**
 
-**Goal:** Find all login attempts for users whose email does not start with "test" and who were logging in from a country other than the "US" or "CA".
+**Goal:** Find all login attempts for users whose email does not start with `test` and who were logging in from a country other than `US` or `CA`.
 
+> `/logs?filter=action=user_login&filter=user.email!^test&filter=geo.country!=US,CA`
 
-> /logs?filter=action=user\_login\&filter=user.email!^test\&filter=geo.country!=US,CA
-
-
-## Quick Reference Cheatsheet
+## Quick Reference
 
 | Syntax             | Action                              |
 | ------------------ | ----------------------------------- |
@@ -85,4 +80,3 @@ The following table details all available operators, from simple equality checks
 | `+field`           | `field` must exist.                 |
 | `-field`           | `field` must not exist.             |
 | `...&filter=...`   | Combine filters with AND.           |
-

@@ -1,68 +1,71 @@
 ---
 title: "Log Explorer"
-description: "Documentation for Log Explorer"
+description: "Search, filter, inspect, and stream logs in KloudMate."
 sidebar:
-  label: "Introduction"
+  label: "Overview"
+  order: 1
 ---
-Users can navigate to the Log Explorer by clicking on the Logs tab on the left menu bar of the main dashboard. 
+Open **Logs** from the left navigation menu to access Log Explorer.
 
-The Log Explorer indexes and stores logs for all the synced services and applications. It is equipped with features such as **Full-Text Logs Search**an **Saved Queries**that allow developers to find relevant logs within seconds. It also displays JSON logs in a readable format to help developers debug their logs quickly and effectively.
+Log Explorer indexes logs from all connected services and applications. Use it to search large log volumes, inspect structured payloads, save frequently used queries, and investigate issues without leaving the platform.
 
 ## Log Explorer Walkthrough
 
-The Log Explorer displays a graph and a list of all the retrieved logs for all your synced services. Each row in the list represents an individual logline and displays some basic information about it.
+The main view combines a log volume graph with a result list. Each row in the list represents a single log entry and shows the most useful attributes for quick triage.
 
-The graph represents the log volume where the X-axis denotes the timeframe and the Y-axis denotes the log count.
+The graph shows log volume over time. The x-axis represents time and the y-axis represents the number of ingested log entries.
 
 ![image](./images/log-explorer-1.jpeg)
 
-Click on any log to analyze it in more detail. 
+Select any log entry to inspect its full payload, labels, and metadata.
 
-## Searching and Filtering Logs
+## Search and Filter Logs
 
-### Searching
+### Search
 
-You can use the search bar located at the top of the logs explorer to contextually search and find your logs. 
+Use the search bar at the top of Log Explorer to find matching log entries across your environment.
 
 ![image](https://images.archbee.com/dfeZmyJsGjUXyEH2hgHVe/tXoqALt4fLIyw54nOZ6nG-20251229-135256.jpeg?format=webp)
 
-Narrow down the results further by date and time range, using the **time scale menu** ocated at the top left corner. 
+Refine results further by adjusting the selected time range from the time scale menu.
 
-### Filtering
+### Filter
 
-You can use the filters available within the sidebar menu to filter the list of logs. For further refined filtering, there are multiple filters for use in a combination at once.
+Use the sidebar filters to narrow the result set by relevant dimensions. Multiple filters can be combined to isolate a very specific set of logs.
 
 ![image](https://images.archbee.com/dfeZmyJsGjUXyEH2hgHVe/awFyZxlhDVrrw4xdhozxN-20251229-135332.jpeg?format=webp)
 
-To save a query, click the **dropdown arrow**next to the “Saved Queries” button in the top-right area of the Log Explorer. This opens a dialog where you can provide a**query name**,**description**, and**folder**, and then click**Save** to store the query for future use.
+## Saved Queries
+
+To save a query, click the dropdown arrow next to **Saved Queries** in the top-right area of Log Explorer. Enter a query name, description, and folder, then click **Save**.
 
 ![image](https://images.archbee.com/dfeZmyJsGjUXyEH2hgHVe/mqglxV-yaA07fHhXsHYyk-20251229-135409.jpeg?format=webp)
 
-They will be saved as queries and can be accessed by clicking on the **Saved Queries** section, as shown below:
+Saved queries remain available from the **Saved Queries** section for quick reuse.
 
 ![image](https://images.archbee.com/dfeZmyJsGjUXyEH2hgHVe/Rey4etpGf3pNAVB9TV23B-20251229-135657.jpeg?format=webp)
 
-**Pro tip**: Add folders to keep your queries organized.
+Use folders to keep saved queries organized by service, team, or use case.
 
-Click on any log entry to view detailed information and analysis.
+## Inspect Log Entries
+
+Select any log entry to view detailed information and analysis.
 
 ![image](https://images.archbee.com/dfeZmyJsGjUXyEH2hgHVe/h7S8g9et6rolT0mbsN5lL-20251229-141757.png?format=webp)
 
-For error logs, use **Investigate with k-AI** to automatically generate a summary of the log, identify the probable root cause, and suggest an appropriate response.
+For error logs, use **Investigate with k-AI** to generate a summary, identify the probable root cause, and suggest a next step.
 
 ![image](https://images.archbee.com/dfeZmyJsGjUXyEH2hgHVe/6Q8kOseiFXN7u1iyuEz3r-20251229-142111.png?format=webp)
 
-Refer to the KloudMate-AI for more details. 
+Refer to the KloudMate AI documentation for more details.
 
-### Stream Logs
+## Stream Logs
 
-Use the **Stream** button to view logs in real time as they are ingested into KloudMate.
+Use **Stream** to watch logs as they are ingested into KloudMate.
 
 ![image](https://images.archbee.com/dfeZmyJsGjUXyEH2hgHVe/w5OtRcJGu8q6b-uaQKGhU-20251229-144423.jpeg?format=webp)
 
-***
+## Related Resources
 
-**Related Resources**
-
-- [Server Logs to KloudMate](../server-logs-to-kloudmate/)
-
+- [Log Query Syntax](./syntax-for-log-querying/)
+- [Collect File Logs with KM Agent](../server-logs-to-kloudmate/)

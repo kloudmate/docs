@@ -1,0 +1,68 @@
+---
+title: "Subscribe to AWS CloudWatch Logs"
+description: "Subscribe CloudWatch log groups from a connected AWS account and ingest them into KloudMate."
+sidebar:
+  label: "Overview"
+  order: 1
+---
+Use this workflow after you have connected your AWS account to KloudMate. You can subscribe CloudWatch log groups by region and make those logs searchable in Log Explorer.
+
+<hint type="info">
+  Lambda logs from the connected AWS account are ingested automatically.
+</hint>
+
+## Before You Start
+
+- Complete [AWS Account Setup](../account-setup/)
+- Confirm that the target log groups exist in CloudWatch
+
+## Subscribe a CloudWatch Log Group
+
+1. From the KloudMate home screen, open **Settings -> Data Sources**.
+
+![image](./images/subscribing-to-aws-cloudwatch-logs-1.png)
+
+![image](./images/subscribing-to-aws-cloudwatch-logs-2.png)
+
+2. In the list of connected AWS accounts, click the **Settings** icon for the account from which you want to ingest CloudWatch logs.
+3. Select **CloudWatch Logs**.
+
+![image](./images/subscribing-to-aws-cloudwatch-logs-3.png)
+
+4. Choose the AWS region or use search to find the required log groups.
+
+![image](./images/subscribing-to-aws-cloudwatch-logs-4.png)
+
+5. Click **Subscribe** for each log group that you want KloudMate to ingest.
+
+![image](./images/subscribing-to-aws-cloudwatch-logs-5.png)
+
+## CloudWatch Subscription Filter Limit
+
+<hint type="info">
+  AWS allows only two subscription filters per log group.
+</hint>
+
+If a log group already has two active subscription filters, KloudMate cannot add another one until an existing filter is removed.
+
+![image](./images/subscribing-to-aws-cloudwatch-logs-6.png)
+
+## Remove an Existing Subscription Filter
+
+To free a subscription slot:
+
+1. Open the AWS console.
+2. Go to **CloudWatch -> Log groups**.
+3. Select the relevant log group.
+4. Open **Actions**.
+5. Click **Remove Subscription Filter**.
+
+<hint type="info">
+  After subscription is enabled, you can search and analyze the ingested logs in [Log Explorer](../../logs/log-explorer/).
+</hint>
+
+## Related Resources
+
+- [Lambda Log Attributes](./cloudwatch-logs-attributes/)
+- [AWS Account Setup](../account-setup/)
+- [Log Explorer](../../logs/log-explorer/)

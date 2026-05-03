@@ -1,11 +1,27 @@
 ---
-title: "Logs Management"
-description: "Documentation for Logs Management"
+title: "Logs"
+description: "Explore, search, and ingest logs in KloudMate."
 sidebar:
-  label: "Introduction"
+  label: "Overview"
+  order: 1
 ---
-Effective log management is essential for maintaining visibility and control across modern, distributed systems. With KloudMate’s Log Management, you can seamlessly aggregate logs from multiple sources into a centralized platform, giving you a unified view of your entire environment.
+KloudMate centralizes logs from your applications, infrastructure, and cloud services so you can search, filter, and investigate issues from one place.
 
-Get started with [Logs Explorer](log-explorer/) to search, filter, and analyze your logs efficiently. 
+## What You Can Do
 
- 
+- Search logs using full-text queries and structured fields
+- Filter by attributes such as service, host, severity, and environment
+- Stream logs in near real time as they arrive
+- Inspect structured log payloads and related metadata
+
+## Explore Logs
+
+- [Log Explorer](./log-explorer/)
+- [Log Query Syntax](./log-explorer/syntax-for-log-querying/)
+
+## Ingest Logs
+
+- [Collect File Logs with KM Agent](./server-logs-to-kloudmate/)
+- [Amazon ECS Container Logs](./amazon-ecs-container-logs-to-kloudmate/)
+
+If you are connecting logs through a linked AWS account, use the [AWS Integration](../aws-integration/) guides instead.
