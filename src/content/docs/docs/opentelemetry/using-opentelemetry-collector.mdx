@@ -1,62 +1,68 @@
 ---
-title: "Using OpenTelemetry Collector"
-description: "Documentation for Using OpenTelemetry Collector"
+title: "Configure the OpenTelemetry Collector for KloudMate"
+description: "Update your OpenTelemetry Collector configuration to export logs, metrics, and traces to KloudMate."
+sidebar:
+  label: "Configure the Collector"
+  order: 5
 ---
-If you are already running OpenTelemetry Collector and want to send your telemetry data to KloudMate, then you will need to modify your YAML config file as shown in the following sample config file.
+If you already run the OpenTelemetry Collector, you can export telemetry to KloudMate by adding an `otlphttp` exporter to your Collector configuration.
 
 <hint type="info">
-  Add a new `otlphttp` exporter in your `config.yml`, along with the KloudMate API-Key as your Authorization header.
+  Add your KloudMate API key as the `Authorization` header in the `otlphttp` exporter configuration.
 </hint>
 
+## Example Collector Configuration
 
-config.yml
+The example below shows a minimal Collector configuration that receives telemetry over OTLP and exports logs, metrics, and traces to KloudMate.
 
-  ```yaml
-  receivers:
-    otlp:
-      protocols:
-        grpc:
-        http:
+```yaml
+receivers:
+  otlp:
+    protocols:
+      grpc:
+      http:
 
-  processors:
-    batch:
+processors:
+  batch:
+    send_batch_size: 5000
+    timeout: 10s
 
-  exporters:
-    otlphttp:
-      endpoint: https://otel.kloudmate.com:4318
-      headers:
-          Authorization: 
+exporters:
+  otlphttp:
+    endpoint: https://otel.kloudmate.com:4318
+    headers:
+      Authorization: YOUR_KLOUDMATE_API_KEY
 
-  extensions:
-    health_check:
-    pprof:
-    zpages:
+extensions:
+  health_check:
+  pprof:
+  zpages:
 
-  service:
-    extensions: [health_check, pprof, zpages]
-    pipelines:
-      traces:
-        receivers: [otlp]
-        processors: [batch]
-        exporters: [otlphttp]
-      metrics:
-        receivers: [otlp]
-        processors: [batch]
-        exporters: [otlphttp]
-      logs:
-        receivers: [otlp]
-        processors: [batch]
-        exporters: [otlphttp]
-        
-  processors:
-    batch:
-      send_batch_size: 5000
-      timeout: 10s
+service:
+  extensions: [health_check, pprof, zpages]
+  pipelines:
+    traces:
+      receivers: [otlp]
+      processors: [batch]
+      exporters: [otlphttp]
+    metrics:
+      receivers: [otlp]
+      processors: [batch]
+      exporters: [otlphttp]
+    logs:
+      receivers: [otlp]
+      processors: [batch]
+      exporters: [otlphttp]
+```
 
-  ```
+## What This Configuration Does
 
+- Receives telemetry over OTLP using both gRPC and HTTP
+- Applies batch processing before export
+- Sends traces, metrics, and logs to KloudMate through OTLP/HTTP
+- Enables standard health and debugging extensions for the Collector
 
-***##**Related Resources**
+## Related Resources
 
-[Installing the opentelemetry collector](../installing-the-opentelemetry-collector/)
-
+- [Install the OpenTelemetry Collector](./installing-the-opentelemetry-collector/)
+- [Sending Data to KloudMate](../getting-started/sending-data-to-kloudmate/)

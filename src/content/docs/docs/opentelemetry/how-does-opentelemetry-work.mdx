@@ -1,54 +1,52 @@
 ---
-title: "How Does OpenTelemetry Work?"
-description: "Documentation for How Does OpenTelemetry Work?"
+title: "How OpenTelemetry Works"
+description: "Understand how instrumentation, SDKs, the Collector, and observability backends work together in OpenTelemetry."
+sidebar:
+  label: "How It Works"
+  order: 3
 ---
-OpenTelemetry works by combining a set of vendor-agnostic tools to:
+OpenTelemetry combines vendor-neutral components that generate, process, and export observability data in a consistent way.
 
-- **Specify** the data that needs to be measured
-- **Capture, organize, and format**the data
-- **Export**it to a backend monitoring platform like**KloudMate**. 
+At a high level, it helps you:
 
-The vendor-agnostic tools include APIs, SDKs, collectors, and monitoring backends. They work together as components of OpenTelemetry, to provide a standardized approach to observability.
+- Specify what should be measured
+- Capture and structure telemetry data
+- Export that data to an observability backend such as KloudMate
 
-The components of OpenTelemetry are extensible, interoperable, and loosely coupled, allowing you to add or choose the components you want to integrate with.
-
-Following are the steps involved in how OpenTelemetry works in the implementation of observability:
+The core components of OpenTelemetry are loosely coupled, so you can choose the pieces that fit your environment.
 
 ![image](./images/how-does-opentelemetry-work_-1.png)
 
-### Step 1: Instrumentation
+## 1. Instrumentation
 
-**Application programming interfaces (APIs)**
-APIs are used to instrument the application code to tell the system what data needs to be measured. API defines the operations for generating and correlating telemetry data that includes traces, metrics, and logs.
+Instrumentation starts in your application code or runtime.
 
-### Step 2: Data collection
+**APIs** define the operations used to generate traces, metrics, and logs and to attach useful context to that data.
 
-**Software development kits (SDKs)**
-SDKs perform the language-specific implementation of the APIs and gather the telemetry data from the instrumented code. SDKs also define the data processing and exporting requirements for the next stages.
-
+## 2. Data Collection
 
-### Step 3: Data exportation
+**SDKs** implement those APIs for specific languages and runtimes. They gather telemetry from the instrumented application and prepare it for export.
 
-**The OpenTelemetry Collector**The collector is a vendor-agnostic OpenTelemetry component that can receive, process, and export the collected telemetry data to external storage or monitoring systems. However, the collector is an optional component, the telemetry data can also be routed directly from your application(using SDKs) to a target system (an observability backend).**When to Use an OpenTelemetry Collector:**
+## 3. Data Export
 
-- You want to export data to multiple observability backends
-- You want to handle retries, batching, or data encryption before exporting the data to a target system
-- You want to perform sensitive data filtering before exporting the data to a target system
-- You want to collect host metrics such as RAM, CPU usage, and more.
+The **OpenTelemetry Collector** is an optional but commonly recommended component. It can receive, process, and export telemetry data before that data reaches the final backend.
 
+Use the Collector when you want to:
 
+- Export telemetry to multiple backends
+- Add batching, retries, or encryption
+- Filter or redact sensitive data
+- Collect host-level metrics such as CPU and memory usage
 
-### Step 4: Visualization and analysis
+You can also export directly from SDKs to a backend when your setup is simple and you do not need Collector-side processing.
 
-**KloudMate - The monitoring and observability backend**
+## 4. Visualization and Analysis
 
-OpenTelemetry in itself is not a complete observability solution. It lets you collect telemetry data from applications but does not provide a way for you to store, query, and visualize the data. However, OpenTelemetry is compatible with and supported by various observability platforms and backends, now including KloudMate. 
+OpenTelemetry generates and transports telemetry data, but it does not provide long-term storage, querying, or visualization by itself.
 
-In order for the telemetry data to be visualized and analyzed to gain insights into the application's health and behavior, it has to be exported to an observability platform such as KloudMate.
+That final step happens in an observability backend such as KloudMate, where you can search, analyze, and correlate the data.
 
-***
+## Related Resources
 
-### Related Resources
-
-- [What Is OpenTelemetry?](../what-is-opentelemetry/)
-
+- [What Is OpenTelemetry?](./what-is-opentelemetry/)
+- [Install the OpenTelemetry Collector](./installing-the-opentelemetry-collector/)

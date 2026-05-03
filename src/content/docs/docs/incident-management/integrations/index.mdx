@@ -1,28 +1,31 @@
 ---
 title: "Integrations"
-description: "Documentation for Integrations"
+description: "Create and manage incident integrations that route alerts into KloudMate."
 sidebar:
-  label: "Introduction"
+  label: "Overview"
+  order: 1
 ---
-Integrations are webhook endpoints that can be called from external services to send notifications about incidents to on-call teams and developers. 
+Integrations are endpoints that accept alerts from external systems and turn them into incidents inside KloudMate.
 
-Each integration has a service and an escalation policy assigned to it, and will notify the relevant team based on the rules defined in that escalation policy.
+Each integration belongs to a service and can use a dedicated escalation policy or inherit the service default.
 
 ## Integrations Overview
 
-Navigate to **Incident Management**>**Integrations** to view a list of all existing integrations. The screen displays each integration’s name, description, type, service, and assigned escalation policy.
+Open **Incident Management -> Integrations** to view the list of configured integrations.
 
 ![image](./images/integrations-1.jpeg)
 
+Each row shows the integration name, description, type, related service, and assigned escalation policy.
+
 <hint type="info">
-  Each integration can only have one escalation policy attached to it.
+  Each integration can use only one escalation policy at a time.
 </hint>
 
 ## Integration Details
 
-Click on any integration to open its Details screen. From here you can:
+Open any integration to:
 
-- **Enable**or**disable** the integration using the toggle next to the integration name.
-- Copy the **integration URL**, which is required to connect with an external alerting source.
-- **Edit**or**archive**the integration using the**settings** icon.
-
+- Enable or disable it
+- Copy the integration URL
+- Edit its configuration
+- Archive it

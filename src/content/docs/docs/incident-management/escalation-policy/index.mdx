@@ -1,37 +1,34 @@
 ---
-title: "Escalation Policy"
-description: "Documentation for Escalation Policy"
+title: "Escalation Policies"
+description: "Define who gets notified, how they are notified, and when incidents escalate."
 sidebar:
-  label: "Introduction"
+  label: "Overview"
+  order: 1
 ---
-Escalation policies define how and who will be notified when an incident is triggered. They enable you to automate the incident assignment process within your incident management workflow.
+Escalation policies control how incident notifications progress when an incident remains unacknowledged.
 
-Escalation policies within KloudMate are designed to notify different targets at different steps, in the event that the initial assignee or the assignee at a previous step could not acknowledge the incident.
+They let you define:
 
-To navigate to the Escalation Policies screen, click **Incidents**in the left navigation, then select**Escalation Policies**.
+- Who should be notified
+- Which notification channel should be used
+- How long each escalation step should wait before moving to the next step
 
 ![image](./images/escalation-policy-1.jpeg)
 
-This screen displays a list of all existing escalation policies along with their name, description, number of escalation steps, and wait time.
+The escalation policies list shows each policy’s name, description, wait time, and number of escalation steps.
 
 <hint type="info">
-  - Escalation steps decide who needs to be notified and how the notification will be sent.
-  - Multiple notification channels can be added to a single escalation step.&#x9;
-  - The wait time defines how long an incident should remain unacknowledged before escalating to the next step.
+  A single escalation step can notify multiple targets through multiple channels.
 </hint>
 
-## Escalation Policy Details
+## Policy Details
 
-Click on any **escalation policy** to open its detail view. 
+Open any escalation policy to review:
+
+- Initial wait time
+- Notification targets for each step
+- Escalation timeout for each step
 
 ![image](./images/escalation-policy-1.png)
 
-This screen displays all the details of the selected policy and its escalation steps, including:
-
-- The wait time before escalation begins
-- The configured notification channel for each escalation step
-- The notification assignee for each escalation step
-- The escalation timeout for each step
-
-You can use the **Settings** icon to edit or archive the selected escalation policy.
-
+Use the settings menu to edit or archive the policy.

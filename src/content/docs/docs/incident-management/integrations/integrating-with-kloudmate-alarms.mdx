@@ -1,54 +1,48 @@
 ---
-title: "Integrating with KloudMate Alarms"
-description: "Documentation for Integrating with KloudMate Alarms"
+title: "Integrate with KloudMate Alarms"
+description: "Send KloudMate alarm notifications into Incident Management through a webhook integration."
+sidebar:
+  label: "Integrate with KloudMate Alarms"
+  order: 3
 ---
-To receive alarm-triggered alerts in your Incident Management workflow, you need to configure a webhook notification channel linked to your integration, and then set up a notification policy for it.
+To send alarm-triggered notifications into Incident Management, connect a webhook integration to a notification channel and notification policy.
 
-A **notification channel**defines where the notification is sent, while a**notification policy** defines which alarms or issues trigger that notification.
+## Step 1: Copy the Integration URL
 
-### Step 1: Copy the Integration URL
-
-Navigate to **Incidents**>**Integrations**and click on the integration of type**KloudMate** **Alarm**. From the Integration Details screen, click**Copy Integration URL** to copy the webhook URL.
+1. Open **Incidents -> Integrations**.
+2. Select an integration of type **KloudMate Alarm**.
+3. Copy the integration URL from the integration details page.
 
 ![image](./images/integrating-with-kloudmate-alarms-1.jpeg)
 
-Refer to the [Adding Integrations](../adding-integrations/) documentation to learn how to create an integration.
+If you have not created the integration yet, start with [Add an Integration](./adding-integrations/).
 
-### Step 2: Create a Notification Channel
+## Step 2: Create a Notification Channel
 
-Navigate to **Settings**>**Notification Channels**and click**Create**.
+1. Open **Settings -> Notification Channels**.
+2. Click **Create**.
+3. Select **Webhook**.
+4. Enter a name and paste the integration URL.
+5. Submit the channel.
 
 ![image](./images/integrating-with-kloudmate-alarms-1.png)
-
-- Select **Webhook** as the notification channel type from the dropdown.
-- Enter a name for the webhook and paste the integration URL copied in the previous step.
-
 ![image](./images/integrating-with-kloudmate-alarms-2.jpeg)
-
-- Click **Submit**. The webhook notification channel will appear in the Notification Channels list.
-
 ![image](./images/integrating-with-kloudmate-alarms-2.png)
 
-### Step 3: Create a Notification Policy
+## Step 3: Create a Notification Policy
 
-Navigate to **Settings**>**Notification Policies**and click**Create**.
+1. Open **Settings -> Notification Policies**.
+2. Click **Create**.
+3. Enter a policy name.
+4. Select the webhook notification channel.
+5. Add conditions for **Alarm** or **Issue**.
+6. Save the policy.
 
 ![image](./images/integrating-with-kloudmate-alarms-3.jpeg)
-
-- Enter a name for the policy and select the notification channel created in the previous step.
-
 ![image](./images/integrating-with-kloudmate-alarms-3.png)
-
-- Click **Add Condition**and select**Alarm**or**Issue** depending on what you want to be notified for.
-
 ![image](./images/integrating-with-kloudmate-alarms-4.jpeg)
-
-- Select the specific alarm(s) from the dropdown. You can also **add alarm tags**to match specific alarms. If no tags are specified, the condition will match all alarm tags. You can**add multiple conditions** to a single notification policy.
-- Click **Save Policy**. A confirmation message will appear once saved.
-
 ![image](./images/integrating-with-kloudmate-alarms-4.png)
 
 <hint type="info">
-  Once saved, alerts from this notification policy will be sent to the respective Incident Management integration and will notify the members defined in the corresponding escalation policy.
+  Alerts matching this notification policy will be sent into the selected Incident Management integration and follow its escalation policy.
 </hint>
-

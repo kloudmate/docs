@@ -1,48 +1,59 @@
 ---
-title: "Adding Integrations"
-description: "Documentation for Adding Integrations"
+title: "Add an Integration"
+description: "Create KloudMate Alarm, CloudWatch Alarm, or webhook integrations for Incident Management."
+sidebar:
+  label: "Add an Integration"
+  order: 2
 ---
-Use the following steps to add a new integration.
+Use the steps below to create a new incident integration.
 
-**Step 1:**Click the**Add Integration** button at the top-right corner of the screen.
+1. Click **Add Integration** from the Integrations page.
 
 ![image](./images/adding-integrations-1.jpeg)
 
-**Step 2:**On the Add Integration page, select an**Integration Type** from the dropdown. 
+2. Select an **Integration Type**.
 
-Available types are:
+Available types:
 
-- **KloudMate Alarm**-**CloudWatch Alarm**-**Webhook**
+- **KloudMate Alarm**
+- **CloudWatch Alarm**
+- **Webhook**
 
 ![image](./images/adding-integrations-1.png)
 
 <hint type="info">
-  KloudMate and CloudWatch integrations have pre-defined templates. If you want to use any third-party integrations through Webhook, you can use templates to configure incident content, grouping logic, and auto-resolution for incidents.
+  KloudMate Alarm and CloudWatch Alarm integrations use predefined templates. Webhook integrations let you configure title, grouping, and auto-resolution logic manually.
 </hint>
 
-**Step 3:**If your integration type is**KloudMate Alarm**or**CloudWatch Alarm**, assign a**service**, enter a**Name**, add a**Description**, and optionally select an**Escalation Policy**. Click**Save** and skip the remaining steps.
+## Create a KloudMate Alarm or CloudWatch Alarm Integration
+
+1. Select the service.
+2. Enter the integration name and description.
+3. Optionally choose an escalation policy override.
+4. Click **Save**.
 
 ![image](./images/adding-integrations-2.png)
 
 <hint type="info">
-  If no escalation policy is selected, the default escalation policy of the assigned service will be applied automatically.
+  If no escalation policy is selected, the service default is applied automatically.
 </hint>
 
-**Step 4:**If your integration type is**Webhook**, assign a service, enter a Name, and add a Description. You will also see the**Title Template**,**Grouping Template**, and**Auto Resolve Template**fields.**Step 5:**Click the**Edit**icon in the**Title Template**field. Paste your payload in the Payload (JSON) editor and write your template. Use the**Test**button to preview how the incident will appear in KloudMate. Click**Save** when done.
+## Create a Webhook Integration
+
+1. Select the service.
+2. Enter the integration name and description.
+3. Configure the **Title Template**.
+4. Configure the **Grouping Template**.
+5. Configure the **Auto Resolve Template**.
+6. Select an escalation policy if needed.
+7. Click **Save**.
 
 ![image](./images/adding-integrations-3.png)
 
-**Step 6:**Click the**Edit**icon in the**Grouping Template**field to configure grouping logic, which consolidates related incidents into a single notification. Click **Save**when done.**Step 7:**Click the**Edit**icon in the**Auto Resolve Template**field to configure conditions for automatic incident resolution. Click**Save**when done.**Step 8:**Select an**Escalation Policy**for your webhook integration and click**Save**.
-
-<hint type="info">
-  If no escalation policy is selected, the default escalation policy of the assigned service will be applied automatically.
-</hint>
-
-Once the integration is created successfully, you will be directed to the Integration Details screen where you can copy the **integration URL**or use the settings icon to**edit**or**archive** the integration.
+After the integration is created, you will be taken to the integration details screen where you can copy the integration URL or edit/archive the integration.
 
 ![image](./images/adding-integrations-2.jpeg)
 
-***
+## Related Resources
 
-Refer to [Integrating with KloudMate Alarms](../integrating-with-kloudmate-alarms/) to learn how to use the integration URL with KloudMate Alarms.
-
+- [Integrating with KloudMate Alarms](./integrating-with-kloudmate-alarms/)

@@ -1,34 +1,40 @@
 ---
 title: "Services"
-description: "Documentation for Services"
+description: "Group incidents by service and manage related integrations and escalation defaults."
 sidebar:
-  label: "Introduction"
+  label: "Overview"
+  order: 1
 ---
-**Services** enable you to group your incidents based on the service, microservice, or application functionality they belong to. By organising incidents under services, you can configure response plans and manage related incidents collectively.
-
-To navigate to the Services screen, click **Incidents**in the left navigation, then select**Services**.
+Services group incidents by application area, microservice, or operational ownership so your team can manage related incidents together.
 
 ![image](./images/services-1.jpeg)
 
-The screen displays a list of all existing services with their name, description, owner, escalation policy, and health status. 
+The Services page lists each service with its:
+
+- Name
+- Description
+- Owner
+- Default escalation policy
+- Current health state
 
 <hint type="info">
-  A service can have multiple escalation policies. A service marked as Unhealthy indicates there are active issues, while Healthy indicates no current issues. The escalation policy shown is the default policy assigned when the service was created.
+  A service can have multiple integrations. The escalation policy shown on the service is the default policy used when an integration does not define its own override.
 </hint>
 
-## **Service Details**
+## Service Details
 
-Click on any service to open its detail view. This screen shows a summary of all incidents under that service, how many are Triggered, Acknowledged, Resolved, and the total count, along with the service owner and its associated integrations.
+Open any service to view:
+
+- Triggered, acknowledged, and resolved incident counts
+- Service owner details
+- Related integrations
 
 ![image](./images/services-1.png)
 
-You can add integrations to the service directly from this screen using the **Add Integration** button. 
+You can also add an integration directly from the service page.
 
 ![image](./images/services-2.jpeg)
 
-When adding an integration, you can assign a specific escalation policy to it. If no escalation policy is selected, the default escalation policy of the service will be applied.
-
-To **edit**or**archive**the service, click the**settings** icon at the top right corner of the screen.
+Use the settings menu to edit or archive the service.
 
 ![image](./images/services-3.jpeg)
-

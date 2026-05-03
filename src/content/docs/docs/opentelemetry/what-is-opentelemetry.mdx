@@ -1,23 +1,31 @@
 ---
 title: "What Is OpenTelemetry?"
-description: "Documentation for What Is OpenTelemetry?"
+description: "Learn what OpenTelemetry is and why it is widely used for observability."
+sidebar:
+  label: "What Is OpenTelemetry?"
+  order: 2
 ---
-[OpenTelemetry](https://opentelemetry.io/) is a powerful, open-source observability framework developed by the Cloud Native Computing Foundation (CNCF). It aims to improve the observability of modern applications. 
+[OpenTelemetry](https://opentelemetry.io/) is an open-source, vendor-neutral observability framework developed under the CNCF. It provides standardized APIs, SDKs, agents, and collectors for generating and exporting telemetry data.
 
-With a focus on supporting diverse programming languages and platforms, OpenTelemetry provides a consistent format to instrument code, generate telemetry data, and send it to an observability platform. 
+OpenTelemetry helps you collect:
 
-It enables developers to automatically collect telemetry data, including traces, metrics, and logs by providing vendor-agnostic and standardized APIs, libraries, agents, and instrumentation. This data helps gain valuable insights into the performance and behavior of systems and applications.
+- Traces
+- Metrics
+- Logs
 
-# Why Do We Need OpenTelemetry?
+KloudMate uses OpenTelemetry as a primary integration layer so you can instrument and export telemetry without relying on proprietary application-side SDKs.
 
-OpenTelemetry is on its way to becoming indispensable in modern software development because of its ability to provide comprehensive observability. In addition to this, there are many benefits of using OpenTelemetry:
+## Why OpenTelemetry Matters
 
--  **Cross-Platform compatibility**: OpenTelemetry supports various programming languages and backends which ensures that it can be adopted across diverse projects with diverse technology stacks.
-- **Standardization and interoperability**: OpenTelemetry offers a unified and standardized approach to gaining observability, ensuring that different tools, libraries, and platforms can interoperate seamlessly to manage observability data.
-- **Accelerated incident identification and resolution**: OpenTelemetry's distributed tracing and logging capabilities enable developers to understand how a problem propagated through the system. With end-to-end visibility into request paths, developers can get to the problem quickly and initiate troubleshooting.
-- **Future proof**: OpenTelemetry's native support for distributed tracing bodes well with the rise of the technologies of the future such as cloud-based, microservices, and distributed architectures.***
+OpenTelemetry is widely adopted because it provides:
 
-### Related Resources
+- **Cross-platform support:** It works across many programming languages, runtimes, and infrastructure environments.
+- **Standardization:** It defines a consistent structure for observability data.
+- **Interoperability:** It allows telemetry to move between instrumentation libraries, collectors, and observability backends.
+- **Better troubleshooting:** Traces, metrics, and logs can be correlated more effectively when they follow a common model.
+- **Reduced vendor lock-in:** You instrument once and keep flexibility in where you send the data.
 
-- [How Does OpenTelemetry Work?](../how-does-opentelemetry-work/)
+## Related Resources
 
+- [How OpenTelemetry Works](./how-does-opentelemetry-work/)
+- [OpenTelemetry Overview](./)

@@ -1,35 +1,38 @@
 ---
-title: "Adding Escalation Policy"
-description: "Documentation for Adding Escalation Policy"
+title: "Create an Escalation Policy"
+description: "Create an escalation policy with one or more notification and timeout steps."
+sidebar:
+  label: "Create an Escalation Policy"
+  order: 2
 ---
-To add a new escalation policy, click the **Add Escalation Policy** button at the top right corner of the Escalation Policies screen.
+Use the steps below to create a new escalation policy.
+
+1. Click **Add Escalation Policy** from the escalation policies page.
 
 ![image](./images/adding-escalation-policy-1.jpeg)
 
-**Step 1:**Enter a**name**and**description**for the escalation policy.**Step 2:**Set the**wait time** in minutes. This defines how long after an incident is triggered before the escalation process begins.
+2. Enter a **Name** and **Description**.
+3. Set the initial **Wait Time** in minutes.
 
 ![image](./images/adding-escalation-policy-1.png)
 
-**Step 3:**Configure the escalation steps under**Add Escalation Steps**:
-&#x9;•  Select a **notification channel** from the Alert via dropdown.
-&#x9;•  Select the **assignee** to be notified from the dropdown next to it.
-&#x9;•  Use **Add Another Alert** to add multiple notification channels to the same escalation step.
+4. Under **Add Escalation Steps**, configure the notification targets for the first step:
+   - Select the notification channel
+   - Select the assignee
+   - Use **Add Another Alert** to add multiple channels in the same step
 
 <hint type="info">
-  If you select Slack as a notification channel, you will need to integrate a Slack account first. See [Slack Integration](../../slack-integration/)
+  If you plan to notify Slack, first complete [Slack Integration](../../slack-integration/).
 </hint>
 
-**Step 4:**Set the **Escalate After** duration in minutes. This is the time window given to acknowledge the incident before it moves to the next escalation step.
+5. Set the **Escalate After** timeout in minutes for that step.
 
 ![image](./images/adding-escalation-policy-2.png)
 
-**Step 5:**To add another escalation step, click**Add Escalation** and repeat Steps 3 and 4. You can add any number of escalation steps.
+6. Click **Add Escalation** to create additional steps as needed.
 
 ![image](./images/adding-escalation-policy-3.png)
 
-**Step 6:**Once all escalation steps are configured, click **Save**. 
-
-A confirmation message will appear and the policy will be displayed in the Escalation Policies list.
+7. Click **Save** when the policy is complete.
 
 ![image](./images/adding-escalation-policy-4.png)
-

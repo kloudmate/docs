@@ -1,23 +1,29 @@
 ---
 title: "Incidents"
-description: "Documentation for Incidents Overview"
+description: "Review incident status, team workload, and assigned incidents in KloudMate."
 sidebar:
-  label: "Introduction"
+  label: "Overview"
+  order: 1
 ---
-The Incident Management Overview screen provides a bird’s-eye view of all incidents within your infrastructure. It gives you access to all important incident stats and your assigned incidents in one place.
-
-To navigate to the Overview screen, click **Incidents**in the left navigation menu, then select**Overview**.
-
-
+The Incidents overview gives you a high-level view of incident activity across your workspace, including current status counts and incidents assigned to you.
 
 ## Incident Statuses
 
-An incident within KloudMate goes through three status indicators within its lifecycle:
+Incidents in KloudMate move through three core statuses:
 
-- **Triggered —**Any issue declared as an incident starts in the Triggered state, indicating that it needs to be reviewed by the relevant team.
-- **Acknowledged —** This status indicates that the incident has reached the relevant team and is being actively reviewed.
-- **Resolved —** This status indicates that the incident has been fixed and closed by the relevant team.
+- **Triggered:** The incident has been created and needs attention.
+- **Acknowledged:** A responder has taken ownership and is actively reviewing it.
+- **Resolved:** The incident has been fixed and closed.
 
-At the top of the screen, you will see key stats across all incidents, the **total count**of incidents in each status,**MTTA**(Mean Time to Acknowledge), and**MTTR** (Mean Time to Resolve).
+At the top of the page, you can review:
 
-Below the stats, the **My Incidents**list displays the incidents assigned to you, along with relevant details such as title, severity, triggered time, responders, and current status. Click**View All** to see the complete list of incidents across your workspace.
+- Total incident count
+- Triggered, acknowledged, and resolved counts
+- **MTTA** (Mean Time to Acknowledge)
+- **MTTR** (Mean Time to Resolve)
+
+## My Incidents
+
+The **My Incidents** list shows incidents currently assigned to you, including severity, responders, triggered time, and current status.
+
+Use **View All** to open the full incident list across the workspace.
