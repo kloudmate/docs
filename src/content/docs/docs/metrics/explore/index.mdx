@@ -5,6 +5,18 @@ sidebar:
   label: "Overview"
   order: 1
 ---
+
+import { Image } from 'astro:assets';
+import exploreNav from './images/explore-nav.png';
+import exploreGeneral from './images/explore-general.png';
+import exploreOverrides from './images/explore-overrides.png';
+import exploreFilters from './images/explore-filters.jpeg';
+import exploreGroupby from './images/explore-groupby.png';
+import exploreRanking from './images/explore-ranking.png';
+import exploreQueries from './images/explore-queries.png';
+import exploreRun from './images/explore-run.png';
+import exploreSave from './images/explore-save.png';
+
 Explore is a dedicated section in KloudMate where you can quickly query and visualize your observability data, without needing to create or save a dashboard first. It’s ideal for ad-hoc investigation, debugging, and building queries before committing them to a dashboard.
 
 ## Explore Walkthrough
@@ -12,7 +24,7 @@ Explore is a dedicated section in KloudMate where you can quickly query and visu
 1. **Navigate to Explore**
    Open the Explore section from the left-hand navigation menu. An empty, untitled panel will load and is ready for use immediately.
 
-![image]()
+<Image src={exploreNav} alt="Navigate to Explore" />
 
 2. **Configure the Visualization**
    Use the panel settings on the right-hand side (or bottom on smaller screens) to control how results are displayed.
@@ -21,15 +33,11 @@ Explore is a dedicated section in KloudMate where you can quickly query and visu
 
 - **General:** Contains collapsible sections for configuring the panel’s appearance and behavior. Expand any section to adjust its settings as needed.
 
-
-
-
+<Image src={exploreGeneral} alt="General Settings" />
 
 - **Overrides:** Allows you to apply field-level customizations on top of the General settings. Add one or more field overrides using the Add Field Override button, each targeting a specific series or field to override its display properties independently.
 
-
-
-
+<Image src={exploreOverrides} alt="Overrides Settings" />
 
 2. **Configure Your Data Source and Signal Type**
    At the top of the query editor, select your data source (e.g., OpenTelemetry) and signal type (e.g., Metrics, Logs, Traces) using the dropdowns. You can also set a query Interval; this defaults to Auto, which lets KloudMate determine the appropriate resolution automatically.
@@ -39,31 +47,33 @@ Explore is a dedicated section in KloudMate where you can quickly query and visu
 - Click **Customize aggregation** next to the aggregation function to access advanced aggregation controls. See the Metrics Aggregations section for details.
 - Use **Add filters** to narrow results by specific attribute values.
 
-
+<Image src={exploreFilters} alt="Add Filters" />
 
 - Use **Group by** to break down the metric by a dimension such as k8s\_replicaset\_name.
 
-![image]()
+<Image src={exploreGroupby} alt="Group By" width={340} />
 
 - Use **Ranking** to control how series are ordered (defaults to None).
 
-![image]()
+<Image src={exploreRanking} alt="Ranking" width={340} />
 
 - Use **Legend Format** to customize how series labels appear in the visualization. 
   For users who prefer writing queries directly, switch to the **PromQL** tab to enter a raw PromQL expression.
 
-4. **Add Multiple Queries and Expressions**- Use the**Add Query** button to layer multiple metric queries on the same panel. 
-- Use **Add Expression**to create derived values from your queries, including math expressions, reduce functions, and condition expressions. Refer to[Writing Expressions for KloudMate Alarms](../../alerts/writing-expressions-for-kloudmate-alarms/) for full expression syntax.
+4. **Add Multiple Queries and Expressions**
+- Use the **Add Query** button to layer multiple metric queries on the same panel. 
+- Use **Add Expression** to create derived values from your queries, including math expressions, reduce functions, and condition expressions. Refer to [Writing Expressions for KloudMate Alarms](../../alerts/writing-expressions-for-kloudmate-alarms/) for full expression syntax.
 
-![image]()
+<Image src={exploreQueries} alt="Queries and Expressions" />
 
 6. **Run Your Query**
    Click Run Query to execute and visualize the results in the panel above.
 
-![image]()
+<Image src={exploreRun} alt="Run Query" />
 
-8. **Save to Dashboard**Once your queries are ready, use the**Save to Dashboard** button (top right) to save the panel to an existing dashboard or create a new one. Saved dashboards are accessible from the Dashboards section.
+8. **Save to Dashboard**
+Once your queries are ready, use the **Save to Dashboard** button (top right) to save the panel to an existing dashboard or create a new one. Saved dashboards are accessible from the Dashboards section.
 
-![image]()
+<Image src={exploreSave} alt="Save to Dashboard" />
 
 ##
