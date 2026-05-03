@@ -1,34 +1,21 @@
 ---
-title: "Server Metrics to KloudMate"
-description: "Documentation for Server Metrics to KloudMate"
+title: "Collect Server Metrics with KM Agent"
+description: "Collect Linux and Windows host metrics in KloudMate with the KM Agent hostmetrics receiver."
 sidebar:
+  label: "Server Metrics with KM Agent"
   order: 2
 ---
-This guide provides instructions on gathering Linux and Windows Server metrics using the **Host** **Metrics** **Receiver**through**KloudMate Agents**.
+Use this guide to collect host metrics from Linux or Windows systems with the KM Agent. The KM Agent uses the OpenTelemetry `hostmetrics` receiver to collect CPU, memory, disk, filesystem, paging, network, and optional process-level metrics.
 
-The Host Metrics Receiver generates metrics about the host system from various sources. It can also collect per-process metrics for applications running on Amazon EC2, Azure VMs, or on-premise servers.
+## Prerequisites
 
-KloudMate Agents use this receiver to ingest these host metrics and send them directly to KloudMate.
+- Install the [KM Agent](../../km-agent/) on the server you want to monitor.
+- Obtain your KloudMate API key.
+- Identify whether the host runs on-premises, AWS EC2, or Azure so you can use the correct resource-detection processor.
 
-### **Prerequisites:**
+## Step 1: Configure the Host Metrics Receiver
 
-**Install the KloudMate Agents**on the server where metric monitoring is required. Refer to the [KloudMate Agents](../../km-agent/) guide for detailed setup instructions.**Step 1: Access Agents and OpenTelemetry Collector Configuration**
-
-- Navigate to the KloudMate platform and log into your account.
-- Go to **Settings**>**Agents** section.
-- Here you can:
-  - View all installed agents.
-  - Access configuration settings for each agent.
-  - Review default configurations provided by KloudMate.
-- To edit an agent's collector configuration:
-  - Select the desired agent.
-  - Click the **Actions** menu (or Agent action tab).
-  - Choose **Collector Configuration**.
-- A text editor UI will open where you can edit the agent’s YAML configuration directly within the platform.
-
-![image](./images/mongodb-monitoring-1.png)
-
-1\. In this configuration file, ensure the host metrics receiver is set up to collect and send metrics according to your specific requirements. 
+Add or update the `hostmetrics` receiver in the agent configuration:
 
 ```yaml
 receivers:
@@ -46,10 +33,6 @@ receivers:
           system.memory.utilization:
             enabled: true
       filesystem:
-       # The below file system type only useful with AWS EC2 metrics
-       # include_fs_types:  
-       #   match_type: strict
-       #   fs_types: [ext3, ext4] 
         metrics:
           system.filesystem.usage:
             enabled: true
@@ -57,29 +40,26 @@ receivers:
             enabled: true
       disk: {}
       network: {}
-      #processes: {}    #applicable only on a linux server
-      # process metrics are optional, please enable if needed
-      #process:
-        #metrics:
-          #process.cpu.utilization:
-            #enabled: true
-          #process.memory.utilization:
-            #enabled: true
-        # Mute various errors reading process metrics running locally in docker.
-        #mute_process_all_errors: true
+      # Enable on Linux if you need process counts by state.
+      # processes: {}
+      # Enable if you need per-process resource metrics.
+      # process:
+      #   metrics:
+      #     process.cpu.utilization:
+      #       enabled: true
+      #     process.memory.utilization:
+      #       enabled: true
 ```
 
-:::note
-  Please ensure that the configuration includes `processes: {}` for Linux systems, as this setting is not applicable or required for Windows.
-:::
+<hint type="info">
+  `processes: {}` is useful on Linux systems. It is not typically used on Windows hosts.
+</hint>
 
-2\. Configure the processor part to detect resource information from the host and append or override the resource value in telemetry data with this information.
+## Step 2: Add Resource Detection
 
-:::note
-  Please choose one of the following options for configuration based on your provider (AWS EC2, Azure VM, or on-premises server)
-:::
+Choose the processor configuration that matches your environment.
 
-- **Server**(Can be on-premise, non-cloud, or cloud)
+### Generic Host
 
 ```yaml
 processors:
@@ -103,11 +83,7 @@ processors:
         from_attribute: host.name
 ```
 
-- **AWS EC2:**
-
-:::note
-  Optional: To retrieve AWS EC2 instance tags along with logs and metrics, you must associate an IAM role with the EC2 instance that includes the `EC2:DescribeTags `policy. The processor below needs to be added:
-:::
+### AWS EC2
 
 ```yaml
 processors:
@@ -116,12 +92,12 @@ processors:
     timeout: 30s
 
   resourcedetection/ec2:
-    detectors:  ["ec2"]
+    detectors: ["ec2"]
     ec2:
       tags:
         - ^tag1$
         - ^tag2$
-        - ^label.*$ 
+        - ^label.*$
         - ^Name$
 
   resource:
@@ -134,7 +110,11 @@ processors:
         from_attribute: host.id
 ```
 
-- **Azure Virtual Machines:**
+<hint type="info">
+  If you want EC2 tags on telemetry, attach an IAM role that allows `ec2:DescribeTags`.
+</hint>
+
+### Azure Virtual Machines
 
 ```yaml
 processors:
@@ -161,97 +141,60 @@ processors:
         from_attribute: host.id
 ```
 
-3\. Set up the KloudMate Backend on the exporter part of the KloudMate agent configuration file and configure the pipeline.
+## Step 3: Export Metrics to KloudMate
 
 ```yaml
 exporters:
   debug:
     verbosity: detailed
   otlphttp:
-    endpoint: 'https://otel.kloudmate.com:4318'
+    endpoint: "https://otel.kloudmate.com:4318"
     headers:
-      Authorization: xxxxxxxx  # Use the auth key
+      Authorization: xxxxxxxx
 
 service:
   pipelines:
     metrics:
       receivers: [hostmetrics]
-      processors: [batch, resourcedetection, resource] # Apply the correct resourcedetection
+      processors: [batch, resourcedetection, resource]
       exporters: [debug, otlphttp]
 ```
 
-**Step 2:  Save Configuration and Restart Agent**After updating the configuration, click “**Save Configuration**” in the UI 
+If you use the EC2 or Azure variants above, update the processor names in the `metrics` pipeline accordingly.
 
-![image](https://app.archbee.com/api/optimize/dfeZmyJsGjUXyEH2hgHVe/v50H011QomNhH7lXX1BRP-20251126-110236.png)
+## Step 4: Restart the Agent
 
-or, from your server’s console, run:
-
-**For Linux:**
-
-1. Execute the following commands:
+For Linux:
 
 ```bash
 systemctl restart kmagent
 systemctl status kmagent
 ```
 
-These commands will restart the KloudMate agent and display its current status.
+For Windows:
 
-**For Windows:**
+1. Open `services.msc`.
+2. Find the `KloudMate Agent` service.
+3. Restart the service.
 
-1. Open the Services window:
-   - Press Win + R, type `services.msc`, and press OK.
-   - Alternatively, search for "`Services`" in the Windows Start menu.
-2. In the Services window, locate the "`KloudMate Agent`" service.
-3. Right-click the service and select "`Restart`."
+## Step 5: Validate in KloudMate
 
-Subsequently, monitor the metrics on the KloudMate dashboard and set up an alarm to receive notifications if the potential metrics for a specific application rise. 
+After the agent restarts:
 
-### **Default Hostmetrics**|**Metric**|**Description**|**Unit**  |
-| --------------------------------- | ----------------------------------------------------------------------------------- | --------- |
-| **cpu**                           |                                                                                     |           |
-| system\_cpu\_time                 | Total seconds each logical CPU spent on each mode.                                  | Seconds   |
-| **disk**                          |                                                                                     |           |
-| system\_disk\_io                  | Disk bytes transferred.                                                             | Bytes     |
-| system\_disk\_io\_time            | Time disk spent activated.                                                          | Seconds   |
-| system\_disk\_merged              | The number of disk reads/writes merged into single physical disk access operations. | Count     |
-| system\_disk\_operation\_time     | Time spent in disk operations.                                                      | Seconds   |
-| system\_disk\_operations          | Disk operations count.                                                              | Count     |
-| system\_disk\_pending\_operations | The queue size of pending I/O operations.                                           | Count     |
-| system\_disk\_weighted\_io\_time  | Time disk spent activated multiplied by the queue length.                           | Seconds   |
-| **Load**                          |                                                                                     |           |
-| system\_cpu\_load\_average\_15m   | Average CPU Load over 15 minutes.<br />&#xA;                                        | \{thread} |
-| system\_cpu\_load\_average\_5m    | Average CPU Load over 5 minutes.                                                    | \{thread} |
-| system\_cpu\_load\_average\_1m    | Average CPU Load over 1 minute.                                                     | \{thread} |
-| **File system**                   |                                                                                     |           |
-| system\_filesystem\_inodes\_usage | FileSystem inodes used.                                                             | Count     |
-| system\_filesystem\_usage         | Filesystem bytes used.                                                              | Bytes     |
-| **Memory**                        |                                                                                     |           |
-| system\_memory\_usage             | Bytes of memory in use.                                                             | Bytes     |
-| **Network**                       |                                                                                     |           |
-| system\_network\_connections      | The number of connections.                                                          | Count     |
-| system\_network\_dropped          | The number of packets dropped.                                                      | Count     |
-| system\_network\_errors           | The number of errors encountered.                                                   | Count     |
-| system\_network\_io               | The number of bytes transmitted and received.                                       | Bytes     |
-| system\_network\_packets          | The number of packets transferred.                                                  | Count     |
-| **Paging**                        |                                                                                     |           |
-| system\_paging\_faults            | The number of page faults.                                                          | Count     |
-| system\_paging\_operations        | The number of paging operations.                                                    | Count     |
-| system\_paging\_usage             | Swap (unix) or pagefile (windows) usage.                                            | Bytes     |
-| **Processes**                     |                                                                                     |           |
-| system\_processes\_count          | Total number of processes in each state.                                            | Count     |
-| system\_processes\_created        | Total number of created processes.                                                  | Count     |
-| **Process**                       |                                                                                     |           |
-| process\_cpu\_time                | Total CPU seconds broken down by different states.                                  | Seconds   |
-| process\_disk\_io                 | Disk bytes transferred.                                                             | Bytes     |
-| process\_memory\_usage            | The amount of physical memory in use.                                               | Bytes     |
-| process\_memory\_virtual          | Virtual memory size.                                                                | Bytes     |
+- open [Explore](../explore/)
+- query host metrics such as `system_cpu_time`, `system_memory_usage`, or `system_filesystem_usage`
+- create dashboards or alerts once data is visible
 
-For full details on metrics, click [here](https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/receiver/hostmetricsreceiver).
+## Common Metric Families
 
-## **Additional Resources**
+| Metric family | Examples |
+| --- | --- |
+| CPU | `system_cpu_time`, `system_cpu_utilization`, `system_cpu_load_average_1m` |
+| Memory | `system_memory_usage`, `system_memory_utilization` |
+| Disk | `system_disk_io`, `system_disk_operations`, `system_disk_io_time` |
+| Filesystem | `system_filesystem_usage`, `system_filesystem_utilization`, `system_filesystem_inodes_usage` |
+| Network | `system_network_io`, `system_network_packets`, `system_network_errors` |
+| Paging | `system_paging_usage`, `system_paging_faults`, `system_paging_operations` |
+| Process | `system_processes_count`, `process_cpu_time`, `process_memory_usage` |
 
-For a deeper understanding of server metrics collection and alternative implementation approaches, refer to the following detailed guides:
-
-- [Server Metrics to KloudMate – Complete Host Metrics Receiver Guide](https://blog.kloudmate.com/server-metrics-to-kloudmate-complete-host-metrics-receiver-guide-1a925dd61d12)
-- [Server Metrics to KloudMate Using Prometheus Node Exporter](https://blog.kloudmate.com/server-metrics-to-kloudmate-using-prometheus-node-exporter-012d739df25e)
+For the complete upstream reference, see the [hostmetrics receiver documentation](https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/receiver/hostmetricsreceiver).

@@ -1,26 +1,33 @@
 ---
 title: "Sum"
-description: "Documentation for Sum"
+description: "Understand how sum metrics behave in KloudMate Explore."
+sidebar:
+  order: 2
 ---
-A Sum metric represents a cumulative value that changes over time by either only increasing (monotonic) or both increasing and decreasing (non-monotonic). A Sum metric can be of **Delta**or**Cumulative** temporality.
+A Sum metric represents a value that changes over time by accumulating observations. It can be monotonic, such as a request counter, or non-monotonic, depending on the instrument and exporter.
 
-### Temporal Aggregation (Aggregation within the same time series)
+A Sum metric can be reported with either **Delta** or **Cumulative** temporality.
 
-When you specify an interval (e.g., 300 seconds), raw data points from the same time series are grouped into buckets based on that interval. Within each bucket, an aggregation function is applied to the points that fall inside the defined time window.
+## Temporal Aggregation
 
-For Sum metrics, the most meaningful aggregation operations are:
-&#x9;∙  **RATE:**per-second rate of change
-&#x9;∙  **INCREASE:**absolute increase during the interval
-&#x9;∙  **SUM:**sum of all points when the metric temporality is **Delta**. In this case, each point already represents a change, so summing all delta values inside the bucket gives the total increase for that interval.**How RATE and INCREASE Are Calculated**
+When you choose a time interval in Explore, KloudMate groups data points into buckets and applies an aggregation inside each bucket.
+
+For Sum metrics, the most useful temporal aggregations are:
+
+- **Rate:** per-second rate of change
+- **Increase:** absolute increase during the interval
+- **Sum:** total of all delta values within the interval when the metric is reported as Delta
+
+## How Rate and Increase Are Calculated
 
 For each interval time window, the system evaluates data points differently based on the Sum temporality:
 
-- For **Cumulative** Sum, the system selects the maximum (typically the last) value inside the time window. This represents the reported counter value within that window and is compared with the value from the previous time window.
-- For **Delta**Sum, each point already represents a change, so the system performs a**SUM** of all values inside the time window. That total represents the increase for that window, and no comparison with the previous window is required.
+- For **Cumulative** Sum, the system selects the maximum, typically the last value, inside the time window and compares it with the previous window.
+- For **Delta** Sum, each point already represents a change, so the system sums all values inside the time window.
 
-The system automatically detects the metric temporality (Cumulative or Delta) and applies the appropriate aggregation formula internally.
+The system automatically detects the metric temporality and applies the correct internal formula.
 
-**INCREASE**
+### Increase
 
 Cumulative:
 `increase = current_window_value − previous_window_value`
@@ -28,7 +35,7 @@ Cumulative:
 Delta:
 `increase = SUM(all values in the current time window)`
 
-**RATE**
+### Rate
 
 Cumulative:
 `rate = (current_window_value − previous_window_value) / (timestamp_current − timestamp_previous)`
@@ -38,18 +45,16 @@ Delta:
 
 Where:
 
-`current_window_value` → latest value in the current time window (cumulative)
-
-`previous_window_value` → latest value in the previous time window (cumulative)
-
-`Time difference` → measured in seconds between two windows
+- `current_window_value` is the latest value in the current time window for cumulative sums
+- `previous_window_value` is the latest value in the previous time window for cumulative sums
+- `timestamp_current - timestamp_previous` is measured in seconds
 
 <hint type="info">
-  **Note:** For counter reset handling in Cumulative metrics, if the difference between two time windows is negative, the system treats it as a reset and sets the computed value to 0.
+  For counter reset handling in cumulative metrics, if the difference between two windows is negative, KloudMate treats it as a reset and sets the computed value to `0`.
 </hint>
 
-### Spatial Aggregation (Aggregation across multiple time series)
+## Spatial Aggregation
 
-Spatial aggregation combines values from multiple time series at the same timestamp or interval bucket. It is applied after temporal aggregation is completed (e.g., RATE or INCREASE per series) and aggregates across all matching series.
+Spatial aggregation combines values from multiple time series at the same timestamp or interval bucket. It is applied after temporal aggregation is completed and aggregates across all matching series.
 
-If you select **SUM** for spatial aggregation without any grouping, the system aggregates all available series into a single series.
+If you select **Sum** for spatial aggregation without any grouping, KloudMate combines all matching series into one result.

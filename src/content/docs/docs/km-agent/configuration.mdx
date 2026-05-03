@@ -50,6 +50,8 @@ attributes:
     enable: true
 ```
 
+For a clearer end-user guide on when to use eBPF, where the data appears, and how it relates to APM and database monitoring, see [eBPF Observability](../ebpf-observability/).
+
 ## Database Monitoring Configuration
 
 Enable heuristic SQL detection and tune caches for high-load environments:
@@ -60,4 +62,3 @@ ebpf:
   mysql_prepared_statements_cache_size: 1024
   postgres_prepared_statements_cache_size: 1024
 ```
-

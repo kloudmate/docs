@@ -1,6 +1,26 @@
 ---
-title: "Java Application Metrics"
-description: "Instrumenting Java applications for metrics"
+title: "Java Metrics"
+description: "Export Java application and JVM metrics to KloudMate with OpenTelemetry."
+sidebar:
+  order: 4
 ---
 
-Detailed documentation for Java will be provided here.
+Use the same OpenTelemetry SDK or Java agent setup you use for traces to send metrics to KloudMate.
+
+## Recommended Setup
+
+Follow the [Java manual instrumentation guide](../../../traces/manual-instrumentation/java/) and configure OTLP export to KloudMate through the KM Agent or an OpenTelemetry Collector.
+
+## What You Can Expect
+
+Java telemetry commonly includes:
+
+- Request latency and error metrics
+- JVM memory, GC, and thread metrics
+- Framework and dependency metrics emitted by instrumentation libraries
+
+## Next Steps
+
+- Verify emitted metrics in [Explore](../../explore/)
+- Add business-specific instruments using [Custom Metrics](../../custom-metrics/)
+- Use [OpenTelemetry Collector configuration](../../../opentelemetry/using-opentelemetry-collector/) if you route data through a Collector

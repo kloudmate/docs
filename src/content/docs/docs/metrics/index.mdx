@@ -1,0 +1,33 @@
+---
+title: "Metrics"
+description: "Learn how to collect, explore, and organize infrastructure, application, database, and custom metrics in KloudMate."
+sidebar:
+  label: "Overview"
+  order: 1
+---
+Metrics in KloudMate help you understand how your systems behave over time, from host CPU usage to application latency distributions and business counters.
+
+Use this section to choose the right ingestion path, learn how metrics are grouped in KloudMate, and understand how to explore them effectively.
+
+## Metrics Paths
+
+- [Infrastructure Monitoring](./infrastructure-monitoring/) for servers, Kubernetes, Prometheus, and vCenter metrics
+- [Application Metrics](./application-metrics/) for metrics emitted by instrumented applications through OpenTelemetry
+- [Database Metrics](./database-metrics/) for database-specific monitoring flows
+- [Custom Metrics](./custom-metrics/) for business and domain-specific telemetry emitted through OpenTelemetry SDKs
+- [Explore](./explore/) for querying, aggregating, and visualizing metrics inside KloudMate
+
+## Choosing an Ingestion Method
+
+- Use [KM Agent](../km-agent/) when you want the fastest path for host, Kubernetes, and database telemetry.
+- Use [OpenTelemetry](../opentelemetry/) when you already run OTel SDKs or Collectors and want to keep that architecture.
+- Use [AWS Integration](../aws-integration/) or [Azure Integration](../azure-integration/) when cloud-platform telemetry already lives in those ecosystems.
+- Use [Prometheus Integration](./infrastructure-monitoring/prometheus-integration/) when your metrics already exist in Prometheus and you want to forward them to KloudMate.
+
+## After Metrics Start Flowing
+
+Once data is being ingested, use:
+
+- [Explore](./explore/) for ad hoc queries and troubleshooting
+- [Dashboards](../dashboards/) for curated visualizations
+- [Alerts](../alerts/) to notify on important threshold or expression changes

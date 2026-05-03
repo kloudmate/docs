@@ -1,44 +1,35 @@
 ---
 title: "Infrastructure Monitoring"
-description: "Documentation for Infrastructure Monitoring"
+description: "Collect and monitor infrastructure metrics from servers, Kubernetes, Prometheus, vCenter, and cloud environments in KloudMate."
 sidebar:
   label: "Overview"
   order: 1
 ---
-Infrastructure monitoring with KloudMate provides continuous visibility into the health, performance, and availability of your IT systems—including servers, Kubernetes clusters, and cloud resources. By collecting and analyzing key metrics, you can proactively identify issues, optimize resource utilization, and ensure your infrastructure remains reliable and secure. 
+Infrastructure monitoring in KloudMate gives you visibility into the health, performance, and capacity of the systems your applications run on.
 
-This approach helps you maintain compliance, accelerate troubleshooting, and support your business-critical applications with minimal downtime.
+This section covers common infrastructure ingestion paths, whether you are monitoring a single server, a Kubernetes cluster, a Prometheus deployment, or a virtualized environment.
 
-KloudMate supports a wide range of infrastructure components. You can dive deeper into specific integrations through the following guides: 
+## What You Can Monitor
 
+- Hosts and virtual machines
+- Kubernetes clusters and workloads
+- Prometheus-exported metrics
+- VMware vCenter environments
+- Cloud resources through AWS and Azure integrations
 
+## Guides
 
-  
+- [Collect Server Metrics with KM Agent](./server-metrics-to-kloudmate/)
+- [Kubernetes Monitoring](./kubernetes/)
+- [Prometheus Integration](./prometheus-integration/)
+- [vCenter Integration](./vcenter-integration-with-kloudmate/)
+- [AWS Integration](../../aws-integration/)
+- [Azure Integration](../../azure-integration/)
 
-    ### [Server Metrics to KloudMate](server-metrics-to-kloudmate/)
-  
+## After Setup
 
-  
+Once metrics begin flowing, use:
 
-    ### [Kubernetes Monitoring](./kubernetes/)
-  
-
-  
-
-    ### [AWS Integration](../aws-integration/)
-
-
-  
-
-    ### [Azure Integration](../azure-integration/)
-  
-
-  
-
-    ### [Prometheus Integration](prometheus-integration/)
-  
-
-  
-
-    ### [vCenter Integration](vcenter-integration-with-kloudmate/)
-  
+- [Explore](../explore/) for ad hoc investigation
+- [Dashboards](../../dashboards/) for curated visualizations
+- [Alerts](../../alerts/) to notify on infrastructure health changes

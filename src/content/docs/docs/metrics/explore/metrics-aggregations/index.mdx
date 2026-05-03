@@ -1,33 +1,35 @@
 ---
 title: "Metrics Aggregations"
-description: "Documentation for Metrics Aggregations"
+description: "Understand how metric types and temporal or spatial aggregation work in KloudMate Explore."
 sidebar:
-  label: "Introduction"
+  label: "Overview"
+  order: 1
 ---
-This page describes the different metric types KloudMate supports and how aggregation works in the Explore page.
+This section explains how KloudMate handles common metric types and how aggregation behaves in Explore.
 
-### Supported Metric Types
+## Supported Metric Types
 
 KloudMate supports the following OpenTelemetry metric types:
-&#x9;∙  Gauge
-&#x9;∙  Sum
-&#x9;∙  Histogram
-&#x9;∙  Exponential Histogram
-&#x9;∙  Summary
+
+- Gauge
+- Sum
+- Histogram
+- Exponential Histogram
+- Summary
 
 Refer to the [OpenTelemetry Data Model](https://opentelemetry.io/docs/specs/otel/metrics/data-model/) for underlying data model concepts.
 
-### Temporality
+## Temporality
 
 Both Delta and Cumulative temporalities are supported across all applicable metric types.
 
-### Aggregation in Explore
+## Aggregation in Explore
 
 On the Explore page, you can select a metric and apply a standard aggregation function (e.g., Avg, Sum, Min, Max) directly from the Query Builder. This covers most use cases out of the box.
 
-For more advanced scenarios, the Customize Aggregation button provides fine-grained control over how data is aggregated, both within and across time series.
+For more advanced scenarios, **Customize aggregation** provides fine-grained control over how data is aggregated within and across time series.
 
 When you open the advanced aggregation view, two aggregation dropdowns become available:
 
-- **Temporal Aggregation:**Aggregates data within the same time series (across time buckets). Use this to control how raw data points are rolled up over the selected interval.
+- **Temporal Aggregation:** Aggregates data within the same time series across time buckets.
 - **Spatial Aggregation:** Aggregates data across multiple time series of the same metric. Use this to combine series from different label combinations into a single result.

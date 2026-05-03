@@ -1,6 +1,27 @@
 ---
-title: "Python Application Metrics"
-description: "Instrumenting Python applications for metrics"
+title: "Python Metrics"
+description: "Export Python application and runtime metrics to KloudMate with OpenTelemetry."
+sidebar:
+  order: 3
 ---
 
-Detailed documentation for Python will be provided here.
+Use the same OpenTelemetry instrumentation flow you use for Python traces and logs to export metrics into KloudMate.
+
+## Recommended Setup
+
+Follow the [Python manual instrumentation guide](../../../traces/manual-instrumentation/python/) and configure OTLP export to KloudMate through the KM Agent or an OpenTelemetry Collector.
+
+## What You Can Expect
+
+Depending on your instrumentation, Python metrics can include:
+
+- Request latency and throughput metrics
+- Error metrics
+- Process and runtime metrics
+- Library or framework metrics emitted by auto-instrumentation
+
+## Next Steps
+
+- Verify emitted metrics in [Explore](../../explore/)
+- Add business-specific instruments using [Custom Metrics](../../custom-metrics/)
+- Use [OpenTelemetry Collector configuration](../../../opentelemetry/using-opentelemetry-collector/) if you route data through a Collector

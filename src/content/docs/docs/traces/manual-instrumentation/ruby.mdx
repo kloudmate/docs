@@ -27,21 +27,21 @@ For this tutorial, we will be using a basic [Rails](https://rubyonrails.org/) 
 
 1. Start by installing rails.
 
-```none
+```txt
 gem install rails
 
 ```
 
 2\. Create an api-only application called `dice-ruby`.
 
-```none
+```txt
 rails new --api dice-ruby
 
 ```
 
 3\. Change into the newly created folder dice-ruby and create a controller for rolling a dice
 
-```none
+```txt
 cd dice-ruby
 rails generate controller dice
 
@@ -69,7 +69,7 @@ end
 
 6\. Run the application with the following command and open `localhost:8080/rolldice` in your web browser to ensure it is working.
 
-```none
+```txt
 rails server -p 8080
 
 ```
@@ -80,14 +80,14 @@ We will be using `opentelemetry-sdk `and `opentelemetry-instrumentation-all` pac
 
 1. Install the `opentelemetry-sdk` and `opentelemetry-instrumentation-all` packages:
 
-```linux
+```bash
 bundle add opentelemetry-sdk opentelemetry-instrumentation-all
 
 ```
 
 2\. Create a file named `config/initializers/opentelemetry.rb` and add the following code to it:
 
-```none
+```txt
 # config/initializers/opentelemetry.rb
 require 'opentelemetry/sdk'
 require 'opentelemetry/instrumentation/all'
@@ -102,7 +102,7 @@ end
 
 1\. Run the instrumented application to generate traces
 
-```none
+```txt
 env OTEL_EXPORTER_OTLP_ENDPOINT=https://otel.kloudmate.com:4318 OTEL_EXPORTER_OTLP_HEADERS=”Authorization=<PRIVATE_KEY>” OTEL_EXPORTER_OTLP_PROTOCOL=http/json rails server -p 8080
 
 ```

@@ -1,27 +1,17 @@
 ---
 title: "vCenter Integration with KloudMate"
-description: "Documentation for vCenter Integration with KloudMate"
+description: "Collect VMware vCenter metrics in KloudMate through the OpenTelemetry vCenter receiver."
 ---
-In today’s dynamic IT environments, effective monitoring and management of virtualized resources are crucial for maintaining performance and reliability. This document outlines the integration of vCenter with OpenTelemetry (OTel), facilitating the collection and transmission of metrics from VMware vSphere environments, including both vCenter and ESXi hosts.
+Use this guide to collect VMware vCenter metrics in KloudMate with the OpenTelemetry `vcenter` receiver.
 
-By leveraging the vSphere APIs, our integration allows seamless fetching of vital metrics, which are then forwarded to KloudMate. This ensures that teams have access to real-time insights and analytics, enabling proactive management of virtual infrastructure. Through this integration, organizations can enhance visibility into their virtualized resources, optimize performance, and streamline troubleshooting processes, ultimately driving improved operational efficiency.
+## Prerequisites
 
-Pre-requisites::
+1. Run vCenter 7.0 or 8.x.
+2. Create a read-only vSphere user with access to the vCenter server, clusters, and resources you want to monitor.
+3. Identify the vCenter or ESXi endpoint with SDK access enabled.
+4. Install the [OpenTelemetry Collector](../../opentelemetry/installing-the-opentelemetry-collector/) on a host that can reach vCenter.
 
-1. Vcenter must be running with the version 8 and 7.0. 
-2. User credentials: A “Read Only” user assigned to a vSphere with permissions to the vCenter server, cluster and all subsequent resources being monitored must be specified in order for the receiver to retrieve information about them.
-3. Endpoint: Endpoint to the vCenter Server or ESXi host that has the sdk path enabled. 
-4. Install the OpenTelemetry collector on the specific server which have access to Vcenter. 
-   Check  [Installing and Configuring OpenTelemetry Collector](../../../opentelemetry/installing-the-opentelemetry-collector/). 
-
-**Step 1: Configure the Receivers to scrape metrics as well as Logs.**
-
-To start monitoring with VMware with Otel Collector, you need to configure vcenter receiver 
-
-- **Linux Users:**Open the file located at /etc/otelcol-contrib/config.yamlusing your preferred text editor.
-- **Windows Users:**Create a new file called config.yaml in the C:\Program Files\OpenTelemetry Collector folder. You can use Notepad or any text editor to do this.
-
-Add the suitable extensions : 
+## Step 1: Configure Collector Extensions and Receiver
 
 ```yaml
 extensions:
@@ -30,26 +20,21 @@ extensions:
     endpoint: 0.0.0.0:1777
   zpages:
     endpoint: 0.0.0.0:55679
-```
 
-In this configuration file, ensure the vcenter receiver is set up to collect and send metrics according to your specific requirements. 
-
-```yaml
 receivers:
   vcenter:
-    endpoint: http://localhost:15672  #Endpoint to the vCenter Server or ESXi host. Example format is <protocol>://<hostname>
-    username: <username>  # change username
-    password: <password>  #change password
+    endpoint: https://vcenter.example.com/sdk
+    username: <username>
+    password: <password>
     collection_interval: 1m
     initial_delay: 1s
     tls:
       insecure: true
-    metrics:
-      vcenter.host.cpu.utilization:
-        enabled: false
 ```
 
-**Step 2: Set up the processor component to identify resource information and either append or replace the resource values in the telemetry data with this information.**
+If you need to disable specific metrics, add them under the `metrics` section of the receiver configuration.
+
+## Step 2: Add Processors
 
 ```yaml
 processors:
@@ -75,22 +60,19 @@ processors:
         from_attribute: host.name
 ```
 
-**Step 3: Configure the exporter, extension and save the configuration**
-
-Set up the KloudMate Backend on the exporter part of the Open Telemetry configuration file and configure the pipeline.
+## Step 3: Export Metrics to KloudMate
 
 ```yaml
 exporters:
   debug:
     verbosity: detailed
   otlphttp:
-    endpoint: 'https://otel.kloudmate.com:4318'
+    endpoint: "https://otel.kloudmate.com:4318"
     headers:
-      Authorization: xxxxxxxx  # Use the auth key
+      Authorization: xxxxxxxx
 
 service:
   pipelines:
-
     metrics:
       receivers: [vcenter]
       processors: [batch, resourcedetection, resource]
@@ -98,30 +80,26 @@ service:
   extensions: [health_check, pprof, zpages]
 ```
 
-**Step 4:**To restart and verify the status of the OpenTelemetry (Otel) Collector, follow these steps:
+## Step 4: Restart the Collector
 
-**For Linux:**
-
-1. Execute the following commands:
+For Linux:
 
 ```bash
-sudo systemctl restart otelcol-contrib 
+sudo systemctl restart otelcol-contrib
 sudo systemctl status otelcol-contrib
 ```
 
-These commands will restart the Otel Collector and display its current status.
+For Windows, restart the `OpenTelemetry Collector` service from `services.msc`.
 
-**For Windows:**
+## Step 5: Validate in KloudMate
 
-1. Open the Services window:
-   - Press Win + R, type services.msc, and press OK.
-   - Alternatively, search for "Services" in the Windows Start menu.
-2. In the Services window, locate the "OpenTelemetry Collector" service.
-3. Right-click the service and select "Restart."
+After the Collector restarts:
 
-Subsequently, monitor the metrics on the KloudMate dashboard and set up an alarm to receive notifications if the potential metrics for a specific application rise. 
+- open [Explore](../explore/)
+- query vCenter metrics such as `vcenter_host_cpu_utilization` or `vcenter_vm_memory_usage`
+- build dashboards and alerts once the data is visible
 
-## Default Metrics
+## Common Metrics
 
 | **Metrics**|**Description**                                                                                                                 |
 | ------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------- |
@@ -192,4 +170,4 @@ Subsequently, monitor the metrics on the KloudMate dashboard and set up an alarm
 | vcenter\_vm\_vsan\_operations               | The vSAN IOPs of a virtual machine.                                                                                             |
 | vcenter\_vm\_vsan\_latency\_avg             | The virtual machine latency while accessing vSAN storage.                                                                       |
 
-For full details on metrics, click [here](https://github.com/open-telemetry/opentelemetry-collector-contrib/blob/main/receiver/vcenterreceiver/documentation.md).
+For the complete upstream reference, see the [vcenter receiver documentation](https://github.com/open-telemetry/opentelemetry-collector-contrib/blob/main/receiver/vcenterreceiver/documentation.md).

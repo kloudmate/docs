@@ -1,43 +1,39 @@
 ---
 title: "APM"
-description: "Documentation for APM"
+description: "Understand KloudMate APM, the service-centric layer built from traces and RED metrics."
 sidebar:
   label: "Overview"
-  order: 2
+  order: 1
 ---
-Application Performance Monitoring (APM) lets you trace distributed transactions, monitor essential metrics like latency, errors, and throughput, and get to the root cause of issues faster.
+Application Performance Monitoring (APM) is KloudMate's service-centric experience for understanding latency, throughput, error rate, and service dependencies.
 
+It is built from tracing data and RED-style operational metrics. Use APM when you want to compare services, inspect dependency edges, or move quickly from an unhealthy service to the traces and logs behind it.
 
+## What APM Covers
 
-  
+- service health and request volume
+- latency percentiles such as P99, P95, and P50
+- error rate and throughput trends
+- dependency relationships between services
+- quick navigation into related traces, logs, issues, and dashboards
 
-    ### [Zero-Downtime O11y (eBPF)](zero-downtime-o11y-ebpf/)
+## APM Views
 
-    Leverage kernel-level eBPF to automatically capture traces, DB queries, and RED metrics, with zero code changes and zero application restarts.
-  
+- [Services](./apm-and-services/) for service-level request, latency, and error trends
+- [Service Map](./service-map/) for dependency topology and service-to-service flow analysis
 
-  
+## Setup Paths
 
-    ### [Auto-Instrumentation](auto-zero-code-instrumentation/)
+- [KM Agent eBPF Observability](../../km-agent/ebpf-observability/) for kernel-level capture without code changes or restarts
+- [Kubernetes APM with KM Agent](../auto-zero-code-instrumentation/) for the preferred Kubernetes APM flow through the KM Agent
+- [Manual Instrumentation](../manual-instrumentation/) for SDK-based tracing and custom spans
 
-    Attach APM agents to your runtimes to auto-instrument standard libraries. Requires application restarts but no code changes.
-  
+## Where Metrics Fit
 
-  
-
-    ### [Manual Instrumentation](manual-instrumentation/)
-
-    Use OpenTelemetry SDKs directly in your application code for rich, highly-customized business tracing and metrics.
-  
-
-
-
-***
+APM surfaces request-rate, error-rate, and latency views at the service level. Broader application, infrastructure, database, and custom metric documentation lives under [Metrics](../../metrics/).
 
 ## Related Resources
 
 - [Traces](../)
-- [Service Map](service-map/)
-- [APM and Services](apm-and-services/)
-
-###
+- [Metrics](../../metrics/)
+- [Logs](../../logs/)

@@ -109,14 +109,14 @@ Now we are going to use Java agent to automatically instrument the application a
 
 text
 
-  ```none
+  ```txt
   https://github.com/open-telemetry/opentelemetry-java-instrumentation/releases
   ```
 
 
 2\. Set and export variables that specify the Java agent JAR and a [console exporter.](https://github.com/open-telemetry/opentelemetry-java/blob/main/sdk-extensions/autoconfigure/README.md#logging-exporter)
 
-```none
+```txt
 export JAVA_TOOL_OPTIONS="-javaagent:PATH/TO/opentelemetry-javaagent.jar" \
   OTEL_TRACES_EXPORTER=otlp \
   OTEL_METRICS_EXPORTER=otlp \

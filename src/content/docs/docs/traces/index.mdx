@@ -1,44 +1,61 @@
 ---
 title: "Traces"
-description: "Overview of Traces"
+description: "Explore distributed traces, understand how tracing differs from APM, and choose the right instrumentation path in KloudMate."
 sidebar:
   label: "Overview"
   order: 1
 ---
 ![image](./images/traces-1.png)
 
-The [Traces](https://app.kloudmate.com/traces) section in KloudMate gives you end-to-end visibility into how requests travel across your services. You can explore trace data, including spans, events, and attributes, to detect errors, identify bottlenecks, and pinpoint issues at any point in a request's lifecycle.
+The `Traces` section in KloudMate gives you end-to-end visibility into how requests travel across your services. It is the request-centric workspace for investigating individual traces, spans, and trace attributes.
 
-**Here's what you can do in the Traces section:**
+Use it to:
 
-- Get a complete overview of all captured traces across your services.
-- Search and filter traces using span attributes, HTTP method, status, severity, and more.
-- Save and reuse frequently used search queries.
-- Analyze individual spans across four focused result views.
-- Drill into trace details including events, attributes, timeline, and raw data.
-- Correlate logs and examine service-level interactions.
+- inspect full request journeys across services
+- search spans by service, status, method, severity, and other attributes
+- review span timing, events, and metadata
+- compare traces, root spans, and service-level trace activity
+- correlate trace findings with logs and APM views
+
+## Traces vs. APM
+
+Traces and APM are related, but they solve different problems:
+
+- **Traces** is request-centric. Use it to debug a specific request, span, or execution path.
+- **APM** is service-centric. Use it to compare latency, throughput, error rate, and dependencies across services.
+- **Metrics** is where broader application, infrastructure, database, and custom metric documentation lives.
+
+Start here when you need to inspect trace-level detail. Start in [APM](./apm/) when you need higher-level service health and dependency analysis.
+
+## Instrumentation Paths
+
+KloudMate supports multiple ways to generate tracing data:
+
+- [KM Agent eBPF Observability](../km-agent/ebpf-observability/) for kernel-level tracing and RED metrics without code changes or restarts
+- [Kubernetes APM with KM Agent](./auto-zero-code-instrumentation/) for the preferred Kubernetes APM flow through the KM Agent
+- [Manual Instrumentation](./manual-instrumentation/) for SDK-based tracing with the most control
 
 ## Traces Section Walkthrough
 
-Click on **Traces** in the left navigation menu to open the Traces section.
+Click **Traces** in the left navigation menu to open the section.
 
-At the top of the page, you'll see a **span volume graph** that visualizes trace activity over the selected time range. The x-axis represents time and the y-axis shows the number of spans captured. This graph gives you a quick pulse-check on traffic patterns and helps spot anomalies before you dive into individual traces.
+At the top of the page, the **span volume graph** visualizes trace activity over the selected time range. This gives you a quick pulse check on traffic patterns before you inspect individual traces.
 
 ![image](./images/traces-1.jpeg)
 
 <hint type="info">
-  [Click here](../getting-started/sending-data-to-kloudmate/) to learn more about how to send data to KloudMate.
+  See [Sending Data to KloudMate](../getting-started/sending-data-to-kloudmate/) for onboarding and ingestion options.
 </hint>
 
 ## Searching and Filtering
 
 ### Search Bar
 
-Search across traces using span attributes. Click the **search bar** to see a list of available attributes.
+Search across traces using span attributes. Click the search bar to see the list of available attributes.
 
 ![image](./images/traces-2.jpeg)
 
-Click the **filter** icon on the right to open the full attribute picker. Active filters appear as tags in the search bar and can be removed individually.
+Click the filter icon on the right to open the full attribute picker. Active filters appear as tags in the search bar and can be removed individually.
 
 ![image](./images/traces-3.jpeg)
 
@@ -46,15 +63,19 @@ Click the **filter** icon on the right to open the full attribute picker. Active
 
 Use the left sidebar to filter results by:
 
-- **Service**-**HTTP Method**-**HTTP Status**-**Severity**-**Database Name**
+- Service
+- HTTP Method
+- HTTP Status
+- Severity
+- Database Name
 
-Each filter section includes a search box for quick lookup. When filters are active, a "Showing recent filters" notice appears at the top of the sidebar.
+Each filter section includes a search box for quick lookup. When filters are active, a recent-filters notice appears at the top of the sidebar.
 
 ![image](./images/traces-4.jpeg)
 
 ## Saved Queries
 
-Click **Saved Queries**to view and apply any previously saved searches. To save a new query, click the dropdown arrow next to the Saved Queries button and select**Add New**. This saves your current search and filter configuration so you can reuse it anytime.
+Click **Saved Queries** to view and apply previously saved searches. To save a new query, click the dropdown arrow next to **Saved Queries** and select **Add New**.
 
 ![image](./images/traces-5.jpeg)
 
@@ -62,17 +83,15 @@ Click **Saved Queries**to view and apply any previously saved searches. To save 
 
 ### Spans
 
-The **Spans**tab is the default view. It lists every individual span captured within the selected time range and active filters. Each row displays the**Timestamp**,**Span Name**,**Services**,**Duration**, and**Error** columns, giving you the most granular level of detail across your trace data.
+The **Spans** tab is the default view. It lists every individual span captured within the selected time range and active filters. Each row displays `Timestamp`, `Span Name`, `Services`, `Duration`, and `Error`.
 
-This view is best for finding a specific operation, debugging a particular service, or scanning for anomalies across high-volume traffic.
+This view is best when you need the most granular view of tracing activity.
 
 ![image](./images/traces-6.jpeg)
 
 ### Trace Summary
 
-The **Trace Summary**tab groups spans into complete traces, giving you a higher-level view of end-to-end request journeys rather than individual operations. Each row represents a single trace, showing its**entry point**,**number of services**,**spans involved**,**total duration**, and**any errors**.
-
-Use this view to compare traces side by side, identify which requests are slowest, and understand overall request complexity across your services.
+The **Trace Summary** tab groups spans into complete traces, giving you a higher-level view of end-to-end request journeys. Each row represents a single trace, showing its entry point, number of services, spans involved, total duration, and any errors.
 
 ![image](./images/traces-2.png)
 
@@ -87,3 +106,9 @@ The **Root Spans** tab shows only the root span from each trace. This makes it e
 The **Services** tab summarizes traffic by service so you can identify hotspots, dependency trends, and the applications generating the most trace volume.
 
 ![image](./images/traces-4.png)
+
+## Related Paths
+
+- [APM](./apm/)
+- [Metrics](../metrics/)
+- [Logs](../logs/)

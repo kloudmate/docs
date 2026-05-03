@@ -1,6 +1,26 @@
 ---
-title: "Go Application Metrics"
-description: "Instrumenting Go applications for metrics"
+title: "Go Metrics"
+description: "Export Go application and runtime metrics to KloudMate with OpenTelemetry."
+sidebar:
+  order: 5
 ---
 
-Detailed documentation for Go will be provided here.
+Use the same OpenTelemetry SDK setup you use for Go traces to export metrics into KloudMate.
+
+## Recommended Setup
+
+Follow the [Go manual instrumentation guide](../../../traces/manual-instrumentation/go/) and configure OTLP export to KloudMate through the KM Agent or an OpenTelemetry Collector.
+
+## What You Can Expect
+
+Go telemetry commonly includes:
+
+- Request duration and throughput metrics
+- Error metrics
+- Go runtime metrics such as goroutines, GC activity, and memory usage
+
+## Next Steps
+
+- Verify emitted metrics in [Explore](../../explore/)
+- Add business-specific instruments using [Custom Metrics](../../custom-metrics/)
+- Use [OpenTelemetry Collector configuration](../../../opentelemetry/using-opentelemetry-collector/) if you route data through a Collector

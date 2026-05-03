@@ -1,14 +1,34 @@
 ---
 title: "Custom Metrics"
-description: "Overview of Custom Metrics using OpenTelemetry SDK"
+description: "Create and send custom business or domain metrics to KloudMate with OpenTelemetry."
 sidebar:
+  label: "Overview"
   order: 1
 ---
 
-Custom metrics allow you to track specific business logic or technical indicators unique to your application. By using the OpenTelemetry SDKs, you can define, record, and send custom metrics to KloudMate.
+Custom metrics let you track business and application signals that auto-instrumentation does not produce on its own, such as checkout counts, queue depth, tenant-level usage, or feature-specific latencies.
 
-To send custom metrics:
-1. Initialize the OpenTelemetry Meter Provider in your application.
-2. Create instruments (e.g., Counters, Histograms, Gauges) to measure your data.
-3. Record measurements at relevant points in your code.
-4. Export the data to KloudMate using the OTLP exporter.
+KloudMate receives custom metrics through the same OpenTelemetry SDK and OTLP exporter flow used for traces and standard application metrics.
+
+## Typical Flow
+
+1. Set up OpenTelemetry instrumentation in your application.
+2. Initialize a Meter Provider.
+3. Create instruments such as counters, histograms, or gauges.
+4. Record measurements in the code paths you care about.
+5. Export the telemetry to KloudMate through the KM Agent or an OpenTelemetry Collector.
+
+## When to Use Custom Metrics
+
+Use custom metrics when you need to measure:
+
+- Business events such as signups, checkouts, or billing actions
+- Tenant or customer-specific workload patterns
+- Queue depth, job duration, or batch throughput
+- Internal service states that are not visible through auto-instrumentation
+
+## Related Paths
+
+- [Manual Instrumentation](../../traces/manual-instrumentation/) for SDK-based application setup
+- [OpenTelemetry](../../opentelemetry/) for Collector installation and exporter configuration
+- [Explore](../explore/) for validating and querying the metrics you emit

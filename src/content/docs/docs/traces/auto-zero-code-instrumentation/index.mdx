@@ -1,71 +1,29 @@
 ---
-title: "Auto-Instrumentation"
-description: "Instrument supported runtimes without changing application source code."
+title: "Kubernetes APM with KM Agent"
+description: "Use the KM Agent to enable APM for Kubernetes workloads, which is the preferred auto-instrumentation path in KloudMate."
 sidebar:
-  label: "Overview"
+  label: "Kubernetes APM"
   order: 1
 ---
-Zero Code Instrumentation allows you to instrument your applications without modifying source code. This approach attaches APM agents to your application runtimes that auto-instrument standard libraries and frameworks.
+If your applications run on Kubernetes, the preferred way to turn on APM in KloudMate is through the [KM Agent Kubernetes installation guide](../../km-agent/installation/kubernetes-agent/#apm-setup-instructions).
 
-## How It Works
+That guide walks you through the supported setup flow for:
 
-OpenTelemetry auto-instrumentation agents hook into your application's runtime to automatically capture:
+- enabling APM from the KM Agent install experience
+- turning on automatic runtime detection
+- patching workloads with the correct instrumentation annotations when needed
+- collecting traces alongside Kubernetes metrics, logs, and events
 
-- HTTP request/response traces
-- Database query spans
-- External service calls
-- Message queue operations
+## Preferred Setup Path
 
-## When to Use
+Use [APM Setup Instructions](../../km-agent/installation/kubernetes-agent/#apm-setup-instructions) when you want to:
 
-- When you want comprehensive tracing without modifying application code
-- When your application uses well-supported frameworks and libraries
-- When you can perform application restarts to inject the instrumentation agent
+- enable APM during KM Agent installation
+- auto-instrument supported runtimes in Kubernetes
+- patch deployments manually when auto-detection does not cover a workload
 
-## Supported Languages
+## Related Paths
 
-
-
-  
-
-    ### [Python](python-instrumentation-running-on-kubernetes/)
-  
-
-  
-
-    ### [Go](go-instrumentation-running-on-kubernetes/)
-  
-
-  
-
-    ### [Node.js](nodejs-instrumentation-running-on-kubernetes/)
-  
-
-  
-
-    ### [Java](java-instrumentation-running-on-kubernetes/)
-  
-
-  
-
-    ### [.NET](dotnet-instrumentation-running-on-kubernetes/)
-  
-
-
-
-## Kubernetes Auto-Instrumentation
-
-In Kubernetes environments, the KloudMate Agent can automatically inject instrumentation agents into your application pods using the OpenTelemetry Operator's Instrumentation CRD. This requires:
-
-1. The kloudmate-crd to be installed in the cluster
-2. The featuresEnabled.apm flag set to true during Helm installation
-3. Annotating target pods or namespaces for instrumentation
-
-## Comparison with eBPF
-
-Unlike [Zero-Downtime O11y (eBPF)](../zero-downtime-o11y-ebpf/), zero-code instrumentation:
-
-- Requires application restarts to inject the agent
-- Provides richer library-specific instrumentation detail
-- Is language-dependent (requires a compatible runtime agent)
-- Can capture custom attributes from supported frameworks
+- [Kubernetes Agent](../../km-agent/installation/kubernetes-agent/)
+- [APM](../apm/)
+- [Manual Instrumentation](../manual-instrumentation/)

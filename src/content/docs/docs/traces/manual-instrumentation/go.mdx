@@ -10,14 +10,14 @@ For this tutorial, we will be using an application that computes Fibonacci numbe
 
 1. Let’s start by creating a new directory named `fib`. This directory will contain the Fibonacci project.
 
-```none
+```txt
 mkdir fib
 cd fib
 ```
 
 2\. Create a file named `fib.go` in the `fib` directory and add the following code to it:
 
-```none
+```txt
 package main
 
 func Fibonacci(n uint) (uint64, error) {
@@ -38,7 +38,7 @@ This is the core logic around which we will create our application.
 
 3\. Create another file named `app.go` and add the following code to it:
 
-```none
+```txt
 package main
 
 import (
@@ -87,7 +87,7 @@ func (a *App) Write(ctx context.Context, n uint) {
 
 4\. Create a new file named `main.go`, which will be used to run the application. Add the following code to it:
 
-```none
+```txt
 package main
 
 import (
@@ -123,13 +123,13 @@ func main() {
 
 5\. Run the following command in your terminal in the `fib` directory to initialize it as a Go module:
 
-```none
+```txt
 go mod init fib
 ```
 
 6\. Run the application using the following command:
 
-```none
+```txt
 go run .
 ```
 
@@ -139,14 +139,14 @@ Now that our application code is ready, we will be using the OpenTelemetry Trace
 
 1. Run the following command in your working directory to install the necessary packages for the Trace API:
 
-```none
+```txt
 go get go.opentelemetry.io/otel \
        go.opentelemetry.io/otel/trace
 ```
 
 2\. Next, add imports to your application by adding the following code to the `app.go` file:
 
-```none
+```txt
 import (
  "context"
  "fmt"
@@ -162,14 +162,14 @@ import (
 
 3\. The Trace API provides a Tracer to create traces. Add the following code line in `app.go` to uniquely identify your application the Tracer:
 
-```none
+```txt
 // name is the Tracer name used to identify this instrumentation library.
 const name = "fib"
 ```
 
 4\. Instrument the Run method in your `app.go` file by updating it with the following code:
 
-```none
+```txt
 // Run starts polling users for Fibonacci number requests and writes results.
 func (a *App) Run(ctx context.Context) error {
  for {
@@ -190,7 +190,7 @@ func (a *App) Run(ctx context.Context) error {
 
 5\. Instrument the Poll method in your `app.go` file by updating it with the following code:
 
-```none
+```txt
 // Poll asks a user for input and returns the request.
 func (a *App) Poll(ctx context.Context) (uint, error) {
  _, span := otel.Tracer(name).Start(ctx, "Poll")
@@ -211,7 +211,7 @@ func (a *App) Poll(ctx context.Context) (uint, error) {
 
 6\. Instrument the Write method in your `app.go` file by updating it with the following code:
 
-```none
+```txt
 // Write writes the n-th Fibonacci number back to the user.
 func (a *App) Write(ctx context.Context, n uint) {
  var span trace.Span
@@ -237,7 +237,7 @@ The OpenTelemetry Go project provides `go.opentelemetry.io/otel/sdk` SDK package
 
 1. Run the following command in the `fib` directory to install the trace STDOUT exporter and the SDK:
 
-```none
+```txt
 go get go.opentelemetry.io/otel/sdk \
        go.opentelemetry.io/otel/exporters/stdout/stdouttrace \
        go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracehttp
@@ -245,7 +245,7 @@ go get go.opentelemetry.io/otel/sdk \
 
 2\. Next, add the necessary imports to the `main.go` file.
 
-```none
+```txt
 import (
  "context"
  "io"
@@ -268,7 +268,7 @@ import (
 
 Exporter packages are required to send the telemetry data to the target system or KloudMate in our case. To create and initialize a console exporter, add the following function to your `main.go` file:
 
-```none
+```txt
 // KMTraceExporter returns an exporter with KM endpoint.
 func KMTraceExporter() (*sdktrace.SpanExporter, error) {
   return otlptracehttp.New(context.Background(),
@@ -289,7 +289,7 @@ When Telemetry data is produced, it is important to be able to identify what ser
 
 To create a Resource for your application, add the following function to the `main.go` file:
 
-```none
+```txt
 // newResource returns a resource describing this application.
 func newResource() *resource.Resource {
  r, _ := resource.Merge(
@@ -311,7 +311,7 @@ The instrumented code will produce the telemetry data using `Tracer`. The Trace 
 
 To configure a `TraceProvider`, update your `main` function in the `main.go` file with the following:
 
-```none
+```txt
 func main() {
  l := log.New(os.Stdout, "", 0)
 
@@ -346,7 +346,7 @@ func main() {
 
 You should now have a working application that produces trace telemetry data. Run the application using the following command:
 
-```none
+```txt
 go run .
 ```
 

@@ -52,7 +52,7 @@ $app->run();
 ****
 1\.  Download the tools that are required to build the OpenTelemetry PHP extension.
 
-```none
+```txt
 sudo apt-get install gcc make autoconf
 sudo apt update
 sudo apt install php-pear php-dev zlib1g-dev libgrpc-dev
@@ -60,13 +60,13 @@ sudo apt install php-pear php-dev zlib1g-dev libgrpc-dev
 
  2\.  Use PECL to build the OpenTelemetry PHP extension.
 
-```none
+```txt
 pecl install opentelemetry
 ```
 
  The result of the above command
 
-```none
+```txt
 Build process completed successfully
 Installing '/usr/lib/php/20230831/opentelemetry.so'
 install ok: channel://pecl.php.net/opentelemetry-1.1.0
@@ -78,7 +78,7 @@ You should add "extension=opentelemetry.so" to php.ini
 
 Add the following code to the `/etc/php/<version>/cli/php.ini` file:
 
-```none
+```txt
 [opentelemetry]
 extension=opentelemetry.so
 ```
@@ -95,7 +95,7 @@ Expected output:
 
 5\.  Add additional dependencies required for OpenTelemetry SDK for PHP to perform automatic instrumentation on the dice-rolling application.
 
-```none
+```txt
 pecl install grpc
 ```
 
@@ -103,7 +103,7 @@ The above command will run for an extended period of time.
 
 After successful completion run the below command
 
-```none
+```txt
 composer config allow-plugins.php-http/discovery false
 composer require \
   open-telemetry/sdk \
@@ -114,7 +114,7 @@ composer require \
 
 6\.  Set environment variables and run the app
 
-```none
+```txt
 env OTEL_PHP_AUTOLOAD_ENABLED=true \
  OTEL_SERVICE_NAME=myapp \
  OTEL_TRACES_EXPORTER=otlp \

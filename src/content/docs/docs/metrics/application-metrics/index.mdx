@@ -1,15 +1,32 @@
 ---
 title: "Application Metrics"
-description: "Overview of Application Metrics"
+description: "Collect application runtime and service metrics in KloudMate with OpenTelemetry SDKs and exporters."
 sidebar:
+  label: "Overview"
   order: 1
 ---
 
-Application metrics allow you to monitor the internal state and performance of your applications. KloudMate supports gathering metrics from applications instrumented with OpenTelemetry.
+Application metrics help you monitor how instrumented services behave at runtime, including request volume, latency, error counts, process health, and language runtime statistics.
 
-KloudMate complements its agent with language-specific OpenTelemetry SDKs that support automatic instrumentation with minimal code changes:
+KloudMate receives these metrics through the same OpenTelemetry SDK and OTLP exporter setup you use for traces and logs. In practice, this means you usually do not need a separate metrics-only installation flow for each language.
 
-- **Node.js**: Utilize `opentelemetry/sdk-node` and `@opentelemetry/auto-instrumentations-node` packages, configuring the OTLP exporter to send traces and metrics securely to KloudMate with your API key in headers.
-- **Python**: Leverage the `opentelemetry-instrument` CLI for auto-instrumentation and configure the environment for KloudMate's OTLP endpoint.
-- **Java**: Attach OpenTelemetry Java agents to the JVM via JVM arguments, pointing exporters to KloudMate's collector endpoint, including API key headers.
-- **Go and .NET**: Use provided auto-instrumentation libraries with standard SDK configurations targeting KloudMate with required authentication steps.
+## How Application Metrics Reach KloudMate
+
+1. Instrument your application with an OpenTelemetry SDK or agent.
+2. Configure OTLP export to the KM Agent or an OpenTelemetry Collector.
+3. Enable metric export alongside traces and logs.
+4. Query the emitted metrics in [Explore](../explore/) or build dashboards from them.
+
+## Language Guides
+
+- [Node.js](./nodejs/)
+- [Python](./python/)
+- [Java](./java/)
+- [Go](./go/)
+- [.NET](./dotnet/)
+
+## Related Paths
+
+- [Manual Instrumentation](../../traces/manual-instrumentation/) for full SDK-based application setup
+- [OpenTelemetry](../../opentelemetry/) for Collector installation and exporter configuration
+- [Custom Metrics](../custom-metrics/) when you need business or domain-specific instruments

@@ -22,13 +22,13 @@ For this tutorial, we will be using a basic [Minimal API with ASP.NET Core](http
 
 1. Set up an environment in a new directory called `dotnet-simple`. Run the following command within this directory.
 
-```none
+```txt
 dotnet new web
 ```
 
 2\. Within the same directory, replace the content of `Program.cs`with the following code
 
-```none
+```txt
 using System.Globalization;
 
 using Microsoft.AspNetCore.Mvc;
@@ -65,7 +65,7 @@ app.Run();
 
 3\. In the `Properties` subdirectory, replace the content of `launchSettings.json` with the following:
 
-```none
+```txt
 {
   "$schema": "http://json.schemastore.org/launchsettings.json",
   "profiles": {
@@ -85,7 +85,7 @@ app.Run();
 
 4\. Run the application using the following command, then open `localhost:8080/rolldice` in your web browser:
 
-```none
+```txt
 dotnet build
 dotnet run
 ```
@@ -96,7 +96,7 @@ To install the instrumentation packages, we will use the  [NuGet packages from 
 
 1\. Add the packages
 
-```none
+```txt
 dotnet add package OpenTelemetry.Extensions.Hosting
 dotnet add package OpenTelemetry.Instrumentation.AspNetCore
 dotnet add package OpenTelemetry.Exporter.OpenTelemetryProtocol
@@ -104,14 +104,14 @@ dotnet add package OpenTelemetry.Exporter.OpenTelemetryProtocol
 
 2\. In `Program.cs`, replace the following lines:
 
-```none
+```txt
 var builder = WebApplication.CreateBuilder(args);
 var app = builder.Build();
 ```
 
 With:
 
-```none
+```txt
 using OpenTelemetry.Exporter;
 using OpenTelemetry.Logs;
 using OpenTelemetry.Metrics;
@@ -173,7 +173,7 @@ var app = builder.Build();
 
 1\. Run the instrumented application
 
-```none
+```txt
 dotnet run
 ```
 
@@ -183,7 +183,7 @@ dotnet run
 
 2\. From another terminal, send a request using `curl`:
 
-```none
+```txt
 curl localhost:8080/rolldice
 ```
 

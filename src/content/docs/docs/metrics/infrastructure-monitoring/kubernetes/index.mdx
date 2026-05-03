@@ -1,135 +1,80 @@
 ---
 title: "Kubernetes Monitoring"
-description: "Documentation for Kubernetes Monitoring"
+description: "Monitor Kubernetes clusters, nodes, namespaces, pods, and workloads in KloudMate."
 sidebar:
-  label: "Introduction"
+  label: "Overview"
+  order: 1
 ---
-Kubernetes Monitoring in KloudMate helps you monitor the health, performance, and resource usage of your Kubernetes clusters. It provides end-to-end visibility across clusters, nodes, namespaces, pods, and workloads by collecting metrics, logs, events, and optional APM data using the **KloudMate Kubernetes Agent** powered by OpenTelemetry.
+Kubernetes Monitoring in KloudMate gives you visibility into cluster health, workload availability, resource usage, pod behavior, and related telemetry collected by the KM Agent.
 
-This monitoring enables you to:
+KloudMate organizes Kubernetes data into views for clusters, nodes, namespaces, pods, and workloads so you can move from fleet-level health to pod-level troubleshooting quickly.
 
-- Detect performance issues at an early stage
-- Track CPU and memory utilization across clusters
-- Identify unhealthy or unstable workloads
-- Improve capacity planning and resource allocation
-- Maintain overall cluster stability and reliability
+## What This Covers
+
+- cluster, node, namespace, pod, and workload metrics
+- container logs and Kubernetes events
+- optional application telemetry through Kubernetes auto-instrumentation
+- prebuilt dashboards and alerting workflows built on top of the collected data
+
+## Install the Kubernetes Agent
+
+Use the [Kubernetes Agent installation guide](../../../km-agent/installation/kubernetes-agent/) to deploy the KM Agent into your cluster.
 
 <hint type="info">
-  This setup also works for managed Kubernetes services such as:
-
-  - **AKS (Azure Kubernetes Service)**-**EKS (Elastic Kubernetes Service)**-**GKE (Google Kubernetes Engine)**
+  The same installation flow supports self-managed Kubernetes and managed services such as AKS, EKS, and GKE.
 </hint>
 
-## Unified Monitoring for Apps & Databases in Kubernetes
+## What You Can Do After Installation
 
-When applications and databases run inside Kubernetes, KloudMate uses the same OpenTelemetry instrumentation to collect application and database telemetry.
+- detect performance issues early
+- track CPU and memory utilization across nodes, pods, and workloads
+- identify unhealthy or unstable workloads
+- investigate incidents with logs, events, and metrics together
+- build dashboards and alerts around cluster health
 
-This allows you to:
+Once data is flowing, use:
 
-- Correlate infrastructure, application, and database metrics
-- Perform end-to-end troubleshooting
-- Avoid deploying separate monitoring agents
+- [Explore](../../explore/) for ad hoc queries
+- [Log Explorer](../../../logs/log-explorer/) to investigate pod logs
+- [Dashboards](../../../dashboards/) for curated visualizations
+- [Alerts](../../../alerts/) to notify on resource or availability issues
 
-For detailed setup, refer to:
+## Unified Monitoring for Apps and Databases
 
-- [Traces](../../traces/)
-- [Database Monitoring](../../database-monitoring/)
+When applications and databases run inside Kubernetes, KloudMate can correlate their telemetry with infrastructure metrics from the same cluster.
+
+Use these guides when you need deeper service-level visibility:
+
+- [Traces](../../../traces/)
+- [Database Monitoring](../../../database-monitoring/)
+- [KM Agent APM Setup Instructions](../../../km-agent/installation/kubernetes-agent/#apm-setup-instructions)
 
 ## What Kubernetes Monitoring Covers
 
-KloudMate provides visibility into all major Kubernetes components, allowing you to monitor your environment at different levels of abstraction:
+KloudMate provides visibility into all major Kubernetes components:
 
-- **Clusters –**Overall health, capacity, and scale of each connected cluster
-- **Nodes –** nfrastructure-level resource usage and node health
-- **Namespaces –** Resource distribution across teams, applications, or environments
-- **Pods –** od-level performance, restarts, and resource consumption
-- **Workloads –** Health and availability of deployments, daemonsets, and statefulsets
+- **Clusters:** overall health, capacity, and scale
+- **Nodes:** infrastructure-level resource usage and node health
+- **Namespaces:** resource distribution across teams, applications, or environments
+- **Pods:** pod performance, restarts, and resource consumption
+- **Workloads:** health and availability of deployments, daemonsets, and statefulsets
 
-This layered visibility helps you quickly move from a high-level overview to deep-dive troubleshooting.
+## Validation Checklist
 
-## Post-Installation Monitoring Capabilities
+After the agent is installed:
 
-Once the Kubernetes Agent is successfully installed, data from your cluster automatically starts flowing into KloudMate.
+- open the Kubernetes module in KloudMate
+- confirm that clusters and nodes appear within a few minutes
+- verify CPU and memory metrics for nodes, pods, and workloads
+- validate logs and events in the related views if those features are enabled
 
-You will be able to:
+KloudMate also provides prebuilt dashboard templates for common Kubernetes views. See [Create a Dashboard](../../../dashboards/create-a-dashboard/) for template usage.
 
-- View all your Kubernetes resources 
-- Track real-time and historical CPU and memory usage
-- Monitor workload health and replica availability
-- Analyze pod restarts and failures
-- Investigate incidents using logs and metrics
-- Access prebuilt Kubernetes dashboards
-- Configure alerts on critical metrics
+## Common Kubernetes Metrics
 
-## **Installing the Kubernetes Agent**
+When Kubernetes Monitoring is enabled, KloudMate automatically collects a set of common Kubernetes metrics. No additional configuration is required.
 
-Install the KloudMate Kubernetes Agent to collect metrics, logs, events, and optional APM data securely. It requires no code changes and supports self-managed or managed clusters (AKS, EKS, GKE).
-
-Follow the step-by-step installation guide here: [Kubernetes Agent](../../km-agent/installation/kubernetes-agent/)
-
-Once the agent is installed, your cluster data will automatically appear in:
-
-**Modules → Kubernetes**#**Kubernetes Module Overview**
-
-The Kubernetes module in KloudMate provides a centralized interface to explore Kubernetes resources and monitor their resource usage across your environment.
-
-Once a cluster is connected, the module organizes Kubernetes data into dedicated sections, **Clusters**,**Nodes**,**Namespaces**,**Pods**, and**Workloads**, allowing you to easily move between different levels of the Kubernetes hierarchy.
-
-Each section displays key resource metrics such as CPU and memory usage, helping teams understand how resources are allocated and consumed across the cluster. This organized layout enables:
-
-- Faster troubleshooting
-- Better capacity planning
-- Improved infrastructure visibility
-
-### Prerequisites
-
-Before using the Kubernetes Module, ensure that the Kubernetes Agent is installed in your cluster.
-
-## Explore Kubernetes Data
-
-The main Kubernetes page is organized into the following component sections:
-
-- **Clusters:** rovides a high-level overview of each connected Kubernetes cluster. This view displays cluster name, node count, and total allocatable CPU and memory, helping you quickly assess overall cluster capacity and scale.
-- **Nodes:**Shows detailed information for each node within a cluster, including allocatable and actual CPU and memory usage. This helps identify unhealthy or overloaded nodes and track infrastructure-level resource consumption.
-- **Namespaces:**Displays resource usage grouped by namespaces, enabling visibility into how CPU and memory are distributed across teams, services, or environments. This is especially useful for understanding multi-tenant usage patterns.
-- **Pods:**Offers pod-level insights such as CPU and memory requests, limits, restarts, and real-time usage. This view helps validate pod configurations and detect issues like frequent restarts or resource contention.
-- **Workloads:**Focuses on higher-level Kubernetes objects such as deployments, daemonsets, and statefulsets. This view helps monitor workload health, availability, and resource behavior across replicas.
-
-![image](https://app.archbee.com/api/optimize/dfeZmyJsGjUXyEH2hgHVe/iKREtIN4b_I05GGrzisLW-20251006-082722.png)
-
-Each component section displays a sortable table of key metrics, such as usage, requests, and limits, enabling quick identification of under- or over-utilized resources. Tables can be sorted in ascending or descending order to prioritize attention areas.
-
-Kubernetes resources can also be grouped or filtered using their respective dimensions (e.g., filter pods by namespace, group nodes by cluster) to streamline troubleshooting and investigation.
-
-![image](https://images.archbee.com/dfeZmyJsGjUXyEH2hgHVe/IkiRnAejoeA6MWPQzkPN8-20251111-053949.png?format=webp)
-
-## **Resource Details Page**
-
-Clicking on any resource (such as a node or pod) opens its details page.
-
-This page includes:
-
-- In-depth time-series metrics
-- Historical logs
-- Additional contextual information
-
-These insights help with advanced troubleshooting and root-cause analysis.
-
-![image](https://images.archbee.com/dfeZmyJsGjUXyEH2hgHVe/H9bOuEP-ATToD-iwC5JEC-20251006-083225.png?format=webp)
-
-## **Post-Integration Data Validation**Verify data flow in**Modules → Kubernetes → Clusters view**. Metrics appear within 2-5 minutes post-agent restart for immediate visual confirmation.
-
-## **Standard Kubernetes Dashboards**KloudMate provides**prebuilt Kubernetes dashboards** through [dashboard templates](https://templates.kloudmate.com/). These dashboards visualize:
-
-- Cluster health
-- Node performance
-- Pod resource usage
-- Workload availability
-
-To import and start using these templates, follow the steps described in [Import from Templates](../../dashboards/create-a-dashboard/).
-These dashboards auto-populate with your cluster data once the agent is running.
-
-## **Kubernetes Default Metrics**When Kubernetes Monitoring is enabled, KloudMate automatically collects a set of commonly used Kubernetes metrics. No additional configuration is required.**Cluster & Workload Metrics**
+### Cluster and Workload Metrics
 
 - k8s\_container\_cpu\_limit
 - k8s\_container\_cpu\_request
@@ -140,7 +85,7 @@ These dashboards auto-populate with your cluster data once the agent is running.
 - k8s\_deployment\_available
 - k8s\_deployment\_desired
 
-**Node & Container Metrics**
+### Node and Container Metrics
 
 - container\_cpu\_time
 - container\_cpu\_usage
@@ -154,5 +99,3 @@ These metrics are sourced from the upstream OpenTelemetry receivers:
 
 - [k8sclusterreceiver](https://github.com/open-telemetry/opentelemetry-collector-contrib/blob/main/receiver/k8sclusterreceiver/documentation.md)
 - [kubeletstatsreceiver](https://github.com/open-telemetry/opentelemetry-collector-contrib/blob/main/receiver/kubeletstatsreceiver/documentation.md)
-
-#
