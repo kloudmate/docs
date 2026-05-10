@@ -2,6 +2,8 @@
 title: "Go"
 description: "Documentation for Go"
 ---
+import { Aside } from '@astrojs/starlight/components';
+
 In this guide, we will walk you through the process of setting up and using OpenTelemetry in Go. You will learn how to instrument a simple application to produce tracing telemetry with OpenTelemetry Go.
 
 **Step 1: Prerequisites**
@@ -283,9 +285,9 @@ func KMTraceExporter() (*sdktrace.SpanExporter, error) {
 }
 ```
 
-<hint type="info">
+<Aside type="note">
    The `otlptracehttp` exporter, along with the KloudMate API-Key as the Authorization header will send the data from the collector to KloudMate.
-</hint>
+</Aside>
 
 **Step 6: Create a Resource**
 

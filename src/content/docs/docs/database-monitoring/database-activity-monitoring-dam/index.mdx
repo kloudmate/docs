@@ -5,11 +5,13 @@ sidebar:
   label: "Overview"
   order: 1
 ---
+import { Aside } from '@astrojs/starlight/components';
+
 The eBPF Receiver includes built-in **Database Activity Monitoring** that automatically profiles database traffic at the kernel level. No database-side agents or plugins needed.
 
 ### Supported Databases
 
-| **Database** | **Captured Metrics**                                                         |
+| **Database ** | ** Captured Metrics**                                                         |
 | ---------------- | ---------------------------------------------------------------------------- |
 | **MySQL**        | Query operations, latency (avg + P99), prepared statements, read/write ratio |
 | **PostgreSQL**   | Query operations, latency (avg + P99), prepared statements, read/write ratio |
@@ -17,7 +19,7 @@ The eBPF Receiver includes built-in **Database Activity Monitoring** that automa
 
 ### Supported Messaging Systems
 
-| **System**        | **Captured Metrics**                    |
+| **System **        | ** Captured Metrics**                    |
 | ----------------- | --------------------------------------- |
 | **Kafka**         | Producer/Consumer metrics, throughput   |
 | **Elasticsearch** | Request operations, latency, throughput |
@@ -40,9 +42,9 @@ The eBPF Receiver includes built-in **Database Activity Monitoring** that automa
 
 - [ML Classifier Deployment Guide](ml-classifier-deployment-guide/)
 
-<hint type="info">
+<Aside type="note">
   For deeper query analytics, including execution plans and schema discovery, see [Direct Database Monitoring](../direct-database-monitoring/). For distributed trace context from your application SDKs, see [OpenTelemetry Database Monitoring](../opentelemetry-database-monitoring/).
-</hint>
+</Aside>
 
 ### Configuration
 

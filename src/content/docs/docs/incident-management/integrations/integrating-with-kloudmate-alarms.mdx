@@ -5,6 +5,8 @@ sidebar:
   label: "Integrate with KloudMate Alarms"
   order: 3
 ---
+import { Aside } from '@astrojs/starlight/components';
+
 To send alarm-triggered notifications into Incident Management, connect a webhook integration to a notification channel and notification policy.
 
 ## Step 1: Copy the Integration URL
@@ -35,7 +37,7 @@ If you have not created the integration yet, start with [Add an Integration](./a
 2. Click **Create**.
 3. Enter a policy name.
 4. Select the webhook notification channel.
-5. Add conditions for **Alarm** or **Issue**.
+5. Add conditions for **Alarm ** or ** Issue**.
 6. Save the policy.
 
 ![image](./images/integrating-with-kloudmate-alarms-3.jpeg)
@@ -43,6 +45,6 @@ If you have not created the integration yet, start with [Add an Integration](./a
 ![image](./images/integrating-with-kloudmate-alarms-4.jpeg)
 ![image](./images/integrating-with-kloudmate-alarms-4.png)
 
-<hint type="info">
+<Aside type="note">
   Alerts matching this notification policy will be sent into the selected Incident Management integration and follow its escalation policy.
-</hint>
+</Aside>

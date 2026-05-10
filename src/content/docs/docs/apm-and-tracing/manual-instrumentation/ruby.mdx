@@ -2,6 +2,8 @@
 title: "Ruby"
 description: "Documentation for Ruby"
 ---
+import { Aside } from '@astrojs/starlight/components';
+
 In this guide, we will walk you through the process of setting up and using OpenTelemetry in Ruby. You will learn how to instrument a simple PHP application to produce traces, metrics, and logs and export them to KloudMate.
 
 **Step 1: Prerequisites**
@@ -11,15 +13,15 @@ Before moving forward ensure that you have the following installed locally:
 - MRI Ruby >= 3.0, jruby >= 9.3.2.0, or truffleruby >= 22.1
 - [Bundler](https://bundler.io/)
 
-<hint type="info">
+<Aside type="note">
   OpenTelemetry support for support for jruby and truffleruby are on a best-effort basis at this time.
-</hint>
+</Aside>
 
 **Step 2: Example Application**
 
-<hint type="info">
-  If you already have a Ruby application and don't need to create one from scratch, you can directly jump to the **Instrumentation part**of this guide.
-</hint>
+<Aside type="note">
+  If you already have a Ruby application and don't need to create one from scratch, you can directly jump to the **Instrumentation part** of this guide.
+</Aside>
 
 For this tutorial, we will be using a basic [Rails](https://rubyonrails.org/) application. However, OpenTelemetry Ruby is compatible with other web frameworks such as Sinatra and Rack as well. Feel free to adapt the instructions to your preferred framework.
 
@@ -111,6 +113,6 @@ env OTEL_EXPORTER_OTLP_ENDPOINT=https://otel.kloudmate.com:4318 OTEL_EXPORTER_OT
 
 ***
 
-*Source URL for the example application:*[](https://opentelemetry.io/docs/instrumentation/net/getting-started/)
+*Source URL for the example application:* [Getting Started with OpenTelemetry Ruby](https://opentelemetry.io/docs/languages/ruby/getting-started/)
 
 

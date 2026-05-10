@@ -4,13 +4,15 @@ description: "Documentation for Direct Database Monitoring"
 sidebar:
   order: 4
 ---
+import { Aside } from '@astrojs/starlight/components';
+
 The KloudMate Agent can connect directly to your database using a dedicated monitoring user to collect deep query metrics, execution plans, and schema metadata. This approach provides the richest level of database insight — including per-query latency breakdowns, explain plans, and wait event analysis — across both self-hosted and managed database services.
 
-<hint type="info">
+<Aside type="note">
   When to Use
 
   Use Direct Database Monitoring when you need deep query-level analytics, including execution plans, query digest metrics, wait event analysis, and schema discovery. This is the most comprehensive monitoring approach and works on any environment — self-hosted, RDS, Aurora, Cloud SQL, Azure, or AlloyDB.
-</hint>
+</Aside>
 
 ## How It Works
 
@@ -96,7 +98,7 @@ GRANT EXECUTE ON PROCEDURE kloudmate.explain_statement TO 'kloudmate'@'%';
 
 ### **4. Enable Performance Schema**
 
-<hint type="warning">
+<Aside type="caution">
   RDS / Aurora
 
   Performance Schema must be enabled via the **Parameter Group** in the AWS Console or CLI — it cannot be set via SQL.
@@ -107,7 +109,7 @@ GRANT EXECUTE ON PROCEDURE kloudmate.explain_statement TO 'kloudmate'@'%';
   - `max_digest_length = 4096`
   - `performance_schema_max_digest_length = 4096`
   - `performance_schema_max_sql_text_length = 4096`
-</hint>
+</Aside>
 
 **Self-Hosted** — add to your `my.cnf` / `mysqld.cnf`:
 
@@ -135,9 +137,9 @@ GRANT SELECT ON *.* TO 'kloudmate'@'%';
 GRANT SELECT ON your_app_db.* TO 'kloudmate'@'%';
 ```
 
-<hint type="info">
+<Aside type="note">
   The agent queries `information_schema` for metadata — it does **not** read your actual row data.
-</hint>
+</Aside>
 
 ### **6. Finalize**
 
@@ -228,11 +230,11 @@ GRANT pg_monitor TO kloudmate;
 CREATE EXTENSION IF NOT EXISTS pg_stat_statements SCHEMA public;
 ```
 
-<hint type="warning">
+<Aside type="caution">
   RDS / Aurora
 
   Add `pg_stat_statements` to s`hared_preload_libraries` in your RDS parameter group and **reboot** the instance.
-</hint>
+</Aside>
 
 **Self-Hosted** — add to `postgresql.conf`:
 
@@ -253,9 +255,9 @@ GRANT USAGE ON SCHEMA kloudmate TO kloudmate;
 GRANT USAGE ON SCHEMA public TO kloudmate;
 ```
 
-<hint type="info">
+<Aside type="note">
   The `SECURITY DEFINER` pattern means these functions execute with the privileges of the admin who created them, not the `kloudmate` user calling them. This is how the agent gains full visibility into query stats and activity on managed databases without requiring superuser access.
-</hint>
+</Aside>
 
 **pg\_stat\_activity Wrapper**
 
@@ -330,7 +332,7 @@ LANGUAGE sql
 SECURITY DEFINER;
 ```
 
-**Replication Monitoring** Only needed on the **primary / writer** instance for monitoring replication lag:
+**Replication Monitoring ** Only needed on the ** primary / writer** instance for monitoring replication lag:
 
 ```sql
 CREATE OR REPLACE FUNCTION kloudmate.pg_stat_replication()
@@ -344,7 +346,7 @@ SECURITY DEFINER;
 
 ### 6. Configure Parameters
 
-<hint type="warning">
+<Aside type="caution">
   RDS / Aurora Parameter Group
 
   Set the following in the AWS Console or CLI and **reboot**:
@@ -353,7 +355,7 @@ SECURITY DEFINER;
   - `track_activity_query_size = 4096`
   - `pg_stat_statements.track = all`
   - `pg_stat_statements.max = 10000` (recommended)
-</hint>
+</Aside>
 
 **Self-Hosted** — add to `postgresql.conf`:
 
@@ -383,15 +385,15 @@ auto_explain.log_nested_statements = true
 auto_explain.sample_rate = 1             # 1 = all, 0.1 = 10% sample
 ```
 
-<hint type="warning">
+<Aside type="caution">
   `auto_explain` with `log_analyze=true` adds overhead because it executes the query plan. Use `sample_rate < 1` in production.
-</hint>
+</Aside>
 
 ### **8. Repeat for Each Database**
 
-<hint type="info">
+<Aside type="note">
   `pg_stat_statements` and the kloudmate functions must exist in **every** database the agent monitors. The agent connects to one database at a time.
-</hint>
+</Aside>
 
 For each additional database (e.g. `app_db`, `analytics_db`), connect and re-run the extension + function creation:
 

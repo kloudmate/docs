@@ -5,6 +5,8 @@ sidebar:
   label: "Overview"
   order: 1
 ---
+import { Aside } from '@astrojs/starlight/components';
+
 ![image](./images/traces-1.png)
 
 The `APM & Tracing` section in KloudMate gives you end-to-end visibility into how requests travel across your services, along with service-level health and dependency analysis.
@@ -24,9 +26,9 @@ KloudMate supports multiple ways to generate APM and tracing data:
 - [Auto Instrumentation](./auto-instrumentation/) for the preferred Kubernetes APM flow through the KloudMate Agent
 - [Manual Instrumentation](./manual-instrumentation/) for SDK-based tracing, application metrics, and custom metrics with the most control.
 
-<hint type="info">
+<Aside type="note">
 Because Application Metrics and Custom Metrics are emitted through the exact same OpenTelemetry SDK flow as traces, they are configured together. See [Manual Instrumentation](./manual-instrumentation/) for language-specific guides.
-</hint>
+</Aside>
 
 ## Related Paths
 

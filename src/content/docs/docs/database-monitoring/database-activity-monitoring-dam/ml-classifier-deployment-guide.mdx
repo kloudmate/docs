@@ -4,6 +4,8 @@ description: "Deploy the KloudMate ML classifier for sensitive data detection in
 sidebar:
   order: 2
 ---
+import { Aside } from '@astrojs/starlight/components';
+
 The **KloudMate ML Classifier** is an AI-powered data security module that natively integrates with your telemetry pipeline. By leveraging advanced Machine Learning engines alongside pattern-matching rules, it automatically inspects database queries in real-time to meticulously detect sensitive information, such as PII (Personally Identifiable Information) and PHI (Protected Health Information). It then dynamically enriches your traces with risk fingerprints before your telemetry ever leaves your infrastructure.
 
 This guide covers two strategies for deploying the **KloudMate ML Classifier**:
@@ -13,11 +15,11 @@ This guide covers two strategies for deploying the **KloudMate ML Classifier**:
 
 ## Strategy 1: Standalone Machine via Docker Compose
 
-<hint type="info">
+<Aside type="note">
   **When to use this strategy?**
 
   Use this strategy if you are running the classifier on a single VM or physical host where the KloudMate Agent is already running.
-</hint>
+</Aside>
 
 ### Prerequisites
 
@@ -104,11 +106,11 @@ processors:
 
 ## **Strategy 2: Enterprise Cluster via Kubernetes**
 
-<hint type="info">
+<Aside type="note">
   **When to use this strategy?**
 
   Use this strategy if you are deploying the classifier to a Kubernetes cluster alongside the KloudMate agent ecosystem.
-</hint>
+</Aside>
 
 ### Prerequisites
 

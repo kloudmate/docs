@@ -5,6 +5,8 @@ sidebar:
   label: "Slack Integration"
   order: 8
 ---
+import { Aside } from '@astrojs/starlight/components';
+
 Use the Slack integration to send incident notifications into Slack and let responders interact with incidents from their workspace.
 
 ## Connect Slack
@@ -13,12 +15,12 @@ Use the Slack integration to send incident notifications into Slack and let resp
 
 ![image](./images/slack-integration-1.png)
 
-2. In the **Chat Ops** tab, click **Connect** for Slack.
+2. In the **Chat Ops ** tab, click ** Connect** for Slack.
 3. Complete the Slack authorization flow.
 4. Select the Slack channel you want to use.
 5. Add a message for your app manager if required.
 6. Submit the connection.
 
-<hint type="info">
+<Aside type="note">
   After the workspace connection is complete, each team member must connect their own Slack account before they can manage incidents from Slack.
-</hint>
+</Aside>

@@ -2,6 +2,8 @@
 title: "Python"
 description: "Documentation for Python"
 ---
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+
 This guide walks you through setting up OpenTelemetry auto-instrumentation for **Python applications** and configuring KloudMate to collect telemetry data (traces, metrics, logs) without modifying your application code.
 
 ### Step 1: Prerequisites
@@ -15,60 +17,60 @@ For demonstration, we'll use a simple Flask and Django application. You can adap
 
 1\. Create a Project Directory 
 
-
-Flask
-
-  ```bash
-  mkdir otel-getting-started
-  cd otel-getting-started
-  ```
-
-  Django
-
-  ```bash
-  mkdir hello_django
-  cd hello_django
-  ```
+<Tabs>
+<TabItem label="Flask">
+```bash
+mkdir otel-getting-started
+cd otel-getting-started
+```
+</TabItem>
+<TabItem label="Django">
+```bash
+mkdir hello_django
+cd hello_django
+```
+</TabItem>
+</Tabs>
 
 
 2\. Create a Virtual Environment and Activate It 
 
-
-Flask
-
-  ```bash
-  python3 -m venv venv
-  source ./venv/bin/activate
-  ```
-
-  Django
-
-  ```bash
-  python3 -m venv venv
-  source ./venv/bin/activate
-  ```
+<Tabs>
+<TabItem label="Flask">
+```bash
+python3 -m venv venv
+source ./venv/bin/activate
+```
+</TabItem>
+<TabItem label="Django">
+```bash
+python3 -m venv venv
+source ./venv/bin/activate
+```
+</TabItem>
+</Tabs>
 
 
 3\. Install the Framework
 
-
-Flask
-
-  ```bash
-  pip install flask
-  ```
-
-  Django
-
-  ```bash
-  pip install django
-  ```
+<Tabs>
+<TabItem label="Flask">
+```bash
+pip install flask
+```
+</TabItem>
+<TabItem label="Django">
+```bash
+pip install django
+```
+</TabItem>
+</Tabs>
 
 
 4\. Create the Application
 
-**Flask**
-
+<Tabs>
+<TabItem label="Flask">
 - Create a file named `app.py` with the following code: 
 
 ```python
@@ -87,9 +89,8 @@ def do_roll():
 if __name__ == "__main__":
     app.run(debug=True)
 ```
-
-**Django**
-
+</TabItem>
+<TabItem label="Django">
 - Create a Django project and app:
 
 ```bash
@@ -140,18 +141,20 @@ urlpatterns = [
     path('', include('hello.urls')),
 ]
 ```
+</TabItem>
+</Tabs>
 
 5\. Run the Application
 
-**Flask**
-
+<Tabs>
+<TabItem label="Flask">
 ```bash
 flask run -p 8080
 ```
 
 Verify that the application is running by visiting `localhost:8080/rolldice` in your browser.
-
-**Django**
+</TabItem>
+<TabItem label="Django">
 Run Migrations and Start Server 
 
 ```bash
@@ -160,8 +163,10 @@ python manage.py runserver 127.0.0.1:8000
 ```
 
 You can now access the app at `localhost:8000`.
+</TabItem>
+</Tabs>
 
-### **Step 3:** nstallation & Setup
+### Step 3: Installation & Setup
 
 Run the following commands in your project environment to install the essential OpenTelemetry packages and exporters:
 
@@ -173,7 +178,7 @@ opentelemetry-bootstrap -a install
 - `opentelemetry-distro` includes OpenTelemetry API, SDK, and tools.
 - `opentelemetry-bootstrap -a install` auto-installs instrumentation libraries for detected dependencies such as Flask or Django.
 
-### **Step 4:**Configure Environment Variable
+### Step 4: Configure Environment Variable
 
 Set the following environment variables to configure KloudMate OTLP endpoint and service metadata:
 
@@ -183,32 +188,31 @@ export OTEL_EXPORTER_OTLP_HEADERS="Authorization=<private key>"
 export OTEL_SERVICE_NAME=<service_name> 
 ```
 
-<hint type="info">
-  Replace `<private key>`with your KloudMate workspace API key and `<service_name>`with your application name.
-</hint>
+:::note
+Replace `<private key>` with your KloudMate workspace API key and `<service_name>` with your application name.
+:::
 
 ### Step 5: Run Your Application with Auto-Instrumentation
 
 Run your application using the OpenTelemetry CLI wrapper to enable telemetry collection. This enables automatic telemetry collection from supported libraries.
 
+<Tabs>
+<TabItem label="Flask">
+```bash
+opentelemetry-instrument --traces_exporter otlp --metrics_exporter otlp python app.py
+```
+</TabItem>
+<TabItem label="Django">
+```bash
+export DJANGO_SETTINGS_MODULE=mysite.settings
+opentelemetry-instrument --traces_exporter otlp --metrics_exporter otlp --exporter_otlp_protocol http/protobuf python manage.py runserver --noreload
+```
 
-Flask
-
-  ```bash
-  opentelemetry-instrument --traces_exporter otlp --metrics_exporter otlp python app.py
-  ```
-
-  Django
-
-  ```bash
-  export DJANGO_SETTINGS_MODULE=mysite.settings
-  opentelemetry-instrument --traces_exporter otlp --metrics_exporter otlp --exporter_otlp_protocol http/protobuf python manage.py runserver --noreload
-  ```
-
-
-<hint type="info">
-  Ensure you set `DJANGO_SETTINGS_MODULE` appropriately for your Django app. In this example, the Django project is named `mysite.settings` .
-</hint>
+:::note
+Ensure you set `DJANGO_SETTINGS_MODULE` appropriately for your Django app. In this example, the Django project is named `mysite.settings`.
+:::
+</TabItem>
+</Tabs>
 
 The traces and metrics generated will be sent automatically to KloudMate.
 
@@ -259,9 +263,9 @@ service:
 
 ```
 
-<hint type="info">
-  The otlphttp exporter in config.yml, along with the KloudMate API-Key as the Authorization header, will send the data from the collector to KloudMate. 
-</hint>
+:::note
+The otlphttp exporter in config.yml, along with the KloudMate API-Key as the Authorization header, will send the data from the collector to KloudMate.
+:::
 
 2\. Run the following Docker command to start the collector using the configuration file:
 
@@ -287,14 +291,16 @@ By default, the application will export traces and metrics over OTLP/gRPC to the
 
 ## Python Metrics
 
-| **Metric\_name**|**Description**                                                                                               |
+| **Metric\_name** | **Description**                                                                                               |
 | ----------------------------------- | ------------------------------------------------------------------------------------------------------------- |
 | cpython\_gc\_collections            | The number of times a generation was collected since interpreter start.                                       |
 | cpython\_gc\_generation             | Value of the garbage collector collection generation.                                                         |
 | cpython\_gc\_collected\_objects     | The total number of objects collected inside a generation since interpreter start.                            |
 | cpython\_gc\_uncollectable\_objects | The total number of objects which were found to be uncollectable inside a generation since interpreter start. |
 
-## **Conclusion**Remember, OpenTelemetry offers various options for automatic instrumentation, manual instrumentation, and exporting telemetry data. Explore the [official documentation](https://opentelemetry.io/docs/instrumentation/python/) to delve deeper into these topics and further enhance your observability capabilities.***
+## Conclusion
+
+Remember, OpenTelemetry offers various options for automatic instrumentation, manual instrumentation, and exporting telemetry data. Explore the [official documentation](https://opentelemetry.io/docs/instrumentation/python/) to delve deeper into these topics and further enhance your observability capabilities.
 
 For more details and advanced configurations, refer to the official OpenTelemetry documentation:
 

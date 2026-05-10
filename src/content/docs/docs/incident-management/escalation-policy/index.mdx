@@ -5,6 +5,8 @@ sidebar:
   label: "Overview"
   order: 1
 ---
+import { Aside } from '@astrojs/starlight/components';
+
 Escalation policies control how incident notifications progress when an incident remains unacknowledged.
 
 They let you define:
@@ -17,9 +19,9 @@ They let you define:
 
 The escalation policies list shows each policy’s name, description, wait time, and number of escalation steps.
 
-<hint type="info">
+<Aside type="note">
   A single escalation step can notify multiple targets through multiple channels.
-</hint>
+</Aside>
 
 ## Policy Details
 

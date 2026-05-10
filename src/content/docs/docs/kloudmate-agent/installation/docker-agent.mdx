@@ -4,7 +4,9 @@ description: "Documentation for Docker Agent"
 sidebar:
   order: 4
 ---
-This document guides you through installing the **KloudMate Agent** on your host using Docker for **host metrics** and **log collection**.
+import { Aside } from '@astrojs/starlight/components';
+
+This document guides you through installing the **KloudMate Agent ** on your host using Docker for ** host metrics ** and ** log collection**.
 
 ## **What the Docker Agent Monitors**
 
@@ -49,19 +51,19 @@ View all collected data in these KloudMate sections:
 
 - Docker must be installed on the system.
 
-<hint type="info">
+<Aside type="note">
   The Docker agent requires `docker.sock` to be mounted to the agent container.
-</hint>
+</Aside>
 
-<hint type="info">
+<Aside type="note">
   The commands below are for reference only. Log in to KloudMate and copy your account-specific command to install the Agent.
-</hint>
+</Aside>
 
 ## Install Agent
 
-**Step 1:** Navigate to the **Settings → Agents** section in your KloudMate account.
+**Step 1:** Navigate to the ** Settings → Agents** section in your KloudMate account.
 
-**Step 2:** Select **Docker** from the list of available integrations.
+**Step 2:** Select ** Docker** from the list of available integrations.
 
 **Step 3:** Copy and run the Docker agent install command in your terminal to download and install the agent.
 

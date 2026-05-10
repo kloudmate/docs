@@ -5,6 +5,8 @@ sidebar:
   label: "Remove an AWS Account"
   order: 6
 ---
+import { Aside } from '@astrojs/starlight/components';
+
 Use this workflow when you want to disconnect an AWS account from KloudMate and clean up the integration resources in AWS.
 
 Only users with **Owner** permissions can remove connected AWS accounts.
@@ -23,9 +25,9 @@ Only users with **Owner** permissions can remove connected AWS accounts.
 
 ![image](./images/data-sources-4.png)
 
-<hint type="info">
+<Aside type="note">
   Remove the AWS account from KloudMate before deleting the corresponding CloudFormation stack in AWS.
-</hint>
+</Aside>
 
 ## Remove the CloudFormation Stack in AWS
 

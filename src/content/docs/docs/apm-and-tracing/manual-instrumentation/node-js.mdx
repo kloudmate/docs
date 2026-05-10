@@ -2,7 +2,11 @@
 title: "Node.js"
 description: "Documentation for Node.js"
 ---
-This guide walks you through the process of instrumenting a **Node.js application**using**zero-code OpenTelemetry** for collecting traces, metrics, logs, and monitoring using Kloudmate.  Zero-code instrumentation enables you to capture telemetry from many popular libraries and frameworks without modifying your application code.
+import { Aside } from '@astrojs/starlight/components';
+
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+
+This guide walks you through the process of instrumenting a **Node.js application** using **zero-code OpenTelemetry** for collecting traces, metrics, logs, and monitoring using Kloudmate.  Zero-code instrumentation enables you to capture telemetry from many popular libraries and frameworks without modifying your application code.
 
 ### **Step 1: Prerequisites**
 
@@ -23,63 +27,67 @@ npm init -y
 
 2\. Install Express and dependencies:
 
-
-JavaScript
-
-  ```bash
-  npm install express
-  ```
-
-  TypeScript
-
-  ```bash
-  npm install typescript ts-node @types/node express @types/express
-  ```
+<Tabs>
+<TabItem label="JavaScript">
+```bash
+npm install express
+```
+</TabItem>
+<TabItem label="TypeScript">
+```bash
+npm install typescript ts-node @types/node express @types/express
+```
+</TabItem>
+</Tabs>
 
 
 3\. Create and run an HTTP Server
 Create a file named `app.js` (or `app.ts` if you're using TypeScript) and add the following code to set up a simple HTTP server:
 
-
+<Tabs>
+<TabItem label="JavaScript">
 ```javascript
-  /*app.js*/
-  const express = require('express');
+/*app.js*/
+const express = require('express');
 
-  const PORT = parseInt(process.env.PORT || '8080');
-  const app = express();
+const PORT = parseInt(process.env.PORT || '8080');
+const app = express();
 
-  function getRandomNumber(min, max) {
-    return Math.floor(Math.random() * (max - min) + min);
-  }
+function getRandomNumber(min, max) {
+  return Math.floor(Math.random() * (max - min) + min);
+}
 
-  app.get('/rolldice', (req, res) => {
-    res.send(getRandomNumber(1, 6).toString());
-  });
+app.get('/rolldice', (req, res) => {
+  res.send(getRandomNumber(1, 6).toString());
+});
 
-  app.listen(PORT, () => {
-    console.log(`Listening for requests on http://localhost:${PORT}`);
-  });
-  ```
+app.listen(PORT, () => {
+  console.log(`Listening for requests on http://localhost:${PORT}`);
+});
+```
+</TabItem>
+<TabItem label="TypeScript">
+```typescript
+/*app.ts*/
+import express, { Express } from 'express';
 
-  ```typescript
-  /*app.ts*/
-  import express, { Express } from 'express';
+const PORT: number = parseInt(process.env.PORT || '8080');
+const app: Express = express();
 
-  const PORT: number = parseInt(process.env.PORT || '8080');
-  const app: Express = express();
+function getRandomNumber(min: number, max: number) {
+  return Math.floor(Math.random() * (max - min) + min);
+}
 
-  function getRandomNumber(min: number, max: number) {
-    return Math.floor(Math.random() * (max - min) + min);
-  }
+app.get('/rolldice', (req, res) => {
+  res.send(getRandomNumber(1, 6).toString());
+});
 
-  app.get('/rolldice', (req, res) => {
-    res.send(getRandomNumber(1, 6).toString());
-  });
-
-  app.listen(PORT, () => {
-    console.log(`Listening for requests on http://localhost:${PORT}`);
-  });
-  ```
+app.listen(PORT, () => {
+  console.log(`Listening for requests on http://localhost:${PORT}`);
+});
+```
+</TabItem>
+</Tabs>
 
 
 ### **Step 3: Configure Environment Variables**
@@ -97,22 +105,26 @@ export OTEL_SERVICE_NAME="your-service-name"
 export NODE_OPTIONS="--require @opentelemetry/auto-instrumentations-node/register"
 ```
 
-<hint type="info">
+<Aside type="note">
   Replace `YOUR_PRIVATE_KEY` with your actual Kloudmate private key and set          `your-service-name` accordingly.
-</hint>
+</Aside>
 
 ### **Step 4: Run the application:**
 
-
+<Tabs>
+<TabItem label="JavaScript">
 ```javascript
-  $ node app.js
-  Listening for requests on http://localhost:8080
-  ```
-
-  ```typescript
-  $ npx ts-node app.ts
-  Listening for requests on http://localhost:8080
-  ```
+$ node app.js
+Listening for requests on http://localhost:8080
+```
+</TabItem>
+<TabItem label="TypeScript">
+```typescript
+$ npx ts-node app.ts
+Listening for requests on http://localhost:8080
+```
+</TabItem>
+</Tabs>
 
 
 Open `localhost:8080/rolldice` in your web browser to verify. Now you should see spans on the Traces page in your KloudMate account. 

@@ -5,6 +5,8 @@ sidebar:
   label: "Add an Integration"
   order: 2
 ---
+import { Aside } from '@astrojs/starlight/components';
+
 Use the steps below to create a new incident integration.
 
 1. Click **Add Integration** from the Integrations page.
@@ -21,9 +23,9 @@ Available types:
 
 ![image](./images/adding-integrations-1.png)
 
-<hint type="info">
+<Aside type="note">
   KloudMate Alarm and CloudWatch Alarm integrations use predefined templates. Webhook integrations let you configure title, grouping, and auto-resolution logic manually.
-</hint>
+</Aside>
 
 ## Create a KloudMate Alarm or CloudWatch Alarm Integration
 
@@ -34,9 +36,9 @@ Available types:
 
 ![image](./images/adding-integrations-2.png)
 
-<hint type="info">
+<Aside type="note">
   If no escalation policy is selected, the service default is applied automatically.
-</hint>
+</Aside>
 
 ## Create a Webhook Integration
 

@@ -4,6 +4,8 @@ description: "Documentation for Infrastructure as a Code (IaaC) Installation"
 sidebar:
   order: 7
 ---
+import { Aside } from '@astrojs/starlight/components';
+
 import { Tabs, TabItem } from '@astrojs/starlight/components';
 
 Deploy the KloudMate agent across any cloud provider or on-premises infrastructure using Infrastructure as a Code (IaaC) and automation tools.
@@ -19,11 +21,11 @@ Deploy the KloudMate agent across any cloud provider or on-premises infrastructu
 
 ### Decision Matrix
 
-If you are provisioning a new VM or Auto-scaling group, you should use **cloud-init** via User Data/Custom Data. If you want faster boot times, use **Packer** to pre-bake the image and cloud-init for config only.
+If you are provisioning a new VM or Auto-scaling group, you should use **cloud-init ** via User Data/Custom Data. If you want faster boot times, use ** Packer** to pre-bake the image and cloud-init for config only.
 
 If you are managing an existing fleet, use an **Ansible playbook**.
 
-If you are managing infrastructure with **Terraform**, use the **Terraform module**.
+If you are managing infrastructure with **Terraform **, use the ** Terraform module**.
 
 ## 1. cloud-init (Universal)
 
@@ -155,7 +157,7 @@ ansible-playbook -i azure_rm.yml deploy-kmagent.yml
 </Tabs>
 
 
-**Example** `aws_ec2.yml` **configuration:**
+**Example ** `aws_ec2.yml` ** configuration:**
 
 <Tabs>
 <TabItem label="AWS">
@@ -301,11 +303,11 @@ Use the resulting image in your Launch Template / Instance Template, with minima
 
 ## Secret Management
 
-<hint type="warning">
+<Aside type="caution">
   Never hardcode API keys! Use your cloud's native secret store to securely inject credentials at runtime.
-</hint>
+</Aside>
 
-| **Provider**|**Service**|**Retrieval Command**                                                   |
+| **Provider **|** Service **|** Retrieval Command**                                                   |
 | ------------ | ------------------- | ----------------------------------------------------------------------- |
 | AWS          | SSM Parameter Store | `aws ssm get-parameter --name /kloudmate/api-key --with-decryption`     |
 | AWS          | Secrets Manager     | `aws secretsmanager get-secret-value --secret-id kloudmate-api-key`     |

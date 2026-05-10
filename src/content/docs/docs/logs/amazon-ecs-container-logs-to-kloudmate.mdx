@@ -5,6 +5,8 @@ sidebar:
   label: "Amazon ECS Container Logs"
   order: 4
 ---
+import { Aside } from '@astrojs/starlight/components';
+
 This guide explains how to send Amazon ECS container logs from Fargate workloads to KloudMate using Fluent Bit, FireLens, and the OpenTelemetry output plugin.
 
 In this setup:
@@ -18,9 +20,9 @@ In this setup:
 - [Fluent Bit binaries and packages](https://docs.fluentbit.io/manual/installation/getting-started-with-fluent-bit) for your environment
 - An ECS cluster running the workloads whose logs you want to ship
 
-<hint type="info">
+<Aside type="note">
   Recommendation: Use the latest Fluent Bit image and build a custom image with the configuration and parsers you need.
-</hint>
+</Aside>
 
 ## Step 1: Create a Fluent Bit Image
 
@@ -32,9 +34,9 @@ ADD logDestinations.conf /fluentbit-config.conf
 ADD parsers.conf /parsers.conf
 ```
 
-<hint type="info">
+<Aside type="note">
   Recommendation: Prefer the official Fluent Bit image instead of the AWS FireLens image.
-</hint>
+</Aside>
 
 ## Step 2: Configure Fluent Bit Output
 

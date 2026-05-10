@@ -25,7 +25,7 @@ During this process, the following resources will be provisioned:
 
 1. **Azure AD Application:**
    - A Microsoft Entra ID App with a service principal assigned the `Reader` role for the specified subscription.
-2. **Virtual Machine Configuration:**-**VM Type:** Standard\_B2s
+2. **Virtual Machine Configuration:**-** VM Type:** Standard\_B2s
    - **OS Image:** Ubuntu 22.04
    - **Disk Size:** 30 GB
    - **Location:** East US
@@ -200,8 +200,8 @@ az vm create --resource-group "$RESOURCE_GROUP" --name "$VM_NAME" --image "$IMAG
 
 After completing the setup, follow these steps to confirm that KloudMate is receiving Azure metrics:
 
-1. Log into your**KloudMate account.**
-2. Navigate to**Explorer**or**Dashboards.**
+1. Log into your **KloudMate account.**
+2. Navigate to **Explorer ** or ** Dashboards.**
 3. Filter for Azure-specific metrics.
    - If data is flowing correctly, you should see the metrics appearing in real-time.
 4. Troubleshoot if no data appears:

@@ -4,7 +4,9 @@ description: "Documentation for Kubernetes Agent"
 sidebar:
   order: 2
 ---
-This document will guide you to instrument Kubernetes using the **KloudMate Agent** via **DaemonSet** & **Deployment**.
+import { Aside } from '@astrojs/starlight/components';
+
+This document will guide you to instrument Kubernetes using the **KloudMate Agent ** via ** DaemonSet ** & ** Deployment**.
 
 **What the Kubernetes Agent Monitors**
 
@@ -19,9 +21,9 @@ Once installed, the Kubernetes Agent collects:
 - **Cluster events:** Pod failures, scaling events, and other events
 - **Optional APM metrics:** Instrumented applications (Python, Node.js, Java, .NET, Go)
 
-<hint type="info">
+<Aside type="note">
   These are the raw metrics and logs collected by the agent. Visualization, alerts, and dashboards are accessed separately.
-</hint>
+</Aside>
 
 ## **Accessing Your Data**
 
@@ -54,9 +56,9 @@ View all Kubernetes data in these KloudMate sections:
 
 ## Install Agent
 
-<hint type="info">
+<Aside type="note">
   The commands below are for reference only. Log in to KloudMate and copy your account-specific command to install the Agent.
-</hint>
+</Aside>
 
 ### Step 1: Getting started
 
@@ -92,9 +94,9 @@ Configure how KloudMate should collect data from this cluster:
 - **Enable auto instrumentation for APM:** Turn this on to automatically instrument supported application runtimes (Python, Node.js, Java, .NET, Go) for APM.
 - **Monitored namespaces:** Enter a comma‑separated list of namespaces to monitor for events and APM (for example, `redis, kafka, prod-app`).
 
-<hint type="info">
+<Aside type="note">
   Leave this field empty to monitor all namespaces (system namespaces are excluded by default).
-</hint>
+</Aside>
 
 ### Step 5: Run the installation command
 
@@ -130,11 +132,11 @@ helm install kloudmate-release kloudmate/km-kube-agent --namespace km-agent --cr
 
 In this example, two separate tolerations are defined to match the taints configured on the cluster nodes, enabling the agent pods to be scheduled on all required nodes.
 
-<hint type="info">
+<Aside type="note">
   - You can add any number of tolerations by incrementing the index (`tolerations[0]`, `tolerations[1]`, etc.).
   - Ensure that the key, operator, value, and effect match the taints applied to your nodes.
   - If your cluster does not have taints, these parameters can be omitted. The agent pods will then be scheduled on untainted nodes by default.
-</hint>
+</Aside>
 
 ## APM Setup Instructions
 
@@ -224,7 +226,7 @@ annotations
 
 ## **Next Steps**
 
-- Open **Kubernetes Monitoring** to view metrics and events for your *cluster*, **nodes**, **namespaces**, **pods**, and **workloads**
-- Use **Dashboards** to create visualizations or view **pre-built dashboards**
+- Open **Kubernetes Monitoring** to view metrics and events for your *cluster*, **nodes **, ** namespaces **, ** pods **, and ** workloads**
+- Use **Dashboards ** to create visualizations or view ** pre-built dashboards**
 - Use **Log Explorer** to investigate logs and correlate them with metrics
 - Configure **alerts** for any of these components based on thresholds

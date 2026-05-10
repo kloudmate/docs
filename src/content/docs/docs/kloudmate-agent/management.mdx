@@ -4,6 +4,8 @@ description: "Learn how to manage, configure, and monitor your KloudMate Agents 
 sidebar:
   order: 2
 ---
+import { Aside } from '@astrojs/starlight/components';
+
 The KloudMate Agent is designed to be managed centrally from the KloudMate web UI. This means you don't need to SSH into your servers or manually edit local YAML files to update settings—changes made in the dashboard are automatically pushed to your agents across your infrastructure.
 
 ## Agents Overview
@@ -28,20 +30,20 @@ The KloudMate agent's landing page allows you to view, add, and manage your agen
 
 ![image](./images/managing-kloudmate-agents-2.png)
 
-<hint type="info">
+<Aside type="note">
   After selecting an agent, refer to the corresponding installation guide:
 
   [Linux](../installation/linux-agent/) | [Docker](../installation/docker-agent/) | [Windows](../installation/windows-agent/) | [Kubernetes](../installation/kubernetes-agent/)
-</hint>
+</Aside>
 
 ## Remote Configuration Editor
 
 The agent watches for remote configuration changes via a secure connection and updates itself automatically. 
 
-<hint type="danger">
+<Aside type="danger">
   **Do not edit local files manually.**
   Manually updating ConfigMaps or local configuration files is not recommended, as these configurations may be overwritten by the central KloudMate APIs. Always use the **KloudMate Agent Config Editor** in the web UI.
-</hint>
+</Aside>
 
 From the KloudMate platform, you can update the collector configuration associated with any agent:
 
@@ -105,6 +107,6 @@ ebpf:
 
 ## Best Practices
 
-- Use filters and search on the Agents landing page to quickly locate agents by **host**, **platform**, or **status**.
-- For clusters with multiple agents, consider **bulk restarting** or **updating collectors** where supported.
+- Use filters and search on the Agents landing page to quickly locate agents by **host **, ** platform **, or ** status**.
+- For clusters with multiple agents, consider **bulk restarting ** or ** updating collectors** where supported.
 - Always confirm that agent configurations have applied successfully by checking your dashboards.

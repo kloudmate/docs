@@ -2,6 +2,8 @@
 title: "MSSQL"
 description: "Documentation for MSSQL Monitoring"
 ---
+import { Aside } from '@astrojs/starlight/components';
+
 Microsoft SQL Server (MSSQL) is a robust relational database management system from Microsoft, renowned for its enterprise-grade performance, high availability features, and advanced analytics capabilities. It powers mission-critical applications, data warehousing, and business intelligence workloads.
 
 MSSQL Monitoring in KloudMate helps you observe the health, performance, and behavior of your Microsoft SQL Server instances by collecting metrics and logs using the KloudMate Agent powered by OpenTelemetry. This enables centralized monitoring of MSSQL instances running on Windows hosts, AWS EC2, Azure Virtual Machines, or on-premise servers.
@@ -374,9 +376,9 @@ processors:
 
 Configure the KloudMate backend exporter and define pipelines for metrics and logs.
 
-<hint type="info">
+<Aside type="note">
   *Change the pipeline as per your correct configuration.*
-</hint>
+</Aside>
 
 ```yaml
 exporters:
@@ -453,7 +455,7 @@ To import and start using these templates, follow the steps described in [Import
 
 ## Default Metrics
 
-| **Metrics** | **Description** | **Type** | **Unit** |
+| **Metrics ** | ** Description ** | ** Type ** | ** Unit** |
 | ------------------------------------------------------- | -------------------------------------------------------------------------------------- | -------------------- | ------------ |
 | sqlserver\_user\_connection\_count                      | Number of users connected to the SQL Server.                                           | Gauge&#xD;&#xA;&#xD; | number       |
 | sqlserver\_lock\_wait\_time\_avg                        | Average wait time for all lock requests that had to wait.                              | Gauge&#xD;&#xA;      | milliseconds |

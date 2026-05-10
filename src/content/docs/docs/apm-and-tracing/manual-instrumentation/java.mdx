@@ -2,6 +2,8 @@
 title: "Java"
 description: "Documentation for Java"
 ---
+import { Aside } from '@astrojs/starlight/components';
+
 In this guide, we will walk you through the process of setting up and using OpenTelemetry in Java. You will learn how to instrument a simple Java application to produce traces, metrics, and logs.
 
 **Step 1: Prerequisites**
@@ -11,7 +13,11 @@ Before diving into OpenTelemetry, be sure that you have the following installed 
 - Java JDK
 - [Gradle](https://gradle.org/)
 
-**Step 2: Example Application**For this tutorial, we will be using a basic [Spring Boot](https://spring.io/guides/gs/spring-boot/) application. However, OpenTelemetry Java is compatible with other web frameworks like Apache Wicket and Play as well. Feel free to adapt the instructions to your preferred framework.**Step 3: Installation**
+**Step 2: Example Application**
+
+For this tutorial, we will be using a basic [Spring Boot](https://spring.io/guides/gs/spring-boot/) application. However, OpenTelemetry Java is compatible with other web frameworks like Apache Wicket and Play as well. Feel free to adapt the instructions to your preferred framework.
+
+**Step 3: Installation**
 
 1\. Set up an environment in a new directory called `java-simple`. Create a file `build.gradle.kts` in that directory and add the following content to it.
 
@@ -106,12 +112,9 @@ Now we are going to use Java agent to automatically instrument the application a
 
 1\. Download the [opentelemetry-javaagent.jar](https://github.com/open-telemetry/opentelemetry-java-instrumentation/releases/latest/download/opentelemetry-javaagent.jar) from [Releases](https://github.com/open-telemetry/opentelemetry-java-instrumentation/releases) of the `opentelemetry-java-instrumentation` repository. The JAR file contains the agent and all automatic instrumentation packages:
 
-
-text
-
-  ```txt
-  https://github.com/open-telemetry/opentelemetry-java-instrumentation/releases
-  ```
+```txt
+https://github.com/open-telemetry/opentelemetry-java-instrumentation/releases
+```
 
 
 2\. Set and export variables that specify the Java agent JAR and a [console exporter.](https://github.com/open-telemetry/opentelemetry-java/blob/main/sdk-extensions/autoconfigure/README.md#logging-exporter)
@@ -127,9 +130,9 @@ export JAVA_TOOL_OPTIONS="-javaagent:PATH/TO/opentelemetry-javaagent.jar" \
   
 ```
 
-<hint type="info">
+<Aside type="note">
    The exporter URL mentioned above, along with the KloudMate API-Key as the Authorization header will send the data to KloudMate.
-</hint>
+</Aside>
 
 Replace `PATH/TO` above, with your path to the JAR file.
 
@@ -173,4 +176,4 @@ curl localhost:8080/rolldice
 
 ***
 
-*Source URL for the example application:*[https://opentelemetry.io/docs/instrumentation/java/getting-started/](https://opentelemetry.io/docs/instrumentation/java/getting-started/)
+*Source URL for the example application:* [Getting Started with OpenTelemetry Java](https://opentelemetry.io/docs/languages/java/getting-started/)
