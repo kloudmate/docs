@@ -50,11 +50,11 @@ To create a skill from scratch, click the **New Skill** button in the top-right 
 
 ![image](./images/skills-1.jpeg)
 
-This opens the skill editor screen, which shows a **Title ** field at the top and a ** Content** editor below it. The content editor comes pre-populated with a structured template, it includes a metadata block at the top where you fill in the skill name and description, followed by a content section where you describe the steps the Assistant should follow in detail. 
+This opens the skill editor screen, which shows a **Title** field at the top and a **Content** editor below it. The content editor comes pre-populated with a structured template, it includes a metadata block at the top where you fill in the skill name and description, followed by a content section where you describe the steps the Assistant should follow in detail. 
 
 ![image](./images/skills-2.png)
 
-Fill in the title, replace the template placeholders with your actual skill instructions, configure the **Private ** toggle as needed, then click ** Save** to create the skill.
+Fill in the title, replace the template placeholders with your actual skill instructions, configure the **Private** toggle as needed, then click **Save** to create the skill.
 
 ### Importing a Skill from a Template
 
@@ -75,7 +75,7 @@ This opens the Import Skill Template dialog, which lists a set of curated templa
 The Connected Integrations section lists all integrations you have already configured. For each integration, you can see its display name, whether it is scoped privately to your account or shared across the workspace, and its current connection status. 
 
 :::info
-  A status of **Error ** indicates the integration requires attention. Use the ** Validate** button to re-test the connection, or the menu to edit or remove the integration.
+  A status of **Error** indicates the integration requires attention. Use the **Validate** button to re-test the connection, or the menu to edit or remove the integration.
 
   If you see a **Reconnect Required status**, the integration’s authorization has expired and needs to be refreshed. Click the validate or reconnect option to re-authenticate.
 :::
@@ -99,7 +99,7 @@ This opens the **Connect Custom MCP Server** dialog where you configure the foll
 - **Headers (optional):** Additional HTTP headers to be sent with every MCP request. Use this for API key or token-based authentication, tenant or workspace routing, or any other custom metadata the server requires.
 - **Private:** When enabled, only you can use the integration. When disabled, it is shared across the workspace. Keep integrations private for personal credentials, testing environments, or dev and staging connections, and share them when they are organization-managed and intended for the whole team.
 - **Enable Integration:** The master on/off switch for the integration. Disable it during incidents, provider outages, security reviews, or when you want to deprecate the integration without permanently deleting it.
-- **Agent Access:** Select which agents are permitted to use this integration. You must choose at least one. The available options are ** KloudMate Assistant **, ** KloudMate Builder **, and ** KloudMate Investigator**. Narrow the scope for sensitive or high-impact integrations where only specific agents should have access.
+- **Agent Access:** Select which agents are permitted to use this integration. You must choose at least one. The available options are **KloudMate Assistant** , **KloudMate Builder** , and **KloudMate Investigator**. Narrow the scope for sensitive or high-impact integrations where only specific agents should have access.
 
 After completing the form, click **Connect** to save the integration.
 
@@ -108,7 +108,7 @@ After completing the form, click **Connect** to save the integration.
 After connecting an integration, you can configure each of its individual tools. For every tool exposed by the integration, you can control two things:
 
 - **Enabled:** Determines whether the Assistant is allowed to call the tool at all. Disable individual tools you do not need to reduce the Assistant’s scope of action.
-- **Approval Mode:** Determines whether the Assistant must ask for confirmation before running the tool. Setting it to ** Default ** uses the platform’s built-in behavior. Setting it to ** Ask Before Run ** requires the Assistant to confirm with you every time it wants to invoke the tool. Setting it to ** Auto Approve** allows the tool to run without any confirmation prompt.
+- **Approval Mode:** Determines whether the Assistant must ask for confirmation before running the tool. Setting it to **Default** uses the platform’s built-in behavior. Setting it to **Ask Before Run** requires the Assistant to confirm with you every time it wants to invoke the tool. Setting it to **Auto Approve** allows the tool to run without any confirmation prompt.
 
 Tools may also carry labels that hint at their behavior. 
 

@@ -4,7 +4,7 @@ description: "Documentation for Azure Application Gateway Log Monitoring using E
 sidebar:
   order: 2
 ---
-This guide explains how to stream **Azure Application Gateway logs to KloudMate ** using ** Azure Event Hub**. Forward diagnostic logs from your gateway (or other Azure resources) to Event Hub, then ingest them using the KloudMate agent for centralized monitoring, analysis, and troubleshooting on the KloudMate platform.
+This guide explains how to stream **Azure Application Gateway logs to KloudMate** using **Azure Event Hub**. Forward diagnostic logs from your gateway (or other Azure resources) to Event Hub, then ingest them using the KloudMate agent for centralized monitoring, analysis, and troubleshooting on the KloudMate platform.
 
 ### Use Case
 
@@ -24,7 +24,7 @@ This setup enables pushing Azure logs (Application Gateway, databases, APIs, etc
 
 ### Step 1: Set Up Event Hub Namespace and Policies
 
-1. In Azure Portal, search for **Event Hubs **>** Create**:
+1. In Azure Portal, search for **Event Hubs** > **Create**:
 
 
 ![image](./images/azure-application-gateway-log-monitoring-using-event-hub-1.jpeg)
@@ -39,7 +39,7 @@ Click **Review + Create**.
 
 
 2. In the namespace:
-   - Go to **Settings > Shared access policies **>**+ Add**.
+   - Go to **Settings > Shared access policies** >**+ Add**.
 
 
 ![image](./images/azure-application-gateway-log-monitoring-using-event-hub-2.jpeg)
@@ -53,7 +53,7 @@ Set policy name and enable **Manage** (includes Send & Listen).
 Create and copy the **Primary Connection String** (namespace-level, for diagnostic settings).
 
 
-3. Under **Entities > Event Hubs **>**+ Event Hub**:
+3. Under **Entities > Event Hubs** >**+ Event Hub**:
 
 
 ![image](./images/azure-application-gateway-log-monitoring-using-event-hub-3.jpeg)
@@ -68,7 +68,7 @@ Create.
 
 
 4. In the new Event Hub:
-   - Go to **Settings > Shared access policies **>**+ Add**.
+   - Go to **Settings > Shared access policies** >**+ Add**.
 
 
 ![image](./images/azure-application-gateway-log-monitoring-using-event-hub-4.jpeg)
@@ -90,8 +90,8 @@ The namespace hosts Event Hub entities; use these connection strings in later st
 
 ### Step 2: Configure Diagnostic Settings on Application Gateway
 
-1. Open your **Application Gateway **>** Monitoring > Diagnostic settings **>**+ Add diagnostic setting**.
-2. Select logs: **Access logs **, ** Performance logs **, and ** Firewall logs** (if WAF enabled).
+1. Open your **Application Gateway** > **Monitoring > Diagnostic settings** >**+ Add diagnostic setting**.
+2. Select logs: **Access logs** , **Performance logs** , and **Firewall logs** (if WAF enabled).
 3. Choose **Send to Event Hub**:
    - Select namespace from Step 1.
    - Choose namespace-level shared access policy from Step 1.
@@ -174,7 +174,7 @@ Restart: `sudo systemctl restart kloudmate-agent`.
 
 This Event Hub + KloudMate pipeline monitors any Azure service beyond Application Gateway, no agent reconfiguration needed.
 
-**Purpose ** Apply the same setup across multiple resources to centralize all Azure logs in KloudMate. ** How It Works**
+**Purpose** Apply the same setup across multiple resources to centralize all Azure logs in KloudMate. **How It Works**
 
 - Event Hub accepts diagnostic logs from any Azure service.
 - Identical `config.yaml` pipeline processes all logs automatically.

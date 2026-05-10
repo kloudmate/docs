@@ -212,7 +212,7 @@ aws ssm list-command-invocations \
 | Risk           | Lower (clean slate)          | Slightly higher (in-place)   |
 | Use when       | You want clean rollout       | You need it NOW              |
 
-**Recommended approach:** Use ** Option B ** for the immediate install on all 50 instances today, and the ** Launch Template user data** ensures every future instance is covered automatically.
+**Recommended approach:** Use **Option B** for the immediate install on all 50 instances today, and the **Launch Template user data** ensures every future instance is covered automatically.
 
 ## Verification
 
@@ -235,7 +235,7 @@ curl -s http://localhost:13133   # health check endpoint
 
 ## Troubleshooting
 
-| **Issue ** | ** Cause ** | ** Fix** |
+| **Issue** | **Cause** | **Fix** |
 | ------------------------------ | -------------------------------------------------- | -------------------------------------------------------------------------------------- |
 | `unable to locate credentials` | IAM Instance Profile missing or no SSM permissions | Attach IAM role with `ssm:GetParameter` to your Launch Template                        |
 | `command not found: aws`       | AWS CLI not installed on instance                  | Add `yum install -y aws-cli or apt install -y awscli` before the SSM call in user data |
