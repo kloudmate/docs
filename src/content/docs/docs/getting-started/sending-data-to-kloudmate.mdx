@@ -12,7 +12,7 @@ Choose the ingestion path that matches your environment and how much control you
 
 ## Recommended Starting Points
 
-- Use **KM Agent** if you want the fastest path for infrastructure, logs, traces, and zero-code visibility.
+- Use **KloudMate Agent** if you want the fastest path for infrastructure, logs, traces, and zero-code visibility.
 - Use **OpenTelemetry Collector** if you already run OTel and want to keep your existing telemetry pipelines.
 - Use **AWS**or**Azure** integrations if you want to onboard cloud telemetry without instrumenting every workload directly.
 - Use **Prometheus integration** when your metrics already exist in Prometheus and you want to forward them into KloudMate.
@@ -20,8 +20,8 @@ Choose the ingestion path that matches your environment and how much control you
 ## Choose Your Path
 
 <LinkCard
-  title="KM Agent"
-  href="../../km-agent/"
+  title="KloudMate Agent"
+  href="../../kloudmate-agent/"
   description="Best default for most teams. Install one agent to collect infrastructure telemetry, logs, traces, and eBPF-powered observability."
 />
 
@@ -53,7 +53,7 @@ Choose the ingestion path that matches your environment and how much control you
 
 | If your goal is... | Start here |
 | --- | --- |
-| Fastest overall onboarding | [KM Agent](../../km-agent/) |
+| Fastest overall onboarding | [KloudMate Agent](../../kloudmate-agent/) |
 | Reuse existing OTel pipelines | [OpenTelemetry Collector](../../opentelemetry/) |
 | Import Prometheus metrics | [Prometheus Integration](../../metrics/infrastructure-monitoring/prometheus-integration/) |
 | Onboard AWS with minimal setup | [AWS Integration](../../aws-integration/) |
@@ -61,7 +61,7 @@ Choose the ingestion path that matches your environment and how much control you
 
 ## Common Rollout Pattern
 
-1. Start with [KM Agent](../../km-agent/) for baseline telemetry and infrastructure visibility.
+1. Start with [KloudMate Agent](../../kloudmate-agent/) for baseline telemetry and infrastructure visibility.
 2. Add [OpenTelemetry](../../opentelemetry/) where you need richer application tracing or custom instrumentation.
 3. Layer in cloud-specific integrations for AWS, Azure, or Prometheus where those data sources already exist.
 

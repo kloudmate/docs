@@ -33,14 +33,14 @@ KloudMate uses OTel as its primary data integration layer. This is a significant
 
 [eBPF](https://ebpf.io/) is a revolutionary technology that allows programs to run directly within the operating system kernel safely and efficiently, without requiring kernel source code changes or loading kernel modules.
 
-In the context of observability and the KloudMate Agent (KM Agent):
+In the context of observability and the KloudMate Agent (KloudMate Agent):
 - **Zero-Code Instrumentation:** eBPF allows the agent to observe network traffic, application performance, and system calls automatically. You do not need to modify your application code to get deep insights.
 - **Low Overhead:** Because eBPF runs in the kernel, it can collect high-fidelity data (like detailed network metrics or process executions) with extremely low performance overhead.
-- **Immediate Visibility:** By deploying the KM Agent (which leverages eBPF), you gain instant visibility into your infrastructure without manual configuration.
+- **Immediate Visibility:** By deploying the KloudMate Agent (which leverages eBPF), you gain instant visibility into your infrastructure without manual configuration.
 
 ## Next Steps
 
 Now that you understand the core concepts of how data is generated (Signals), standardized (OpenTelemetry), and efficiently collected (eBPF), you are ready to start sending data to KloudMate.
 
 - [Setting up KloudMate](../setting-up-kloudmate/)
-- [Learn about the KM Agent](../../km-agent/)
+- [Learn about the KloudMate Agent](../../kloudmate-agent/)

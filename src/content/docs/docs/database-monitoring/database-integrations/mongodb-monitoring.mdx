@@ -25,7 +25,7 @@ Before configuring MongoDB Monitoring, ensure the following:
 1. MongoDB server is running
 2. Supported MongoDB versions: 4.0+, 5.0, 6.0, 7.0
 3. KloudMate Agent installed on the MongoDB host
-   - Refer to Agent installation for [Linux](../../../km-agent/installation/linux-agent/) or [Windows](../../../km-agent/installation/windows-agent/)
+   - Refer to Agent installation for [Linux](../../../kloudmate-agent/installation/linux-agent/) or [Windows](../../../kloudmate-agent/installation/windows-agent/)
 4. MongoDB user configured with least-privilege access. 
 
 MongoDB recommends creating a user with the [clusterMonitor role](https://www.mongodb.com/docs/v5.0/reference/built-in-roles/#mongodb-authrole-clusterMonitor) to collect metrics. Refer to [lpu.sh](https://github.com/open-telemetry/opentelemetry-collector-contrib/blob/main/receiver/mongodbreceiver/testdata/integration/scripts/lpu.sh) for an example of how to configure these permissions.

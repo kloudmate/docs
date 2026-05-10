@@ -16,7 +16,7 @@ Manual instrumentation gives you full control over your observability data by us
 
 ## Supported SDKs
 
-The KM Agent works with any OpenTelemetry SDK. Use these runtime-specific guides:
+The KloudMate Agent works with any OpenTelemetry SDK. Use these runtime-specific guides:
 
 - [Python](./python/)
 - [Go](./go/)
@@ -28,7 +28,7 @@ The KM Agent works with any OpenTelemetry SDK. Use these runtime-specific guides
 
 ## Configuration
 
-Point your OpenTelemetry SDK exporter to the KM Agent OTLP endpoint:
+Point your OpenTelemetry SDK exporter to the KloudMate Agent OTLP endpoint:
 
 ```bash
 OTEL_EXPORTER_OTLP_ENDPOINT="http://KM_AGENT_HOST:4318"
@@ -44,4 +44,4 @@ Manual instrumentation can also emit metrics and logs, but those signals are doc
 
 ## Combining with eBPF
 
-Recommended approach: start with [KM Agent eBPF Observability](../../km-agent/ebpf-observability/) for broad Linux coverage, then enrich selected services with manual OpenTelemetry SDK instrumentation where you need custom business logic spans or richer application context.
+Recommended approach: start with [KloudMate Agent eBPF Observability](../../kloudmate-agent/ebpf-observability/) for broad Linux coverage, then enrich selected services with manual OpenTelemetry SDK instrumentation where you need custom business logic spans or richer application context.

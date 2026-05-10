@@ -1,0 +1,110 @@
+---
+title: "Configuration & Management"
+description: "Learn how to manage, configure, and monitor your KloudMate Agents centrally from the web interface."
+sidebar:
+  order: 2
+---
+The KloudMate Agent is designed to be managed centrally from the KloudMate web UI. This means you don't need to SSH into your servers or manually edit local YAML files to update settings—changes made in the dashboard are automatically pushed to your agents across your infrastructure.
+
+## Agents Overview
+
+The KloudMate agent's landing page allows you to view, add, and manage your agents. Once an agent is integrated, you can view its details:
+
+![image](./images/managing-kloudmate-agents-3.png)
+
+- **Hostname:** The agent's host machine name.
+- **Platform:** The operating system or environment of the agent.
+- **Status:** Current running status of the agent.
+- **Agent Version:** Version of the KloudMate agent used during integration.
+- **Updated At:** The last time the collector configuration was updated.
+
+## Adding a New Agent
+
+1. Click the **Add Agent** button located at the top right corner of the page.
+
+![image](./images/managing-kloudmate-agents-1.png)
+
+2. Select an agent from the available integrations list.
+
+![image](./images/managing-kloudmate-agents-2.png)
+
+<hint type="info">
+  After selecting an agent, refer to the corresponding installation guide:
+
+  [Linux](../installation/linux-agent/) | [Docker](../installation/docker-agent/) | [Windows](../installation/windows-agent/) | [Kubernetes](../installation/kubernetes-agent/)
+</hint>
+
+## Remote Configuration Editor
+
+The agent watches for remote configuration changes via a secure connection and updates itself automatically. 
+
+<hint type="danger">
+  **Do not edit local files manually.**
+  Manually updating ConfigMaps or local configuration files is not recommended, as these configurations may be overwritten by the central KloudMate APIs. Always use the **KloudMate Agent Config Editor** in the web UI.
+</hint>
+
+From the KloudMate platform, you can update the collector configuration associated with any agent:
+
+![image](./images/managing-kloudmate-agents-4.png)
+
+- **Collector Configuration:** Open the web-based YAML editor to make changes to the collector settings and apply updates automatically where the agent is installed.
+- **APM Configuration:** Configure the applications running on your Kubernetes cluster (applicable only for Kubernetes agents).
+- **Restart Collector:** Restart the collector service when needed.
+- **Delete:** Removes the agent from the list on the KloudMate Agent landing page. To completely remove the agent, you must also uninstall it from the source environment.
+
+### Common Configurations
+
+#### Feature Flags
+
+You can control which telemetry signals the agent collects by updating the feature flags in the configuration:
+
+| Flag                    | Default | Description                                |
+| ----------------------- | ------- | ------------------------------------------ |
+| featuresEnabled.metrics | true    | Enables metrics collection                 |
+| featuresEnabled.traces  | true    | Enables trace collection                   |
+| featuresEnabled.apm     | false   | Enables application performance monitoring |
+| featuresEnabled.logs    | false   | Enables log collection                     |
+
+#### eBPF Configuration
+
+To enable deep kernel-level visibility, you can configure the eBPF Receiver in your `config.yaml`. Below is a standard configuration snippet:
+
+```yaml
+metrics:
+  features:
+    - application          # HTTP, gRPC, SQL operation metrics (RED metrics)
+    - application_span     # Trace spans for transactions
+    - network              # L3/L4 Network flow metrics
+
+discovery:
+  services:
+    - name: all-services
+      namespace: default
+      open_ports: '80, 443, 8080, 8443, 5432, 3306, 6379, 9092, 27017'
+
+network:
+  enable: true
+  source: tc
+  direction: both
+
+attributes:
+  kubernetes:
+    enable: true
+```
+
+#### Database Monitoring Configuration
+
+Enable heuristic SQL detection and tune caches for high-load environments to capture database query performance:
+
+```yaml
+ebpf:
+  heuristic_sql_detect: true
+  mysql_prepared_statements_cache_size: 1024
+  postgres_prepared_statements_cache_size: 1024
+```
+
+## Best Practices
+
+- Use filters and search on the Agents landing page to quickly locate agents by **host**, **platform**, or **status**.
+- For clusters with multiple agents, consider **bulk restarting** or **updating collectors** where supported.
+- Always confirm that agent configurations have applied successfully by checking your dashboards.

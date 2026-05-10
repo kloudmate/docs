@@ -1,0 +1,59 @@
+---
+title: "KloudMate Agent"
+description: "Install and operate the KloudMate agent across Linux, Docker, Windows, and Kubernetes."
+sidebar:
+  label: "Overview"
+  order: 1
+---
+
+import { LinkCard, CardGrid } from '@astrojs/starlight/components';
+
+The **KloudMate Agent** is a lightweight program that you install on your servers, containers, or clusters. It automatically gathers health data (logs, metrics, and traces) from your infrastructure and applications, and sends it to KloudMate so you can monitor your entire system.
+
+Under the hood, it is powered by an enhanced version of the industry-standard **OpenTelemetry (OTel) Collector**. We've bundled a curated set of components optimized for simplified deployment, remote configuration, and **eBPF-powered kernel-level observability**. 
+
+## Architecture
+
+The KloudMate Agent runs as a background service on your host system (like Linux or Windows), as a Docker container, or as a DaemonSet on Kubernetes. 
+
+Rather than you having to manually manage complex OpenTelemetry configurations, the KloudMate Agent manages the lifecycle of the Collector for you. It maintains a secure connection to the KloudMate platform, allowing you to configure what telemetry data to collect directly from the web interface. When you make a change in the UI, the agent automatically detects the new configuration and safely restarts the underlying Collector.
+
+Each agent is uniquely identifiable, so you can easily track its health and status from your KloudMate dashboards.
+
+## Key Problems Solved
+
+- **Complex Configuration**: Eliminates the steep learning curve of OpenTelemetry Collector configuration.
+- **Manual Installation**: Provides automated, one-line installation scripts for multiple environments.
+- **Configuration Management**: Enables remote configuration through a web interface without needing SSH access.
+- **Blind Spots in Observability**: Using eBPF, get instant visibility across all services — no SDK integration, no code changes, no application restarts required.
+- **Database Visibility**: Built-in Database Activity Monitoring (DAM) captures SQL operations, latencies, and throughput directly from the kernel.
+
+### Features
+
+- **Automated Installation**: One-command deployment across Linux, Docker, Windows, and Kubernetes.
+- **Remote Configuration**: Configure agents through the KloudMate web interface.
+- **Lifecycle Management**: Comprehensive, automated management of the OpenTelemetry Collector.
+- **Multi-Platform Support**: Native support for various deployment environments (including x86_64 and ARM64).
+- **eBPF-Powered Observability**: Zero-code instrumentation for instant application, network, and database visibility.
+- **Database Activity Monitoring (DAM)**: Automatic profiling of MySQL, PostgreSQL, and messaging systems like Redis and Kafka.
+
+## Supported Environments
+
+- **Linux** (Debian/Ubuntu, RHEL/CentOS) — x86\_64 and ARM64 (aarch64)
+- **Docker** (Host metrics and log collection)
+- **Kubernetes** (via DaemonSet and Deployment)
+- **Windows** (Windows Server 2016+)
+
+<CardGrid>
+  <LinkCard title="Linux" href="installation/linux-agent/" description="Install the KloudMate Agent on Debian, Ubuntu, RHEL, or CentOS." />
+  <LinkCard title="Docker" href="installation/docker-agent/" description="Deploy the KloudMate Agent as a Docker container." />
+  <LinkCard title="Windows" href="installation/windows-agent/" description="Install the KloudMate Agent on Windows Server 2016 and above." />
+  <LinkCard title="Kubernetes" href="installation/kubernetes-agent/" description="Deploy the KloudMate Agent via DaemonSet and Deployment." />
+</CardGrid>
+
+### Future Support
+
+In future releases, the agent will also support:
+
+- Mac
+- OCI (Oracle Cloud Infrastructure)

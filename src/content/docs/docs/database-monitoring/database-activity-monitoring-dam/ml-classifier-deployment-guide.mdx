@@ -16,13 +16,13 @@ This guide covers two strategies for deploying the **KloudMate ML Classifier**:
 <hint type="info">
   **When to use this strategy?**
 
-  Use this strategy if you are running the classifier on a single VM or physical host where the KM-Agent is already running.
+  Use this strategy if you are running the classifier on a single VM or physical host where the KloudMate Agent is already running.
 </hint>
 
 ### Prerequisites
 
 - Docker Engine and Docker Compose are installed.
-- The `KM-Agent` is running on the host machine, listening to OTLP HTTP traffic on port `4318`.
+- The `KloudMate Agent` is running on the host machine, listening to OTLP HTTP traffic on port `4318`.
 
 
 ### Prepare the Compose File
@@ -30,7 +30,7 @@ This guide covers two strategies for deploying the **KloudMate ML Classifier**:
 
 Create a `docker-compose.yaml` file on your machine. It is configured to run the classifier with optimized CPU/Memory limits to handle the ML NLP models.
 
-If you need the ML Classifier to reach out to the KM Agent running directly on the host machine, Docker uses the special DNS `host.docker.internal` to route traffic to the host.
+If you need the ML Classifier to reach out to the KloudMate Agent running directly on the host machine, Docker uses the special DNS `host.docker.internal` to route traffic to the host.
 
 `docker-compose.yaml`
 
@@ -87,7 +87,7 @@ docker compose logs -f
 ```
 
 
-### Configure KM-Agent
+### Configure KloudMate Agent
 
 
 Update your host Agent's configuration to route traces to the classifier container. Since the classifier exposes port `8080` to the host:
@@ -237,10 +237,10 @@ kubectl logs -n km-agent -l app=ml-classifier -f
 ```
 
 
-### Configure KM-Agent in K8s
+### Configure KloudMate Agent in K8s
 
 
-In your KM Agent's config (if deployed as a separate pod in the same namespace), configure the processor to hit the fully qualified internal DNS of the service we just created.
+In your KloudMate Agent's config (if deployed as a separate pod in the same namespace), configure the processor to hit the fully qualified internal DNS of the service we just created.
 
 `otel-collector-config.yaml`
 
@@ -294,4 +294,4 @@ service:
 
 ## Verifying Classification is Working
 
-Regardless of the deployment strategy, you can verify the setup by observing the KM Agent logs (ensure `level: debug` is enabled temporarily). The traced applications will start showing `dam.lineage.fingerprint`, `dam.lineage.risk`, and extracted `PII/PHI` properties dynamically added to the payload before arriving at your backend.
+Regardless of the deployment strategy, you can verify the setup by observing the KloudMate Agent logs (ensure `level: debug` is enabled temporarily). The traced applications will start showing `dam.lineage.fingerprint`, `dam.lineage.risk`, and extracted `PII/PHI` properties dynamically added to the payload before arriving at your backend.
