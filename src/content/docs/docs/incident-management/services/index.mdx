@@ -5,7 +5,6 @@ sidebar:
   label: "Overview"
   order: 1
 ---
-import { Aside } from '@astrojs/starlight/components';
 
 Services group incidents by application area, microservice, or operational ownership so your team can manage related incidents together.
 
@@ -19,9 +18,9 @@ The Services page lists each service with its:
 - Default escalation policy
 - Current health state
 
-<Aside type="note">
+:::note
   A service can have multiple integrations. The escalation policy shown on the service is the default policy used when an integration does not define its own override.
-</Aside>
+:::
 
 ## Service Details
 

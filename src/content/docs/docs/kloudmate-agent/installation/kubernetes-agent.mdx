@@ -4,7 +4,6 @@ description: "Documentation for Kubernetes Agent"
 sidebar:
   order: 2
 ---
-import { Aside } from '@astrojs/starlight/components';
 
 This document will guide you to instrument Kubernetes using the **KloudMate Agent ** via ** DaemonSet ** & ** Deployment**.
 
@@ -21,9 +20,9 @@ Once installed, the Kubernetes Agent collects:
 - **Cluster events:** Pod failures, scaling events, and other events
 - **Optional APM metrics:** Instrumented applications (Python, Node.js, Java, .NET, Go)
 
-<Aside type="note">
+:::note
   These are the raw metrics and logs collected by the agent. Visualization, alerts, and dashboards are accessed separately.
-</Aside>
+:::
 
 ## **Accessing Your Data**
 
@@ -56,9 +55,9 @@ View all Kubernetes data in these KloudMate sections:
 
 ## Install Agent
 
-<Aside type="note">
+:::note
   The commands below are for reference only. Log in to KloudMate and copy your account-specific command to install the Agent.
-</Aside>
+:::
 
 ### Step 1: Getting started
 
@@ -94,9 +93,9 @@ Configure how KloudMate should collect data from this cluster:
 - **Enable auto instrumentation for APM:** Turn this on to automatically instrument supported application runtimes (Python, Node.js, Java, .NET, Go) for APM.
 - **Monitored namespaces:** Enter a comma‑separated list of namespaces to monitor for events and APM (for example, `redis, kafka, prod-app`).
 
-<Aside type="note">
+:::note
   Leave this field empty to monitor all namespaces (system namespaces are excluded by default).
-</Aside>
+:::
 
 ### Step 5: Run the installation command
 
@@ -132,11 +131,11 @@ helm install kloudmate-release kloudmate/km-kube-agent --namespace km-agent --cr
 
 In this example, two separate tolerations are defined to match the taints configured on the cluster nodes, enabling the agent pods to be scheduled on all required nodes.
 
-<Aside type="note">
+:::note
   - You can add any number of tolerations by incrementing the index (`tolerations[0]`, `tolerations[1]`, etc.).
   - Ensure that the key, operator, value, and effect match the taints applied to your nodes.
   - If your cluster does not have taints, these parameters can be omitted. The agent pods will then be scheduled on untainted nodes by default.
-</Aside>
+:::
 
 ## APM Setup Instructions
 

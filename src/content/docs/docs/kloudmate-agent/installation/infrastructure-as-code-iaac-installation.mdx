@@ -4,7 +4,6 @@ description: "Documentation for Infrastructure as a Code (IaaC) Installation"
 sidebar:
   order: 7
 ---
-import { Aside } from '@astrojs/starlight/components';
 
 import { Tabs, TabItem } from '@astrojs/starlight/components';
 
@@ -303,9 +302,9 @@ Use the resulting image in your Launch Template / Instance Template, with minima
 
 ## Secret Management
 
-<Aside type="caution">
+:::caution
   Never hardcode API keys! Use your cloud's native secret store to securely inject credentials at runtime.
-</Aside>
+:::
 
 | **Provider **|** Service **|** Retrieval Command**                                                   |
 | ------------ | ------------------- | ----------------------------------------------------------------------- |

@@ -2,7 +2,6 @@
 title: "Node.js"
 description: "Documentation for Node.js"
 ---
-import { Aside } from '@astrojs/starlight/components';
 
 import { Tabs, TabItem } from '@astrojs/starlight/components';
 
@@ -105,9 +104,9 @@ export OTEL_SERVICE_NAME="your-service-name"
 export NODE_OPTIONS="--require @opentelemetry/auto-instrumentations-node/register"
 ```
 
-<Aside type="note">
+:::note
   Replace `YOUR_PRIVATE_KEY` with your actual Kloudmate private key and set          `your-service-name` accordingly.
-</Aside>
+:::
 
 ### **Step 4: Run the application:**
 

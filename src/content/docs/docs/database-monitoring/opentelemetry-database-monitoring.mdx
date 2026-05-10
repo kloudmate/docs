@@ -4,7 +4,6 @@ description: "Documentation for OpenTelemetry Database Monitoring"
 sidebar:
   order: 3
 ---
-import { Aside } from '@astrojs/starlight/components';
 
 In addition to the eBPF-based [Database Access Monitoring (DAM)](../database-activity-monitoring-dam/), you can use OpenTelemetry SDK instrumentation to capture detailed database query traces with custom attributes.
 
@@ -46,7 +45,7 @@ OTEL_SERVICE_NAME="your-service-name"
 
 Database spans will automatically be captured when using supported auto-instrumentation libraries.
 
-<Aside type="note">
+:::note
   For zero-configuration kernel-level profiling, see [Database Access Monitoring (DAM)](../database-activity-monitoring-dam/). For deep query analytics with execution plans and schema discovery, see [Direct Database Monitoring](../direct-database-monitoring/).
-</Aside>
+:::
 
