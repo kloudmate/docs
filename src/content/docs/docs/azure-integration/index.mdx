@@ -6,15 +6,24 @@ sidebar:
   order: 1
 ---
 
-Use these guides to connect Azure platform metrics and logs to KloudMate through Azure Monitor and Event Hub.
+KloudMate provides native integrations for Microsoft Azure that allow you to seamlessly ingest platform metrics and logs into your observability pipelines. By connecting your Azure environment through Azure Monitor and Event Hubs, you can monitor your cloud infrastructure centrally without having to instrument every individual workload by hand.
 
-import { LinkCard, CardGrid } from '@astrojs/starlight/components';
+## How it Works
+
+KloudMate integrates with Azure using a Service Principal (an Azure AD application) that is granted specific read-only roles (such as `Reader`) to securely access Azure Monitor APIs. You can deploy this integration using an automated CLI script or configure it manually via a KloudMate Agent (an optimized OpenTelemetry Collector). For high-volume log ingestion, such as Application Gateway logs, KloudMate integrates directly with Azure Event Hubs.
+
+## Key Capabilities
+
+- **Azure Monitor Metrics**: Automatically scrape telemetry data from your Azure Monitor resources.
+- **Automated or Manual Setup**: Choose between a fast, CLI-driven automated provisioning process or a manual configuration for full control over the collector.
+- **Event Hub Integration**: Stream logs from Azure services (like Application Gateway) into KloudMate through Event Hubs for real-time analysis.
+- **Secure Authentication**: Uses Azure AD Service Principals to ensure secure, least-privilege access.
 
 ## Available Guides
 
-<CardGrid>
-  <LinkCard title="Auto-Integration with Azure Monitor" description="A faster CLI-driven setup." href="./auto-integration-with-azure-monitor/" />
-  <LinkCard title="Manual Integration of Azure Monitor" description="When you want to configure the collector yourself." href="./manual-integration-of-azure-monitor/" />
-  <LinkCard title="Enable Service Principal Azure" description="Required before configuring authenticated Azure Monitor collection." href="./enable-service-principal-azure/" />
-  <LinkCard title="Azure Application Gateway Log Monitoring using Event Hub" description="For Azure log ingestion through Event Hub." href="./azure-application-gateway-log-monitoring/" />
-</CardGrid>
+Explore the following guides to set up and configure your Azure integrations:
+
+- **[Auto-Integration with Azure Monitor](./auto-integration-with-azure-monitor/)**: A faster, CLI-driven automated setup script that provisions the necessary resources.
+- **[Manual Integration of Azure Monitor](./manual-integration-of-azure-monitor/)**: Instructions for manually configuring a KloudMate Agent to scrape Azure Monitor when you need full control.
+- **[Enable Service Principal Azure](./enable-service-principal-azure/)**: A prerequisite guide on how to create the Service Principal needed for authenticated Azure Monitor collection.
+- **[Azure Application Gateway Log Monitoring](./azure-application-gateway-log-monitoring/)**: A guide for streaming Azure logs into KloudMate through Azure Event Hubs.

@@ -1,0 +1,182 @@
+---
+title: "Host Metrics Collection"
+description: "Understand default host metrics and how to collect additional metrics with the KloudMate Agent."
+sidebar:
+  label: "Host Metrics"
+  order: 2
+---
+The KloudMate Agent automatically collects essential host metrics from Linux and Windows systems out-of-the-box using the OpenTelemetry `hostmetrics` receiver.
+
+## Default Metrics Collection
+
+When you install the [KloudMate Agent](../../kloudmate-agent/), it is pre-configured to collect the following metrics every 60 seconds:
+
+- CPU Utilization
+- CPU Load Average
+- Memory Utilization
+- Filesystem Utilization
+
+No additional configuration is required to view these core metrics in KloudMate.
+
+## Prerequisites for Advanced Configuration
+
+If you need to collect extended metrics (like detailed process-level data, disk I/O, or network metrics) or attach cloud provider tags, you can modify the agent's configuration.
+
+- A running instance of the [KloudMate Agent](../../kloudmate-agent/).
+- Identify whether the host runs on-premises, AWS EC2, or Azure so you can use the correct resource-detection processor.
+
+## Step 1: Configuring Additional Host Metrics
+
+To collect more metrics, update the `hostmetrics` receiver in your agent configuration file (typically `/etc/km-agent/config.yaml` on Linux).
+
+Here is how you can extend the default configuration to include disk and network metrics:
+
+```yaml
+receivers:
+  hostmetrics:
+    collection_interval: 60s
+    scrapers:
+      # Default active scrapers
+      cpu:
+        metrics:
+          system.cpu.utilization:
+            enabled: true
+      load:
+        cpu_average: true
+      memory:
+        metrics:
+          system.memory.utilization:
+            enabled: true
+      filesystem:
+        metrics:
+          system.filesystem.utilization:
+            enabled: true
+            
+      # Add new scrapers below
+      disk: {}
+      network: {}
+      # Enable on Linux if you need process counts by state.
+      # processes: {}
+```
+
+:::info
+`processes: {}` is useful on Linux systems. It is not typically used on Windows hosts.
+:::
+
+## Step 2: Adding Cloud Provider Metadata
+
+By default, the KloudMate Agent detects basic system information (like `host.name`). If your host runs in AWS or Azure and you want cloud-specific tags attached to your telemetry, update the `processors` section.
+
+### AWS EC2
+
+Add the `resourcedetection/ec2` processor to capture EC2 tags:
+
+```yaml
+processors:
+  resourcedetection/ec2:
+    detectors: ["ec2"]
+    ec2:
+      tags:
+        - ^tag1$
+        - ^tag2$
+        - ^label.*$
+        - ^Name$
+
+  resource:
+    attributes:
+      - key: service.name
+        action: insert
+        from_attribute: ec2.tag.Name
+      - key: service.instance.id
+        action: insert
+        from_attribute: host.id
+```
+
+:::info
+If you want EC2 tags on telemetry, attach an IAM role that allows `ec2:DescribeTags`.
+:::
+
+### Azure Virtual Machines
+
+Add the `resourcedetection/azure` processor to capture Azure tags:
+
+```yaml
+processors:
+  resourcedetection/azure:
+    detectors: ["azure"]
+    azure:
+      tags:
+        - ^tag1$
+        - ^tag2$
+        - ^label.*$
+        - ^Name$
+
+  resource:
+    attributes:
+      - key: service.name
+        action: insert
+        from_attribute: azure.vm.name
+      - key: service.instance.id
+        action: insert
+        from_attribute: host.id
+```
+
+## Step 3: Update Pipelines
+
+If you added AWS or Azure resource detection processors in Step 2, ensure you add them to your `metrics` pipeline in the `service` section so they process the data before export.
+
+```yaml
+service:
+  pipelines:
+    metrics:
+      receivers:
+        - otlp
+        - hostmetrics
+      processors:
+        - resource
+        # Add your new cloud processor here if configured
+        # - resourcedetection/ec2
+        - batch
+      exporters:
+        - debug
+        - otlphttp
+```
+
+## Step 4: Restart the Agent
+
+After modifying the configuration, restart the KloudMate Agent to apply changes.
+
+For Linux:
+
+```bash
+systemctl restart kmagent
+systemctl status kmagent
+```
+
+For Windows:
+
+1. Open `services.msc`.
+2. Find the `KloudMate Agent` service.
+3. Restart the service.
+
+## Step 5: Validate in KloudMate
+
+After the agent restarts:
+
+- open [Explore](../explore/)
+- query host metrics such as `system.cpu.utilization`, `system.memory.utilization`, or newly added metrics like `system.network.io`
+- create dashboards or alerts once data is visible
+
+## Common Metric Families
+
+| Metric family | Examples |
+| --- | --- |
+| CPU | `system.cpu.time`, `system.cpu.utilization`, `system.cpu.load_average.1m` |
+| Memory | `system.memory.usage`, `system.memory.utilization` |
+| Disk | `system.disk.io`, `system.disk.operations`, `system.disk.io_time` |
+| Filesystem | `system.filesystem.usage`, `system.filesystem.utilization` |
+| Network | `system.network.io`, `system.network.packets`, `system.network.errors` |
+| Paging | `system.paging.usage`, `system.paging.faults`, `system.paging.operations` |
+| Process | `system.processes.count`, `process.cpu.time`, `process.memory.usage` |
+
+For the complete upstream reference, see the [hostmetrics receiver documentation](https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/receiver/hostmetricsreceiver).

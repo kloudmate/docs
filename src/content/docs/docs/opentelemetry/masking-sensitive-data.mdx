@@ -1,0 +1,119 @@
+---
+title: "Mask and Drop Sensitive Data"
+description: "Use OpenTelemetry processors to filter out sensitive information and drop unnecessary telemetry before sending it to KloudMate."
+sidebar:
+  label: "Mask & Drop Data"
+  order: 7
+---
+Preventing sensitive data—such as Personally Identifiable Information (PII), passwords, or API keys—from leaving your infrastructure is a critical security practice. Additionally, dropping noisy, low-value telemetry (like repeated health checks) helps keep your dashboards clean and reduces data transfer costs.
+
+The OpenTelemetry Collector provides several processors, including the `attributes`, `filter`, and `transform` processors, to redact, mask, or drop telemetry before it is exported to KloudMate.
+
+## Deleting Sensitive Attributes
+
+If specific attributes consistently contain sensitive data that you do not need, the easiest approach is to remove the attribute entirely using the `attributes` processor.
+
+### Example: Drop PII Attributes
+
+This configuration will remove the `user.email` and `credit_card_number` attributes from any incoming spans or logs.
+
+```yaml
+processors:
+  attributes/drop_pii:
+    actions:
+      - key: user.email
+        action: delete
+      - key: credit_card_number
+        action: delete
+
+service:
+  pipelines:
+    traces:
+      receivers: [otlp]
+      processors: [attributes/drop_pii, batch]
+      exporters: [otlphttp]
+    logs:
+      receivers: [otlp]
+      processors: [attributes/drop_pii, batch]
+      exporters: [otlphttp]
+```
+
+## Masking Values with the Transform Processor
+
+If you need to keep an attribute but redact portions of its value (e.g., masking a password within a URL or a token within a log body), use the `transform` processor. This processor utilizes the OpenTelemetry Transformation Language (OTTL).
+
+### Example: Mask Passwords in HTTP URLs
+
+This configuration uses a regex pattern to find `password=...` in the `http.url` attribute and replaces the value with `password=***`.
+
+```yaml
+processors:
+  transform/mask_passwords:
+    error_mode: ignore
+    trace_statements:
+      - context: span
+        statements:
+          - replace_pattern(attributes["http.url"], "password=[^&]*", "password=***")
+
+service:
+  pipelines:
+    traces:
+      receivers: [otlp]
+      processors: [transform/mask_passwords, batch]
+      exporters: [otlphttp]
+```
+
+## Dropping Unnecessary Logs or Spans
+
+To completely discard entire spans, logs, or metrics based on their attributes, use the `filter` processor. This is highly effective for removing repetitive "noise" from your environment, such as load balancer health checks.
+
+### Example: Drop Health Check Telemetry
+
+This configuration evaluates incoming spans and logs. If a span is targeting the `/health` endpoint, or if a log body contains the exact text `"Healthcheck passed"`, the entire span or log record is dropped and will not be sent to KloudMate.
+
+```yaml
+processors:
+  filter/drop_healthchecks:
+    error_mode: ignore
+    traces:
+      span:
+        - 'attributes["http.target"] == "/health"'
+    logs:
+      log_record:
+        - 'body == "Healthcheck passed"'
+
+service:
+  pipelines:
+    traces:
+      receivers: [otlp]
+      processors: [filter/drop_healthchecks, batch]
+      exporters: [otlphttp]
+    logs:
+      receivers: [otlp]
+      processors: [filter/drop_healthchecks, batch]
+      exporters: [otlphttp]
+```
+
+## Pipeline Execution Order
+
+:::tip
+Processors execute in the exact order they are listed in the `pipelines` section. When combining these processors, ensure you drop data and attributes *before* performing more computationally expensive transformations or sampling.
+:::
+
+```yaml
+service:
+  pipelines:
+    traces:
+      receivers: [otlp]
+      processors: 
+        - filter/drop_healthchecks # 1. Drop noisy spans completely
+        - attributes/drop_pii      # 2. Delete sensitive attributes
+        - transform/mask_passwords # 3. Regex replacement on remaining spans
+        - batch                    # 4. Batch for export
+      exporters: [otlphttp]
+```
+
+## Related Resources
+
+- [Data Sampling](./data-sampling/)
+- [Configure the Collector](./using-opentelemetry-collector/)

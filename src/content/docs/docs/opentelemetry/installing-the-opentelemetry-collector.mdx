@@ -7,15 +7,18 @@ sidebar:
 ---
 The OpenTelemetry Collector is a vendor-neutral service that receives, processes, and exports telemetry data. It is often the easiest way to standardize telemetry flow before sending data to KloudMate.
 
-## When to Use the Collector
+:::tip[Recommendation]
+For the easiest setup and best out-of-the-box experience, we strongly recommend using the **[KloudMate Agent](../kloudmate-agent/)**. It is a pre-configured, optimized version of the OpenTelemetry Collector that seamlessly integrates with the KloudMate platform. You should only use the native OpenTelemetry Collector if you have specific infrastructure requirements that demand it.
+:::
 
-Using the Collector is not mandatory, but it is usually the best default. It is especially useful when you want to:
+## When to Use the Native Collector
 
-- Offload export work from applications
-- Add batching, retries, or encryption
-- Filter or redact sensitive data
-- Route telemetry to multiple destinations
-- Collect host-level metrics in addition to application telemetry
+While the KloudMate Agent is the preferred method, using the native OpenTelemetry Collector is a great alternative when you need to:
+
+- Integrate with an existing OpenTelemetry infrastructure
+- Maintain a strict vendor-neutral observability pipeline
+- Route telemetry to multiple vendor destinations simultaneously
+- Utilize experimental or community-contributed components from the `otelcol-contrib` project
 
 ## Prerequisites
 
@@ -24,13 +27,13 @@ Using the Collector is not mandatory, but it is usually the best default. It is 
 
 ## Install on Linux
 
-OpenTelemetry Collector releases are available in multiple package formats and architectures. See the official [Collector releases](https://github.com/open-telemetry/opentelemetry-collector-releases/releases) for the latest packages.
+OpenTelemetry Collector releases are available in multiple package formats and architectures. See the official [Collector releases](https://github.com/open-telemetry/opentelemetry-collector-releases/releases) for the latest packages. You can also visit the [OpenTelemetry Collector Contrib GitHub project](https://github.com/open-telemetry/opentelemetry-collector-contrib) to explore available components and source code.
 
 Every Collector release includes Debian and RPM packages for common Linux architectures. After installation, the default configuration is typically available at `/etc/otelcol-contrib/config.yaml`.
 
-<hint type="info">
-  Installing the Collector with the system package manager is recommended because it sets up the service automatically.
-</hint>
+:::note
+Installing the Collector with the system package manager is recommended because it sets up the service automatically.
+:::
 
 ### Debian-Based Systems
 
@@ -39,8 +42,8 @@ Example installation for `amd64`:
 ```bash
 sudo apt-get update
 sudo apt-get -y install wget systemctl
-wget https://github.com/open-telemetry/opentelemetry-collector-releases/releases/download/v0.116.0/otelcol-contrib_0.116.0_linux_amd64.deb
-sudo dpkg -i otelcol-contrib_0.116.0_linux_amd64.deb
+wget https://github.com/open-telemetry/opentelemetry-collector-releases/releases/download/v0.151.0/otelcol-contrib_0.151.0_linux_amd64.deb
+sudo dpkg -i otelcol-contrib_0.151.0_linux_amd64.deb
 ```
 
 Example installation for `arm64`:
@@ -48,8 +51,8 @@ Example installation for `arm64`:
 ```bash
 sudo apt-get update
 sudo apt-get -y install wget systemctl
-wget https://github.com/open-telemetry/opentelemetry-collector-releases/releases/download/v0.116.0/otelcol-contrib_0.116.0_linux_arm64.deb
-sudo dpkg -i otelcol-contrib_0.116.0_linux_arm64.deb
+wget https://github.com/open-telemetry/opentelemetry-collector-releases/releases/download/v0.151.0/otelcol-contrib_0.151.0_linux_arm64.deb
+sudo dpkg -i otelcol-contrib_0.151.0_linux_arm64.deb
 ```
 
 ### RPM-Based Systems
@@ -59,8 +62,8 @@ Example installation for `amd64`:
 ```bash
 sudo yum update
 sudo yum -y install wget systemctl
-wget https://github.com/open-telemetry/opentelemetry-collector-releases/releases/download/v0.116.0/otelcol-contrib_0.116.0_linux_amd64.rpm
-sudo rpm -ivh otelcol-contrib_0.116.0_linux_amd64.rpm
+wget https://github.com/open-telemetry/opentelemetry-collector-releases/releases/download/v0.151.0/otelcol-contrib_0.151.0_linux_amd64.rpm
+sudo rpm -ivh otelcol-contrib_0.151.0_linux_amd64.rpm
 ```
 
 Example installation for `arm64`:
@@ -68,8 +71,8 @@ Example installation for `arm64`:
 ```bash
 sudo yum update
 sudo yum -y install wget systemctl
-wget https://github.com/open-telemetry/opentelemetry-collector-releases/releases/download/v0.116.0/otelcol-contrib_0.116.0_linux_arm64.rpm
-sudo rpm -ivh otelcol-contrib_0.116.0_linux_arm64.rpm
+wget https://github.com/open-telemetry/opentelemetry-collector-releases/releases/download/v0.151.0/otelcol-contrib_0.151.0_linux_arm64.rpm
+sudo rpm -ivh otelcol-contrib_0.151.0_linux_arm64.rpm
 ```
 
 ## Install on Windows

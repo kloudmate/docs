@@ -1,0 +1,85 @@
+---
+title: "Explore"
+description: "Query, aggregate, and visualize metrics in KloudMate Explore."
+sidebar:
+  label: "Overview"
+  order: 1
+---
+
+import { Image } from 'astro:assets';
+import exploreNav from './images/explore-nav.png';
+import exploreGeneral from './images/explore-general.png';
+import exploreOverrides from './images/explore-overrides.png';
+import exploreFilters from './images/explore-filters.jpeg';
+import exploreGroupby from './images/explore-groupby.png';
+import exploreRanking from './images/explore-ranking.png';
+import exploreQueries from './images/explore-queries.png';
+import exploreRun from './images/explore-run.png';
+import exploreSave from './images/explore-save.png';
+
+Explore is the ad hoc query workspace in KloudMate. It lets you build and validate queries before saving them into a dashboard, with support for metrics, logs, and traces.
+
+This walkthrough focuses on metrics.
+
+## Explore Walkthrough
+
+1. **Navigate to Explore**
+   Open the Explore section from the left-hand navigation menu. A new untitled panel opens immediately.
+
+<Image src={exploreNav} alt="Navigate to Explore" />
+
+2. **Configure the Visualization**
+   Use the settings panel to choose how results are displayed. Common options include `TimeSeries`, `Table`, and `Stat`.
+
+   The settings panel has two tabs:
+
+   - **General:** Configure panel appearance and behavior.
+   - **Overrides:** Apply field-level customizations to specific series or fields.
+
+<Image src={exploreGeneral} alt="General Settings" />
+
+<Image src={exploreOverrides} alt="Overrides Settings" />
+
+3. **Choose the Data Source and Signal Type**
+   At the top of the query editor, select the data source and set the signal type to `Metrics`. Keep the query interval on `Auto` unless you need a specific rollup interval.
+
+4. **Build the Query**
+   In the Query Builder, select a metric name and choose an aggregation function such as `Avg`, `Sum`, `Min`, or `Max`.
+
+   - Click **Customize aggregation** to access advanced temporal and spatial aggregation controls. See [Metrics Aggregations](./metrics-aggregations/) for details.
+   - Use **Add filters** to narrow the results by attributes.
+
+<Image src={exploreFilters} alt="Add Filters" />
+
+   - Use **Group by** to break down the metric by a dimension such as `k8s_replicaset_name`.
+
+<Image src={exploreGroupby} alt="Group By" width={340} />
+
+   - Use **Ranking** to control how series are ordered.
+
+<Image src={exploreRanking} alt="Ranking" width={340} />
+
+   - Use **Legend Format** to customize series labels.
+   - Switch to the **PromQL** tab if you prefer raw query expressions.
+
+5. **Add Queries and Expressions**
+   Use **Add Query** to compare multiple metric series in one panel.
+
+   Use **Add Expression** to derive values from existing queries, including math, reduce, and condition expressions. See [Writing Expressions for KloudMate Alarms](../../alerts/writing-expressions-for-kloudmate-alarms/) for the full expression syntax.
+
+<Image src={exploreQueries} alt="Queries and Expressions" />
+
+6. **Run the Query**
+   Click **Run Query** to execute the query and render the result.
+
+<Image src={exploreRun} alt="Run Query" />
+
+7. **Save to a Dashboard**
+   When the query looks right, use **Save to Dashboard** to add the panel to an existing dashboard or create a new one.
+
+<Image src={exploreSave} alt="Save to Dashboard" />
+
+## Related Paths
+
+- [Metrics Aggregations](./metrics-aggregations/)
+- [Create a Dashboard](../../visualize-data/dashboards/create-a-dashboard/)

@@ -1,0 +1,75 @@
+---
+title: "Prometheus Integration"
+description: "Ingest Prometheus metrics into KloudMate through the KloudMate Agent."
+---
+Use this integration when your workloads already expose Prometheus metrics and you want KloudMate to ingest them without changing application code.
+
+KloudMate does not scrape Prometheus directly. Instead, you configure the KloudMate Agent with the Prometheus receiver and export the collected metrics to KloudMate.
+
+## Prerequisites
+
+1. Install and run the [KloudMate Agent](../../kloudmate-agent/).
+2. Ensure you can access the Prometheus configuration or know the scrape targets you want the Agent to use.
+
+## Step 1: Define the Prometheus Receiver
+
+Add a Prometheus receiver to the Agent configuration file (typically `/etc/km-agent/config.yaml`). You can copy scrape jobs from your existing Prometheus configuration or define a smaller metrics-only subset for KloudMate.
+
+```yaml
+receivers:
+  prometheus:
+    config:
+      scrape_configs:
+        - job_name: km-agent
+          scrape_interval: 5s
+          static_configs:
+            - targets: ["0.0.0.0:8888"]
+        - job_name: kubernetes-pods
+          kubernetes_sd_configs:
+            - role: pod
+          relabel_configs:
+            - source_labels: [__meta_kubernetes_pod_annotation_prometheus_io_scrape]
+              regex: "true"
+              action: keep
+          metric_relabel_configs:
+            - source_labels: [__name__]
+              regex: "(request_duration_seconds.*|response_duration_seconds.*)"
+              action: keep
+```
+
+:::info
+Validate indentation carefully when copying `scrape_configs` into the Agent configuration.
+:::
+
+## Step 2: Add to Pipeline
+
+Configure the Agent's pipeline to include the Prometheus receiver. The `otlphttp` exporter is already configured by default when you install the KloudMate Agent.
+
+```yaml
+service:
+  pipelines:
+    metrics:
+      receivers: [prometheus, hostmetrics] # Add prometheus to your existing receivers
+      processors: [resource, batch]
+      exporters: [debug, otlphttp]
+```
+
+## Step 3: Restart the Agent
+
+```bash
+systemctl restart kmagent
+systemctl status kmagent
+```
+
+## Step 4: Validate in KloudMate
+
+After the Agent restarts:
+
+- open [Explore](../explore/)
+- query one of the scraped Prometheus metrics
+- build dashboards or alarms once the data is visible
+
+## Related Paths
+
+- [KloudMate Agent](../../kloudmate-agent/)
+- [Explore](../explore/)

@@ -1,0 +1,47 @@
+---
+title: "Manual Instrumentation"
+description: "Use OpenTelemetry SDKs directly in your application code for custom spans, richer trace context, and application telemetry."
+sidebar:
+  label: "Overview"
+  order: 1
+---
+Manual instrumentation gives you full control over your observability data by using OpenTelemetry SDKs directly in your application code. This approach is ideal when you need custom business logic attributes, fine-grained span management, or specialized telemetry.
+
+## When to Use
+
+- when you need custom business-logic attributes on spans
+- when you want precise control over span boundaries and naming
+- when auto-instrumentation does not cover your specific libraries or frameworks
+- when you need fine-grained telemetry design in application code
+
+## Supported SDKs
+
+The KloudMate Agent works with any OpenTelemetry SDK. Use these runtime-specific guides:
+
+- [Python](./python/)
+- [Go](./go/)
+- [Node.js](./node-js/)
+- [Java](./java/)
+- [.NET](./dotnet/)
+- [PHP](./php/)
+- [Ruby](./ruby/)
+
+## Configuration
+
+Point your OpenTelemetry SDK exporter to the KloudMate Agent OTLP endpoint:
+
+```bash
+OTEL_EXPORTER_OTLP_ENDPOINT="http://KM_AGENT_HOST:4318"
+OTEL_SERVICE_NAME="your-service-name"
+```
+
+## Metrics and Logs
+
+Manual instrumentation can also emit metrics and logs, but those signals are documented separately where their structure is clearer:
+
+- [Metrics](../../infrastructure/)
+- [Logs](../../logs/)
+
+## Combining with eBPF
+
+Recommended approach: start with [KloudMate Agent eBPF Observability](../../kloudmate-agent/ebpf-observability/) for broad Linux coverage, then enrich selected services with manual OpenTelemetry SDK instrumentation where you need custom business logic spans or richer application context.

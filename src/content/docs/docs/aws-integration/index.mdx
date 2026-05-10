@@ -1,14 +1,29 @@
 ---
 title: "AWS Integration"
-description: "Connect AWS accounts to KloudMate and use service-specific AWS observability guides."
+description: "Connect AWS accounts to KloudMate and automatically ingest telemetry using our native integrations."
 sidebar:
   label: "Overview"
   order: 1
 ---
-Use KloudMate's AWS integrations to onboard cloud telemetry without instrumenting every workload by hand.
+
+KloudMate provides native integrations for Amazon Web Services (AWS) that allow you to seamlessly pull metrics, logs, and traces into your observability pipelines. By connecting your AWS account, you can monitor your infrastructure and serverless workloads without having to instrument every individual component by hand.
+
+## How it Works
+
+KloudMate connects to your AWS environment securely using a cross-account IAM role, provisioned via an automated AWS CloudFormation template. This ensures that KloudMate only receives the permissions strictly necessary to read telemetry data and metadata, maintaining a secure, read-only posture.
+
+Once connected, KloudMate can automatically discover AWS resources and begin ingesting their associated metrics and logs.
+
+## Key Capabilities
+
+- **Automatic Resource Discovery**: Quickly discover and monitor supported AWS resources, starting with AWS Lambda.
+- **Centralized CloudWatch Logs**: Subscribe to existing CloudWatch Log Groups directly from the KloudMate dashboard and forward them into the centralized Log Explorer.
+- **Serverless Observability**: Get out-of-the-box dashboards and metrics (such as invocations, errors, cold starts, and memory usage) for AWS Lambda workloads.
 
 ## Available Guides
 
-- [AWS Account Setup](./account-setup/)
-- [CloudWatch Logs](./cloudwatch-logs/)
-- [AWS Lambda Monitoring](./lambda-monitoring/)
+Explore the following guides to set up and configure your AWS integrations:
+
+- **[AWS Account Setup](./account-setup/)**: Learn how to connect your AWS environment to KloudMate using CloudFormation and cross-account IAM roles.
+- **[CloudWatch Logs](./cloudwatch-logs/)**: Instructions for subscribing to CloudWatch Log groups and making them fully searchable inside KloudMate.
+- **[AWS Lambda Monitoring](./lambda-monitoring/)**: Explore how KloudMate aggregates Lambda metrics, invocations, and issues in a unified console.

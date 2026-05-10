@@ -1,0 +1,80 @@
+---
+title: "Trace Explorer"
+description: "Learn how to use the Traces section in KloudMate to search, filter, and inspect distributed traces."
+sidebar:
+  order: 1
+---
+Click **Traces** in the left navigation menu to open the section.
+
+At the top of the page, the **span volume graph** visualizes trace activity over the selected time range. This gives you a quick pulse check on traffic patterns before you inspect individual traces.
+
+![image](../images/traces-1.jpeg)
+
+<hint type="info">
+  See [Sending Data to KloudMate](../../getting-started/sending-data-to-kloudmate/) for onboarding and ingestion options.
+</hint>
+
+## Searching and Filtering
+
+### Search Bar
+
+Search across traces using span attributes. Click the search bar to see the list of available attributes.
+
+![image](../images/traces-2.jpeg)
+
+Click the filter icon on the right to open the full attribute picker. Active filters appear as tags in the search bar and can be removed individually.
+
+![image](../images/traces-3.jpeg)
+
+### Sidebar Filters
+
+Use the left sidebar to filter results by:
+
+- Service
+- HTTP Method
+- HTTP Status
+- Severity
+- Database Name
+
+Each filter section includes a search box for quick lookup. When filters are active, a recent-filters notice appears at the top of the sidebar.
+
+![image](../images/traces-4.jpeg)
+
+## Saved Queries
+
+Click **Saved Queries** to view and apply previously saved searches. To save a new query, click the dropdown arrow next to **Saved Queries** and select **Add New**.
+
+![image](../images/traces-5.jpeg)
+
+## Traces Result Views
+
+### Spans
+
+The **Spans** tab is the default view. It lists every individual span captured within the selected time range and active filters. Each row displays `Timestamp`, `Span Name`, `Services`, `Duration`, and `Error`.
+
+This view is best when you need the most granular view of tracing activity.
+
+![image](../images/traces-6.jpeg)
+
+### Trace Summary
+
+The **Trace Summary** tab groups spans into complete traces, giving you a higher-level view of end-to-end request journeys. Each row represents a single trace, showing its entry point, number of services, spans involved, total duration, and any errors.
+
+![image](../images/traces-2.png)
+
+### Root Spans
+
+The **Root Spans** tab shows only the root span from each trace. This makes it easier to compare top-level requests without the noise of child spans.
+
+![image](../images/traces-3.png)
+
+### Services
+
+The **Services** tab summarizes traffic by service so you can identify hotspots, dependency trends, and the applications generating the most trace volume.
+
+![image](../images/traces-4.png)
+
+## Related Paths
+
+- [APM Views](../apm-views/)
+- [Explore](../../visualize-data/explore/)

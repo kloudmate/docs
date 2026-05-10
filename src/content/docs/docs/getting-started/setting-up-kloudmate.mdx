@@ -2,31 +2,36 @@
 title: "Setting Up KloudMate"
 description: "Create a workspace and complete the initial KloudMate onboarding flow."
 sidebar:
-  order: 2
+  order: 3
 ---
-## Signing Up With KloudMate
 
-- [Click here](https://app.kloudmate.com/signup) to go to the KloudMate signup page.
-- Fill in the signup form with your details (work email preferred).
+Welcome to KloudMate! Setting up your account takes just a few minutes. This guide will walk you through creating your organization, setting up your first workspace, and preparing to ingest telemetry data.
+
+## Signing Up
+
+1. [Click here](https://app.kloudmate.com/signup) to go to the KloudMate signup page.
+2. Fill in the signup form with your details (work email only).
 
 ![image](../images/setting-up-kloudmate-1.png)
 
-- Check your email for a verification code from noreply\@kloudmate.com (Don't forget the spam folder!).
-- Enter the verification code on the KloudMate window and click '**Next**'.
-- Enter your organization name and workspace name. Click '**Next**'.
+3. Check your email for a verification code from `noreply@kloudmate.com` (Don't forget the spam folder!).
+4. Enter the verification code on the KloudMate window and click **Next**.
+5. Enter your organization name and workspace name. Click **Next**.
 
 ![image](../images/setting-up-kloudmate-2.png)
 
 ![image](../images/setting-up-kloudmate-3.png)
 
-- Select the method you prefer in the **Send Data to KloudMate** window.
+## Selecting a Data Source
+
+After creating your workspace, you will be prompted to select a method to send data to KloudMate. 
 
 ![image](../images/setting-up-kloudmate-4.png)
 
 ### Using OpenTelemetry
 
 - Select **OpenTelemetry** if you want to generate, collect, and export metrics, logs, and traces to KloudMate using the OpenTelemetry SDKs or Collector.
-- The **Endpoint**and**Workspace** API Key required to send data to KloudMate are already available on this page. Use these details while configuring your OpenTelemetry instrumentation or Collector.
+- The **Endpoint** and **Workspace API Key** required to send data to KloudMate are already available on this page. Use these details while configuring your OpenTelemetry instrumentation or Collector.
 - If you prefer a simpler setup, you can install the **KloudMate Agent** by clicking **Install Agent** above. The agent is OpenTelemetry-based and comes preconfigured to send telemetry data to KloudMate.
 
 ![image](../images/setting-up-kloudmate-5.png)
@@ -40,7 +45,7 @@ Choose **AWS Integration** if you want to connect an AWS account through the bui
 
 For the full setup steps, see [AWS Account Setup](../../aws-integration/account-setup/).
 
-## **Related Resources**
+## Related Resources
 
 - [AWS Account Setup](../../aws-integration/account-setup/)
 - [Sending Data to KloudMate](../sending-data-to-kloudmate/)

@@ -1,0 +1,87 @@
+---
+title: "Data Sampling"
+description: "Learn how to configure OpenTelemetry Collector processors to sample traces and logs to manage telemetry volume and control costs."
+sidebar:
+  label: "Data Sampling"
+  order: 6
+---
+When managing high-volume telemetry environments, you may not need or want to send 100% of your traces and logs to KloudMate. Data sampling allows you to selectively retain a representative subset of your telemetry, helping you manage storage costs and network bandwidth without losing visibility into your system's overall health and performance.
+
+The OpenTelemetry Collector provides several processors for sampling data. The two most common approaches are **Head Sampling** (making a sampling decision at the beginning of a trace) and **Tail Sampling** (making a decision after all spans for a trace have been collected).
+
+## Probabilistic Sampling (Head Sampling)
+
+The easiest way to reduce volume is to apply a uniform probabilistic sampling rate. The `probabilistic_sampler` processor randomly drops a specified percentage of your data.
+
+This processor can be used for both **traces** and **logs**.
+
+### Example: Keep 10% of Traces and Logs
+
+Add the `probabilistic_sampler` to your `processors` configuration and specify the `sampling_percentage`.
+
+```yaml
+processors:
+  probabilistic_sampler:
+    hash_seed: 22
+    sampling_percentage: 10 # Keeps 10% of data, drops 90%
+
+service:
+  pipelines:
+    traces:
+      receivers: [otlp]
+      processors: [probabilistic_sampler, batch] # Sampler runs before batching
+      exporters: [otlphttp]
+    logs:
+      receivers: [otlp]
+      processors: [probabilistic_sampler, batch]
+      exporters: [otlphttp]
+```
+
+## Tail Sampling
+
+Tail sampling gives you much more control by allowing you to evaluate the *entire* trace before deciding whether to keep it or drop it. This is highly recommended because it allows you to configure policies like "keep 100% of errors, but only keep 10% of successful traces."
+
+The `tail_sampling` processor works specifically with **traces**.
+
+:::caution
+The `tail_sampling` processor must hold spans in memory until the trace is complete. This requires you to allocate sufficient memory to the Collector, and you must place it *before* the `batch` processor in your pipeline.
+:::
+
+### Example: Keep All Errors, Sample Successes
+
+The following configuration uses multiple policies. The Collector evaluates policies in order. If a trace matches *any* policy that decides to keep it, the trace is exported.
+
+```yaml
+processors:
+  tail_sampling:
+    decision_wait: 10s # Wait 10 seconds for the trace to complete before deciding
+    num_traces: 10000
+    expected_new_traces_per_sec: 100
+    policies:
+      [
+        # Policy 1: Always keep traces containing spans with an ERROR status code
+        {
+          name: keep-errors,
+          type: status_code,
+          status_code: { status_codes: [ERROR] }
+        },
+        # Policy 2: Keep 10% of all other (successful) traces
+        {
+          name: sample-successes,
+          type: probabilistic,
+          probabilistic: { sampling_percentage: 10 }
+        }
+      ]
+service:
+  pipelines:
+    traces:
+      receivers: [otlp]
+      # NOTE: tail_sampling must come BEFORE batch
+      processors: [tail_sampling, batch] 
+      exporters: [otlphttp]
+```
+
+## Related Resources
+
+- [Mask and Drop Sensitive Data](./masking-sensitive-data/)
+- [Configure the Collector](./using-opentelemetry-collector/)

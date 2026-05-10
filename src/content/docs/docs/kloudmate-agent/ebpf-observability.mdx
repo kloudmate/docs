@@ -22,8 +22,8 @@ When eBPF is enabled through the KloudMate Agent, KloudMate can automatically co
 
 After eBPF data is flowing, use:
 
-- [APM](../../traces/apm/) for service-level latency, throughput, and dependency views
-- [Traces](../../traces/) for request-level trace inspection
+- [APM](../../apm-and-tracing/apm-views/) for service-level latency, throughput, and dependency views
+- [Traces](../../apm-and-tracing/) for request-level trace inspection
 - [Database Activity Monitoring](../../database-monitoring/database-activity-monitoring-dam/) for kernel-level database visibility
 
 ## Prerequisites
@@ -44,7 +44,7 @@ Use these setup guides first:
 1. Install the KloudMate Agent on your Linux server or Kubernetes cluster.
 2. Enable APM or eBPF-related features in the agent configuration via the web UI.
 3. Start with this broad zero-code coverage to get immediate visibility.
-4. Add [Manual Instrumentation](../../traces/manual-instrumentation/) only where you need custom business logic spans or richer application context.
+4. Add [Manual Instrumentation](../../apm-and-tracing/manual-instrumentation/) only where you need custom business logic spans or richer application context.
 
 ## Base eBPF Configuration
 
@@ -100,5 +100,5 @@ When using the [Kubernetes](../installation/kubernetes-agent/) installation meth
 ## Related Docs
 
 - [Configuration & Management](../management/)
-- [APM](../../traces/apm/)
-- [Manual Instrumentation](../../traces/manual-instrumentation/)
+- [APM](../../apm-and-tracing/apm-views/)
+- [Manual Instrumentation](../../apm-and-tracing/manual-instrumentation/)

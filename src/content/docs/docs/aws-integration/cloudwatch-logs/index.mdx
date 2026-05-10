@@ -7,9 +7,9 @@ sidebar:
 ---
 Use this workflow after you have connected your AWS account to KloudMate. You can subscribe CloudWatch log groups by region and make those logs searchable in Log Explorer.
 
-<hint type="info">
-  Lambda logs from the connected AWS account are ingested automatically.
-</hint>
+:::info
+Lambda logs from the connected AWS account are ingested automatically.
+:::
 
 ## Before You Start
 
@@ -39,9 +39,9 @@ Use this workflow after you have connected your AWS account to KloudMate. You ca
 
 ## CloudWatch Subscription Filter Limit
 
-<hint type="info">
-  AWS allows only two subscription filters per log group.
-</hint>
+:::note
+AWS allows only two subscription filters per log group.
+:::
 
 If a log group already has two active subscription filters, KloudMate cannot add another one until an existing filter is removed.
 
@@ -57,9 +57,9 @@ To free a subscription slot:
 4. Open **Actions**.
 5. Click **Remove Subscription Filter**.
 
-<hint type="info">
-  After subscription is enabled, you can search and analyze the ingested logs in [Log Explorer](../../logs/log-explorer/).
-</hint>
+:::tip
+After subscription is enabled, you can search and analyze the ingested logs in [Log Explorer](../../logs/log-explorer/).
+:::
 
 ## Related Resources
 
