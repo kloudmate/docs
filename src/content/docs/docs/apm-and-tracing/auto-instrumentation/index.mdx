@@ -1,29 +1,37 @@
 ---
-title: "Kubernetes APM with KloudMate Agent"
-description: "Use the KloudMate Agent to enable APM for Kubernetes workloads, which is the preferred auto-instrumentation path in KloudMate."
+title: "Auto Instrumentation"
+description: "Enable APM for your applications using zero-code or auto-instrumentation methods."
 sidebar:
-  label: "Kubernetes APM"
+  label: "Overview"
   order: 1
 ---
-If your applications run on Kubernetes, the preferred way to turn on APM in KloudMate is through the [KloudMate Agent Kubernetes installation guide](../../kloudmate-agent/installation/kubernetes-agent/#apm-setup-instructions).
 
-That guide walks you through the supported setup flow for:
+Auto-instrumentation (or zero-code instrumentation) allows you to collect telemetry data from your applications without modifying their source code. KloudMate supports multiple pathways for instant observability, ranging from kernel-level eBPF to framework-specific OpenTelemetry agents.
 
-- enabling APM from the KloudMate Agent install experience
-- turning on automatic runtime detection
-- patching workloads with the correct instrumentation annotations when needed
-- collecting traces alongside Kubernetes metrics, logs, and events
+Choose the path that fits your environment:
 
-## Preferred Setup Path
+## Zero-Downtime eBPF (Recommended Foundation)
 
-Use [APM Setup Instructions](../../kloudmate-agent/installation/kubernetes-agent/#apm-setup-instructions) when you want to:
+If your applications run on Linux (VMs, bare metal, or Kubernetes), the preferred foundational layer for APM is eBPF. It requires no code changes and **no application restarts**, providing universal coverage across all languages.
 
-- enable APM during KloudMate Agent installation
-- auto-instrument supported runtimes in Kubernetes
-- patch deployments manually when auto-detection does not cover a workload
+- [Zero-Downtime Observability (eBPF)](./ebpf/)
 
-## Related Paths
+## Kubernetes Workloads
 
-- [Kubernetes Agent](../../kloudmate-agent/installation/kubernetes-agent/)
-- [APM](../apm/)
-- [Manual Instrumentation](../manual-instrumentation/)
+If your applications run on Kubernetes, you can leverage the KloudMate Agent to easily deploy APM and patching.
+
+- [Kubernetes APM with KloudMate Agent](./kubernetes-apm/)
+
+## OpenTelemetry Auto-Instrumentation
+
+For richer framework-specific attributes or environments where eBPF is not an option, KloudMate natively leverages standard OpenTelemetry auto-instrumentation agents. This approach requires attaching an agent to your runtime and **restarting your application**.
+
+Select your language to get started:
+
+- [Java](./java/)
+- [Python](./python/)
+- [Node.js](./node-js/)
+- [.NET](./dotnet/)
+- [Go](./go/)
+- [PHP](./php/)
+- [Ruby](./ruby/)

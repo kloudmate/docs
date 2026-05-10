@@ -1,0 +1,29 @@
+---
+title: "Kubernetes APM with KloudMate Agent"
+description: "Use the KloudMate Agent to enable APM for Kubernetes workloads, which is the preferred auto-instrumentation path in KloudMate."
+sidebar:
+  label: "Kubernetes APM"
+  order: 1
+---
+If your applications run on Kubernetes, the preferred way to turn on APM in KloudMate is through the [KloudMate Agent Kubernetes installation guide](../../kloudmate-agent/installation/kubernetes-agent/#apm-setup-instructions).
+
+That guide walks you through the supported setup flow for:
+
+- enabling APM from the KloudMate Agent install experience
+- turning on automatic runtime detection
+- patching workloads with the correct instrumentation annotations when needed
+- collecting traces alongside Kubernetes metrics, logs, and events
+
+## Preferred Setup Path
+
+Use [APM Setup Instructions](../../kloudmate-agent/installation/kubernetes-agent/#apm-setup-instructions) when you want to:
+
+- enable APM during KloudMate Agent installation
+- auto-instrument supported runtimes in Kubernetes
+- patch deployments manually when auto-detection does not cover a workload
+
+## Related Paths
+
+- [Kubernetes Agent](../../kloudmate-agent/installation/kubernetes-agent/)
+- [APM](../apm/)
+- [Manual Instrumentation](../manual-instrumentation/)
