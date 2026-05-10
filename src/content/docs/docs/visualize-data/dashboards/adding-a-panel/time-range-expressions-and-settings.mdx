@@ -1,7 +1,7 @@
 ---
 
 title: "Time Range Expressions and Settings"
-description: "Documentation for Time Range Expressions and Settings"
+description: "Configure dynamic time windows and panel-specific time overrides."
 sidebar:
   order: 99
 ---
@@ -21,16 +21,21 @@ Time range expressions let you manually configure the time range of dashboards a
   - `\`: End of (day, month, week, etc.)
   - `-`: Subtract time
   - `+`: Add time
-- **Keywords**- `now`: Current time**Examples:**|**Expression**|**From**|**To**   |
+- **Keywords**
+  - `now`: Current time
+
+**Examples:**
+
+| **Expression** | **From** | **To**   |
 | -------------- | -------- | -------- |
 | Last 5 minutes | now-5m   | now      |
 | Yesterday      | now-1d/d | now-1d\d |
 | The day so far | now/d    | now      |
 | This week      | now/w    | now\w    |
 
-<hint type="info">
-  You can enter the **From**and**To**expressions in the time picker’s**Start & End time**fields. Click**Apply** to apply the custom range to the panel or dashboard.
-</hint>
+:::info
+You can enter the **From** and **To** expressions in the time picker’s **Start & End time** fields. Click **Apply** to apply the custom range to the panel or dashboard.
+:::
 
 ![image](./images/time-range-expressions-and-settings-1.jpeg)
 
@@ -51,7 +56,11 @@ This is useful when you want to visualize and compare data across different time
 Time Shift moves a panel’s start and end time forward or backward by a specified amount. This lets you view historical data offset from the current time range without changing the dashboard’s global range.
 
 - **Supported operators:** `-` (subtract time required)
-- **Supported units:**Same as Dashboard time range expressions**Examples:**|**From**|**To**|**Time Shift**|**Applied From**|**Applied To** |
+- **Supported units:** Same as Dashboard time range expressions
+
+**Examples:**
+
+| **From** | **To** | **Time Shift** | **Applied From** | **Applied To** |
 | -------- | -------- | -------------- | ---------------- | -------------- |
 | now-1d   | now      | **-5h**        | now-1d-5h        | now-5h         |
 | now-1d/d | now-1d\d | **-1d**        | now-1d/d-1d      | now-1d\d-1d    |

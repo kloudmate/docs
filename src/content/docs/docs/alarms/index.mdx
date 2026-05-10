@@ -1,13 +1,13 @@
 ---
-
-title: "Understanding KloudMate Alarms"
-description: "Documentation for Understanding KloudMate Alarms"
+title: "Alarms Overview"
+description: "Understand the core concepts of KloudMate Alarms, including rules, queries, expressions, and notification channels."
 sidebar:
-  order: 2
+  order: 1
+  label: "Introduction"
 ---
 Developers create custom KloudMate alarms to monitor events critical to their applications. These alarms use a set of evaluation criteria to determine whether the alarm triggers.
 
-# Key Concepts
+## Key Concepts
 
 ### Alarm Rule
 
@@ -58,15 +58,11 @@ An alarm rule:
 
 Once the condition is met and remains true for the defined duration, KloudMate compares the notification tags added to the alarm against the tags specified in notification policies. When tags match exactly (all policy tags must exist on the alarm), KloudMate sends the notification to the notification channel configured in that matching policy.
 
-<hint type="info">
-  If **no tags are specified** in a notification policy, it matches all alarms regardless of their tags.
-</hint>
+:::info
+If **no tags are specified** in a notification policy, it matches all alarms regardless of their tags.
+:::
 
-The following diagram gives a general outline of the lifecycle of a KloudMate alarm:
-
-
-
-# KloudMate Alarm States
+## KloudMate Alarm States
 
 Alarm states show current status. Filter and view alarms by state:
 
@@ -74,14 +70,4 @@ Alarm states show current status. Filter and view alarms by state:
 - **Pending:** Alarm active but shorter than threshold duration.
 - **Normal:** No firing or pending—everything works as expected.
 - **Error:** Error occurred during evaluation.
-- **No Data:**No data received for the configured time window.***
-
-## Related Resources
-
-- [Setting Up KloudMate Alarms](../setting-up-kloudmate-alarms/)
-- [Writing Expressions for KloudMate Alarms](../writing-expressions-for-kloudmate-alarms/)
-
-###
-
- 
-
+- **No Data:** No data received for the configured time window.

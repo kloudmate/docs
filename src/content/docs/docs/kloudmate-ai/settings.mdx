@@ -1,7 +1,71 @@
 ---
-title: "MCP Integrations"
-description: "Documentation for MCP Integrations"
+title: "Settings"
+description: "Configure what appears in the Assistant experience and manage its capabilities and integrations."
+sidebar:
+  order: 3
 ---
+Assistant Settings lets you configure what appears in the Assistant experience and what the Assistant is permitted to do. 
+
+Settings are organized into three sections: Prompts, Skills, and MCP Integrations.
+
+## Prompts
+
+Quickstart prompts are suggested questions displayed in the chat interface to help users get immediate value. Clicking a prompt inserts its text directly into the chat input, saving users from having to type common queries from scratch.
+
+![image](./images/prompts-1.png)
+
+The prompts list displays each prompt’s name, a preview of the prompt text, its visibility (Private or Shared), and whether it is currently enabled. The list can be filtered by All, Private, or Shared to quickly locate what you are looking for.
+
+To create a new prompt, click the **Create Prompt** button in the top-right corner. 
+
+![image](./images/prompts-1.jpeg)
+
+A dialog will appear with the following fields:
+
+- **Title:** A short, scannable label for the prompt 
+- **Prompt:** The actual text that gets inserted into the chat input when the prompt is selected. This field is required.
+- **Private:** When enabled, only you can see and use the prompt. Disable it to share the prompt with everyone in the workspace.
+- **Enabled:** Controls whether the prompt is active and visible in the chat interface. You can disable a prompt when it is outdated or seasonal without deleting it.
+
+Once you have filled in the required fields, click **Create** to save the prompt.
+
+## Skills
+
+Skills are reusable instructions the Assistant can follow. They are useful for standardizing investigations, codifying runbooks, and enabling repeatable workflows across your team.
+
+![image](./images/skills-1.png)
+
+Each skill is defined by the following properties:
+
+- **Title:** The name that users and agents will recognize when referencing or activating the skill.
+- **Content:** The actual skill instructions. Skills are typically written in Markdown and include a short metadata header followed by the detailed steps the Assistant should follow.
+- **Visibility:** When enabled, only you can use or manage the skill. When disabled, the skill is shared with the entire workspace.
+- **Enabled:** Turns the skill on or off without deleting it, useful when you want to temporarily pause a skill.
+
+The skills list can be filtered by All, Private, or Shared to help you quickly locate skills by their visibility scope.
+
+### Creating a New Skill
+
+To create a skill from scratch, click the **New Skill** button in the top-right corner. 
+
+![image](./images/skills-1.jpeg)
+
+This opens the skill editor screen, which shows a **Title** field at the top and a **Content** editor below it. The content editor comes pre-populated with a structured template, it includes a metadata block at the top where you fill in the skill name and description, followed by a content section where you describe the steps the Assistant should follow in detail. 
+
+![image](./images/skills-2.png)
+
+Fill in the title, replace the template placeholders with your actual skill instructions, configure the **Private** toggle as needed, then click **Save** to create the skill.
+
+### Importing a Skill from a Template
+
+To get started quickly from a pre-built starting point, click **Browse Templates** in the top-right corner. 
+
+![image](./images/skills-2.jpeg)
+
+This opens the Import Skill Template dialog, which lists a set of curated templates ready to import. Click **Import** next to any template to add it to your skills list. Once imported, you can open and customize the skill to suit your specific environment and workflows.
+
+## MCP Integrations
+
 **MCP (Model Context Protocol) integrations** connect the Assistant to external systems such as OAuth providers or your own custom MCP servers. After connecting an integration, you configure which of its tools are enabled and whether the Assistant must request approval before running any of them.
 
 ![image](./images/mcp-integrations-1.png)
@@ -10,11 +74,11 @@ description: "Documentation for MCP Integrations"
 
 The Connected Integrations section lists all integrations you have already configured. For each integration, you can see its display name, whether it is scoped privately to your account or shared across the workspace, and its current connection status. 
 
-<hint type="info">
+:::info
   A status of **Error** indicates the integration requires attention. Use the **Validate** button to re-test the connection, or the menu to edit or remove the integration.
 
   If you see a **Reconnect Required status**, the integration’s authorization has expired and needs to be refreshed. Click the validate or reconnect option to re-authenticate.
-</hint>
+:::
 
 ### Available Integrations
 
@@ -51,7 +115,6 @@ Tools may also carry labels that hint at their behavior.
 - A **Read** label indicates the tool is intended to be read-only and carries lower risk. 
 - A **Write** label indicates the tool may perform destructive or state-changing actions and should be used with care. 
 
-<hint type="info">
+:::info
   When deciding on approval mode, it is advisable to apply stricter settings such as Ask Before Run for Write tools and for any tool with access to sensitive or production systems.
-</hint>
-
+:::

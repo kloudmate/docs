@@ -60,31 +60,36 @@
     }
   }
 
-  /* 1. Make sidebar group headers match regular nav items in font-weight and color */
-  sl-sidebar-state-persist summary .large {
+  /* 1. Make sidebar group headers and top-level links match regular nav items in font-weight and color */
+  sl-sidebar-state-persist summary .large,
+  sl-sidebar-state-persist a.large {
     font-weight: 400 !important;
     color: var(--sl-color-gray-2) !important;
   }
 
   /* White text on hover */
-  sl-sidebar-state-persist summary:hover .large {
+  sl-sidebar-state-persist summary:hover .large,
+  sl-sidebar-state-persist a.large:hover {
     color: var(--sl-color-white) !important;
   }
 
   /* 2. Match the responsive text size of nav links */
   @media (min-width: 50rem) {
-    sl-sidebar-state-persist summary .large {
+    sl-sidebar-state-persist summary .large,
+    sl-sidebar-state-persist a.large {
       font-size: var(--sl-text-sm) !important;
     }
   }
   @media (max-width: 50rem) {
-    sl-sidebar-state-persist summary .large {
+    sl-sidebar-state-persist summary .large,
+    sl-sidebar-state-persist a.large {
       font-size: var(--sl-text-base) !important;
     }
   }
 
-  /* 3. Bold and white group header ONLY if a child nav item is currently selected */
-  sl-sidebar-state-persist details:has(a[aria-current="page"]) > summary .large {
+  /* 3. Bold and white text ONLY if currently selected */
+  sl-sidebar-state-persist details:has(a[aria-current="page"]) > summary .large,
+  sl-sidebar-state-persist a.large[aria-current="page"] {
     font-weight: 600 !important;
     color: var(--sl-color-white) !important;
   }
