@@ -1,8 +1,8 @@
 ---
-title: "Collect File Logs with KloudMate Agent"
-description: "Configure the KloudMate Agent filelog receiver to collect logs from files and send them to KloudMate."
+title: "Collect File Logs"
+description: "Configure the KloudMate Agent filelog receiver to collect logs from files."
 sidebar:
-  label: "File Logs with KloudMate Agent"
+  label: "File Logs"
   order: 3
 ---
 Use the KloudMate Agent `filelog` receiver when your application writes logs to a local file and you want KloudMate to collect them.
@@ -41,7 +41,7 @@ processors:
 
 receivers:
   filelog/app:
-    include: [/tmp/app.log]
+    include: [/tmp/app.log, /var/log/*.log] # Supports multiple paths and wildcards
     start_at: end
     storage: file_storage
 
@@ -49,7 +49,7 @@ exporters:
   otlphttp:
     endpoint: 'https://otel.kloudmate.com:4318'
     headers:
-      Authorization: xxxxxxxx
+      Authorization: YOUR_KLOUDMATE_API_KEY
 
 service:
   pipelines:
@@ -60,35 +60,13 @@ service:
   extensions: [file_storage]
 ```
 
-<hint type="info">
-  Set `start_at: beginning` if you want to ingest existing file contents instead of only new log lines.
-</hint>
+:::info
+Set `start_at: beginning` if you want to ingest existing file contents instead of only new log lines. The `include` array also supports wildcards (like `*.log`) to match multiple files at once.
+:::
 
-## Step 3: Save and Restart the Agent
+After updating the configuration, save the collector configuration in the KloudMate UI. The KloudMate Agent will automatically detect the changes and reload the configuration.
 
-After updating the configuration, save the collector configuration in the KloudMate UI.
-
-Restart the agent if required by your environment.
-
-### Linux
-
-Run:
-
-```bash
-systemctl restart kmagent
-systemctl status kmagent
-```
-
-These commands restart the agent and show its current status.
-
-### Windows
-
-1. Open the **Services** window.
-2. Press `Win + R`, type `services.msc`, and press `Enter`.
-3. Locate the **KloudMate Agent** service.
-4. Right-click the service and select **Restart**.
-
-## Step 4: Validate Log Ingestion
+## Step 3: Validate Log Ingestion
 
 1. Sign in to KloudMate.
 2. Open [Log Explorer](./log-explorer/).
