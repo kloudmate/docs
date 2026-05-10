@@ -7,7 +7,8 @@ import starlightThemeNova from 'starlight-theme-nova';
 import starlightLinksValidator from 'starlight-links-validator';
 import starlightImageZoom from 'starlight-image-zoom';
 import starlightOpenAPI, { openAPISidebarGroups } from 'starlight-openapi';
-import starlightAutoDrafts from 'starlight-auto-drafts'
+import starlightAutoDrafts from 'starlight-auto-drafts';
+import starlightDotMd from 'starlight-dot-md';
 
 
 const deploymentOrigin = process.env.DOCS_SITE_URL ?? 'https://docs.kloudmate.com';
@@ -54,6 +55,7 @@ export default defineConfig({
         starlightLlmsTxt(),
         starlightAutoSidebar(),
         starlightAutoDrafts(),
+        starlightDotMd(),
       ],
       title: 'KloudMate Docs',
       description: 'Documentation for KloudMate observability platform',
