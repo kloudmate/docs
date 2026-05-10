@@ -1,0 +1,125 @@
+---
+title: "Instrument a React App"
+description: "Learn how to instrument a sample React SPA with OpenTelemetry to send data to KloudMate."
+---
+
+Here’s how you can instrument a front-end React application to generate **traces**, **metrics**, and **logs**, and send them to **KloudMate** using **OpenTelemetry**.
+
+
+
+### Step 1: Set Up the Example React Application
+
+For this tutorial, we’ll be working with a simple single-page application (SPA) built using **React** and **Vite**. While the instrumentation approach shown here uses React, the same principles apply to other front-end frameworks.
+
+We'll use `Vite` to scaffold the project and `npm` (version 5.2+ or higher) as the package manager.
+
+### Step 2: Set up a React App with Vite
+
+We'll create a simple React + TypeScript application using Vite.
+
+```bash
+npm create vite@latest .
+```
+
+- Select `react` as the framework.
+- Select `typescript` as the variant.
+
+Then run:
+
+```bash
+npm install
+npm run dev
+```
+
+### Step 3: Install the required OpenTelemetry packages: 
+```bash
+npm install @opentelemetry/api \
+@opentelemetry/core \
+@opentelemetry/sdk-trace-web \
+@opentelemetry/exporter-trace-otlp-http \
+@opentelemetry/instrumentation \
+@opentelemetry/auto-instrumentations-web \
+@opentelemetry/context-zone \
+@opentelemetry/resources \
+@opentelemetry/auto-configuration-propagators
+```
+
+### **Step 4: Instrumentation**
+
+1\. Create a file named tracer.ts inside the `src` folder and add the following code to it:
+
+```typescript
+import { SimpleSpanProcessor, WebTracerProvider } from '@opentelemetry/sdk-trace-web';
+import { OTLPTraceExporter } from '@opentelemetry/exporter-trace-otlp-http';
+import { registerInstrumentations } from '@opentelemetry/instrumentation';
+import { getWebAutoInstrumentations } from '@opentelemetry/auto-instrumentations-web';
+import { ZoneContextManager } from '@opentelemetry/context-zone';
+import { resourceFromAttributes } from '@opentelemetry/resources';
+import { W3CTraceContextPropagator } from "@opentelemetry/core";
+import api from "@opentelemetry/api";
+const provider = new WebTracerProvider({
+  spanProcessors: [new SimpleSpanProcessor(new OTLPTraceExporter({
+    url: 'https://otel.kloudmate.com:4318/v1/traces',
+    headers: {
+      authorization: "YOUR_PUBLIC_KEY"
+    }
+  }))],
+  resource: resourceFromAttributes({
+    'service.name': 'TODO-Frontend',
+    'service.version': '1.0',
+  }),
+})
+api.propagation.setGlobalPropagator(new W3CTraceContextPropagator());
+provider.register({
+  contextManager: new ZoneContextManager(),
+});
+
+// Auto-instrumentations
+registerInstrumentations({
+  instrumentations: [
+    getWebAutoInstrumentations({
+      '@opentelemetry/instrumentation-fetch': {
+        propagateTraceHeaderCorsUrls: [/^http:\/\/localhost:3000\/.*$/],
+      },
+      '@opentelemetry/instrumentation-xml-http-request': {
+        propagateTraceHeaderCorsUrls: [/^http:\/\/localhost:3000\/.*$/],
+      },
+      '@opentelemetry/instrumentation-user-interaction': {
+        enabled: false
+      },
+      '@opentelemetry/instrumentation-document-load': {
+        enabled: false
+      },
+    }),
+  ],
+  tracerProvider: provider,
+});
+```
+
+2\.  Replace Placeholders
+
+- Replace "YOUR\_PUBLIC\_KEY" with your actual **KloudMate public key**.
+- Enter your Backend URL in the form of a regex in place of `propagateTraceHeaderCorsUrls` to both fetch and XMLHttpRequest configuration
+
+### Step 5: Import the Tracer
+
+In your main.tsx or index.tsx, import the tracer config **before your app renders**:
+
+```txt
+import { createRoot } from "react-dom/client";
+import "./styles/index.css";
+import './tracer.ts'
+import App from "./App";
+
+createRoot(document.getElementById("root")!).render(
+  <App />
+);
+```
+
+### Step 6: Run the app
+
+```bash
+npm run dev
+```
+
+Once the app is running, traces will be sent to KloudMate. 

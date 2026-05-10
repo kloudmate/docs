@@ -1,0 +1,117 @@
+---
+title: "Instrument a Ruby App"
+description: "Learn how to instrument a sample Ruby application with OpenTelemetry to send data to KloudMate."
+---
+
+In this guide, we will walk you through the process of setting up and using OpenTelemetry in Ruby. You will learn how to instrument a simple PHP application to produce traces, metrics, and logs and export them to KloudMate.
+
+**Step 1: Prerequisites**
+
+Before moving forward ensure that you have the following installed locally:
+
+- MRI Ruby >= 3.0, jruby >= 9.3.2.0, or truffleruby >= 22.1
+- [Bundler](https://bundler.io/)
+
+:::note
+  OpenTelemetry support for support for jruby and truffleruby are on a best-effort basis at this time.
+:::
+
+**Step 2: Example Application**
+
+:::note
+  If you already have a Ruby application and don't need to create one from scratch, you can directly jump to the **Instrumentation part** of this guide.
+:::
+
+For this tutorial, we will be using a basic [Rails](https://rubyonrails.org/) application. However, OpenTelemetry Ruby is compatible with other web frameworks such as Sinatra and Rack as well. Feel free to adapt the instructions to your preferred framework.
+
+**Step 3: Installation**
+
+1. Start by installing rails.
+
+```txt
+gem install rails
+
+```
+
+2\. Create an api-only application called `dice-ruby`.
+
+```txt
+rails new --api dice-ruby
+
+```
+
+3\. Change into the newly created folder dice-ruby and create a controller for rolling a dice
+
+```txt
+cd dice-ruby
+rails generate controller dice
+
+```
+
+4\. a new file called `app/controllers/dice_controller.rb` will be created. Open this file and update it with the following code:
+
+```ruby
+class DiceController < ApplicationController
+  def roll
+    render json: (rand(6) + 1).to_s
+  end
+end
+
+```
+
+5\. Open the file named `config/routes.rb` and add the following code to it:
+
+```ruby
+Rails.application.routes.draw do
+  get 'rolldice', to: 'dice#roll'
+end
+
+```
+
+6\. Run the application with the following command and open `localhost:8080/rolldice` in your web browser to ensure it is working.
+
+```txt
+rails server -p 8080
+
+```
+
+**Step 4: Instrumentation**
+
+We will be using `opentelemetry-sdk `and `opentelemetry-instrumentation-all` packages that provide instrumentations for Rails, Sinatra, several HTTP libraries, and more.
+
+1. Install the `opentelemetry-sdk` and `opentelemetry-instrumentation-all` packages:
+
+```bash
+bundle add opentelemetry-sdk opentelemetry-instrumentation-all
+
+```
+
+2\. Create a file named `config/initializers/opentelemetry.rb` and add the following code to it:
+
+```txt
+# config/initializers/opentelemetry.rb
+require 'opentelemetry/sdk'
+require 'opentelemetry/instrumentation/all'
+OpenTelemetry::SDK.configure do |c|
+  c.service_name = 'dice-ruby'
+  c.use_all() # enables all instrumentation!
+end
+
+```
+
+**Step 5: Run the Instrumented App**
+
+1\. Run the instrumented application to generate traces
+
+```txt
+env OTEL_EXPORTER_OTLP_ENDPOINT=https://otel.kloudmate.com:4318 OTEL_EXPORTER_OTLP_HEADERS="Authorization=<PRIVATE_KEY>" OTEL_EXPORTER_OTLP_PROTOCOL=http/json rails server -p 8080
+
+```
+
+2\. Open `localhost:8080/rolldice` in your web browser and reload the page a few times.
+
+***
+
+*Source URL for the example application:* [Getting Started with OpenTelemetry Ruby](https://opentelemetry.io/docs/languages/ruby/getting-started/)
+
+

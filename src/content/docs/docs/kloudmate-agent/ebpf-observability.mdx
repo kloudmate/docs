@@ -4,58 +4,37 @@ description: "Enable KloudMate Agent eBPF features to collect APM, service depen
 sidebar:
   order: 3
 ---
-eBPF (Extended Berkeley Packet Filter) is a modern technology that allows the KloudMate Agent to observe your applications directly from the Linux operating system kernel. This means you get deep visibility into network traffic, database queries, and application performance **without having to change a single line of your code or install any SDKs**.
+eBPF (Extended Berkeley Packet Filter) allows the KloudMate Agent to observe your applications directly from the Linux operating system kernel. You get deep visibility into network traffic, database queries, and application performance **without changing a single line of code or installing SDKs**.
 
-If you are running on a Linux environment, enabling eBPF is the preferred "zero-code" path to start monitoring your services instantly.
+This guide explains how to enable and configure eBPF data collection through the KloudMate web interface.
 
-## What eBPF Gives You
+## Step 1: Install the KloudMate Agent
 
-When eBPF is enabled through the KloudMate Agent, KloudMate can automatically collect:
+Before you can enable eBPF, the KloudMate Agent must be running on your host or cluster. eBPF requires a Linux environment (Kernel `5.8+` recommended).
 
-- **Application Performance Metrics**: RED metrics (Request rate, Error rate, and Duration/latency).
-- **Traces**: Automatically generated trace spans for your network traffic flows.
-- **Service Dependencies**: Information used to build visual Service Maps in the APM dashboard.
-- **Network Telemetry**: Low-level L3 and L4 network flow metrics.
-- **Database Activity**: Kernel-level database query signals used by [Database Activity Monitoring](../../database-monitoring/database-activity-monitoring-dam/).
+Follow the relevant installation guide if you haven't already:
+- [Linux Installation Guide](../installation/linux-agent/)
+- [Kubernetes Installation Guide](../installation/kubernetes-agent/)
 
-## Where This Data Appears
+## Step 2: Enable eBPF via the Config Editor
 
-After eBPF data is flowing, use:
+The KloudMate Agent is managed centrally. You **do not** need to SSH into your servers or manually edit YAML files. You enable eBPF by updating the agent's remote configuration via the KloudMate dashboard.
 
-- [APM](../../apm-and-tracing/apm-views/) for service-level latency, throughput, and dependency views
-- [Traces](../../apm-and-tracing/) for request-level trace inspection
-- [Database Activity Monitoring](../../database-monitoring/database-activity-monitoring-dam/) for kernel-level database visibility
+1. Log in to your KloudMate Platform.
+2. Navigate to the **Agents** landing page.
+3. Locate the Agent installed on your target Linux host or Kubernetes cluster.
+4. Click **Collector Configuration** to open the remote YAML editor.
 
-## Prerequisites
+### Base Configuration for APM
 
-- A Linux host or Kubernetes node
-- Kernel `5.8+` is highly recommended, though some features are available on `4.18+`
-- Sufficient privileges for the KloudMate Agent to run eBPF programs
-- The KloudMate Agent installed on the host or cluster
-
-Use these setup guides first:
-
-- [Linux](../installation/linux-agent/)
-- [Kubernetes](../installation/kubernetes-agent/)
-- [Configuration & Management](../management/)
-
-## Recommended Rollout
-
-1. Install the KloudMate Agent on your Linux server or Kubernetes cluster.
-2. Enable APM or eBPF-related features in the agent configuration via the web UI.
-3. Start with this broad zero-code coverage to get immediate visibility.
-4. Add [Manual Instrumentation](../../apm-and-tracing/manual-instrumentation/) only where you need custom business logic spans or richer application context.
-
-## Base eBPF Configuration
-
-The eBPF receiver is configured through the KloudMate Agent `config.yaml` using the web editor.
+Add or verify the following configuration blocks in the web editor to enable RED metrics, distributed traces, and network telemetry.
 
 ```yaml
 metrics:
   features:
-    - application
-    - application_span
-    - network
+    - application      # Enables HTTP, gRPC, and SQL operation metrics
+    - application_span # Enables Trace spans for transactions
+    - network          # Enables L3/L4 Network flow metrics
 
 discovery:
   services:
@@ -70,19 +49,27 @@ network:
 
 attributes:
   kubernetes:
-    enable: true
+    enable: true       # Set to true if running inside Kubernetes
 ```
 
-This configuration enables:
+5. **Save** the configuration. The agent will automatically restart and apply the new settings.
 
-- Service-level RED metrics
-- Span generation for supported traffic
-- Network telemetry
-- Kubernetes enrichment when applicable
+## Step 3: Verify Your Data
 
-## Advanced eBPF Options
+Once the agent restarts with the eBPF configuration, it immediately begins observing kernel traffic.
 
-Use the `ebpf` block for database heuristics and cache tuning:
+Navigate to the following views in the KloudMate dashboard to verify data collection:
+- **[APM](../../apm-and-tracing/apm-views/):** Look for automatically generated Service Maps, latency, and throughput metrics.
+- **[Traces](../../apm-and-tracing/):** Search for automatically generated spans representing your network traffic.
+- **[Database Activity Monitoring](../../database-monitoring/database-activity-monitoring-dam/):** Look for captured database queries.
+
+---
+
+## Reference: Advanced Options
+
+### Advanced Database Tuning
+
+For high-load database environments, you can add an `ebpf` block to tune statement caching and heuristic detection.
 
 ```yaml
 ebpf:
@@ -91,14 +78,17 @@ ebpf:
   postgres_prepared_statements_cache_size: 1024
 ```
 
-This is especially relevant for high-load database environments and for [Database Activity Monitoring](../../database-monitoring/database-activity-monitoring-dam/).
+### What eBPF Collects
 
-## Kubernetes Notes
-
-When using the [Kubernetes](../installation/kubernetes-agent/) installation method, the KloudMate Agent handles the DaemonSet-level installation and the necessary runtime integration for you. 
+When the configuration above is applied, the eBPF receiver automatically collects:
+- **Application Performance Metrics**: RED metrics (Request rate, Error rate, and Duration/latency).
+- **Traces**: Automatically generated trace spans for your network traffic flows.
+- **Service Dependencies**: Information used to build visual Service Maps.
+- **Network Telemetry**: Low-level L3 and L4 network flow metrics.
+- **Database Activity**: Kernel-level database query signals.
 
 ## Related Docs
 
 - [Configuration & Management](../management/)
-- [APM](../../apm-and-tracing/apm-views/)
-- [Manual Instrumentation](../../apm-and-tracing/manual-instrumentation/)
+- [APM Views](../../apm-and-tracing/apm-views/)
+- [Zero-Downtime Observability (eBPF) Concepts](../../apm-and-tracing/auto-instrumentation/ebpf/)

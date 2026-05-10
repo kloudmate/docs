@@ -1,149 +1,40 @@
 ---
 title: "Node.js"
-description: "Documentation for Node.js"
+description: "Instrument your Node.js application using the OpenTelemetry SDK."
 ---
 
-import { Tabs, TabItem } from '@astrojs/starlight/components';
+Instrumenting your existing Node.js application with the OpenTelemetry SDK gives you the flexibility to capture custom metrics, manual spans, and tailored application context.
 
-This guide walks you through the process of instrumenting a **Node.js application** using **zero-code OpenTelemetry** for collecting traces, metrics, logs, and monitoring using Kloudmate.  Zero-code instrumentation enables you to capture telemetry from many popular libraries and frameworks without modifying your application code.
+## Installation
 
-### **Step 1: Prerequisites**
-
-Before you begin, ensure you have the following installed:
-
-- [Node.js](https://nodejs.org/en/download)
-- [TypeScript](https://www.typescriptlang.org/download)  (if you will use TypeScript)
-
-### **Step 2: Example Application**
-
-For demonstration, we will be using a basic Express application. You can adapt this to other frameworks like Koa or Nest.js if needed. 
-
-1\. Set up an empty `package.json` in a new directory:
+Install the required OpenTelemetry packages for Node.js:
 
 ```bash
-npm init -y
+npm install @opentelemetry/api \
+  @opentelemetry/sdk-node \
+  @opentelemetry/auto-instrumentations-node \
+  @opentelemetry/exporter-trace-otlp-http
 ```
 
-2\. Install Express and dependencies:
+## Configuration
 
-<Tabs>
-<TabItem label="JavaScript">
-```bash
-npm install express
-```
-</TabItem>
-<TabItem label="TypeScript">
-```bash
-npm install typescript ts-node @types/node express @types/express
-```
-</TabItem>
-</Tabs>
-
-
-3\. Create and run an HTTP Server
-Create a file named `app.js` (or `app.ts` if you're using TypeScript) and add the following code to set up a simple HTTP server:
-
-<Tabs>
-<TabItem label="JavaScript">
-```javascript
-/*app.js*/
-const express = require('express');
-
-const PORT = parseInt(process.env.PORT || '8080');
-const app = express();
-
-function getRandomNumber(min, max) {
-  return Math.floor(Math.random() * (max - min) + min);
-}
-
-app.get('/rolldice', (req, res) => {
-  res.send(getRandomNumber(1, 6).toString());
-});
-
-app.listen(PORT, () => {
-  console.log(`Listening for requests on http://localhost:${PORT}`);
-});
-```
-</TabItem>
-<TabItem label="TypeScript">
-```typescript
-/*app.ts*/
-import express, { Express } from 'express';
-
-const PORT: number = parseInt(process.env.PORT || '8080');
-const app: Express = express();
-
-function getRandomNumber(min: number, max: number) {
-  return Math.floor(Math.random() * (max - min) + min);
-}
-
-app.get('/rolldice', (req, res) => {
-  res.send(getRandomNumber(1, 6).toString());
-});
-
-app.listen(PORT, () => {
-  console.log(`Listening for requests on http://localhost:${PORT}`);
-});
-```
-</TabItem>
-</Tabs>
-
-
-### **Step 3: Configure Environment Variables**
-
-Set these variables in your shell environment before starting the app. 
+Point your OpenTelemetry SDK exporter to the KloudMate Agent's OTLP endpoint. By default, the KloudMate agent listens on port `4318` for HTTP OTLP traffic.
 
 ```bash
-export OTEL_TRACES_EXPORTER="otlp"
-export OTEL_METRICS_EXPORTER="otlp"
-export OTEL_EXPORTER_OTLP_ENDPOINT="https://otel.kloudmate.com:4318"
-export OTEL_EXPORTER_OTLP_HEADERS="authorization=YOUR_PRIVATE_KEY"
-export OTEL_NODE_RESOURCE_DETECTORS="env,host,os"
-export OTEL_NODE_DISABLED_INSTRUMENTATIONS="fs,dns,net"
-export OTEL_SERVICE_NAME="your-service-name"
+export OTEL_EXPORTER_OTLP_ENDPOINT="http://KM_AGENT_HOST:4318"
+export OTEL_SERVICE_NAME="your-node-service"
 export NODE_OPTIONS="--require @opentelemetry/auto-instrumentations-node/register"
 ```
+*(Replace `KM_AGENT_HOST` with the IP address or hostname of your KloudMate Agent).*
 
-:::note
-  Replace `YOUR_PRIVATE_KEY` with your actual Kloudmate private key and set          `your-service-name` accordingly.
-:::
+## Official Documentation
 
-### **Step 4: Run the application:**
+OpenTelemetry is continuously evolving. For the most up-to-date SDK instructions, advanced configurations, and custom instrumentation details, refer to the official OpenTelemetry documentation:
 
-<Tabs>
-<TabItem label="JavaScript">
-```javascript
-$ node app.js
-Listening for requests on http://localhost:8080
-```
-</TabItem>
-<TabItem label="TypeScript">
-```typescript
-$ npx ts-node app.ts
-Listening for requests on http://localhost:8080
-```
-</TabItem>
-</Tabs>
+- [OpenTelemetry Node.js Documentation](https://opentelemetry.io/docs/languages/js/)
+- [Node.js Instrumentation Repository](https://github.com/open-telemetry/opentelemetry-js)
 
+---
 
-Open `localhost:8080/rolldice` in your web browser to verify. Now you should see spans on the Traces page in your KloudMate account. 
-
-## Node.js Metrics
-
-| **Name**|**Metrics**                                                        |
-| -------------------------------- | ------------------------------------------------------------------ |
-| nodejs\_eventloop\_delay\_min    | Event loop minimum delay.                                          |
-| nodejs\_eventloop\_delay\_max    | Event loop maximum delay.                                          |
-| nodejs\_eventloop\_delay\_mean   | Event loop mean delay.                                             |
-| nodejs\_eventloop\_delay\_stddev | Event loop standard deviation delay.                               |
-| nodejs\_eventloop\_delay\_p50    | Event loop 50 percentile delay.                                    |
-| nodejs\_eventloop\_delay\_p90    | Event loop 90 percentile delay.                                    |
-| nodejs\_eventloop\_delay\_p99    | Event loop 99 percentile delay.                                    |
-| nodejs\_eventloop\_utilization   | Event loop utilization.                                            |
-| nodejs\_eventloop\_time          | Cumulative duration of time the event loop has been in each state. |
-| nodejs\_eventloop\_state         | The state of event loop time.                                      |
-
-- *Source URL for the example application:* [https://opentelemetry.io/docs/zero-code/js/](https://opentelemetry.io/docs/zero-code/js/)
-- *For instructions on instrumenting the frontend with OpenTelemetry, refer to the* [node-otel-demo repository](https://github.com/kloudmate/node-otel-demo) *, which demonstrates how to instrument a Node.js frontend application using OpenTelemetry to send telemetry data to Kloudmate.*
-
- 
+**Looking for a step-by-step tutorial?**  
+Check out our [Instrument a Node.js App](../../../../guides/opentelemetry/node-js/) guide to see how to build and instrument a simple Express application from scratch.

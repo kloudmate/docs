@@ -1,0 +1,244 @@
+---
+title: "Instrument a .NET App"
+description: "Learn how to instrument a sample .NET application with OpenTelemetry to send data to KloudMate."
+---
+
+In this guide, we will walk you through the process of setting up and using OpenTelemetry in .NET. You will learn how to instrument a simple .NET. application to produce traces, metrics, and logs and export them to KloudMate.
+
+**Step 1: Prerequisites**
+
+Before diving into OpenTelemetry, be sure that you have the following installed:
+
+- [.NET SDK ](https://dotnet.microsoft.com/download/dotnet)6+
+
+**Step 2: Example Application**
+
+:::note
+  If you already have a .NET application and don't need to create one from scratch, you can directly jump to the **Instrumentation part** of this guide.
+:::
+
+For this tutorial, we will be using a basic [Minimal API with ASP.NET Core](https://learn.microsoft.com/en-us/aspnet/core/tutorials/min-web-api?view=aspnetcore-8.0\&tabs=visual-studio) application. However, OpenTelemetry .Net is compatible with other web frameworks as well. Feel free to adapt the instructions to your preferred framework.
+
+**Step 3: Installation**
+
+1. Set up an environment in a new directory called `dotnet-simple`. Run the following command within this directory.
+
+```txt
+dotnet new web
+```
+
+2\. Within the same directory, replace the content of `Program.cs`with the following code
+
+```txt
+using System.Globalization;
+
+using Microsoft.AspNetCore.Mvc;
+
+var builder = WebApplication.CreateBuilder(args);
+var app = builder.Build();
+
+string HandleRollDice([FromServices]ILogger<Program> logger, string? player)
+{
+    var result = RollDice();
+
+    if (string.IsNullOrEmpty(player))
+    {
+        logger.LogInformation("Anonymous player is rolling the dice: {result}", result);
+    }
+    else
+    {
+        logger.LogInformation("{player} is rolling the dice: {result}", player, result);
+    }
+
+    return result.ToString(CultureInfo.InvariantCulture);
+}
+
+int RollDice()
+{
+    return Random.Shared.Next(1, 7);
+}
+
+app.MapGet("/rolldice/{player?}", HandleRollDice);
+
+app.Run();
+
+```
+
+3\. In the `Properties` subdirectory, replace the content of `launchSettings.json` with the following:
+
+```txt
+{
+  "$schema": "http://json.schemastore.org/launchsettings.json",
+  "profiles": {
+    "http": {
+      "commandName": "Project",
+      "dotnetRunMessages": true,
+      "launchBrowser": true,
+      "applicationUrl": "http://localhost:8080",
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development"
+      }
+    }
+  }
+}
+
+```
+
+4\. Run the application using the following command, then open `localhost:8080/rolldice` in your web browser:
+
+```txt
+dotnet build
+dotnet run
+```
+
+**Step 4: Instrumentation**
+
+To install the instrumentation packages, we will use the  [NuGet packages from OpenTelemetry](https://www.nuget.org/profiles/OpenTelemetry). These packages will automatically generates telemetry data.
+
+1\. Add the packages
+
+```txt
+dotnet add package OpenTelemetry.Extensions.Hosting
+dotnet add package OpenTelemetry.Instrumentation.AspNetCore
+dotnet add package OpenTelemetry.Exporter.OpenTelemetryProtocol
+```
+
+2\. In `Program.cs`, replace the following lines:
+
+```txt
+var builder = WebApplication.CreateBuilder(args);
+var app = builder.Build();
+```
+
+With:
+
+```txt
+using OpenTelemetry.Exporter;
+using OpenTelemetry.Logs;
+using OpenTelemetry.Metrics;
+using OpenTelemetry.Resources;
+using OpenTelemetry.Trace;
+
+var builder = WebApplication.CreateBuilder(args);
+const string serviceName = "roll-dice";
+
+builder.Logging.AddOpenTelemetry(options => {
+  options
+    .SetResourceBuilder(
+      ResourceBuilder.CreateDefault()
+      .AddService(serviceName))
+    .AddOtlpExporter(otlpOptions => {
+      otlpOptions.Endpoint = new Uri("https://otel.kloudmate.com:4318/v1/logs");
+      otlpOptions.Protocol = OtlpExportProtocol.HttpProtobuf;
+
+      string headerKey = "Authorization";
+      string headerValue = "";
+
+      string formattedHeader = $"{headerKey}={headerValue}";
+      otlpOptions.Headers = formattedHeader;
+    });
+});
+
+builder.Services.AddOpenTelemetry()
+  .ConfigureResource(resource => resource.AddService(serviceName))
+  .WithTracing(tracing => tracing
+    .AddAspNetCoreInstrumentation()
+    .AddOtlpExporter(otlpOptions => {
+      otlpOptions.Endpoint = new Uri("https://otel.kloudmate.com:4318/v1/traces");
+      otlpOptions.Protocol = OtlpExportProtocol.HttpProtobuf;
+
+      string headerKey = "Authorization";
+      string headerValue = "";
+
+      string formattedHeader = $"{headerKey}={headerValue}";
+      otlpOptions.Headers = formattedHeader;
+    }))
+
+  .WithMetrics(metrics => metrics
+    .AddAspNetCoreInstrumentation()
+    .AddOtlpExporter(otlpOptions => {
+      otlpOptions.Endpoint = new Uri("https://otel.kloudmate.com:4318/v1/metrics");
+      otlpOptions.Protocol = OtlpExportProtocol.HttpProtobuf;
+
+      string headerKey = "Authorization";
+      string headerValue = "";
+
+      string formattedHeader = $"{headerKey}={headerValue}";
+      otlpOptions.Headers = formattedHeader;
+    }));
+
+var app = builder.Build();
+
+string HandleRollDice([FromServices]ILogger<Program> logger, string? player)
+{
+    var result = RollDice();
+
+    if (string.IsNullOrEmpty(player))
+    {
+        logger.LogInformation("Anonymous player is rolling the dice: {result}", result);
+    }
+    else
+    {
+        logger.LogInformation("{player} is rolling the dice: {result}", player, result);
+    }
+
+    return result.ToString(CultureInfo.InvariantCulture);
+}
+
+int RollDice()
+{
+    return Random.Shared.Next(1, 7);
+}
+
+app.MapGet("/rolldice/{player?}", HandleRollDice);
+
+app.Run();
+```
+
+**Step 5: Run the Instrumented App**
+
+1\. Run the instrumented application
+
+```txt
+dotnet run
+```
+
+:::note
+  Note the output from the `dotnet run`.
+:::
+
+2\. From another terminal, send a request using `curl`:
+
+```txt
+curl localhost:8080/rolldice
+```
+
+##
+
+## .NET Metrics
+
+| ### **Name**                                                    | ### Description                                                                                                                                                                                                                                                                                                                                                                                                                 |
+| --------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| process\_runtime\_dotnet\_gc\_collections\_count                | Number of garbage collections that have occurred since process start.                                                                                                                                                                                                                                                                                                                                                           |
+| process\_runtime\_dotnet\_gc\_objects\_size                     | Count of bytes currently in use by objects in the GC heap that haven't been collected yet. Fragmentation and other GC committed memory pools are excluded.                                                                                                                                                                                                                                                                      |
+| process\_runtime\_dotnet\_gc\_allocations\_size                 | Count of bytes allocated on the managed GC heap since the process start. .NET objects are allocated from this heap. Object allocations from unmanaged languages such as C/C++ do not use this heap.                                                                                                                                                                                                                             |
+| process\_runtime\_dotnet\_gc\_committed\_memory\_size           | The amount of committed virtual memory for the managed GC heap, as observed during the latest garbage collection. Committed virtual memory may be larger than the heap size because it includes both memory for storing existing objects (the heap size) and some extra memory that is ready to handle newly allocated objects in the future. The value will be unavailable until at least one garbage collection has occurred. |
+| process\_runtime\_dotnet\_gc\_heap\_size                        | The heap size (including fragmentation), as observed during the latest garbage collection. The value will be unavailable until at least one garbage collection has occurred.                                                                                                                                                                                                                                                    |
+| process\_runtime\_dotnet\_gc\_heap\_fragmentation\_size         | The heap fragmentation was observed during the latest garbage collection. The value will be unavailable until at least one garbage collection has occurred.                                                                                                                                                                                                                                                                     |
+| process\_runtime\_dotnet\_gc\_duration                          | The total amount of time paused in GC since the process start.                                                                                                                                                                                                                                                                                                                                                                  |
+| process\_runtime\_dotnet\_jit\_il\_compiled\_size               | Count of bytes of intermediate language that have been compiled since the process start.                                                                                                                                                                                                                                                                                                                                        |
+| process\_runtime\_dotnet\_jit\_methods\_compiled\_count         | The number of times the JIT compiler compiled a method since the process start. The JIT compiler may be invoked multiple times for the same method to compile with different generic parameters, or because tiered compilation requested different optimization settings.                                                                                                                                                       |
+| process\_runtime\_dotnet\_jit\_compilation\_time                | The amount of time the JIT compiler has spent compiling methods since the process start.                                                                                                                                                                                                                                                                                                                                        |
+| process\_runtime\_dotnet\_monitor\_lock\_contention\_count      | The number of times there was contention when trying to acquire a monitor lock since the process start. Monitor locks are commonly acquired by using the lock keyword in C# or by calling Monitor.Enter() and Monitor.TryEnter().                                                                                                                                                                                               |
+| process\_runtime\_dotnet\_thread\_pool\_threads\_count          | The number of thread pool threads that currently exist.                                                                                                                                                                                                                                                                                                                                                                         |
+| process\_runtime\_dotnet\_thread\_pool\_completed\_items\_count | The number of work items that have been processed by the thread pool since the process start.                                                                                                                                                                                                                                                                                                                                   |
+| process\_runtime\_dotnet\_thread\_pool\_queue\_length           | The number of work items that are currently queued to be processed by the thread pool.                                                                                                                                                                                                                                                                                                                                          |
+| process\_runtime\_dotnet\_timer\_count                          | The number of timer instances that are currently active. Timers can be created by many sources, such as System.Threading.Timer, Task.Delay, or the timeout in a CancellationSource. An active timer is registered to tick at some point in the future and has not yet been canceled.                                                                                                                                            |
+| process\_runtime\_dotnet\_assemblies\_count                     | The number of .NET assemblies that are currently loaded.                                                                                                                                                                                                                                                                                                                                                                        |
+| process\_runtime\_dotnet\_exceptions\_count                     | Count of exceptions that have been thrown in managed code, since the observation started. The value will be unavailable until an exception has been thrown after OpenTelemetry.Instrumentation.Runtime initialization.                                                                                                                                                                                                          |
+
+***
+
+*Source URL for the example application:* [Getting Started with OpenTelemetry .NET](https://opentelemetry.io/docs/languages/net/getting-started/)
+
+

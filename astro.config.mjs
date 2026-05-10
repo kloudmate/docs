@@ -31,13 +31,13 @@ export default defineConfig({
   integrations: [
     starlight({
       plugins: [
-        starlightOpenAPI([
-          {
-            base: 'api',
-            label: 'API Reference',
-            schema: './openapi.yaml',
-          },
-        ]),
+        // starlightOpenAPI([
+        //   {
+        //     base: 'api',
+        //     label: 'API Reference',
+        //     schema: './openapi.yaml',
+        //   },
+        // ]),
         starlightLinksValidator({
           errorOnRelativeLinks: false,
           sameSitePolicy: 'error',
@@ -47,7 +47,7 @@ export default defineConfig({
           nav: [
             { label: 'Docs', href: '/docs/getting-started/what-is-kloudmate/' },
             { label: 'Guides', href: '/guides/' },
-            { label: 'API', href: '/api/' },
+            // { label: 'API', href: '/api/' },
           ],
         }),
         starlightScrollToTop(),
@@ -79,7 +79,7 @@ export default defineConfig({
           label: 'Guides',
           autogenerate: { directory: 'guides' },
         },
-        ...openAPISidebarGroups,
+        // ...openAPISidebarGroups,
       ],
     }),
   ],
