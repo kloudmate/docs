@@ -9,6 +9,7 @@ import starlightImageZoom from 'starlight-image-zoom';
 import starlightOpenAPI, { openAPISidebarGroups } from 'starlight-openapi';
 import starlightAutoDrafts from 'starlight-auto-drafts';
 import starlightDotMd from 'starlight-dot-md';
+import starlightLlmActions from 'starlight-llm-actions';
 
 
 const deploymentOrigin = process.env.DOCS_SITE_URL ?? 'https://docs.kloudmate.com';
@@ -56,6 +57,7 @@ export default defineConfig({
         starlightAutoSidebar(),
         starlightAutoDrafts(),
         starlightDotMd(),
+        starlightLlmActions(),
       ],
       title: 'KloudMate Docs',
       description: 'Documentation for KloudMate observability platform',

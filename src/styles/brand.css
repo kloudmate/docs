@@ -93,4 +93,9 @@
     font-weight: 600 !important;
     color: var(--sl-color-white) !important;
   }
+
+  /* Fix for LLM Actions transparent background overlay */
+  .sl-llm-actions {
+    --llm-bg: var(--sl-color-bg) !important;
+  }
 }
