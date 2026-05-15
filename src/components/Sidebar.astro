@@ -48,15 +48,11 @@ const activeGroupLabel = currentPath.startsWith('/guides')
 		? 'API Reference'
 		: 'Docs';
 const currentSidebar = Astro.locals.starlightRoute.sidebar || [];
-const sectionSidebar = currentSidebar.flatMap((entry) => {
-	if (entry.type === 'group' && entry.label === activeGroupLabel) {
-		return entry.entries;
-	}
-	if (entry.type === 'group' && entry.label === 'KloudMate AI' && activeGroupLabel === 'Docs') {
-		return [entry];
-	}
-	return [];
-});
+const activeSidebarGroup = currentSidebar.find(
+	(entry) => entry.type === 'group' && entry.label === activeGroupLabel
+);
+const sectionSidebar =
+	activeSidebarGroup?.type === 'group' ? activeSidebarGroup.entries : [];
 ---
 
 <SidebarPersister>

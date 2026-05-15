@@ -1,26 +1,13 @@
 ---
-title: "Host Metrics Collection"
-description: "Understand default host metrics and how to collect additional metrics with the KloudMate Agent."
+title: "Advanced Host Configuration"
+description: "Learn how to collect extended metrics and add cloud provider metadata for your hosts with the KloudMate Agent."
 sidebar:
-  label: "Host Metrics"
-  order: 2
+  label: "Advanced Host Configuration"
+  order: 4
 ---
-The KloudMate Agent automatically collects essential host metrics from Linux and Windows systems out-of-the-box using the OpenTelemetry `hostmetrics` receiver.
+The KloudMate Agent automatically collects essential host metrics (CPU, Memory, Filesystem, Uptime) from Linux and Windows systems out-of-the-box using the OpenTelemetry `hostmetrics` receiver. You can view these metrics immediately in the [Hosts View](./hosts/).
 
-## Default Metrics Collection
-
-When you install the [KloudMate Agent](../../kloudmate-agent/), it is pre-configured to collect the following metrics every 60 seconds:
-
-- CPU Utilization
-- CPU Load Average
-- Memory Utilization
-- Filesystem Utilization
-
-No additional configuration is required to view these core metrics in KloudMate.
-
-## Prerequisites for Advanced Configuration
-
-If you need to collect extended metrics (like detailed process-level data, disk I/O, or network metrics) or attach cloud provider tags, you can modify the agent's configuration.
+If you need to collect extended metrics (like detailed process-level data, disk I/O, or network metrics) or attach cloud provider tags, you can modify the agent's configuration following this guide.
 
 - A running instance of the [KloudMate Agent](../../kloudmate-agent/).
 - Identify whether the host runs on-premises, AWS EC2, or Azure so you can use the correct resource-detection processor.
@@ -163,8 +150,8 @@ For Windows:
 
 After the agent restarts:
 
-- open [Explore](../explore/)
-- query host metrics such as `system.cpu.utilization`, `system.memory.utilization`, or newly added metrics like `system.network.io`
+- open the [Hosts View](./hosts/) to view the data
+- query host metrics such as `system.cpu.utilization`, `system.memory.utilization`, or newly added metrics like `system.network.io` in [Explore](../explore/)
 - create dashboards or alerts once data is visible
 
 ## Common Metric Families
