@@ -1,0 +1,26 @@
+---
+title: "OCI Observability Integration"
+description: "Monitor OCI-hosted Oracle Database workloads with KloudMate using OracleDB telemetry collection for query, session, and resource visibility."
+sidebar:
+  label: "Overview"
+  order: 1
+---
+
+KloudMate's OCI observability integration helps you monitor Oracle Database workloads running on Oracle Cloud Infrastructure with centralized telemetry collection and analysis. By connecting your OCI-hosted OracleDB environment through the KloudMate Agent, you can capture database metrics, sessions, and operational signals in one place.
+
+## How it Works
+
+KloudMate uses the KloudMate Agent, powered by OpenTelemetry, to connect to your Oracle Database instance with a dedicated monitoring user. The agent collects OracleDB telemetry from the configured receivers and forwards it securely to KloudMate, where you can explore metrics, investigate query behavior, and build dashboards and alerts.
+
+## Key Capabilities
+
+- **OracleDB Telemetry Collection**: Collect database metrics and operational signals from Oracle Database instances hosted on OCI.
+- **Query and Session Visibility**: Monitor SQL activity and session-related telemetry through OracleDB receiver configuration.
+- **Centralized Analysis**: Send OracleDB data into KloudMate for dashboards, alerting, and troubleshooting workflows.
+- **Flexible Agent-Based Setup**: Configure the integration through the KloudMate Agent running alongside your OracleDB environment.
+
+## Available Guides
+
+Use the following guide to configure OracleDB monitoring for OCI-hosted deployments:
+
+- **[OracleDB Query Monitoring Instrumentation](./oracledb-query-monitoring-instrumentation/)**: Configure the KloudMate Agent and OracleDB receivers to collect SQL query, session, and resource telemetry.
