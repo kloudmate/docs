@@ -38,6 +38,275 @@ GRANT SELECT ON DBA_DATA_FILES TO <username>;
 GRANT SELECT ON DBA_TABLESPACE_USAGE_METRICS TO <username>;
 ```
 
+## Receiver Configuration
+
+Two named receiver instances are used to logically separate SQL performance queries from session queries.
+
+## Metric Naming Convention
+
+The full `sqlquery` receiver configuration used in the OpenTelemetry Collector:
+
+```yaml
+sqlquery/high_cpu:
+  driver: oracle
+  host: <host-ip>
+  database: <database-connection-string>
+  port: 1521
+  collection_interval: 10s
+  username: sys
+  password: password
+  storage: file_storage
+  queries:
+    - sql: >
+        SELECT * FROM (
+            SELECT
+                sql_id AS "sql_id",
+                sql_text AS "sql_text",
+                parsing_schema_name AS "parsing_schema_name",
+                executions AS "executions",
+                cpu_time/1000000 AS "cpu_seconds",
+                elapsed_time/1000000 AS "elapsed_seconds",dataase
+                buffer_gets AS "buffer_gets",
+                disk_reads AS "disk_reads",
+                ROUND(cpu_time/DECODE(executions,0,1,executions)/1000000,2) AS "cpu_per_exec"
+            FROM v$sql
+            ORDER BY cpu_time DESC
+        ) WHERE ROWNUM <= 10
+      metrics:
+        - metric_name: oracle.sql.cpuseconds
+          value_column: cpu_seconds
+          value_type: double
+          data_type: sum
+          aggregation: cumulative
+          monotonic: true
+          attribute_columns:
+            - sql_text
+            - parsing_schema_name
+            - sql_id
+        - metric_name: oracle.sql.elapseseconds
+          value_column: elapsed_seconds
+          value_type: double
+          data_type: sum
+          aggregation: cumulative
+          monotonic: true
+          attribute_columns:
+            - sql_id
+            - parsing_schema_name
+            - sql_text
+        - metric_name: oracle.sql.executions
+          value_column: executions
+          value_type: int
+          data_type: sum
+          aggregation: cumulative
+          monotonic: true
+          attribute_columns:
+            - sql_id
+            - parsing_schema_name
+            - sql_text
+        - metric_name: oracle.sql.buffergets
+          value_column: buffer_gets
+          value_type: int
+          data_type: sum
+          aggregation: cumulative
+          monotonic: true
+          attribute_columns:
+            - sql_id
+            - parsing_schema_name
+            - sql_text
+        - metric_name: oracle.sql.diskreads
+          value_column: disk_reads
+          value_type: int
+          data_type: sum
+          aggregation: cumulative
+          monotonic: true
+          attribute_columns:
+            - sql_id
+            - parsing_schema_name
+            - sql_text
+        - metric_name: oracle.sql.cpuexec
+          value_column: cpu_per_exec
+          value_type: double
+          data_type: gauge
+          attribute_columns:
+            - sql_id
+            - parsing_schema_name
+            - sql_text
+    - sql: >
+        SELECT * FROM (
+            SELECT
+                sql_id AS "sql_id",
+                sql_text AS "sql_text",
+                parsing_schema_name AS "parsing_schema_name",
+                executions AS "executions",
+                elapsed_time/1000000 AS "elapsed_seconds",
+                cpu_time/1000000 AS "cpu_seconds",
+                buffer_gets AS "buffer_gets",
+                disk_reads AS "disk_reads",
+                ROUND(elapsed_time/DECODE(executions,0,1,executions)/1000000,2) AS "elapsed_per_exec"
+            FROM v$sql
+            ORDER BY elapsed_time DESC
+        ) WHERE ROWNUM <= 10
+      metrics:
+        - metric_name: oracle.el.elapseseconds
+          value_column: elapsed_seconds
+          value_type: double
+          data_type: sum
+          aggregation: cumulative
+          monotonic: true
+          attribute_columns:
+            - sql_id
+            - sql_text
+            - parsing_schema_name
+        - metric_name: oracle.el.cpuseconds
+          value_column: cpu_seconds
+          value_type: double
+          data_type: sum
+          aggregation: cumulative
+          monotonic: true
+          attribute_columns:
+            - sql_id
+            - sql_text
+            - parsing_schema_name
+        - metric_name: oracle.el.executions
+          value_column: executions
+          value_type: int
+          data_type: sum
+          aggregation: cumulative
+          monotonic: true
+          attribute_columns:
+            - sql_id
+            - sql_text
+            - parsing_schema_name
+        - metric_name: oracle.el.buffergets
+          value_column: buffer_gets
+          value_type: int
+          data_type: sum
+          aggregation: cumulative
+          monotonic: true
+          attribute_columns:
+            - sql_id
+            - sql_text
+            - parsing_schema_name
+        - metric_name: oracle.el.diskreads
+          value_column: disk_reads
+          value_type: int
+          data_type: sum
+          aggregation: cumulative
+          monotonic: true
+          attribute_columns:
+            - sql_id
+            - sql_text
+            - parsing_schema_name
+        - metric_name: oracle.el.elapseexec
+          value_column: elapsed_per_exec
+          value_type: double
+          data_type: gauge
+          attribute_columns:
+            - sql_id
+            - sql_text
+            - parsing_schema_name
+    - sql: |
+        SELECT * FROM (
+            SELECT
+                sql_id AS "sql_id",
+                sql_text AS "sql_text",
+                parsing_schema_name AS "parsing_schema_name",
+                executions AS "executions",
+                cpu_time/1000000 AS "cpu_seconds",
+                elapsed_time/1000000 AS "elapsed_seconds"
+            FROM v$sql
+            WHERE executions > 0
+            ORDER BY executions DESC
+        ) WHERE ROWNUM <= 10
+      metrics:
+        - metric_name: oracle.ex.executions
+          value_column: executions
+          value_type: int
+          data_type: sum
+          aggregation: cumulative
+          monotonic: true
+          attribute_columns:
+            - sql_id
+            - sql_text
+            - parsing_schema_name
+        - metric_name: oracle.ex.cpuseconds
+          value_column: cpu_seconds
+          value_type: double
+          data_type: sum
+          aggregation: cumulative
+          monotonic: true
+          attribute_columns:
+            - sql_id
+            - sql_text
+            - parsing_schema_name
+        - metric_name: oracle.ex.elapseseconds
+          value_column: elapsed_seconds
+          value_type: double
+          data_type: sum
+          aggregation: cumulative
+          monotonic: true
+          attribute_columns:
+            - sql_id
+            - sql_text
+            - parsing_schema_name
+    - sql: >
+        SELECT
+            originating_timestamp AS "originating_timestamp",
+            to_char(originating_timestamp, 'DD-MON-YYYY HH24:MI:SS') AS "time",
+            message_text AS "message_text"
+        FROM v$diag_alert_ext WHERE message_text LIKE '%deadlock%' ORDER BY
+        originating_timestamp DESC
+      tracking_column: originating_timestamp
+      tracking_start_value: 2024-01-01T00:00:00Z
+      logs:
+        - body_column: message_text
+          attribute_columns:
+            - time
+            - originating_timestamp
+sqlquery/sessions:
+  driver: oracle
+  host: <host-ip>
+  database: <database-connection-string>
+  port: 1521
+  collection_interval: 30s
+  username: sys
+  password: password
+  storage: file_storage
+  queries:
+    - sql: |
+        SELECT
+            s.sid AS "sid",
+            s.username AS "username",
+            s.status AS "status",
+            s.osuser AS "osuser",
+            s.machine AS "machine",
+            s.program AS "program",
+            s.sql_id AS "sql_id",
+            s.event AS "event",
+            s.wait_class AS "wait_class",
+            s.seconds_in_wait AS "seconds_in_wait",
+            s.state AS "state"
+        FROM v$session s
+        WHERE s.status = 'ACTIVE'
+        AND s.username IS NOT NULL
+        ORDER BY s.seconds_in_wait DESC
+      metrics:
+        - metric_name: oracle.sess.secinwait
+          value_column: seconds_in_wait
+          value_type: int
+          data_type: gauge
+          attribute_columns:
+            - sid
+            - username
+            - machine
+            - program
+            - sql_id
+            - event
+            - wait_class
+            - state
+            - status
+```
+
 ## **Configuration Overview**
 
 ### **Step 1: Access Agents and OpenTelemetry Collector Configuration**
