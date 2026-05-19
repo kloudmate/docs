@@ -18,7 +18,8 @@ The digest workflow runs every Monday at 03:30 UTC. It:
 3. Calls OpenRouter to generate a structured markdown digest.
 4. Commits the digest to `content/engineering-digests/{year}/{date}-weekly-digest.md`.
 5. Posts a concise summary comment to the tracking issue **"Weekly Product + Docs Digest"**.
-6. Uploads intermediate debug artifacts (raw data, prompt, LLM response).
+6. Sends the digest summary and inline changelog text to Slack when `SLACK_WEBHOOK_URL` is configured.
+7. Uploads intermediate debug artifacts (raw data, prompt, LLM response).
 
 ---
 
@@ -122,6 +123,7 @@ export GITHUB_REPOSITORY="kloudmate/docs"
 export OPENROUTER_API_KEY="sk-or-..."
 export WEEK_START="2026-04-13"          # optional
 export ARTIFACTS_DIR="/tmp/test-digest"
+export SLACK_WEBHOOK_URL="https://hooks.slack.com/services/..."
 
 # Run all phases
 npx tsx main.ts
@@ -131,6 +133,7 @@ npx tsx main.ts collect    # collect GitHub data only
 npx tsx main.ts generate   # build prompt + call LLM
 npx tsx main.ts commit     # commit markdown to repo via API
 npx tsx main.ts post       # post tracking issue comment
+npx tsx main.ts slack      # send Slack summary + inline digest text
 ```
 
 Intermediate files are written to `ARTIFACTS_DIR`:

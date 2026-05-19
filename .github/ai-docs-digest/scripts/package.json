@@ -9,7 +9,8 @@
     "collect": "tsx main.ts collect",
     "generate": "tsx main.ts generate",
     "commit": "tsx main.ts commit",
-    "post": "tsx main.ts post"
+    "post": "tsx main.ts post",
+    "test": "node --import tsx --test *.test.ts"
   },
   "dependencies": {
     "@octokit/rest": "^21.0.2",
