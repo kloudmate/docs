@@ -1,0 +1,49 @@
+---
+title: "API Keys"
+description: "Manage API keys for data ingestion and integration with KloudMate."
+sidebar:
+  label: "API Keys"
+  order: 2
+---
+
+API keys are required to authenticate and send telemetry data (logs, metrics, and traces) from your applications and infrastructure to KloudMate. 
+
+KloudMate uses a dedicated **API Keys** management section to give you granular control over the keys used across your organization. 
+
+## Manage API Keys
+
+You can create, view, and revoke API keys by navigating to **Settings -> API Keys** from the main sidebar.
+
+### Create an API Key
+
+1. Navigate to **Settings -> API Keys**.
+2. Click the **Add Key** or **Create API Key** button.
+3. Provide a recognizable name for the key to identify its purpose or the environment it will be used in (e.g., `prod-kubernetes-cluster` or `frontend-app`).
+4. Click **Create** or **Save**. 
+
+Once created, the new API Key will be displayed. **Copy this key immediately**, as you will need it to configure your OpenTelemetry collectors, SDKs, or the KloudMate agent.
+
+### Using API Keys
+
+When configuring your instrumentation, you will typically need to provide your API key in the headers of your telemetry exports. 
+
+For OpenTelemetry configurations (OTLP), this is generally provided in the `Authorization` header:
+
+```yaml
+exporters:
+  otlp:
+    endpoint: "https://otel.kloudmate.com:4317"
+    headers:
+      Authorization: "Bearer YOUR_API_KEY"
+```
+
+### Revoking an API Key
+
+If an API key is compromised or no longer needed, you should revoke it to prevent unauthorized data ingestion.
+
+1. Navigate to **Settings -> API Keys**.
+2. Locate the key you want to remove.
+3. Click the delete from the actions menu on the row.
+4. Confirm the deletion. 
+
+*Note: Revoking an API key will immediately stop any active agents or applications using that key from sending data to KloudMate.*

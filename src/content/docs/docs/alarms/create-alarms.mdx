@@ -34,6 +34,22 @@ You can create multiple queries and expressions using the **Add Query** and **Ad
 
 ### 1. Setup Query Conditions and Expressions
 
+You can build your alarms manually or use AI and templates to accelerate the process. 
+
+#### AI-Assisted Alarm Creation
+KloudMate's assistant can automatically generate alarm queries and thresholds based on your natural language prompt. 
+1. In the Create Alarm window, look for the **Assistant** chat panel.
+2. Type a prompt, for example: *"Create an alarm that triggers if CPU utilization goes above 90% for my production cluster."*
+3. The AI will populate the query builder and set the appropriate thresholds for you. You can review and adjust the settings before saving.
+
+#### Using Pre-defined Templates
+Instead of building an alarm from scratch, you can browse **Alarm Templates**. These templates cover common use-cases and best practices.
+1. Click **Browse Templates** near the top of the Create Alarm page.
+2. Select a template that matches your monitoring needs. 
+3. The template will automatically configure the data source, query structure, and recommended thresholds. You only need to fill in specific filters (like `host_name`) and notification tags.
+
+#### Manual Configuration
+
 Select OpenTelemetry or KloudMate as the data source from the first dropdown.
 
 #### Setting Up Query Conditions for OpenTelemetry / KloudMate
