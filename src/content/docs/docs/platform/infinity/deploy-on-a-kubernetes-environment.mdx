@@ -14,8 +14,8 @@ Use this deployment model when you want to run KloudMate Infinity on Kubernetes-
 - `x86-64/amd64` workloads only
 - Helm version `>= 3.14.3`
 - A default `StorageClass` that supports dynamic provisioning of `PersistentVolumeClaims`, with `allowVolumeExpansion: true` and `volumeBindingMode: WaitForFirstConsumer`
-- A high-performance SSD-backed `StorageClass` for ClickHouse — `ReadWriteOnce` block storage on NVMe or equivalent, with a sustained target of at least `3,000 IOPS` and `125 MB/s` throughput per volume (for example, AWS `gp3`/`io2`, Azure `Premium SSD v2`, or GCP `pd-ssd`/`pd-extreme`)
-- A `ReadWriteMany` (`RWX`) shared-filesystem `StorageClass` for shared blob storage — required because the `api-server` and `worker` pods mount the same `PVC` from different nodes to read and write shared data files (for example, AWS EFS, Azure Files, GCP Filestore, NFS, or CephFS)
+- A high-performance SSD-backed `StorageClass` for data plane workloads — `ReadWriteOnce` block storage on NVMe or equivalent, with a sustained target of at least `3,000 IOPS` and `125 MB/s` throughput per volume (for example, AWS `gp3`/`io2`, Azure `Premium SSD v2`, or GCP `pd-ssd`/`pd-extreme`)
+- A `ReadWriteMany` (`RWX`) shared-filesystem `StorageClass` for shared blob storage — required because multiple workloads mount the same `PVC` from different nodes to read and write shared data files (for example, AWS EFS, Azure Files, GCP Filestore, NFS, or CephFS)
 - A Kubernetes `LoadBalancer` or ingress controller for exposing services externally
 - A domain name with a wildcard SSL certificate
 - SMTP credentials for sending email notifications
@@ -23,7 +23,7 @@ Use this deployment model when you want to run KloudMate Infinity on Kubernetes-
 - `kubectl` access to the cluster
 
 :::note
-All storage for KloudMate Infinity is provisioned through `PersistentVolumeClaims`, not raw disks attached to nodes. Plan capacity at the `StorageClass` and `PVC` level so volumes can be rescheduled with their pods. Workloads use different access modes — `ReadWriteOnce` block volumes for ClickHouse, and a `ReadWriteMany` shared filesystem for blob storage.
+All storage for KloudMate Infinity is provisioned through `PersistentVolumeClaims`, not raw disks attached to nodes. Plan capacity at the `StorageClass` and `PVC` level so volumes can be rescheduled with their pods. Workloads use different access modes — `ReadWriteOnce` block volumes for the data plane, and a `ReadWriteMany` shared filesystem for blob storage shared across the control plane.
 :::
 
 ## Minimum Sizing
@@ -36,27 +36,27 @@ Totals below are aggregate cluster resources requested by KloudMate Infinity wor
 | CPU (total) | 8 cores | 16 cores |
 | Memory (total) | 16 GB | 32 GB |
 | PVC storage (total) | 500 GB | 1 TB |
-| ClickHouse storage class | SSD-backed (`RWO`) | High-IOPS NVMe SSD (`RWO`) |
+| Data plane storage class | SSD-backed (`RWO`) | High-IOPS NVMe SSD (`RWO`) |
 | Shared blob storage class | Shared filesystem (`RWX`) | Shared filesystem (`RWX`) |
 
 ## Moderate Workload Cluster
 
-This setup is suitable for approximately `10 TB` of monthly ingestion. ClickHouse `PVCs` must be backed by a high-IOPS NVMe SSD `StorageClass`.
+This setup is suitable for approximately `10 TB` of monthly ingestion. Data plane `PVCs` must be backed by a high-IOPS NVMe SSD `StorageClass`.
 
-| Component | Replicas | vCPUs Per Replica | RAM Per Replica | PVC Storage Per Replica | Storage Class |
-| --------- | -------- | ----------------- | --------------- | ----------------------- | ------------- |
-| Control plane services | 3 | 4-8 | 8-16 GB | 50 GB | General-purpose SSD (`RWO`) |
-| ClickHouse data nodes | 2 | 8-16 | 32-64 GB | 1-2 TB | High-IOPS NVMe SSD (`RWO`) |
-| Shared blob storage | 1 shared volume | n/a | n/a | 50-100 GB | Shared filesystem (`RWX`) |
+| Tier | Node Count | vCPUs Per Node | RAM Per Node | PVC Storage | Storage Class |
+| ---- | ---------- | -------------- | ------------ | ----------- | ------------- |
+| Control plane | 3 | 4-8 | 8-16 GB | 50 GB | General-purpose SSD (`RWO`) |
+| Data plane | 2 | 8-16 | 32-64 GB | 1-2 TB | High-IOPS NVMe SSD (`RWO`) |
+| Shared blob storage | — | — | — | 50-100 GB | Shared filesystem (`RWX`) |
 
 ## High Workload Cluster
 
-This setup is intended for very high ingestion rates and larger production deployments. ClickHouse `PVCs` should target at least `16,000 IOPS` and `500 MB/s` throughput per volume.
+This setup is intended for very high ingestion rates and larger production deployments. Data plane `PVCs` should target at least `16,000 IOPS` and `500 MB/s` throughput per volume.
 
-| Component | Replicas | vCPUs Per Replica | RAM Per Replica | PVC Storage Per Replica | Storage Class |
-| --------- | -------- | ----------------- | --------------- | ----------------------- | ------------- |
-| Control plane services | 3 | 4 | 8-16 GB | 50 GB | General-purpose SSD (`RWO`) |
-| ClickHouse data nodes | 4 | 16-32 | 64-128 GB | 1-2 TB | High-IOPS NVMe SSD (`RWO`) |
-| Shared blob storage | 1 shared volume | n/a | n/a | 50 GB - 100 GB | Shared filesystem (`RWX`) |
+| Tier | Node Count | vCPUs Per Node | RAM Per Node | PVC Storage | Storage Class |
+| ---- | ---------- | -------------- | ------------ | ----------- | ------------- |
+| Control plane | 3 | 4 | 8-16 GB | 50 GB | General-purpose SSD (`RWO`) |
+| Data plane | 4 | 16-32 | 64-128 GB | 1-2 TB | High-IOPS NVMe SSD (`RWO`) |
+| Shared blob storage | — | — | — | 50 GB - 100 GB | Shared filesystem (`RWX`) |
 
 After completing the prerequisites, [contact KloudMate](https://www.kloudmate.com/contact) to proceed with deployment.
