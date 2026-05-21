@@ -28,35 +28,43 @@ All storage for KloudMate Infinity is provisioned through `PersistentVolumeClaim
 
 ## Minimum Sizing
 
-Totals below are aggregate cluster resources requested by KloudMate Infinity workloads. Storage figures are total `PVC` capacity to be provisioned through your `StorageClass`.
+Compute sizing for the cluster. `PVC` storage is sized separately under [Persistent Volume Requirements](#persistent-volume-requirements) — `PVCs` are cluster-scoped and provisioned through your `StorageClass`, not attached to specific nodes.
 
 | Resource | Minimum / POC | Minimum Production |
 | -------- | ------------- | ------------------ |
 | Nodes | 3 | 5 |
 | CPU (total) | 8 cores | 16 cores |
 | Memory (total) | 16 GB | 32 GB |
-| PVC storage (total) | 500 GB | 1 TB |
-| Data plane storage class | SSD-backed (`RWO`) | High-IOPS NVMe SSD (`RWO`) |
-| Shared blob storage class | Shared filesystem (`RWX`) | Shared filesystem (`RWX`) |
 
 ## Moderate Workload Cluster
 
-This setup is suitable for approximately `10 TB` of monthly ingestion. Data plane `PVCs` must be backed by a high-IOPS NVMe SSD `StorageClass`.
+This setup is suitable for approximately `10 TB` of monthly ingestion.
 
-| Tier | Node Count | vCPUs Per Node | RAM Per Node | PVC Storage | Storage Class |
-| ---- | ---------- | -------------- | ------------ | ----------- | ------------- |
-| Control plane | 3 | 4-8 | 8-16 GB | 50 GB | General-purpose SSD (`RWO`) |
-| Data plane | 2 | 8-16 | 32-64 GB | 1-2 TB | High-IOPS NVMe SSD (`RWO`) |
-| Shared blob storage | — | — | — | 50-100 GB | Shared filesystem (`RWX`) |
+| Tier | Node Count | vCPUs Per Node | RAM Per Node |
+| ---- | ---------- | -------------- | ------------ |
+| Control plane | 3 | 4-8 | 8-16 GB |
+| Data plane | 2 | 8-16 | 32-64 GB |
 
 ## High Workload Cluster
 
-This setup is intended for very high ingestion rates and larger production deployments. Data plane `PVCs` should target at least `16,000 IOPS` and `500 MB/s` throughput per volume.
+This setup is intended for very high ingestion rates and larger production deployments.
 
-| Tier | Node Count | vCPUs Per Node | RAM Per Node | PVC Storage | Storage Class |
-| ---- | ---------- | -------------- | ------------ | ----------- | ------------- |
-| Control plane | 3 | 4 | 8-16 GB | 50 GB | General-purpose SSD (`RWO`) |
-| Data plane | 4 | 16-32 | 64-128 GB | 1-2 TB | High-IOPS NVMe SSD (`RWO`) |
-| Shared blob storage | — | — | — | 50 GB - 100 GB | Shared filesystem (`RWX`) |
+| Tier | Node Count | vCPUs Per Node | RAM Per Node |
+| ---- | ---------- | -------------- | ------------ |
+| Control plane | 3 | 4 | 8-16 GB |
+| Data plane | 4 | 16-32 | 64-128 GB |
+
+## Persistent Volume Requirements
+
+`PVCs` are provisioned dynamically through `StorageClasses` and bound to pods, not nodes. Plan the following `PVC` capacity independently of node sizing.
+
+| Purpose | Access Mode | Storage Class | Moderate Workload | High Workload |
+| ------- | ----------- | ------------- | ----------------- | ------------- |
+| Data plane (analytics / telemetry storage) | `ReadWriteOnce` | High-IOPS NVMe SSD | 1-2 TB per volume | 2-5 TB per volume |
+| Control plane (databases, queues, cache) | `ReadWriteOnce` | General-purpose SSD | 50 GB per volume | 50 GB per volume |
+| Shared blob storage | `ReadWriteMany` | Shared filesystem | 50-100 GB total | 50-100 GB total |
+
+- **Data plane** `PVCs` must target at least `3,000 IOPS` and `125 MB/s` throughput per volume for moderate workloads, and at least `16,000 IOPS` and `500 MB/s` for high workloads.
+- **Shared blob storage** must be `ReadWriteMany` because multiple workloads mount the same `PVC` from different nodes.
 
 After completing the prerequisites, [contact KloudMate](https://www.kloudmate.com/contact) to proceed with deployment.
