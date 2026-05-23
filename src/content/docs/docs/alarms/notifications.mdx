@@ -1,18 +1,14 @@
 ---
-title: "Alarm Notifications"
-description: "Set up notification channels and policies to receive alerts for KloudMate Alarms."
+title: "Alarm Notification Policies"
+description: "Set up notification policies to receive alerts for KloudMate Alarms."
 sidebar:
   order: 5
 ---
-To receive notifications from KloudMate about incidents in your infrastructure, you need to set up notification channels and notification policies. A notification policy configures how and where you get notified for alarms or issues, while notification channels are the communication platforms where those notifications are sent.
+To receive notifications from KloudMate about incidents in your infrastructure, you need to set up notification policies. A notification policy configures how and where you get notified for alarms or issues. 
 
-KloudMate supports the following notification channels:
-- Email
-- Slack
-- SNS
-- MS Teams
-- Webhook
-- Jira
+:::tip
+Before creating a policy, ensure you have configured your preferred communication platforms. See [Notification Channels](../../platform/settings/notification-channels/) to learn how to set up Slack, Email, Webhooks, Jira, and more.
+:::
 
 :::info
 In the case of multiple workspaces and AWS accounts, you must set up notifications for each account in their respective **Settings**.
@@ -58,136 +54,3 @@ Navigate to **Settings** > **Notification Policies**. The screen displays all ex
 You can add multiple notification channels and multiple conditions in a single notification policy.
 :::
 
-## Setting Up Notification Channels
-
-Navigate to **Settings** > **Notification Channels**. The screen displays all existing channels with their name, type, and address.
-
-![image](./images/setting-up-notifications-1.jpeg)
-
-1. Click the **Create** button at the top-right corner.
-2. Select the desired channel type from the dropdown.
-
-![image](./images/setting-up-notifications-1.png)
-
-Once created, the channel appears in the list. You can **Edit** or **Delete** any channel using the more options (⋯) icon. 
-
-![image](./images/setting-up-notifications-2.jpeg)
-
-Below are the configuration steps for each specific channel type:
-
-### Email
-
-1. Select **Email** from the dropdown menu.
-2. Enter a **Name** for the channel (e.g., demo) and your email address in the Address field.
-3. Click **Submit**.
-
-![image](./images/email-1.png)
-
-### Slack
-
-1. Select **Slack** from the dropdown menu, then click the **Add to Slack** button.
-2. You will be redirected to the Slack integrations page. Follow the on-screen instructions, add a message for your App Manager, then click **Submit**.
-
-![image](./images/slack-1.png)
-
-### MS Teams
-
-1. Select **MS Teams** from the dropdown menu.
-2. Create an incoming webhook URL from Microsoft Teams by going to **Channel** > **Connectors** > **Incoming Webhooks** in the Microsoft Teams Apps.
-3. Enter the **Team Channel Name** and the **Webhook Address** in their respective fields.
-4. Click **Submit**.
-
-![image](./images/ms-teams-1.png)
-
-:::info
-Optionally, you can download the KloudMate logo from the link provided on the screen to update the webhook’s image in MS Teams.
-:::
-
-### SNS
-
-1. Select **SNS** from the dropdown menu.
-2. Copy the KloudMate SNS Access Policy displayed on the screen. Navigate to your AWS Console and paste the policy into your SNS topic. Update the placeholders in the policy with the correct values.
-3. Return to KloudMate, enter a **Name** and your **Topic ARN** in their respective fields.
-4. Click **Submit**.
-
-![image](./images/sns-1.png)
-
-### Webhooks
-
-1. Select **Webhook** from the dropdown menu.
-2. Enter a **Webhook Name** and the **Webhook URL** in their respective fields.
-3. Click **Submit**.
-
-![image](./images/webhooks-1.png)
-
-### Jira
-
-1. Select **Jira** from the dropdown menu and click the **Connect Jira** button.
-
-![image](./images/jira-1.png)
-
-2. You will be redirected to the Jira authorization page. Click **Accept** to authorize the integration between KloudMate and your Atlassian account.
-
-![image](./images/jira-2.png)
-
-3. You will be redirected back to the Jira Notification Channel configuration page in KloudMate. 
-
-![image](./images/jira-3.png)
-
-Enter a **Channel Name** and select the following:
-- **Site**: your Jira site
-- **Project**: the Jira project to link
-- **Issue Type:** the type of issue to create (e.g., Task)
-- **Status for Open state:** the Jira status that corresponds to an open ticket (e.g., To Do, In Progress)
-- **Status for Closed state:** the Jira status that corresponds to a closed ticket (e.g., Done)
-
-4. Click **Submit** to complete the integration.
-
-:::info
-Jira integration with KloudMate is one-way. Status changes in KloudMate will be reflected in Jira, but status changes made in Jira will not be reflected in KloudMate.
-:::
-
-#### Alarm and Issue Details in Jira
-
-**Alarm details in Jira**
-
-| KloudMate | Jira |
-| --- | --- |
-| Alarm name | Ticket title |
-| KloudMate account name | Ticket title |
-| Alarm description | Ticket description |
-| Alarm value | Ticket description |
-| Regression alarms | Ticket comment |
-
-**Issues details in Jira**
-
-| KloudMate | Jira |
-| --- | --- |
-| Issue's service name | Ticket title |
-| KloudMate account name | Ticket title |
-| Regression Issues | Ticket title |
-| Issue name | Ticket description |
-| Issue comments | Ticket comments |
-
-#### Creating a Manual Jira Ticket
-
-You can create a Jira ticket directly from an issue or alarm details page to raise individual tickets that are not assigned to a notification policy.
-
-**Prerequisite:** A Jira notification channel must already be configured.
-
-1. Navigate to the **Issue** or **Alarm** details page.
-2. Click the **Create in Jira** button. A dialog will open showing all Jira channels integrated with your KloudMate account, along with any previously linked Jira tickets for that issue.
-
-![image](./images/create-a-manual-jira-ticket-1.png)
-![image](./images/create-a-manual-jira-ticket-1.jpeg)
-
-3. Under Jira Channels, select the checkbox(es) for the channel(s) you want to raise a ticket in.
-4. Click **Create Ticket**.
-
-#### Unlinking a Jira Ticket
-
-1. On the issue or alarm details page, click the **settings** icon next to the Create in Jira button to open the Jira Tickets panel.
-2. The panel displays all Jira tickets currently linked to the issue, showing the Ticket ID, Site, Project, and Issue Type.
-3. Click the **unlink** icon next to the ticket you want to remove to unlink it from KloudMate.
-
-![image](./images/create-a-manual-jira-ticket-2.jpeg)
