@@ -8,19 +8,20 @@ KloudMate lets users create and configure alarms for events that are critical to
 
 ## Getting Started
 
-Navigate to the **Alarms** section from the left navigation menu. 
+Navigate to the **Alarms** section from the left navigation menu.
 
 ![image](./images/setting-up-kloudmate-alarms-1.png)
 
-The Alarms screen displays a list of all existing alarms along with their current state, name, and description. The summary at the top shows the total number of alarm rules with a count of how many are currently Firing or Pending.
+The **Alarms** screen displays a list of all existing alarms along with their current state, name, and description. The summary at the top shows the total number of alarm rules, including how many are currently **Firing** or **Pending**.
 
 From the **more options (⋯)** icon on any alarm, you can:
--**View** the alarm details
--**View State History** of the alarm
--**Edit** the alarm configuration
--**Duplicate** the alarm
--**Pause Evaluation** or **Pause Notifications**
--**Delete** the alarm
+
+- **View** the alarm details
+- **View State History** for the alarm
+- **Edit** the alarm configuration
+- **Duplicate** the alarm
+- **Pause Evaluation** or **Pause Notifications**
+- **Delete** the alarm
 
 ![image](./images/setting-up-kloudmate-alarms-1.jpeg)
 
@@ -28,29 +29,52 @@ To learn about the key concepts of KloudMate Alarms, see the [Alarms Overview](.
 
 ## Creating a New Alarm
 
-Click the **Create Alarm** button at the top-right corner of the Alarms screen. This opens the Create Alarm page, which is divided into four sections.
+Click the **Create Alarm** button at the top-right corner of the **Alarms** screen. A dialog appears with three ways to create an alarm:
 
-You can create multiple queries and expressions using the **Add Query** and **Add Expression** buttons. Each query or expression is assigned a unique alphabetical notation (A, B, C, and so on). You can duplicate any query or expression using the copy icon at the top-right corner of each block.
+![Create Alarm dialog](./images/create-alarm-dialog.png)
+
+- **From Template**: Start with a pre-configured alarm for a common monitoring scenario.
+- **From Scratch**: Create a custom alarm from an empty configuration.
+- **Using AI**: Describe the alarm you want in plain English and let KloudMate build it for you.
+
+### From Template
+
+Instead of building an alarm from scratch, you can start from a pre-configured template that covers common monitoring scenarios and best practices.
+
+1. In the **Create Alarm** dialog, select **From Template**.
+
+2. Click the **Select a template** dropdown and choose a template that matches your monitoring needs.
+
+![Template selection dropdown](./images/from-template-dropdown.png)
+
+3. Click **Create Alarm**. The alarm is created and appears in the **Alarms** list.
+4. To open and configure it, click the menu next to the alarm and select **Edit**.
+5. The alarm opens pre-configured with the query, aggregation, and threshold settings from the template. Review and adjust any filters to match your environment.
+6. Click **Save** or **Save & Close** when done.
+
+### Using AI
+
+KloudMate's assistant can automatically generate alarm queries and thresholds based on your natural language prompt.
+
+1. In the **Create Alarm** dialog, select **Using AI**.
+
+2. A text box appears. Describe the alarm you want to create.
+3. Click **Create Alarm**. KloudMate generates the alarm configuration based on your description.
+4. To review or adjust the settings, click the menu next to the alarm and select **Edit**.
+
+### From Scratch
+
+To build a fully custom alarm, select **From Scratch** in the **Create Alarm** dialog and click **Create Alarm**.
+
+This opens the alarm creation form where you can choose a data source, configure the metric or query to monitor, and define the alert condition on a single page.
+
+You can create multiple queries and expressions using the **Add Query** and **Add Expression** buttons. Each query or expression is assigned a unique alphabetical notation such as **A**, **B**, or **C**. You can duplicate any query or expression using the copy icon at the top-right corner of each block.
+
+To access advanced query and expression options such as **Math expressions**, **Reduce**, and **Condition expressions**, click **Advanced mode** at the top of the form.
+
+![Advanced mode options](./images/advanced-mode-options.png)
 
 ### 1. Setup Query Conditions and Expressions
-
-You can build your alarms manually or use AI and templates to accelerate the process. 
-
-#### AI-Assisted Alarm Creation
-KloudMate's assistant can automatically generate alarm queries and thresholds based on your natural language prompt. 
-1. In the Create Alarm window, look for the **Assistant** chat panel.
-2. Type a prompt, for example: *"Create an alarm that triggers if CPU utilization goes above 90% for my production cluster."*
-3. The AI will populate the query builder and set the appropriate thresholds for you. You can review and adjust the settings before saving.
-
-#### Using Pre-defined Templates
-Instead of building an alarm from scratch, you can browse **Alarm Templates**. These templates cover common use-cases and best practices.
-1. Click **Browse Templates** near the top of the Create Alarm page.
-2. Select a template that matches your monitoring needs. 
-3. The template will automatically configure the data source, query structure, and recommended thresholds. You only need to fill in specific filters (like `host_name`) and notification tags.
-
-#### Manual Configuration
-
-Select OpenTelemetry or KloudMate as the data source from the first dropdown.
 
 #### Setting Up Query Conditions for OpenTelemetry / KloudMate
 
@@ -58,16 +82,16 @@ Select OpenTelemetry or KloudMate as the data source from the first dropdown.
 
 - **Data Set:** Select the dataset you want to retrieve from your data source.
 - **Metric to Aggregate:** Select the metric associated with the selected dataset that you want to monitor.
-- **Group By:** Enter the attributes to group the data points.
+- **Group By:** Enter the attributes used to group the data points.
 - **Filters:** Add filters to narrow down the retrieved data points.
 
-OpenTelemetry users can also use Prometheus query language to retrieve data and set alarms.
+OpenTelemetry users can also use **Prometheus query language** to retrieve data and configure alarms.
 
 #### Setting Up Query Conditions for AWS (CloudWatch)
 
 ![image](./images/setting-up-kloudmate-alarms-3.png)
 
-- **Time Range:** Set the duration for which data should be fetched using the dropdown or enter a custom value in seconds.
+- **Time Range:** Set the duration for which data should be fetched using the dropdown, or enter a custom value in seconds.
 - **Region:** Select the AWS region of the service you want to monitor.
 - **Namespace:** Select the AWS service namespace you want to create an alarm for.
 - **Metric:** Select the metric associated with the selected namespace.
@@ -80,19 +104,19 @@ Click **Run Query** to fetch data.
 
 Alarm query time ranges support the following:
 
-- Operators: `-` (Subtract time)
-- Same units and keywords as dashboards
-- Examples: `now`, `now-5m`
+- **Operators:** `-` for subtracting time
+- **Supported values:** The same units and keywords used in dashboards
+- **Examples:** `now`, `now-5m`
 
 #### Setting Up Evaluation Expressions
 
-Expressions let you apply logic to query results. Reference any configured query or expression using its alphabetical notation (A, B, C, and so on). Note that an expression can be passed as a parameter only when multiple expressions are configured.
+Expressions let you apply logic to query results. Reference any configured query or expression using its alphabetical notation, such as **A**, **B**, or **C**. An expression can be passed as a parameter only when multiple expressions are configured.
 
 Choose from the following expression types:
 
--**Math Expression:** Enter a mathematical expression to apply to the value of a query or expression. Examples: `$A+1`, `$A<$B`, `$A && $C`. For more information, see [Alarm Expressions](./expressions/).
--**Reduce:** Select a function to aggregate the values of a query or expression into a single number, then select the target query or expression from the Input dropdown. Available functions include `mean()`, `max()`, `min()`, `sum()`, `last()`, and `count()`.
--**Condition Expression:** Select a function and a query or expression, then choose a condition and provide a threshold value to evaluate against. You can add multiple conditions and combine them using **AND** or **OR** logical operators.
+- **Math Expression:** Enter a mathematical expression to apply to the value of a query or expression. Examples: `$A+1`, `$A<$B`, `$A && $C`. For more information, see [Alarm Expressions](./expressions/).
+- **Reduce:** Select a function to aggregate the values of a query or expression into a single number, then select the target query or expression from the **Input** dropdown. Available functions include `mean()`, `max()`, `min()`, `sum()`, `last()`, and `count()`.
+- **Condition Expression:** Select a function and a query or expression, then choose a condition and provide a threshold value to evaluate against. You can add multiple conditions and combine them using **AND** or **OR** logical operators.
 
 Click **Run Queries** to execute all configured queries and expressions.
 
@@ -104,9 +128,9 @@ To avoid the **NoData** issue when using multiple queries in a single alarm, use
 
 ![image](./images/setting-up-kloudmate-alarms-4.png)
 
-- **Alarm Condition:** Select the query or expression that should trigger the alarm (A, B, or C).
-- **Evaluate Every:** Define how frequently the alarm condition should be evaluated (e.g., `1m`).
-- **Pending Duration:** Define how long the alarm condition must remain true before the alarm is triggered (e.g., `5m`).
+- **Alarm Condition:** Select the query or expression that should trigger the alarm, such as **A**, **B**, or **C**.
+- **Evaluate Every:** Define how frequently the alarm condition should be evaluated, for example `1m`.
+- **Pending Duration:** Define how long the alarm condition must remain true before the alarm is triggered, for example `5m`.
 - **Alert State if No Data:** Select the alarm behavior when the query returns no data.
 - **Alert State if Error:** Select the alarm behavior when the query returns an error.
 
@@ -117,18 +141,30 @@ Click **Preview Alarms** to run the query immediately and check the result.
 ![image](./images/setting-up-kloudmate-alarms-5.png)
 
 - **Alarm Name:** Enter a name for the alarm.
-- **Description:** Add a description to help identify the alarm’s purpose.
+- **Description:** Add a description to help identify the alarm's purpose.
 - **Responder Context:** Optionally add context to help on-call responders understand the alarm and act quickly.
+- **Severity:** Add a free-form severity label such as `sev1`, `critical`, or `p1`. You can also use templates such as `{{ labels.* }}`, `{{ state.value }}`, and `{{ state.values.A }}`.
 - **Dashboard:** Link a relevant dashboard for quick reference.
-- **Summary:** Add a summary that will be included in notifications to provide context.
+- **Summary:** Add a summary that will be included in notifications to provide context. It supports the same template variables as **Severity**.
 - **Playbook URL:** Add an optional runbook or playbook URL with on-call instructions.
-- **Custom Annotations:** Add any custom key-value annotations.
-- **SLA Target:** Set an SLA target percentage for this alarm.
+- **Custom Annotations:** Add custom key-value annotations.
+- **SLA Target:** Set an SLA target for this alarm.
 
 ### 4. Add Notification Tags
 
-Add tags to the alarm to route notifications through a matching notification policy. When the alarm is triggered, notifications will be sent to the channels configured in the matching notification policy.
+Add tags to the alarm to route notifications through a matching notification policy. Each tag is a **Name/Value** pair. Click **Add tag** to add more tags. When the alarm is triggered, notifications are sent to the channels configured in the matching notification policy.
 
 ### 5. Save the Alarm
 
-Click **Save** to save the alarm, or **Save & Close** to save and return to the Alarms screen.
+Click **Save** to save the alarm, or **Save & Close** to save and return to the **Alarms** screen. A confirmation message appears when the alarm is created successfully.
+
+## Viewing an Alarm
+
+To open an alarm, click the menu next to it and select **View**. This opens the alarm detail page with four tabs:
+
+![Alarm detail overview](./images/alarm-detail-overview.png)
+
+- **Overview:** Shows instance states, breaching instances with labels, reason, and duration, along with recent state transitions.
+- **Instances:** Shows the full list of alarm instances and their current states.
+- **History:** Shows the state change history over time.
+- **Rule:** Shows the alarm configuration and query definition.
