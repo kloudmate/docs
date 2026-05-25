@@ -47,7 +47,7 @@ export default defineConfig({
         starlightImageZoom(),
         starlightThemeNova({
           nav: [
-            { label: 'Docs', href: '/docs/getting-started/what-is-kloudmate/' },
+            { label: 'Docs', href: '/getting-started/what-is-kloudmate/' },
             { label: 'Guides', href: '/guides/' },
             // { label: 'API', href: '/api/' },
           ],
