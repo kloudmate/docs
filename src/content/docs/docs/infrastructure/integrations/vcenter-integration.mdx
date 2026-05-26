@@ -1,6 +1,8 @@
 ---
 title: "vCenter Integration"
 description: "Collect VMware vCenter metrics in KloudMate through the OpenTelemetry vCenter receiver."
+sidebar:
+  order: 2
 ---
 Use this guide to collect VMware vCenter metrics in KloudMate with the OpenTelemetry `vcenter` receiver running via the KloudMate Agent.
 
@@ -9,7 +11,7 @@ Use this guide to collect VMware vCenter metrics in KloudMate with the OpenTelem
 1. Run vCenter 7.0 or 8.x.
 2. Create a read-only vSphere user with access to the vCenter server, clusters, and resources you want to monitor.
 3. Identify the vCenter or ESXi endpoint with SDK access enabled.
-4. Install the [KloudMate Agent](../../kloudmate-agent/) on a host that can reach vCenter.
+4. Install the [KloudMate Agent](../../../kloudmate-agent/) on a host that can reach vCenter.
 
 ## Step 1: Configure the Receiver
 

@@ -1,0 +1,74 @@
+---
+title: "Keycloak Integration"
+description: "Collect Keycloak metrics in KloudMate through the KloudMate Agent."
+sidebar:
+  order: 4
+---
+Use this integration when you want to scrape Keycloak metrics from its Prometheus-compatible metrics endpoint and send them to KloudMate through the KloudMate Agent.
+
+## Prerequisites
+
+1. Install and run the [KloudMate Agent](../../../kloudmate-agent/).
+2. Ensure your Keycloak service exposes the `/auth/metrics` endpoint. If this endpoint is not available, no metrics will be scraped.
+3. Keycloak must be reachable from the node where the KloudMate Agent is running.
+
+## Step 1: Define the Prometheus Receiver
+
+Add the following Prometheus receiver to your Agent configuration file (typically `/etc/km-agent/config.yaml`). Replace `<keycloak-service-name>` and `<namespace>` with your actual Kubernetes service name and namespace.
+
+```yaml
+extensions:
+  health_check:
+    endpoint: 0.0.0.0:13133
+
+receivers:
+  prometheus:
+    config:
+      scrape_configs:
+        - job_name: keycloak
+          metrics_path: /auth/metrics
+          scheme: http
+          static_configs:
+            - targets:
+                - <keycloak-service-name>.<namespace>.svc.cluster.local:8080
+```
+
+:::info
+Validate indentation carefully when copying `scrape_configs` into the Agent configuration.
+:::
+
+## Step 2: Add to Pipeline
+
+Add the Prometheus receiver to the metrics pipeline in your Agent configuration.
+
+```yaml
+service:
+  extensions:
+    - health_check
+  telemetry:
+    metrics:
+      level: none
+  pipelines:
+    metrics/keycloak:
+      receivers:
+        - prometheus
+      processors:
+        - batch
+      exporters:
+        - otlphttp
+```
+
+## Step 3: Restart the Agent
+
+```bash
+systemctl restart kmagent
+systemctl status kmagent
+```
+
+## Step 4: Validate in KloudMate
+
+After the Agent restarts:
+
+- Open [Explore](../../explore/) in KloudMate.
+- Query one of the scraped Keycloak metrics.
+- Build dashboards or alarms once data is visible.

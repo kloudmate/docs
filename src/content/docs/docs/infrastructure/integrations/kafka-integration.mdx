@@ -1,0 +1,116 @@
+---
+title: "Kafka Integration"
+description: "Collect Kafka broker, topic, and consumer metrics in KloudMate through the KloudMate Agent."
+sidebar:
+  order: 3
+---
+Use this integration when you want to monitor Kafka brokers, topics, and consumers in KloudMate through the OpenTelemetry `kafkametrics` receiver running in the KloudMate Agent.
+
+## Prerequisites
+
+1. Install and run the [KloudMate Agent](../../../kloudmate-agent/).
+2. Ensure your Kafka brokers are reachable from the node where the Agent is running.
+3. Have your Kafka broker addresses, protocol version, and authentication credentials ready.
+
+## Step 1: Define the Kafka Metrics Receiver
+
+Add the following `kafkametrics` receiver to your Agent configuration file (typically `/etc/km-agent/config.yaml`). Replace the broker addresses, credentials, and protocol version to match your environment.
+
+```yaml
+extensions:
+  health_check:
+    endpoint: 0.0.0.0:13133
+
+receivers:
+  kafkametrics:
+    brokers:
+      - kafka.example.com:9095
+      - kafka.example.com:9096
+      - kafka.example.com:9097
+    protocol_version: 2.8.0
+    auth:
+      plain_text:
+        username: <your-username>
+        password: <your-password>
+    scrapers:
+      - brokers
+      - topics
+      - consumers
+    metrics:
+      kafka.broker.log_retention_period:
+        enabled: true
+      kafka.topic.replication_factor:
+        enabled: true
+      kafka.topic.log_retention_period:
+        enabled: true
+      kafka.topic.log_retention_size:
+        enabled: true
+      kafka.topic.min_insync_replicas:
+        enabled: true
+```
+
+The `scrapers` block controls which data is collected. `brokers`, `topics`, and `consumers` are the three available options. The metrics listed under the `metrics` block are not enabled by default and must be explicitly set to `enabled: true` to be collected.
+
+## Step 2: Add to Pipeline
+
+Add the `kafkametrics` receiver to the metrics pipeline in your Agent configuration.
+
+```yaml
+service:
+  extensions:
+    - health_check
+  telemetry:
+    metrics:
+      level: none
+  pipelines:
+    metrics/kafkametrics:
+      receivers:
+        - kafkametrics
+      processors:
+        - batch
+      exporters:
+        - otlphttp
+```
+
+## Step 3: Restart the Agent
+
+```bash
+systemctl restart kmagent
+systemctl status kmagent
+```
+
+## Step 4: Validate in KloudMate
+
+After the Agent restarts:
+
+- Open [Explore](../../explore/) in KloudMate.
+- Query one of the scraped Kafka metrics, such as `kafka.brokers` or `kafka.topic.partitions`.
+- Build dashboards or alarms once the data is visible.
+
+## Standard Kafka Dashboards
+
+KloudMate provides prebuilt Kafka dashboards through [dashboard templates](https://templates.kloudmate.com/kafka/index.html). These dashboards help you visualize broker availability, topic partitions, consumer lag, offsets, and replication health.
+
+To import and start using these templates, follow the steps described in [Import from Templates](../../visualize-data/dashboards/create-a-dashboard/).
+
+## Default Kafka Metrics
+
+Kafka Monitoring automatically collects commonly used Kafka metrics when enabled.
+
+Example Metrics
+
+| **Metric Name** | **Description** |
+| --- | --- |
+| kafka.brokers | Number of brokers in the cluster. |
+| kafka.topic.partitions | Number of partitions in a topic. |
+| kafka.partition.current_offset | Current offset of a topic partition. |
+| kafka.partition.oldest_offset | Oldest available offset of a topic partition. |
+| kafka.partition.replicas | Number of replicas configured for a topic partition. |
+| kafka.partition.replicas_in_sync | Number of in-sync replicas for a topic partition. |
+| kafka.consumer_group.members | Number of members in a consumer group. |
+| kafka.consumer_group.lag | Current approximate lag of a consumer group for a topic partition. |
+| kafka.consumer_group.lag_sum | Current approximate sum of consumer group lag across all topic partitions. |
+| kafka.consumer_group.offset | Current consumer group offset for a topic partition. |
+| kafka.consumer_group.offset_sum | Sum of consumer group offsets across topic partitions. |
+
+For the complete metrics list, refer to the [metrics reference](https://github.com/open-telemetry/opentelemetry-collector-contrib/blob/main/receiver/kafkametricsreceiver/documentation.md).
