@@ -25,7 +25,7 @@ From the **more options (⋯)** icon on any alarm, you can:
 
 ![image](./images/setting-up-kloudmate-alarms-1.jpeg)
 
-To learn about the key concepts of KloudMate Alarms, see the [Alarms Overview](../alarms/).
+To learn about the key concepts of KloudMate Alarms, see the [Alarms Overview](../).
 
 ## Creating a New Alarm
 
@@ -114,14 +114,14 @@ Expressions let you apply logic to query results. Reference any configured query
 
 Choose from the following expression types:
 
-- **Math Expression:** Enter a mathematical expression to apply to the value of a query or expression. Examples: `$A+1`, `$A<$B`, `$A && $C`. For more information, see [Alarm Expressions](./expressions/).
+- **Math Expression:** Enter a mathematical expression to apply to the value of a query or expression. Examples: `$A+1`, `$A<$B`, `$A && $C`. For more information, see [Alarm Expressions](../expressions/).
 - **Reduce:** Select a function to aggregate the values of a query or expression into a single number, then select the target query or expression from the **Input** dropdown. Available functions include `mean()`, `max()`, `min()`, `sum()`, `last()`, and `count()`.
 - **Condition Expression:** Select a function and a query or expression, then choose a condition and provide a threshold value to evaluate against. You can add multiple conditions and combine them using **AND** or **OR** logical operators.
 
 Click **Run Queries** to execute all configured queries and expressions.
 
 :::info
-To avoid the **NoData** issue when using multiple queries in a single alarm, use the `ifNull` operator to assign a default value. Read more in [Alarm Expressions](./expressions/).
+To avoid the **NoData** issue when using multiple queries in a single alarm, use the `ifNull` operator to assign a default value. Read more in [Alarm Expressions](../expressions/).
 :::
 
 ### 2. Configure Evaluation Settings

@@ -4,7 +4,6 @@ import starlightScrollToTop from 'starlight-scroll-to-top';
 import starlightLlmsTxt from 'starlight-llms-txt';
 import starlightAutoSidebar from 'starlight-auto-sidebar'
 import starlightThemeNova from 'starlight-theme-nova';
-import starlightLinksValidator from 'starlight-links-validator';
 import starlightImageZoom from 'starlight-image-zoom';
 import starlightOpenAPI, { openAPISidebarGroups } from 'starlight-openapi';
 import starlightAutoDrafts from 'starlight-auto-drafts';
@@ -40,10 +39,12 @@ export default defineConfig({
         //     schema: './openapi.yaml',
         //   },
         // ]),
-        starlightLinksValidator({
-          errorOnRelativeLinks: false,
-          sameSitePolicy: 'error',
-        }),
+        // Note: starlight-links-validator was removed because it can't see
+        // through `docsLoader({ generateId })` slug rewriting — it keys its
+        // page table by source file path, but our URLs come from the rewritten
+        // slug, so every absolute internal link was wrongly reported as broken.
+        // Link checking is handled by scripts/check-links.mjs (runs in postbuild)
+        // which validates against the actual rendered HTML.
         starlightImageZoom(),
         starlightThemeNova({
           nav: [

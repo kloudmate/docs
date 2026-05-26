@@ -5,7 +5,7 @@ sidebar:
   label: "Advanced Host Configuration"
   order: 4
 ---
-The KloudMate Agent automatically collects essential host metrics (CPU, Memory, Filesystem, Uptime) from Linux and Windows systems out-of-the-box using the OpenTelemetry `hostmetrics` receiver. You can view these metrics immediately in the [Hosts View](./hosts/).
+The KloudMate Agent automatically collects essential host metrics (CPU, Memory, Filesystem, Uptime) from Linux and Windows systems out-of-the-box using the OpenTelemetry `hostmetrics` receiver. You can view these metrics immediately in the [Hosts View](../hosts/).
 
 If you need to collect extended metrics (like detailed process-level data, disk I/O, or network metrics) or attach cloud provider tags, you can modify the agent's configuration following this guide.
 
@@ -150,8 +150,8 @@ For Windows:
 
 After the agent restarts:
 
-- open the [Hosts View](./hosts/) to view the data
-- query host metrics such as `system.cpu.utilization`, `system.memory.utilization`, or newly added metrics like `system.network.io` in [Explore](../explore/)
+- open the [Hosts View](../hosts/) to view the data
+- query host metrics such as `system.cpu.utilization`, `system.memory.utilization`, or newly added metrics like `system.network.io` in [Explore](../../visualize-data/explore/)
 - create dashboards or alerts once data is visible
 
 ## Common Metric Families
