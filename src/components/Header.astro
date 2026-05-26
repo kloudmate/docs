@@ -14,15 +14,30 @@ import MobileMenuToggle from 'starlight-theme-nova/components/MobileMenuToggle.a
 const route = Astro.locals.starlightRoute;
 const currentPath = normalizePath(Astro.url.pathname);
 const siteTitleHref = withBase(route.siteTitleHref);
+/**
+ * Non-docs sections each live under a single URL prefix. Anything outside this list
+ * is considered part of the (flat-rooted) Docs section, mirroring Sidebar.astro.
+ */
+const nonDocsSectionPrefixes = ['/guides', '/api'];
+const currentSection = nonDocsSectionPrefixes.find(
+  (prefix) => currentPath === prefix || currentPath.startsWith(`${prefix}/`)
+) ?? 'docs';
+
 const navItems = (options.nav ?? []).map((item) => {
   const href = normalizePath(withBase(getI18nText(item.href, route)));
   const sectionRoot = getSectionRoot(href, route.locale);
   const isExact = currentPath === href;
+  const hrefSection = nonDocsSectionPrefixes.find(
+    (prefix) => href === prefix || href.startsWith(`${prefix}/`)
+  ) ?? 'docs';
   const isActive =
     href.startsWith('/') &&
     (isExact ||
       currentPath === sectionRoot ||
-      currentPath.startsWith(`${sectionRoot}/`));
+      currentPath.startsWith(`${sectionRoot}/`) ||
+      // A nav item that points into the Docs section should highlight on any
+      // Docs URL, since after URL flattening there is no single shared prefix.
+      hrefSection === currentSection);
 
   return {
     href,
