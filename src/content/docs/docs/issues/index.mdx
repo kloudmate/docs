@@ -2,7 +2,8 @@
 title: "Issues"
 description: "Learn how KloudMate automatically discovers, aggregates, and helps you resolve errors and warnings across your services."
 sidebar:
-  order: 17
+  label: "Overview"
+  order: 1
 ---
 KloudMate automatically discovers errors from your application logs and traces and aggregates them in the Issues section. This gives you a centralised view of all errors and warnings detected across your services, so you can track, investigate, and resolve them efficiently.
 
@@ -12,7 +13,7 @@ To navigate to the Issues screen, click **Issues** in the left navigation menu.
 
 The **Issues** screen displays all detected issues in a list. 
 
-![image](./images/issues/issues-1.png)
+![image](./images/issues-1.png)
 
 Each issue shows the source, last seen time, occurrence count, and assigned user. 
 
@@ -22,13 +23,13 @@ Issues are organised across three tabs; **All Unresolved** , **Ignored** , and *
 
 Click the **Explore Error Patterns** button at the top right to identify recurring error patterns across your services.
 
-![image](./images/issues/issues-1.jpeg)
+![image](./images/issues-1.jpeg)
 
 ## Issue Details
 
 Click on any issue to open its detail view. 
 
-![image](./images/issues/issues-2.png)
+![image](./images/issues-2.png)
 
 This screen shows the service it belongs to, the source, when it was first and last seen, and the total occurrence count. An occurrence frequency chart gives you a visual timeline of how often the issue has been happening over time.
 
@@ -38,16 +39,16 @@ From this screen you can:
 
 - **Assign** the issue to a team member using the assign icon.
 
-![image](./images/issues/issues-2.jpeg)
+![image](./images/issues-2.jpeg)
 
 - **Add comments** using the comment icon: you can mention other users in comments, and all participating users receive notifications for any updates on the issue.
 
-![image](./images/issues/issues-3.jpeg)
+![image](./images/issues-3.jpeg)
 
 - **Mark as Resolved:** removes the issue from the Unresolved list.
 - **Ignore:** mutes future notifications for this issue if it reoccurs.
 
-![image](./images/issues/issues-4.jpeg)
+![image](./images/issues-4.jpeg)
 
 - **Investigate with KloudMate Assistant:** automatically analyses the issue and provides a concise summary, probable root cause, and recommended actions for faster resolution.
 
@@ -77,5 +78,6 @@ Access to issue actions is determined by the user’s assigned role:
 
 ## Related Resources
 
-- [Setting up Notification Policies](../alarms/notifications/)
-- [Setting up Notification Channels](../platform/settings/notification-channels/)
+- [Notification routing](./notification-routing/)
+- [Routing Rules](../alerts/routing-rules/)
+- [Notification Channels](../platform/settings/notification-channels/)

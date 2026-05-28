@@ -1,0 +1,38 @@
+---
+title: "What is an SLO?"
+description: "Plain-English definitions of SLO, SLI, target, window, compliance, error budget, burn rate, and burn-rate alert."
+sidebar:
+  order: 2
+draft: true
+---
+
+An SLO (Service-Level Objective) is a concrete reliability promise about a service — a measurable target and the window you measure it over. Instead of "the API should be fast," you write "99% of API requests complete under 300 ms over the last 30 days" and let the data settle the debate.
+
+The rest of this page defines the vocabulary the Reliability area uses so the other pages read cleanly.
+
+## The terms
+
+| Term | Plain-English meaning |
+|---|---|
+| **SLO** (Service-level Objective) | A reliability promise written as "this service should achieve X% over a Y-day window." |
+| **SLI** (Service-level Indicator) | The specific signal being measured — e.g. spans under 200ms, incidents resolved within an hour, error logs as a fraction of total logs. |
+| **Target %** | The promise — e.g. `99.9%`. |
+| **Window** | The look-back period for the calculation — 1 day, 7 days, 30 days, 90 days, or the current calendar month. |
+| **Compliance %** | Where the service is right now versus the target. |
+| **Error budget** | How much "bad" you can afford under the target before breaching. For incident-based SLOs it's seconds of downtime; for everything else it's a count of bad events. |
+| **Burn rate** | How fast you're consuming the error budget right now relative to the rate that would keep you exactly on target. `1×` means you're on pace; `14.4×` means you're burning a 30-day budget in a few hours. |
+| **Burn-rate alert** | A notification rule that fires when burn rate is too high over **both** a short and a long window simultaneously. The long window suppresses brief blips; the short window keeps the alert responsive. |
+
+## How they fit together
+
+An SLO is a target plus a window. Each evaluation produces a compliance % (the share of good events). The gap between compliance and target gets translated into an **error budget** — the count or duration of bad events the service can absorb before falling below target. Burn rate is the speed at which the budget is being spent. A burn-rate alert pages on that speed before the budget is fully consumed.
+
+## Permissions
+
+Workspace **admin** is required to create, edit, or delete SLOs and burn-rate alerts. Everyone else can view all reliability surfaces; the create / edit / delete buttons are hidden for non-admins.
+
+## Related
+
+- [Create an SLO](./create-an-slo/) — the 3-step wizard.
+- [SLI kinds](./sli-kinds/) — the seven SLI types you can pick from.
+- [Burn-rate alerts](./burn-rate-alerts/) — page on dangerous burn rates.

@@ -1,6 +1,6 @@
 ---
 title: "Add an Integration"
-description: "Create KloudMate Alarm, CloudWatch Alarm, or webhook integrations for Incident Management."
+description: "Create KloudMate Alert, CloudWatch Alarm, or webhook integrations for Incident Management."
 sidebar:
   label: "Add an Integration"
   order: 2
@@ -10,36 +10,36 @@ Use the steps below to create a new incident integration.
 
 1. Click **Add Integration** from the Integrations page.
 
-![image](./images/adding-integrations-1.jpeg)
+![Add Integration](./images/adding-integrations-1.jpeg)
 
 2. Select an **Integration Type**.
 
 Available types:
 
-- **KloudMate Alarm**
-- **CloudWatch Alarm**
-- **Webhook**
+- **KloudMate Alert** — opens incidents from KloudMate alert routing (paired with a [KloudMate Incidents](../../../platform/settings/notification-channels/#kloudmate-incidents) channel and a [routing rule](../../../alerts/routing-rules/)).
+- **CloudWatch Alarm** — receives AWS CloudWatch alarms. The "Alarm" wording matches AWS's product name.
+- **Webhook** — accepts any source that can POST JSON.
 
-![image](./images/adding-integrations-1.png)
+![Integration type selector](./images/adding-integrations-1.png)
 
 :::note
-  KloudMate Alarm and CloudWatch Alarm integrations use predefined templates. Webhook integrations let you configure title, grouping, and auto-resolution logic manually.
+KloudMate Alert and CloudWatch Alarm integrations use predefined templates. Webhook integrations let you configure title, grouping, and auto-resolution logic manually.
 :::
 
-## Create a KloudMate Alarm or CloudWatch Alarm Integration
+## Create a KloudMate Alert or CloudWatch Alarm integration
 
 1. Select the service.
 2. Enter the integration name and description.
 3. Optionally choose an escalation policy override.
 4. Click **Save**.
 
-![image](./images/adding-integrations-2.png)
+![KloudMate Alert / CloudWatch Alarm integration form](./images/adding-integrations-2.png)
 
 :::note
-  If no escalation policy is selected, the service default is applied automatically.
+If no escalation policy is selected, the service default is applied automatically.
 :::
 
-## Create a Webhook Integration
+## Create a Webhook integration
 
 1. Select the service.
 2. Enter the integration name and description.
@@ -49,12 +49,14 @@ Available types:
 6. Select an escalation policy if needed.
 7. Click **Save**.
 
-![image](./images/adding-integrations-3.png)
+![Webhook integration form](./images/adding-integrations-3.png)
 
-After the integration is created, you will be taken to the integration details screen where you can copy the integration URL or edit/archive the integration.
+After the integration is created, you land on the integration details screen where you can copy the integration URL or edit/archive the integration.
 
-![image](./images/adding-integrations-2.jpeg)
+![Integration details screen](./images/adding-integrations-2.jpeg)
 
 ## Related Resources
 
-- [Integrating with KloudMate Alarms](../integrating-with-kloudmate-alarms/)
+- [Integrating with KloudMate Alerts](../integrating-with-kloudmate-alerts/)
+- [KloudMate Incidents channel](../../../platform/settings/notification-channels/#kloudmate-incidents)
+- [Routing Rules](../../../alerts/routing-rules/)

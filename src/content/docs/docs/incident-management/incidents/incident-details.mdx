@@ -1,6 +1,6 @@
 ---
 title: "Incident Details"
-description: "Review responders, status, metrics, notes, logs, and alarms for an incident."
+description: "Review responders, status, metrics, notes, logs, and linked alerts and SLOs for an incident."
 sidebar:
   label: "Incident Details"
   order: 3
@@ -33,7 +33,13 @@ The detail page shows key incident fields such as:
 
 ## Incident Summary
 
-The summary section contains the incident description and a link to the related alarm for deeper investigation.
+The summary section contains the incident description and a link to the related alert for deeper investigation.
+
+## Linked SLOs
+
+When the affected service has at least one incident-based [SLO](../../../reliability/), a **Linked SLOs** panel appears below the standard service / integration / escalation-policy labels. Each linked SLO shows as a card with its name, kind + target + window, and current compliance %. Clicking a card opens the [SLO detail](../../../reliability/slo-detail/) page.
+
+The panel is **only rendered when at least one incident-based SLO exists on the affected service** — incidents on services without reliability tracking show no panel.
 
 ## Activity Tabs
 
@@ -41,7 +47,7 @@ At the bottom of the page, you can review:
 
 - **Notes:** Team notes and investigation context
 - **Logs:** A timeline of assignments, acknowledgements, and other actions
-- **Alarms:** The alarms attached to the incident
+- **Alerts:** The alerts attached to the incident
 
 ![image](./images/incident-details-2.png)
 

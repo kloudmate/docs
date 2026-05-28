@@ -1,0 +1,136 @@
+---
+title: "Routing Rules"
+description: "Route alert notifications to the right channels based on label matchers and grouping."
+sidebar:
+  order: 5
+draft: true
+---
+
+import { Steps } from '@astrojs/starlight/components';
+
+Routing Rules decide which channels get notified for which alerts. Each rule matches firing alerts by their labels, groups matched alerts by the label keys you choose, and dispatches notifications to the destination channels you set.
+
+Routing Rules replace the older **Notification Policies** flow. If you previously routed by tags, your existing policies were migrated to routing rules during upgrade — the matching logic now keys off [labels](../create-alerts/#4-folder-severity-and-labels) instead of free-form tags.
+
+## Where to find them
+
+Open **Alerts → Routing rules** in the left navigation. First match wins by priority — each matching alert joins a group keyed by the rule's group-by labels, and the rule decides which channels notify and how often.
+
+:::note[Placeholder image]
+Screenshot pending — the Routing Rules list page showing several rules with priority, matchers, group-by chips, destinations, and the default passthrough row pinned at the bottom.
+:::
+![Routing Rules list](../_placeholders/screenshot-placeholder.png)
+
+The list shows every routing rule in the workspace, sorted by priority (lower wins). The **default passthrough rule** sits at the bottom — it matches everything that didn't already match a higher-priority rule and can't be deleted.
+
+## Anatomy of a rule
+
+A routing rule has six parts:
+
+| Field | What it does |
+|---|---|
+| **Name** | How the rule shows up in the list and audit log. |
+| **Priority** | Lower numbers win. When an alert matches multiple rules, the lowest-priority rule routes it. |
+| **Matchers** | Label conditions that pick which alerts this rule applies to. |
+| **Group-by** | Which label keys define a single notifiable unit. Two alerts with the same group-by values fold into one [Alert Group](../alert-groups/). |
+| **Cadence** | `group_wait` (how long to wait after the first signal before firing the first notification) and `group_interval` (how often to re-notify on an open group). |
+| **Destination channels** | One or more notification channels that receive the dispatched payload. |
+
+Optional:
+
+- **Auto-RCA** — toggle to run KloudMate's AI investigator on every group this rule opens. See [Auto-RCA](../auto-rca/).
+
+### Matchers
+
+Matchers are label conditions. Each row picks a label key, an operator, and a value:
+
+| Operator | Wire format | Meaning |
+|---|---|---|
+| equals | `equals` | Label value matches exactly. |
+| not equals | `not_equals` | Label value does not match. |
+| in | `in` | Label value matches any item in a comma-separated list. |
+| not in | `not_in` | Label value matches none of the items. |
+
+There is no substring operator today — `in` is the closest equivalent for matching against a known set of values.
+
+### Group-by keys
+
+Group-by determines what counts as "the same alert" for notification purposes. The editor suggests these common keys, and you can type any other label key:
+
+- `service` — one notification per service.
+- `env` — one per environment.
+- `host` — one per host.
+- `region` — one per region.
+- `team` — one per owning team.
+- `alarm_id` — one per rule.
+- `issue_id` — one per issue.
+- `check_id` — one per synthetic check.
+- `alarm_rule_folder_id` — one per folder.
+
+You can combine keys (`service`, `env`) to scope each group tightly. Pick keys based on which dimension changes the most: aggressive grouping (only `service`) trades notification noise for less precision in the group title.
+
+### Cadence
+
+- **group_wait** — default `30s`. The grouping engine holds the first notification for this long after a group opens, so closely-related signals fold in before paging.
+- **group_interval** — default `5m`. Once a group is open, KloudMate re-notifies at this cadence if new signals continue to arrive.
+
+## The default passthrough rule
+
+Every workspace has a default passthrough rule pinned to the bottom of the list. It matches everything that didn't match a higher-priority rule. You can edit its destination channels and cadence, but you can't delete it or change its matchers.
+
+If you want a clean "everything else goes to Slack" path, point the default passthrough at your fallback Slack channel.
+
+## Create a routing rule
+
+<Steps>
+1. **Open Alerts → Routing rules** and click **Create rule**.
+
+2. **Name the rule** and set its priority. Lower numbers win — give specific rules low numbers (10, 20, 30) and generic ones higher numbers. The default passthrough sits at priority 1,000,000 so unmatched alerts always have somewhere to land.
+
+3. **Add matchers.** Pick a label key, an operator, and a value. Add as many rows as you need; rules combine matchers with AND.
+
+4. **Set group-by keys.** Pick one or more label keys that define a single notifiable unit. Start with `service` if you're not sure.
+
+5. **Tune cadence.** Leave the defaults (30s wait, 5m interval) for most cases. Tighten for paging rules, loosen for digest-style summaries.
+
+6. **Pick destination channels.** Add one or more channels. If you don't have a [KloudMate Incidents](../../platform/settings/notification-channels/#kloudmate-incidents) channel yet, use the inline **+ Add KloudMate Incidents channel** link in the picker.
+
+7. **Optionally enable Auto-RCA.** Toggle Auto-RCA on and set the delay (default 5 minutes after group open). See [Auto-RCA](../auto-rca/).
+
+8. **Save.** The rule lands in the list at its assigned priority.
+</Steps>
+
+## Row actions
+
+The kebab menu on each row offers:
+
+- **Edit** — opens the rule editor.
+- **Duplicate** — opens the editor pre-filled with the rule's settings under a "(copy)" name so you can adjust matchers or priority and save as a new rule.
+- **Delete** — removes the rule. The default passthrough can't be deleted.
+
+The **Enabled** toggle in each row disables the rule without deleting it — useful for staging a rule before turning it on.
+
+## Suggest rules
+
+The list header has a **Suggest rules** button (admin-only). Clicking it opens a drawer with up to five AI-suggested rules based on your workspace's recent alert traffic.
+
+:::note[Placeholder image]
+Screenshot pending — the Suggest rules drawer with three suggestion cards, each showing a derived title, rationale text, and Accept/Dismiss buttons.
+:::
+![Suggest rules drawer](../_placeholders/screenshot-placeholder.png)
+
+Each suggestion shows:
+
+- A derived title from the proposed matchers (e.g. "Payments service, prod").
+- A short rationale ("This pattern would have grouped 23 alerts last week.").
+- A **preview matches** count.
+- **Accept** opens the create-rule form pre-filled, **Dismiss** drops the card.
+
+Suggestions don't persist — closing the drawer discards them. Re-run the suggester whenever you want fresh proposals.
+
+## Related
+
+- [Alert Groups](../alert-groups/) — what routing rules produce.
+- [Silences](../silences/) — temporarily suppress matching alerts.
+- [Notification Channels](../../platform/settings/notification-channels/) — set up Slack, KloudMate Incidents, email, and more.
+- [Auto-RCA](../auto-rca/) — automatic investigations on group open.

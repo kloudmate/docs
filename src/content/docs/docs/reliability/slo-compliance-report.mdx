@@ -1,0 +1,46 @@
+---
+title: "SLO Compliance report"
+description: "Schedule a workspace-wide rollup of every enabled SLO's compliance over a chosen time range."
+sidebar:
+  order: 8
+draft: true
+---
+
+The **SLO Compliance** report is a new source on the Reports module. It produces one row per SLO with its compliance percentage and error budget over the selected time range.
+
+The source has **no additional configuration** — it's a workspace-wide rollup of every enabled SLO. No filters, no per-SLO toggles. If you want a narrower report, create one report per service or filter the resulting export downstream.
+
+## Create an SLO Compliance report
+
+1. Open **Settings → Reports → Create Report**.
+2. In the **Report Type** picker, pick **SLO Compliance**.
+3. An info banner explains: *"Workspace-wide rollup: includes every enabled SLO over the selected time range. No additional filters are required."*
+4. Pick a **Time Range**, **Report Format** (PDF or XLSX), **Schedule** (Fixed or Recurring), and **Recipients** — same as other report sources. See [Create Report](../reports/create-report/) for the full walk-through.
+5. Click **Save**.
+
+:::note[Placeholder image]
+Screenshot pending — Reports → Create Report flow with SLO Compliance selected as the source and the info banner visible.
+:::
+![SLO Compliance report source](../_placeholders/screenshot-placeholder.png)
+
+## Discovery entry point
+
+You can also reach this flow from the [Reliability Overview hub](../reliability/) — the **Quick-start → Build a compliance report** card deep-links into the report builder with SLO Compliance pre-selected. Users don't need to find Reports in the nav to set this up.
+
+## What the report contains
+
+For every enabled SLO in the workspace, the export includes:
+
+- SLO name + description.
+- Service.
+- SLI kind.
+- Target % and default window.
+- **Compliance %** over the selected time range.
+- **Error budget remaining** at the end of the range.
+- Status (Healthy / Breached / Not evaluated).
+
+## Related
+
+- [Reports — Create Report](../reports/create-report/) — the surrounding report flow.
+- [SLO detail](./slo-detail/) — for ad-hoc, single-SLO views.
+- [Reliability Overview](../reliability/) — the deep-link entry point.

@@ -1,16 +1,16 @@
 ---
-title: "Alarm Expressions"
-description: "Learn how to write and use expressions to evaluate metrics in KloudMate Alarms."
+title: "Writing Expressions"
+description: "Write and use expressions to evaluate metrics in KloudMate alerts."
 sidebar:
-  order: 3
+  order: 10
 ---
-Alarm expressions allow you to manipulate query results using math and other operations. KloudMate alarms can only target numeric data. If a query returns time series data, it must be reduced using expressions before it can be used as an alarm target.
+Expressions let you manipulate query results using math and other operations. Alerts can only target numeric data, so if a query returns a time series, you must reduce it with an expression before it can drive an alert.
 
 Each query or expression is represented by a unique alphabetical notation (A, B, C, and so on). While writing an expression, one or more queries or other expressions can be passed as parameters using their notation.
 
-## Expression Operations
+## Expression operations
 
-KloudMate supports three types of operations in alarm expressions:
+KloudMate supports three types of operations in alert expressions:
 - Math expression
 - Reduce
 - Condition expression
@@ -64,7 +64,7 @@ For the above operations:
 
 #### Using Expressions for Multiple Query Conditions
 
-When working with multiple queries in a single alarm:
+When working with multiple queries in a single alert:
 - Use the Reduce function for all time series outputs (e.g., mean, max, last).
 - Use the `ifNull` logic with all reduced values so that if any query returns NoData, it does not affect the evaluation of other queries.
 
@@ -128,7 +128,7 @@ You can add multiple conditions in a condition expression using the **Add condit
 
 ## Nodes
 
-Nodes represent individual queries or expressions used in the creation of alarms and dashboards. Each node is assigned an alphabetical identifier by default (e.g., A, B, C), based on the order in which it was created.
+Nodes represent individual queries or expressions used in the creation of alerts and dashboards. Each node is assigned an alphabetical identifier by default (e.g., A, B, C), based on the order in which it was created.
 
 ![image](./images/writing-expressions-for-kloudmate-alarms-1.jpeg)
 

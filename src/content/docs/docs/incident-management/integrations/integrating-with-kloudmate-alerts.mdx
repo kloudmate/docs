@@ -1,0 +1,88 @@
+---
+title: "Integrate with KloudMate Alerts"
+description: "Open Incident Management incidents from KloudMate alerts using a KloudMate Incidents notification channel and a routing rule."
+sidebar:
+  label: "Integrate with KloudMate Alerts"
+  order: 3
+draft: true
+---
+
+import { Steps } from '@astrojs/starlight/components';
+
+To open an Incident Management incident whenever an alert fires, you wire two things together: a **KloudMate Incidents** notification channel (which bridges KloudMate alerts into the IM service) and a **Routing Rule** (which decides which alerts feed the channel).
+
+This replaces the older "webhook channel + notification policy with Alarm condition" flow. The KloudMate Incidents channel handles the bridge plumbing for you; routing rules give you label-level control over which alerts trigger which IM services.
+
+## Prerequisites
+
+- An [IM service](../services/) you want incidents to open against.
+- A workspace admin role (you need it to create channels and routing rules).
+
+## Step 1 — Create a KloudMate Incidents channel
+
+<Steps>
+1. Open **Settings → Notification Channels → Create**.
+
+2. Pick **KloudMate Incidents** as the channel type.
+
+3. Pick the IM service you want to link from the **Linked IM service** dropdown.
+
+4. Click **Submit**.
+</Steps>
+
+KloudMate creates the IM integration row under your service automatically and points the new channel at the integration's signed loop URL. You don't need to copy URLs or paste them anywhere. See [Notification Channels](../../platform/settings/notification-channels/#kloudmate-incidents) for the channel-side details.
+
+:::note[Placeholder image]
+Screenshot pending — the Notification Channels create form with KloudMate Incidents type selected and the Linked IM service dropdown populated.
+:::
+![Create KloudMate Incidents channel](../../_placeholders/screenshot-placeholder.png)
+
+## Step 2 — Route alerts to the channel
+
+<Steps>
+1. Open **Settings → Routing Rules → Create**.
+
+2. Name the rule and set a priority (lower wins).
+
+3. Add **matchers** that identify which alerts should feed this IM service. For example, `service equals payments` to route every payments alert into the payments IM service.
+
+4. Pick **group-by** keys (e.g. `service`, `env`) so related alerts fold into a single notifiable group.
+
+5. Pick the **KloudMate Incidents channel** you created in Step 1 as a destination.
+
+6. Optionally enable **Auto-RCA** if you want KloudMate's AI investigator to attach a summary to the incident automatically.
+
+7. Click **Save**.
+</Steps>
+
+See [Routing Rules](../../alerts/routing-rules/) for the full rule editor walk-through.
+
+:::note[Placeholder image]
+Screenshot pending — the Routing Rule create form with matchers, group-by keys, and the KloudMate Incidents channel selected as the destination.
+:::
+![Routing rule with KloudMate Incidents destination](../../_placeholders/screenshot-placeholder.png)
+
+## Step 3 — Verify
+
+Trigger a matching alert. Within the routing rule's `group_wait` (default 30 seconds), an incident opens on the linked IM service under the configured escalation policy.
+
+Things to check:
+
+- The incident shows up on the IM service's incidents tab.
+- The originating [Alert Group](../../alerts/alert-groups/) on the **Alerts → Groups** page lists the KloudMate Incidents channel under its Notifications tab with the new incident's ID.
+- If Auto-RCA was enabled, the investigation summary attaches to both the group and the incident.
+
+## Migrating from the older flow
+
+If you used to wire this up via **Webhook channel + Notification Policy with Alarm condition**, the upgrade migrated each policy to a routing rule. You don't need to recreate anything — but the recommended path going forward is the KloudMate Incidents channel, not a raw webhook, because:
+
+- KloudMate Incidents channels carry HMAC signing automatically.
+- The KloudMate Incidents receiver knows how to dedupe against existing incidents and append RCA summaries when they arrive late.
+- Routing-rule label matchers give you finer control than tag-based policies did.
+
+## Related
+
+- [Routing Rules](../../alerts/routing-rules/) — the rule editor.
+- [Alert Groups](../../alerts/alert-groups/) — what gets routed.
+- [Notification Channels](../../platform/settings/notification-channels/#kloudmate-incidents) — KloudMate Incidents channel setup.
+- [IM Services](../services/) — the destination side.

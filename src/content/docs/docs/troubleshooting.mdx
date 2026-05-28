@@ -125,6 +125,6 @@ We understand certain Enterprises prefer to pay quarterly in advance, for variou
 
 KloudMate uses AWS APIs to gather data from your cloud components. For AWS Lambda function Logs, AWS charges data transferred out of CloudWatch equivalently to data transferred out of an EC2 server. Check it out at AWS CloudWatch pricing. The total cost should represent a small percentage of your total AWS bill. 
 
-For Alarms, we use CloudWatch GetMetricData API to fetch metrics to evalulate alarm. You'll be billed based on how many alarms you set and how frequently you've configured to evaluate the alarm.
+For alerts, we use CloudWatch GetMetricData API to fetch metrics to evaluate the alert. You'll be billed based on how many alerts you set and how frequently you've configured to evaluate them.
 
 For other cloud components (SQS, ECS, DynamoDB, etc), the cost will depend on how frequently you determine the polling frequency. Each API request will be billed according to CloudWatch API pricing set by AWS.

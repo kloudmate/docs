@@ -1,0 +1,55 @@
+---
+title: "Notification Routing"
+description: "Route error-tracking issue notifications via the dedicated Issues notification settings."
+sidebar:
+  label: "Notification Routing"
+  order: 2
+draft: true
+---
+
+Configure where issue notifications land — by service, by occurrence type (new vs. regression), and across the channels you've set up.
+
+## Where to find it
+
+Open the **Issues** list page. The header has a **Notification settings** button.
+
+:::note[Placeholder image]
+Screenshot pending — the Issues list page header showing the Notification settings button alongside the existing filters.
+:::
+![Issues list with Notification settings button](../_placeholders/screenshot-placeholder.png)
+
+Clicking it opens the Issues-scoped notification settings page:
+
+- `<workspace>/issues/notifications` — list of all issue notification policies.
+- `<workspace>/issues/notifications/create` — create a new policy.
+- `<workspace>/issues/notifications/<id>` — edit a policy.
+
+## Anatomy of a policy
+
+Each policy is workspace-scoped (not per-issue) with three things:
+
+| Field | What it does |
+|---|---|
+| **Name** | How the policy shows up in the list. |
+| **Conditions** | One or more rows. Each picks an **Issue type** (`New issues` or `New and regression`) and one or more **Target services**. |
+| **Notification channels** | One or more channels that receive the notification. |
+
+A **Disabled** toggle lets you save the policy without activating it.
+
+## Create an issue notification policy
+
+1. Open **Issues → Notification settings** and click **New policy**.
+2. Name the policy.
+3. Add one or more conditions. Pick the **Issue type** (`New issues` or `New and regression`) and one or more **Target services** from the autocomplete (suggestions come from services emitting telemetry).
+4. Pick one or more **Notification channels** from the multi-select.
+5. Click **Save**.
+
+## Forward-looking note
+
+This page is a dedicated settings surface for issues because the grouping engine and Routing Rules currently handle alert signals only. Issues may converge onto the routing-rules engine in a future release; if and when that happens, existing issue notification policies will migrate automatically — you won't need to recreate them.
+
+## Related
+
+- [Issues](../) — the error-tracking surface this routes from.
+- [Routing Rules](../../alerts/routing-rules/) — separate surface for alert notifications.
+- [Notification Channels](../../platform/settings/notification-channels/) — set up where notifications land.

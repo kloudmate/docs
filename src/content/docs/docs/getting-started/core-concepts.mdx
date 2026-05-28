@@ -28,7 +28,11 @@ KloudMate uses OTel as its primary data integration layer. This is a significant
 
 *For more details, see our dedicated [OpenTelemetry Guide](../../opentelemetry/).*
 
-## 3. eBPF (Extended Berkeley Packet Filter)
+## 3. Service-Level Objectives (SLOs)
+
+A **service-level objective (SLO)** turns the question *"is this service reliable?"* into a number — a target percentage measured over a time window. KloudMate lets you anchor an SLO on a service, pick the signal you care about (the SLI — incident availability, span latency, error rate, log severity, custom metric, and more), and watch compliance trend over time. **Burn-rate alerts** page on dangerously fast error-budget consumption before the budget runs out. See [Reliability](../../reliability/) for the full surface.
+
+## 4. eBPF (Extended Berkeley Packet Filter)
 
 [eBPF](https://ebpf.io/) is a revolutionary technology that allows programs to run directly within the operating system kernel safely and efficiently, without requiring kernel source code changes or loading kernel modules.
 

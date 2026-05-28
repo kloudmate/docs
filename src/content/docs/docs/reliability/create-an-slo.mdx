@@ -1,0 +1,93 @@
+---
+title: "Create an SLO"
+description: "Walk through the 3-step SLO wizard — anchor on a service, pick an SLI kind, set target and window."
+sidebar:
+  order: 3
+draft: true
+---
+
+import { Steps } from '@astrojs/starlight/components';
+
+Creating an SLO is a 3-step wizard. Each step's title carries the picked value as a secondary caption once you fill it in, so you can see your choices at a glance without scrolling.
+
+Workspace **admin** is required. Non-admins don't see the Create SLO button.
+
+## Where to start the wizard
+
+Three entry points lead to the same wizard at `/<workspaceId>/slos/create`:
+
+- **Reliability Overview → Create SLO** (top-right).
+- **Reliability Overview → Quick-start → Create an SLO** card.
+- **Service detail → Reliability tab → Create SLO** (pre-selects the service).
+- **Alert detail → Define an SLO** action (no pre-fill; the alert's query doesn't map cleanly to an SLI).
+
+A page-level **What is a Service Level Objective?** info banner sits above the steps for first-time users, defining the core terms inline.
+
+## The three steps
+
+:::note[Placeholder image]
+Screenshot pending — the SLO create wizard with the three steps and the page-level info banner above them, captured on a populated workspace.
+:::
+![SLO create wizard](../_placeholders/screenshot-placeholder.png)
+
+### Step 1 — Anchor on a service
+
+Pick from the workspace's IM services in a single-select dropdown. Every SLO belongs to one service, and that choice is **permanent** — you can edit the target, window, name, and selector later, but not the anchor service.
+
+If you reach the wizard from a service's Reliability tab, the service is pre-selected via the `?service_id=…` query parameter.
+
+### Step 2 — Define the SLI
+
+Single-select dropdown with the seven SLI kinds:
+
+- Incident availability
+- APM latency
+- APM error rate
+- APM request rate
+- APM trace ratio
+- Custom metric (ratio of counts **or** value threshold)
+- Log-based
+
+After picking a kind, a short "When to use this" description appears as helper text, and the kind-specific form renders below. For details on each kind and its fields, see [SLI kinds](./sli-kinds/).
+
+For APM, log-based, and custom-metric kinds, the service-name, metric-name, severity, and attribute pickers suggest values discovered from your workspace's OpenTelemetry telemetry. Pickers are free-solo, so you can also type a value that doesn't have telemetry yet — useful when you're setting up an SLO before the service starts emitting.
+
+### Step 3 — Target and window
+
+<Steps>
+1. **Name** the SLO (required).
+
+2. Add a **description** (optional).
+
+3. Set the **target %** — `0–100`, supports decimals (e.g. `99.99`).
+
+4. Pick a **default window** — a 5-segment toggle, defaults to `30d`. Options: `1d`, `7d`, `30d`, `90d`, `Calendar month`.
+
+5. **Enabled** toggle defaults on. Leave it off to save the SLO without starting evaluations.
+
+6. Watch the **compliance preview card** at the bottom. Once all required fields are filled, KloudMate runs a live preview about 800ms after your last keystroke and shows *"If you save this SLO, it would currently be at X%"* along with the would-be error budget and a *"Would breach"* chip if applicable.
+
+7. Click **Save**. KloudMate creates the SLO and redirects you to its detail page.
+</Steps>
+
+## Editing an SLO
+
+The Edit form uses the same layout as Create, but:
+
+- All steps are open simultaneously (not stepwise gated).
+- The **service is locked** — you can't reassign an SLO to a different service.
+- The **SLI kind is locked** — changing the kind means a different SLI; an info banner suggests creating a new SLO instead.
+- The compliance preview is hidden (the SLO has real evaluations now).
+- Save only writes the fields that actually changed.
+
+You can reach Edit from the SLO detail page header or via the row dropdown on the [SLOs list](./slo-detail/).
+
+## Deleting an SLO
+
+The Delete confirmation marks the SLO as **soft-deleted** — it disappears from the list, but its data is preserved. Any burn-rate alerts on the SLO are automatically disabled (their config is kept), so an undelete later restores them intact.
+
+## Related
+
+- [SLI kinds](./sli-kinds/) — the seven SLI types and their fields.
+- [SLO detail](./slo-detail/) — what you land on after saving.
+- [Burn-rate alerts](./burn-rate-alerts/) — the next thing to set up.

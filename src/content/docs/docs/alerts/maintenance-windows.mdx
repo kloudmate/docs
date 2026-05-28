@@ -1,0 +1,56 @@
+---
+title: "Maintenance Windows"
+description: "Schedule recurring or one-time maintenance windows that suppress alert notifications during planned downtime."
+sidebar:
+  order: 9
+---
+A Maintenance Window defines a scheduled period during which matching alerts continue to evaluate but their notifications are suppressed. State changes are still recorded in alert history (marked with `silenced_at` / `silenced_by_*` so you can audit what happened), but no notification fires.
+
+Use a maintenance window when you have a calendar-driven quiet period: a planned deployment, a recurring batch job window, a vendor outage you've been told to expect. For one-off, ad-hoc suppression in the moment, use [Silences](../silences/) instead.
+
+## Purpose
+
+- Prevents false or expected alerts during deployments, patches, upgrades, or infrastructure changes.
+- Avoids unnecessary escalations or incident tickets.
+- Keeps monitoring reports clean and meaningful.
+
+## Overview page
+
+The overview page displays all created maintenance windows with these details:
+
+- **Name** — Name of the maintenance window.
+- **Description** — Description of the maintenance window.
+- **Alert rule targeted** — Alert rule to which the maintenance window applies.
+- **Matching label** — Labels assigned to the maintenance window.
+- **Schedule** — Start and end time period for the maintenance window.
+- **Status** — Whether the maintenance window is active or paused.
+
+![Maintenance window overview](./images/alarm-maintenance-window-1.png)
+
+## Creating a maintenance window
+
+1. Navigate to the **Maintenance Windows** page in the Alerts module.
+2. Click **Create Maintenance Window**.
+
+![Create Maintenance Window](./images/alarm-maintenance-window-1.jpeg)
+
+3. Configure these details:
+
+- **Name** — Name for the maintenance window.
+- **Description** — Short description of the maintenance window.
+- **Timezone** — Timezone for the scheduled maintenance window.
+- **One time** — A one-time maintenance window schedules a maintenance period only once for a specific date and time.
+- **Recurring** — A recurring maintenance window automatically repeats on a regular cycle, so you don't need to set it up each time.
+
+![Maintenance window timing options](./images/alarm-maintenance-window-2.jpeg)
+
+Additional settings:
+
+- **Start time** — Date and time when the maintenance window begins.
+- **End time** — Date and time when the maintenance window ends.
+- **Frequency** — Available only for recurring windows; select daily, weekly, or monthly schedules.
+- **Label Matchers** — Use labels from alerts to target the maintenance window to specific services (e.g., instance name, service name).
+
+4. Click **Save** to create the new maintenance window.
+
+![Maintenance window saved](./images/alarm-maintenance-window-3.jpeg)

@@ -1,0 +1,89 @@
+---
+title: "Alerts Overview"
+description: "Understand how KloudMate alert rules, groups, routing rules, silences, folders, and annotations work together."
+sidebar:
+  order: 1
+  label: "Introduction"
+---
+
+import { LinkCard, CardGrid } from '@astrojs/starlight/components';
+
+Alerts tell you when something needs attention — an error-rate spike, a service going quiet, a budget threshold crossed. You write the rule once; KloudMate evaluates it on a schedule, groups related firings together, and routes notifications to the channels you care about.
+
+This page covers the concepts behind the Alerts module. Once they click, the rest of the section is a tour of each surface.
+
+## Key concepts
+
+### Alert rule
+
+An alert rule contains the evaluation criteria — one or more queries, expressions, and a condition. It also specifies how often KloudMate evaluates the rule and how long the condition must hold before the rule fires.
+
+### Alert query
+
+A query fetches data from a source. KloudMate alerts support AWS CloudWatch and KloudMate's own telemetry (logs, metrics, spans) as sources.
+
+### Alert expressions
+
+Expressions transform query output with math, reductions, or conditions. They reduce time series to a single number you can compare against a threshold. See [Alert Expressions](./expressions/).
+
+### Alert labels
+
+Labels are key-value pairs attached to each firing alert. They come from query dimensions and any folder the rule lives in, and they're what [Routing Rules](./routing-rules/) match against to decide where notifications go. KloudMate generates labels automatically — you don't enter them by hand.
+
+### Annotations and severity
+
+Annotations carry human-readable context (summary, runbook URL, dashboard link) into each notification. Values support Liquid templates, so you can interpolate live label and state data into the message. The reserved `severity` annotation key drives downstream routing and incident severity. See [Annotations & Severity](./annotations-and-severity/).
+
+### Folders
+
+Folders group related alert rules and let member rules inherit shared defaults — evaluation interval, no-data state, and eval-error state. See [Folders](./folders/).
+
+### Alert groups
+
+When matching alerts fire close together, KloudMate bundles them into a single **Alert Group** — a durable, deduplicated container that escalates as higher-severity signals join, holds the auto-RCA if you've enabled one, and provides a single thread to notify against. See [Alert Groups](./alert-groups/).
+
+### Routing rules
+
+Routing rules decide which channels get notified for which alerts. Each rule matches alerts by their labels, groups them by chosen label keys, and dispatches notifications to one or more channels. See [Routing Rules](./routing-rules/).
+
+### Silences
+
+A silence suppresses notifications for matching labels for a bounded time window — useful when you know an alert is going to be noisy and don't want to flood your channels. See [Silences](./silences/).
+
+### Multi-dimensional alerts
+
+A single rule can produce multiple alert instances, one per dimension. A rule watching Lambda throttling generates one instance per throttled function.
+
+## Workflow of KloudMate Alerts
+
+1. A rule retrieves data from its source using queries.
+2. Expressions reduce or transform query results.
+3. The condition is evaluated; if it holds for the pending duration, the rule fires.
+4. The firing alert is tagged with labels and annotations and sent into the grouping engine.
+5. The grouping engine matches the alert against [Routing Rules](./routing-rules/), opens or appends to an [Alert Group](./alert-groups/), and dispatches notifications to the rule's destination channels.
+6. Active [Silences](./silences/) and [Maintenance Windows](./maintenance-windows/) can suppress the outbound notification at this step. The rule keeps evaluating in the background and the state change still lands in history.
+
+## KloudMate alert states
+
+- **Firing / Alerting** — the rule's condition has held longer than the pending duration.
+- **Pending** — the condition is currently true but hasn't held long enough yet.
+- **Normal** — everything's quiet.
+- **Error** — the evaluation hit an error (bad query, source unreachable).
+- **No Data** — the query returned no data for the configured window.
+
+## Next steps
+
+<CardGrid>
+  <LinkCard title="Create an alert" description="Walk through the alert creation form end to end." href="./create-alerts/" />
+  <LinkCard title="Annotations & severity" description="Add Liquid-templated context to your notifications." href="./annotations-and-severity/" />
+  <LinkCard title="Routing rules" description="Send the right alerts to the right channels." href="./routing-rules/" />
+  <LinkCard title="Alert groups" description="See how related alerts deduplicate into a single notifiable unit." href="./alert-groups/" />
+</CardGrid>
+
+## Related resources
+
+<CardGrid>
+  <LinkCard title="Reliability / SLOs" description="Track service health proactively with service-level objectives." href="../reliability/" />
+  <LinkCard title="Notification Channels" description="Configure Slack, Email, Webhook, Jira, KloudMate Incidents, and more." href="../platform/settings/notification-channels/" />
+  <LinkCard title="Incident Management" description="Turn fired alerts into incidents with on-call routing." href="../incident-management/" />
+</CardGrid>

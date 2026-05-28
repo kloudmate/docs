@@ -16,6 +16,7 @@ KloudMate supports the following notification channels:
 - MS Teams
 - Webhook
 - Jira
+- KloudMate Incidents — bridges alerts and synthetic checks into [Incident Management](../../../incident-management/)
 
 :::info
 In the case of multiple workspaces and AWS accounts, you must set up notifications for each account in their respective **Settings**.
@@ -46,10 +47,13 @@ Below are the configuration steps for each specific channel type:
 
 ### Slack
 
-1. Select **Slack** from the dropdown menu, then click the **Add to Slack** button.
-2. You will be redirected to the Slack integrations page. Follow the on-screen instructions, add a message for your App Manager, then click **Submit**.
+KloudMate uses a single unified Slack app for both notifications and IM ChatOps. Installing it once gives you threaded notifications, message attribution, and the ability to acknowledge or resolve incidents directly from Slack.
 
-![image](./images/slack-1.png)
+1. Select **Slack** from the dropdown menu, then click the **Add to Slack** button.
+2. You'll be redirected to Slack's OAuth flow. Pick the channel KloudMate should post into and approve the bot scopes.
+3. On approval, KloudMate creates the channel row and the Slack integration is also visible under **Incidents → Settings → ChatOps**.
+
+![Slack channel form](./images/slack-1.png)
 
 ### MS Teams
 
@@ -146,6 +150,28 @@ Here are examples of how to perform this validation in common programming langua
   </TabItem>
 </Tabs>
 
+### KloudMate Incidents
+
+KloudMate Incidents is the channel type that bridges into [Incident Management](../../../incident-management/). When an alert routes through a KloudMate Incidents channel, KloudMate opens an incident on the linked IM service automatically — no separate webhook plumbing required.
+
+:::note[Placeholder image]
+Screenshot pending — the Create Channel form with KloudMate Incidents selected and a Linked IM service dropdown.
+:::
+![Create KloudMate Incidents channel](../../_placeholders/screenshot-placeholder.png)
+
+1. Select **KloudMate Incidents** from the dropdown menu.
+2. Pick the IM service you want to bridge into from the **Linked IM service** dropdown. If you don't have any services yet, KloudMate prompts you to create one first.
+3. Click **Submit**.
+
+Behind the scenes KloudMate creates two rows in a single shot:
+
+- A KloudMate Alert integration under the linked service.
+- A notification channel pointing at the integration's signed loop URL.
+
+KloudMate Incidents channels are **HMAC-signed by default** — the signing secret is generated and stored automatically; you don't need to copy or paste it. The signing secret and linked service are fixed at creation; to change either, delete the channel and create a new one.
+
+To wire it into the alert flow, add the channel as a destination on a [Routing Rule](../../../alerts/routing-rules/).
+
 ### Jira
 
 1. Select **Jira** from the dropdown menu and click the **Connect Jira** button.
@@ -173,17 +199,17 @@ Enter a **Channel Name** and select the following:
 Jira integration with KloudMate is one-way. Status changes in KloudMate will be reflected in Jira, but status changes made in Jira will not be reflected in KloudMate.
 :::
 
-#### Alarm and Issue Details in Jira
+#### Alert and Issue Details in Jira
 
-**Alarm details in Jira**
+**Alert details in Jira**
 
 | KloudMate | Jira |
 | --- | --- |
-| Alarm name | Ticket title |
+| Alert name | Ticket title |
 | KloudMate account name | Ticket title |
-| Alarm description | Ticket description |
-| Alarm value | Ticket description |
-| Regression alarms | Ticket comment |
+| Alert description | Ticket description |
+| Alert value | Ticket description |
+| Regression alerts | Ticket comment |
 
 **Issues details in Jira**
 
@@ -197,11 +223,11 @@ Jira integration with KloudMate is one-way. Status changes in KloudMate will be 
 
 #### Creating a Manual Jira Ticket
 
-You can create a Jira ticket directly from an issue or alarm details page to raise individual tickets that are not assigned to a notification policy.
+You can create a Jira ticket directly from an issue or alert details page to raise individual tickets that are not bound to a routing rule.
 
 **Prerequisite:** A Jira notification channel must already be configured.
 
-1. Navigate to the **Issue** or **Alarm** details page.
+1. Navigate to the **Issue** or **Alert** details page.
 2. Click the **Create in Jira** button. A dialog will open showing all Jira channels integrated with your KloudMate account, along with any previously linked Jira tickets for that issue.
 
 ![image](./images/create-a-manual-jira-ticket-1.png)
@@ -212,7 +238,7 @@ You can create a Jira ticket directly from an issue or alarm details page to rai
 
 #### Unlinking a Jira Ticket
 
-1. On the issue or alarm details page, click the **settings** icon next to the Create in Jira button to open the Jira Tickets panel.
+1. On the issue or alert details page, click the **settings** icon next to the Create in Jira button to open the Jira Tickets panel.
 2. The panel displays all Jira tickets currently linked to the issue, showing the Ticket ID, Site, Project, and Issue Type.
 3. Click the **unlink** icon next to the ticket you want to remove to unlink it from KloudMate.
 
