@@ -1,0 +1,92 @@
+---
+title: "Generic SAML & OIDC setup"
+description: "Field-by-field mapping to connect any standards-compliant SAML or OIDC identity provider to KloudMate, including self-hosted IdPs."
+sidebar:
+  label: "Generic SAML & OIDC"
+  order: 7
+---
+
+Don't see your identity provider in the other guides? Any standards-compliant SAML 2.0 or OIDC provider works. This page maps KloudMate's fields to the generic terms your IdP uses, so you can wire up the two sides regardless of vendor wording.
+
+Copy KloudMate's values from the **Service provider details** card before you start — the host depends on your environment, so don't assume `api.kloudmate.com`.
+
+## Generic OIDC
+
+OIDC needs a **confidential** client (one that can hold a secret) and a discovery endpoint.
+
+### What to create in your IdP
+
+A web/confidential application (authorization-code flow) with this redirect URI:
+
+```text
+https://api.kloudmate.com/sso/oidc
+```
+
+### Field mapping
+
+| KloudMate field | Your IdP calls it | Notes |
+| --- | --- | --- |
+| **Discovery URL** | OpenID configuration / well-known endpoint | Must be a public `https://` URL ending in `/.well-known/openid-configuration` |
+| **Client ID** | Client ID / Application ID | — |
+| **Client secret** | Client secret | From a confidential client |
+| **Scopes** | Scopes | Defaults to `openid email profile`; keep `email` so KloudMate gets the address |
+
+### Email claim
+
+KloudMate reads the user's email from the `email` claim in the ID token. Make sure the `email` scope is granted and your IdP includes that claim. If your IdP only returns email under a different claim, configure it to emit a standard `email` claim.
+
+## Generic SAML
+
+SAML can be configured two ways in KloudMate: paste the IdP's metadata XML (preferred), or enter the three core values by hand.
+
+### What to create in your IdP
+
+A SAML 2.0 application / relying party with:
+
+| Your IdP's field | Value to use |
+| --- | --- |
+| ACS / Reply / Recipient / Destination URL | `https://api.kloudmate.com/sso/saml` |
+| Audience / SP Entity ID | the `entityID` in KloudMate's downloaded SP metadata |
+| NameID format | `emailAddress` |
+
+Many IdPs accept KloudMate's **SP metadata** directly — download `kloudmate-sp-metadata.xml` from the **Service provider details** card and import it to fill the ACS URL and entity ID automatically.
+
+### Field mapping (manual entry)
+
+If your IdP can't export metadata, choose **Enter manually** in the connection dialog and map:
+
+| KloudMate field | Your IdP calls it |
+| --- | --- |
+| **SSO URL (entry point)** | SAML SSO / sign-in endpoint (HTTP-Redirect or HTTP-POST) |
+| **Issuer (IdP entity ID)** | IdP entity ID / issuer |
+| **IdP signing certificate (X.509)** | Token-signing / X.509 certificate (PEM, including the `BEGIN/END CERTIFICATE` lines) |
+
+### Email and attribute mapping
+
+KloudMate reads the email from the **NameID** (`emailAddress` format) or from an attribute named `email`. If your IdP sends email or name under non-standard attribute names, expand the optional **attribute mapping** in the connection dialog and set:
+
+- **Email attribute** — the assertion attribute that holds the email
+- **Name attribute** — the assertion attribute that holds the display name
+
+## Self-hosted identity providers
+
+Self-hosted IdPs such as Keycloak work the same way, with one hard requirement:
+
+:::caution
+The discovery URL (OIDC) or metadata/SSO endpoint (SAML) must be reachable over **public HTTPS**. KloudMate's servers fetch these directly. An IdP that's only reachable inside your private network, on an internal hostname, or over plain HTTP can't be connected.
+:::
+
+For Keycloak specifically:
+
+- **OIDC discovery URL**: `https://<keycloak-host>/realms/<realm>/.well-known/openid-configuration`
+- **SAML metadata**: `https://<keycloak-host>/realms/<realm>/protocol/saml/descriptor`
+
+Create a confidential OIDC client (or a SAML client) in your realm, set the redirect URI / ACS URL to KloudMate's values, and make sure the realm issues the user's email.
+
+## Finish up
+
+1. [Verify your company domain](../../domain-verification/).
+2. Choose a [provisioning mode](../../provisioning-and-enforcement/).
+3. Test sign-in with a work email on a verified domain via **Sign in with SSO**.
+
+Hitting an error? See [Troubleshooting](../../troubleshooting/) — `InvalidOidcConnection` / `UnsafeUrl` usually means the discovery URL isn't publicly reachable over HTTPS.

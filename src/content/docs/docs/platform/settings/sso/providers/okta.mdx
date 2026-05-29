@@ -1,0 +1,85 @@
+---
+title: "Set up SSO with Okta"
+description: "Connect Okta to KloudMate using OIDC or SAML, including app creation, redirect URIs, and email claim mapping."
+sidebar:
+  label: "Okta"
+  order: 2
+---
+
+This guide connects Okta to KloudMate. Okta supports both OIDC and SAML; **OIDC is the simpler setup**, so start there unless your team standardizes on SAML.
+
+You'll switch between two browser tabs: the Okta Admin Console and KloudMate's **Settings → Single Sign-On** page. Have both open.
+
+## Before you start
+
+- You're the KloudMate **organization owner** on a **paid plan**.
+- You're an admin in the Okta Admin Console.
+- Grab KloudMate's values first: open the **Service provider details** card and copy the **ACS URL** (SAML), or note the OIDC redirect URI `https://api.kloudmate.com/sso/oidc`.
+
+## OIDC (recommended)
+
+### 1. Create the app in Okta
+
+1. In the Okta Admin Console, go to **Applications → Applications → Create App Integration**.
+2. Choose **OIDC - OpenID Connect**, then **Web Application**, and click **Next**.
+3. Under **Grant types**, keep **Authorization Code** selected.
+4. In **Sign-in redirect URIs**, enter:
+
+   ```text
+   https://api.kloudmate.com/sso/oidc
+   ```
+
+5. Assign the app to the people or groups who should have KloudMate access, then **Save**.
+
+### 2. Copy Okta's values into KloudMate
+
+From the app's **General** tab, copy the **Client ID** and **Client secret**. Okta's OIDC discovery URL is:
+
+```text
+https://<your-okta-domain>/.well-known/openid-configuration
+```
+
+Replace `<your-okta-domain>` with your org's Okta domain (for example `dev-12345.okta.com`).
+
+In KloudMate, open **Connections → Add connection**, choose **OIDC**, and fill in:
+
+- **Display name** — `Okta`
+- **Discovery URL** — the URL above
+- **Client ID** and **Client secret** — from Okta
+- **Scopes** — leave as `openid email profile`
+
+Click **Add connection**.
+
+:::note
+If your Okta app has **Require PKCE as additional verification** turned on, sign-in still works — KloudMate sends a PKCE challenge automatically.
+:::
+
+## SAML
+
+### 1. Create the SAML app in Okta
+
+1. Go to **Applications → Applications → Create App Integration**, choose **SAML 2.0**, and click **Next**.
+2. Give the app a name, then on the **Configure SAML** step set:
+   - **Single sign-on URL** — your KloudMate **ACS URL**, `https://api.kloudmate.com/sso/saml`
+   - **Audience URI (SP Entity ID)** — your KloudMate **SP Entity ID** (the `entityID` from the downloaded SP metadata)
+   - **Name ID format** — `EmailAddress`
+   - **Application username** — `Email`
+3. Finish the wizard and **Save**.
+
+### 2. Copy Okta's metadata into KloudMate
+
+1. On the app's **Sign On** tab, find the **SAML Setup** section and download or view the **Identity Provider metadata**.
+2. In KloudMate, open **Connections → Add connection**, choose **SAML 2.0**, keep **Paste metadata XML**, and paste the Okta metadata into **IdP metadata XML**.
+3. Set **Display name** to `Okta` and click **Add connection**.
+
+### Email mapping
+
+Okta sends the user's email in the NameID when you set **Name ID format** to `EmailAddress` and **Application username** to `Email`, which is all KloudMate needs. If you've customized attribute statements, make sure email is sent in the NameID or in an attribute named `email`.
+
+## Finish up
+
+1. [Verify your company domain](../../domain-verification/) so employees can sign in by email.
+2. Choose a [provisioning mode](../../provisioning-and-enforcement/).
+3. Test sign-in: on the login page, type a work email on a verified domain and click **Sign in with SSO**.
+
+Hitting an error? See [Troubleshooting](../../troubleshooting/).

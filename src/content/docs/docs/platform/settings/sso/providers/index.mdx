@@ -1,0 +1,42 @@
+---
+title: "SSO provider guides"
+description: "Step-by-step SSO setup for Okta, Microsoft Entra ID, Google, Auth0, OneLogin, and any generic SAML or OIDC provider."
+sidebar:
+  label: "Overview"
+  order: 1
+---
+
+These guides walk through connecting a specific identity provider to KloudMate end to end: what to create in the IdP, where to paste KloudMate's values, and what to copy back. Each one assumes you've read the [SSO overview](../) and that you're the organization owner on a paid plan.
+
+## Pick your provider
+
+- [Okta](./okta/) — OIDC and SAML
+- [Microsoft Entra ID (Azure AD)](./entra-id/) — OIDC and SAML
+- [Google](./google/) — OIDC via Google Cloud
+- [Auth0](./auth0/) — OIDC and SAML
+- [OneLogin](./onelogin/) — SAML
+- [Generic SAML or OIDC](./generic/) — the field-by-field mapping for any compliant IdP, plus self-hosted notes
+
+## SAML or OIDC?
+
+When your IdP supports both, **OIDC is usually the simpler path** — you exchange a discovery URL and a client ID/secret instead of wrangling XML metadata and certificates. Reach for SAML when your IdP only offers SAML, or when your security team standardizes on it.
+
+## The KloudMate values you'll need
+
+Every guide pastes the same handful of values into the IdP. Copy the **ACS URL** from your own **Service provider details** card rather than assuming the host — it depends on your environment.
+
+| What your IdP asks for | Value to use |
+| --- | --- |
+| SAML ACS / Reply / Recipient / Destination URL | `https://api.kloudmate.com/sso/saml` |
+| SAML SP Entity ID / Audience URI | the `entityID` in the downloaded SP metadata |
+| SAML NameID format | `emailAddress` (email in the NameID, or an `email` attribute) |
+| OIDC Redirect / Callback / Sign-in redirect URI | `https://api.kloudmate.com/sso/oidc` |
+| OIDC scopes | `openid email profile` |
+
+After you finish a provider guide, [verify your company domain](../domain-verification/) so your team can sign in by typing their work email, then choose a [provisioning mode](../provisioning-and-enforcement/).
+
+## Related
+
+- [SSO overview & setup](../)
+- [Verify your company domain](../domain-verification/)
+- [Troubleshooting](../troubleshooting/)

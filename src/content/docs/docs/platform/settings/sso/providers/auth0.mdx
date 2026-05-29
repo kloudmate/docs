@@ -1,0 +1,93 @@
+---
+title: "Set up SSO with Auth0"
+description: "Connect Auth0 to KloudMate using OIDC (Regular Web App) or the SAML2 Web App addon."
+sidebar:
+  label: "Auth0"
+  order: 5
+---
+
+This guide connects Auth0 to KloudMate. Auth0 supports both OIDC and SAML. **OIDC is the simpler setup** and the recommended path.
+
+## Before you start
+
+- You're the KloudMate **organization owner** on a **paid plan**.
+- You can create applications in the Auth0 Dashboard.
+- Copy KloudMate's values first from the **Service provider details** card.
+
+## OIDC (recommended)
+
+### 1. Create the application
+
+1. In the Auth0 Dashboard, go to **Applications → Applications → Create Application**.
+2. Choose **Regular Web Applications** and create it.
+3. On the **Settings** tab, under **Allowed Callback URLs**, add:
+
+   ```text
+   https://api.kloudmate.com/sso/oidc
+   ```
+
+4. Save changes.
+
+### 2. Copy Auth0's values into KloudMate
+
+From the application's **Settings**, copy the **Client ID** and **Client Secret**. Your Auth0 discovery URL is:
+
+```text
+https://<your-tenant>.auth0.com/.well-known/openid-configuration
+```
+
+Replace `<your-tenant>` with your Auth0 tenant (use your custom domain if you've set one).
+
+In KloudMate, open **Connections → Add connection**, choose **OIDC**, and fill in:
+
+- **Display name** — `Auth0`
+- **Discovery URL** — the URL above
+- **Client ID** and **Client secret** — from Auth0
+- **Scopes** — leave as `openid email profile`
+
+Click **Add connection**.
+
+### Email mapping
+
+With the default `email` scope, Auth0 returns the user's email in the ID token. No extra mapping is needed unless you've customized the token with a rule or action that drops the standard claims.
+
+## SAML
+
+Auth0 exposes SAML through the **SAML2 Web App** addon on an application.
+
+### 1. Enable and configure the addon
+
+1. Open your Auth0 application, go to the **Addons** tab, and enable **SAML2 Web App**.
+2. In **Application Callback URL**, enter your KloudMate **ACS URL**:
+
+   ```text
+   https://api.kloudmate.com/sso/saml
+   ```
+
+3. In the **Settings** JSON for the addon, set the audience to your KloudMate **SP Entity ID** (the `entityID` from the downloaded SP metadata):
+
+   ```json
+   {
+     "audience": "YOUR_KLOUDMATE_SP_ENTITY_ID"
+   }
+   ```
+
+4. Save.
+
+### 2. Copy Auth0's IdP metadata into KloudMate
+
+1. In the SAML2 Web App addon's **Usage** tab, copy the **Identity Provider Metadata** URL or download the metadata XML.
+2. In KloudMate, open **Connections → Add connection**, choose **SAML 2.0**, keep **Paste metadata XML**, and paste the metadata into **IdP metadata XML**.
+3. Set **Display name** and click **Add connection**.
+
+### Email mapping
+
+Auth0's default SAML mapping puts the email in the NameID, which KloudMate reads. If you've overridden the mappings in the addon settings, make sure the email is sent in the NameID or an `email` attribute.
+
+## Finish up
+
+1. [Verify your company domain](../../domain-verification/).
+2. Choose a [provisioning mode](../../provisioning-and-enforcement/).
+3. Test sign-in with a work email on a verified domain via **Sign in with SSO**.
+
+Hitting an error? See [Troubleshooting](../../troubleshooting/).

@@ -1,0 +1,93 @@
+---
+title: "Set up SSO with Microsoft Entra ID"
+description: "Connect Microsoft Entra ID (Azure AD) to KloudMate using OIDC or SAML, with the tenant-specific discovery URL and email claim notes."
+sidebar:
+  label: "Microsoft Entra ID"
+  order: 3
+---
+
+This guide connects Microsoft Entra ID (formerly Azure AD) to KloudMate. Entra supports both OIDC and SAML. **OIDC is the simpler setup**, but it has one easy-to-miss requirement — read the discovery-URL note below before you start.
+
+## Before you start
+
+- You're the KloudMate **organization owner** on a **paid plan**.
+- You can create app registrations / enterprise apps in the Microsoft Entra admin center.
+- Copy KloudMate's values first from the **Service provider details** card.
+
+:::caution
+**Use your tenant-specific discovery URL, not `common`.** With `common` or `organizations`, sign-in fails with an issuer mismatch (`OidcCallbackFailed`). The correct form is:
+
+```text
+https://login.microsoftonline.com/<tenant-id>/v2.0/.well-known/openid-configuration
+```
+
+Replace `<tenant-id>` with your directory (tenant) ID from the Entra **Overview** page.
+:::
+
+## OIDC (recommended)
+
+### 1. Register the app
+
+1. In the Microsoft Entra admin center, go to **Identity → Applications → App registrations → New registration**.
+2. Name it (for example `KloudMate`).
+3. Under **Redirect URI**, choose **Web** and enter:
+
+   ```text
+   https://api.kloudmate.com/sso/oidc
+   ```
+
+4. Register the app, then copy the **Application (client) ID** and **Directory (tenant) ID** from the **Overview** page.
+
+### 2. Create a client secret
+
+1. Open **Certificates & secrets → Client secrets → New client secret**.
+2. Add a description and expiry, then **Add**.
+3. Copy the secret **Value** immediately — Entra only shows it once.
+
+### 3. Copy the values into KloudMate
+
+In KloudMate, open **Connections → Add connection**, choose **OIDC**, and fill in:
+
+- **Display name** — `Azure AD` (or `Entra ID`)
+- **Discovery URL** — the **tenant-specific** URL from the caution above, with your tenant ID
+- **Client ID** — the Application (client) ID
+- **Client secret** — the secret **Value** you copied
+- **Scopes** — leave as `openid email profile`
+
+Click **Add connection**.
+
+### Email claim note
+
+Entra often omits the `email` claim. KloudMate falls back to `preferred_username` / `upn`, which works for most users — but to be safe, make sure each user has a mailbox, or add the optional **email** claim to the app's token configuration:
+
+1. Open **Token configuration → Add optional claim**.
+2. Choose **ID** as the token type, select **email**, and save.
+3. If prompted, grant the related Microsoft Graph permission.
+
+## SAML
+
+### 1. Create the enterprise app
+
+1. Go to **Identity → Applications → Enterprise applications → New application → Create your own application**.
+2. Choose **Integrate any other application you don't find in the gallery**, name it, and create it.
+3. Open **Single sign-on → SAML**, and under **Basic SAML Configuration** set:
+   - **Identifier (Entity ID)** — your KloudMate **SP Entity ID** (the `entityID` from the downloaded SP metadata)
+   - **Reply URL (Assertion Consumer Service URL)** — your KloudMate **ACS URL**, `https://api.kloudmate.com/sso/saml`
+
+### 2. Copy Entra's metadata into KloudMate
+
+1. In the SAML setup page, download the **Federation Metadata XML** (or copy the **App Federation Metadata Url**).
+2. In KloudMate, open **Connections → Add connection**, choose **SAML 2.0**, keep **Paste metadata XML**, and paste the Federation Metadata XML into **IdP metadata XML**.
+3. Set **Display name** and click **Add connection**.
+
+### Email mapping
+
+In the enterprise app, open **Attributes & Claims** and confirm the **Unique User Identifier (Name ID)** is the user's email (for example `user.mail` or `user.userprincipalname`), in `emailAddress` format. If your users' UPN isn't their email, map an `email` attribute to `user.mail` and set the corresponding **Email attribute** in KloudMate's manual SAML form.
+
+## Finish up
+
+1. [Verify your company domain](../../domain-verification/).
+2. Choose a [provisioning mode](../../provisioning-and-enforcement/).
+3. Test sign-in with a work email on a verified domain via **Sign in with SSO**.
+
+Stuck on an issuer or email error? See [Troubleshooting](../../troubleshooting/).
