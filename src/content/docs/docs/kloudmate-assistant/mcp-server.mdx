@@ -1,0 +1,232 @@
+---
+title: "KloudMate MCP Server"
+description: "Connect your AI agents and coding tools to KloudMate over MCP to query logs, traces, metrics, and alerts in plain language."
+sidebar:
+  label: "MCP Server"
+  order: 5
+---
+
+import { Tabs, TabItem, Steps, LinkCard, CardGrid } from '@astrojs/starlight/components';
+
+The KloudMate MCP server lets your AI coding tools and agents pull observability data straight from your workspace. Point a client like Claude Code, Cursor, or VS Code at it, and you can ask about errors, latency, traces, and firing alerts in plain language — without leaving your editor or opening the KloudMate UI.
+
+This is the mirror image of the [MCP integrations](../settings/#mcp-integrations) you connect *into* the Assistant. There, KloudMate is the client calling out to other tools. Here, KloudMate is the server, and your agent is the client calling in. The connection is built on the [Model Context Protocol](https://modelcontextprotocol.io/), an open standard for giving language models access to external tools and data.
+
+Once you're connected, your agent can chain KloudMate's query tools to investigate an incident, answer a question about a service, or run a repeatable workflow you've defined — all grounded in your real telemetry instead of guesswork.
+
+## Connection details
+
+The server is a single remote endpoint. You authenticate with a KloudMate [User Key](../../platform/settings/api-keys/#user-key) passed as a bearer token.
+
+| Setting | Value |
+|---|---|
+| **Endpoint** | `https://api.kloudmate.com/mcp` |
+| **Transport** | Streamable HTTP |
+| **Authentication** | `Authorization: Bearer YOUR_API_KEY` |
+
+The API key determines which workspace the connection reads from, so you never specify a workspace ID — the key already scopes it. To connect a different workspace, use a key that belongs to that workspace.
+
+## Before you start
+
+You'll need two things:
+
+- **A KloudMate User Key.** Under **Settings → API Keys**, click **Add New** and choose the **User Key** type — it's tied to your account's permissions and reads whatever you can read. Copy it when it's shown (it's shown only once) and keep it handy for your client's config. See [API Keys](../../platform/settings/api-keys/#user-key) for the full walkthrough. Creating a key requires the Admin role.
+- **An MCP-capable client.** Any tool that supports remote MCP servers over Streamable HTTP with custom headers works. The steps below cover Claude Code, Cursor, VS Code, and Claude Desktop.
+
+:::caution
+Your API key carries your access to the workspace. Treat it like a password: don't paste it into shared files or commit it to version control. The client configs below show how to keep it in an environment variable or a prompted secret instead of hardcoding it. If a key leaks, revoke it from **Settings → API Keys**.
+:::
+
+## Connect your client
+
+Pick your tool and follow the steps. Swap `YOUR_API_KEY` for the key you just created.
+
+<Tabs>
+<TabItem label="Claude Code">
+
+Add the server from your terminal with the `claude mcp add` command:
+
+```bash
+claude mcp add --transport http kloudmate https://api.kloudmate.com/mcp \
+  --header "Authorization: Bearer YOUR_API_KEY"
+```
+
+By default the server is available in the current project only. Add `--scope user` before the server name to make it available across all your projects:
+
+```bash
+claude mcp add --transport http --scope user kloudmate https://api.kloudmate.com/mcp \
+  --header "Authorization: Bearer YOUR_API_KEY"
+```
+
+Run `/mcp` inside Claude Code to confirm `kloudmate` shows as connected and to see the tools it exposes.
+
+</TabItem>
+<TabItem label="Cursor">
+
+Create or edit `~/.cursor/mcp.json` (global, all projects) or `.cursor/mcp.json` (this project only), and add the server:
+
+```json
+{
+  "mcpServers": {
+    "kloudmate": {
+      "url": "https://api.kloudmate.com/mcp",
+      "headers": {
+        "Authorization": "Bearer ${env:KLOUDMATE_API_KEY}"
+      }
+    }
+  }
+}
+```
+
+The `${env:KLOUDMATE_API_KEY}` reference reads the key from your environment so it never lands in the file. Set `KLOUDMATE_API_KEY` in your shell, then open **Cursor Settings → MCP** to confirm `kloudmate` connects. You can also paste the key directly in place of the reference, but keep that file out of any repository.
+
+</TabItem>
+<TabItem label="VS Code">
+
+Create `.vscode/mcp.json` in your workspace. The `inputs` block prompts you for the key the first time the server starts and stores it securely, so the key stays out of the file:
+
+```json
+{
+  "inputs": [
+    {
+      "type": "promptString",
+      "id": "kloudmate-api-key",
+      "description": "KloudMate User API Key",
+      "password": true
+    }
+  ],
+  "servers": {
+    "kloudmate": {
+      "type": "http",
+      "url": "https://api.kloudmate.com/mcp",
+      "headers": {
+        "Authorization": "Bearer ${input:kloudmate-api-key}"
+      }
+    }
+  }
+}
+```
+
+Start the server from the **Start** action that appears above the entry, then enter your key when prompted. The tools become available to agent mode in Copilot Chat.
+
+</TabItem>
+<TabItem label="Claude Desktop">
+
+Claude Desktop's custom-connector UI is built around OAuth and has no field for a bearer token, so connect through the config file using the [`mcp-remote`](https://github.com/geelen/mcp-remote) bridge instead.
+
+Open `claude_desktop_config.json` (**Settings → Developer → Edit Config**) and add:
+
+```json
+{
+  "mcpServers": {
+    "kloudmate": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "mcp-remote",
+        "https://api.kloudmate.com/mcp",
+        "--header",
+        "Authorization:${AUTH_HEADER}"
+      ],
+      "env": {
+        "AUTH_HEADER": "Bearer YOUR_API_KEY"
+      }
+    }
+  }
+}
+```
+
+The `Bearer ` token goes in the `AUTH_HEADER` environment variable, and the `--header` argument has no spaces around the colon. That split is deliberate: it sidesteps a known bug where Claude Desktop mangles spaces inside `args` when it launches `npx`. Quit and reopen Claude Desktop fully — it reads the config only at startup — then check that `kloudmate` appears in the tools menu.
+
+The config file lives at:
+
+- **macOS:** `~/Library/Application Support/Claude/claude_desktop_config.json`
+- **Windows:** `%APPDATA%\Claude\claude_desktop_config.json`
+
+</TabItem>
+</Tabs>
+
+Using a different client? Point it at `https://api.kloudmate.com/mcp` with an `Authorization: Bearer YOUR_API_KEY` header. Any client that speaks Streamable HTTP and lets you set request headers can connect.
+
+## Verify the connection
+
+Once the server is connected, your client lists the KloudMate tools and your agent can call them. The quickest check is to ask a question that needs live data:
+
+> Which alerts are firing in KloudMate right now?
+
+If the connection is healthy, the agent calls a KloudMate tool and answers from your workspace. If it reports an authentication failure, the key is likely wrong, revoked, or missing the `Bearer ` prefix — recheck the header and try again.
+
+## Available tools
+
+Every tool is read-only. The server queries your telemetry; it never creates, edits, or deletes KloudMate resources. Tools accept relative time ranges like `now-1h`, `now-15m`, or `now`, as well as ISO-8601 timestamps, and default to the last hour when you don't give one.
+
+**Issues and alerts**
+
+- `search_issues` — errors and warnings aggregated from logs and traces.
+- `search_alarm_rules`, `search_alarm_states`, `search_alarm_states_history` — list alert rules, see what's firing now, and review how states changed over time.
+
+**Service health (APM)**
+
+- `get_service_error_count`, `get_service_requests_count_and_avg_latency` — error counts, throughput, and average latency for a service.
+- `get_service_to_service_requests_count`, `get_service_to_service_failed_requests_count`, `get_service_to_service_request_duration` — request volume, failures, and latency between services, to scope a blast radius.
+
+**Logs, traces, and spans**
+
+- `search_logs`, `search_traces`, `search_spans` — query telemetry with filters.
+- `get_log_details`, `get_span_details`, `get_trace_spans`, `get_trace_logs` — pull the full record for a single log line, span, or trace.
+
+**Schema discovery**
+
+- `discover_dataset_fields`, `discover_field_values` — find which fields and values exist before building a filter.
+- `discover_metrics`, `discover_metric_label_values` — find metric names and the values their labels take.
+
+**Aggregations and queries**
+
+- `run_aggregation_query`, `run_metric_aggregation_query` — grouped counts, percentiles, and timeseries over logs and traces, or over metrics.
+- `run_multiple_log_trace_aggregations`, `run_multiple_metric_aggregations` — run several aggregations in one call.
+
+**Dashboards**
+
+- `search_dashboards`, `get_dashboard_panels`, `run_dashboard_panel_query` — find a dashboard, inspect its panels, and run a panel's query.
+
+**Kubernetes**
+
+- `list_kubernetes_resources`, `search_kubernetes_events` — inspect clusters, namespaces, deployments, and pods, and read recent cluster events.
+
+**Synthetics**
+
+- `search_synthetic_monitors`, `search_synthetic_incidents` — check uptime and browser monitors and the incidents they've raised.
+
+## Example prompts
+
+Once connected, ask in plain language. The agent picks the right tools and fills in the queries:
+
+- *"What are the top errors in the `checkout` service over the last hour?"*
+- *"Show me the slowest traces for `api-gateway` in the past 15 minutes."*
+- *"Which alerts are firing right now, and what changed in the half hour before they fired?"*
+- *"Pull the logs for trace `4bf92f3577b34da6` and summarize where it failed."*
+- *"Compare request volume between the `frontend` and `cart` services this morning."*
+
+## Build custom workflows
+
+Because your agent can chain these tools and combine them with whatever else it can reach — your codebase, a runbook, your deployment history — you can codify investigations that used to mean clicking through several screens.
+
+A triage workflow, for example, might pull the currently firing alerts, scope the affected services with the service-to-service tools, gather the relevant traces and logs, and hand you a single summary with a probable cause. Save it as a reusable command or prompt in your tool of choice, and the next on-call run is one sentence instead of twenty clicks.
+
+## Security and scope
+
+A few things worth keeping in mind:
+
+- **Read-only.** The server can't change anything in your workspace. Connecting it can't cause an outage or alter a dashboard.
+- **Workspace-scoped.** The key binds the connection to one workspace. Use separate keys for separate workspaces.
+- **Keep the key secret.** Prefer the environment-variable or prompted-secret options above over pasting the key into a file. Add config files that contain a key to `.gitignore`.
+- **Revoke when needed.** If a key is exposed or no longer used, revoke it from **Settings → API Keys**. Any client using it stops working immediately.
+
+## Related
+
+<CardGrid>
+  <LinkCard title="API Keys" description="Create the User Key the MCP server authenticates with, and manage ingest keys." href="../../platform/settings/api-keys/#user-key" />
+  <LinkCard title="Assistant Settings" description="Connect external MCP servers and tools into the KloudMate Assistant." href="../settings/#mcp-integrations" />
+  <LinkCard title="Investigations" description="Run AI-assisted root cause analysis inside KloudMate." href="../investigations/" />
+  <LinkCard title="KloudMate Assistant" description="The in-app AI assistant for monitoring, dashboards, and RCA." href="../" />
+</CardGrid>
