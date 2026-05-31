@@ -7,7 +7,7 @@ sidebar:
 
 import { Tabs, TabItem } from '@astrojs/starlight/components';
 
-To receive notifications from KloudMate about incidents in your infrastructure, you need to set up notification channels. Notification channels are the communication platforms where alerts are sent.
+To receive notifications from KloudMate, you need to set up notification channels — the communication platforms where alerts and incident updates are sent.
 
 KloudMate supports the following notification channels:
 - Email
@@ -50,7 +50,7 @@ Below are the configuration steps for each specific channel type:
 KloudMate uses a single unified Slack app for both notifications and IM ChatOps. Installing it once gives you threaded notifications, message attribution, and the ability to acknowledge or resolve incidents directly from Slack.
 
 1. Select **Slack** from the dropdown menu, then click the **Add to Slack** button.
-2. You'll be redirected to Slack's OAuth flow. Pick the channel KloudMate should post into and approve the bot scopes.
+2. You will be redirected to Slack's OAuth flow. Pick the channel KloudMate should post into and approve the bot scopes.
 3. On approval, KloudMate creates the channel row and the Slack integration is also visible under **Incidents → Settings → ChatOps**.
 
 ![Slack channel form](./images/slack-1.png)
@@ -81,7 +81,7 @@ Optionally, you can download the KloudMate logo from the link provided on the sc
 
 1. Select **Webhook** from the dropdown menu.
 2. Enter a **Webhook Name** and the **Webhook URL** in their respective fields.
-3. Under **Secret**, provide a secure key. This secret will be used to generate an HMAC-SHA256 signature for each webhook payload, allowing you to verify that the request authentically came from KloudMate.
+3. Under **Secret**, provide a secure key. This secret is used to generate an HMAC-SHA256 signature for each webhook payload, allowing you to verify that the request came from KloudMate.
 4. Click **Submit**.
 
 ![image](./images/webhooks-1.png)
@@ -163,7 +163,7 @@ Screenshot pending — the Create Channel form with KloudMate Incidents selected
 2. Pick the IM service you want to bridge into from the **Linked IM service** dropdown. If you don't have any services yet, KloudMate prompts you to create one first.
 3. Click **Submit**.
 
-Behind the scenes KloudMate creates two rows in a single shot:
+KloudMate automatically creates two rows:
 
 - A KloudMate Alert integration under the linked service.
 - A notification channel pointing at the integration's signed loop URL.
@@ -196,7 +196,7 @@ Enter a **Channel Name** and select the following:
 4. Click **Submit** to complete the integration.
 
 :::info
-Jira integration with KloudMate is one-way. Status changes in KloudMate will be reflected in Jira, but status changes made in Jira will not be reflected in KloudMate.
+The Jira integration is one-way. Status changes in KloudMate are reflected in Jira, but changes made in Jira are not reflected in KloudMate.
 :::
 
 #### Alert and Issue Details in Jira
@@ -228,7 +228,7 @@ You can create a Jira ticket directly from an issue or alert details page to rai
 **Prerequisite:** A Jira notification channel must already be configured.
 
 1. Navigate to the **Issue** or **Alert** details page.
-2. Click the **Create in Jira** button. A dialog will open showing all Jira channels integrated with your KloudMate account, along with any previously linked Jira tickets for that issue.
+2. Click the **Create in Jira** button. A dialog opens showing all Jira channels integrated with your KloudMate account, along with any previously linked Jira tickets for that issue.
 
 ![image](./images/create-a-manual-jira-ticket-1.png)
 ![image](./images/create-a-manual-jira-ticket-1.jpeg)

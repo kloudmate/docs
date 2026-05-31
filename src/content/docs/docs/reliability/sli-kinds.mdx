@@ -6,7 +6,7 @@ sidebar:
 draft: true
 ---
 
-Step 2 of the SLO wizard picks the **SLI** — the specific signal you measure compliance against. KloudMate ships seven SLI kinds, each with its own conditional form fields. This page walks through them with a "When to use this" callout, the form fields, and worked examples.
+Step 2 of the SLO wizard picks the **SLI** — the specific signal you measure compliance against. KloudMate ships seven SLI kinds, each with its own conditional form fields. This page walks through them with a "When to use this" callout and the form fields for each.
 
 For the APM, log-based, and custom-metric kinds, the service-name, metric-name, severity, and attribute pickers suggest values discovered from your workspace's OTel telemetry (spans / logs / metrics stores). All pickers are free-solo, so you can type a value that doesn't have telemetry yet.
 
@@ -50,13 +50,13 @@ Fields:
 
 - **Service name** — required. Picker suggests services emitting spans.
 - **Min requests / minute** — required.
-- **Bucket size (minutes, optional)** — default `1`. Power users can tune the time-slicing granularity here; the default 1-minute bucket is fine for most cases.
+- **Bucket size (minutes, optional)** — default `1`. This controls the time-slicing granularity; the default 1-minute bucket is suitable for most cases.
 
 The SLI counts each bucket as good if its request rate is at or above the minimum, bad otherwise.
 
 ## APM trace ratio
 
-**When to use:** power-user — *"Build an SLI from any pair of span-attribute filters."* Examples: cache hit rate, payment-success rate, business-event ratios.
+**When to use:** *"Build an SLI from any pair of span-attribute filters."* Examples: cache hit rate, payment-success rate, business-event ratios.
 
 Fields:
 
@@ -74,7 +74,7 @@ A tabbed switch above the form picks the mode:
 
 ### Ratio of counts (default)
 
-Both numerator and denominator are SUM-aggregated metrics with optional filters. Used for counter-based SLIs like `http.requests.success` over `http.requests.total`.
+Both numerator and denominator are SUM-aggregated metrics with optional filters. Used for counter-based SLIs, e.g. `http.requests.success` over `http.requests.total`.
 
 Fields:
 
@@ -83,7 +83,7 @@ Fields:
 
 ### Value threshold
 
-Numerator counts observations whose value matches a comparison (`<`, `≤`, `>`, `≥`). Denominator is the total count of observations. Used for gauge-based SLIs like synthetic latency or SSL-cert-days-remaining.
+Numerator counts observations whose value matches a comparison (`<`, `≤`, `>`, `≥`). Denominator is the total count of observations. Used for gauge-based SLIs, e.g. synthetic latency or SSL certificate days remaining.
 
 Fields:
 

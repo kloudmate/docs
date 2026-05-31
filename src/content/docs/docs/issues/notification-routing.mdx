@@ -26,7 +26,7 @@ Clicking it opens the Issues-scoped notification settings page:
 
 ## Anatomy of a policy
 
-Each policy is workspace-scoped (not per-issue) with three things:
+Each policy is workspace-scoped (not per-issue) and has three fields:
 
 | Field | What it does |
 |---|---|
@@ -40,13 +40,13 @@ A **Disabled** toggle lets you save the policy without activating it.
 
 1. Open **Issues → Notification settings** and click **New policy**.
 2. Name the policy.
-3. Add one or more conditions. Pick the **Issue type** (`New issues` or `New and regression`) and one or more **Target services** from the autocomplete (suggestions come from services emitting telemetry).
-4. Pick one or more **Notification channels** from the multi-select.
+3. Add one or more conditions. Select the **Issue type** (`New issues` or `New and regression`) and one or more **Target services** from the autocomplete (suggestions come from services emitting telemetry).
+4. Select one or more **Notification channels** from the multi-select.
 5. Click **Save**.
 
 ## Forward-looking note
 
-This page is a dedicated settings surface for issues because the grouping engine and Routing Rules currently handle alert signals only. Issues may converge onto the routing-rules engine in a future release; if and when that happens, existing issue notification policies will migrate automatically — you won't need to recreate them.
+This page is a dedicated settings surface for issues because the grouping engine and Routing Rules currently handle alert signals only. Issues may converge onto the routing-rules engine in a future release; if that happens, existing issue notification policies will migrate automatically — no recreation required.
 
 ## Related
 

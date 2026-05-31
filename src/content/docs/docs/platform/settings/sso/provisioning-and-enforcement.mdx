@@ -37,7 +37,7 @@ Once SSO is set up, enforcement is **scoped to your verified domains**. The rule
 
 - **Members on a verified domain must use SSO.** If someone whose email is on a verified domain tries to sign in with a password, KloudMate blocks the password path and sends them to your IdP instead. They never see an "invalid password" error — they're sent straight to your IdP.
 - **The owner keeps password access.** As the owner, you can always sign in with your password, even after enforcement is on. This is a deliberate lockout-safety fallback: if your IdP connection breaks, you can still get in and fix it.
-- **External and guest collaborators are not forced through your IdP.** A collaborator whose email is on a *different* domain — a contractor on their own company's domain, say — keeps normal password login. Your IdP only governs your own domains.
+- **External and guest collaborators are not forced through your IdP.** A collaborator whose email is on a different domain — a contractor on their own company's domain, for example — keeps normal password login. Your IdP only governs your own domains.
 
 :::caution
 Before you rely on enforcement, confirm you can complete a full SSO sign-in with a test account on your domain. Keep your owner password available until you've verified the round trip works end to end — that password is your way back in if the IdP connection has a problem.

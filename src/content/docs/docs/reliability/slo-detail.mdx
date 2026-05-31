@@ -27,16 +27,16 @@ A 5-segment toggle: `1d` / `7d` / `30d` / `90d` / `Calendar month`. The SLO's **
 
 Picking a different window kicks off a **one-off re-evaluation** — the SLO's scheduled evaluations keep using the default. A caption next to the picker reminds you:
 
-> *Picking a different window checks the SLO once for that window. The default still runs on schedule.*
+e.g. > *Picking a different window checks the SLO once for that window. The default still runs on schedule.*
 
 ### Current snapshot card
 
 A header strip shows *"Current snapshot"* on the left and *"Last checked X ago"* (or *"Not checked yet"*) on the right. Below it, four metric stats in a responsive grid:
 
 - **Compliance** — large, color-coded percentage. Helper text: *"Share of events that met the SLI. Target X%."*
-- **Error budget left** — formatted with unit (seconds for incident-based, events for everything else). Negative budget renders as `-1.4h` / `-3.3d` rather than raw seconds.
+- **Error budget left** — formatted with unit (seconds for incident-based, events for everything else). Negative budget renders as e.g. `-1.4h` / `-3.3d` rather than raw seconds.
 - **Default window** — e.g. `30d`.
-- **Status** — `Healthy` / `Breached` / `Not evaluated` chip with a one-line helper (*"On track — within target."* or *"Below target — error budget used up."*).
+- **Status** — `Healthy` / `Breached` / `Not evaluated` chip with a one-line helper (e.g. *"On track — within target."* or *"Below target — error budget used up."*).
 
 ### 30-day compliance trend chart
 
@@ -46,7 +46,7 @@ A line chart over the last 30 days for the currently-selected window.
 - **Dashed horizontal target line** for instant visual reference.
 - **Hover tooltip** showing exact compliance % + timestamp at the cursor.
 - **Smart x-axis ticks** — single-day data shows times (`14:30`); multi-day shows dates (`May 25`).
-- **Y-axis anchored from below the target to 100%**, floored at 90%. Tiny drops don't look catastrophic, and the typical "well-above-target" case still has breathing room.
+- **Y-axis anchored from below the target to 100%**, floored at 90%. Tiny drops don't appear catastrophic, and the typical "well-above-target" case still has room.
 
 ### Burn-rate alerts section
 

@@ -7,7 +7,7 @@ sidebar:
 
 import { LinkCard, CardGrid, Steps } from '@astrojs/starlight/components';
 
-This page is your starting point. You'll sign up, run through onboarding, send your first telemetry event, and figure out what to wire up next — based on what you're actually trying to monitor: infrastructure, applications, databases, cloud services, or something else.
+This page is your starting point. You'll sign up, run through onboarding, send your first telemetry event, and determine what to set up next — based on what you want to monitor: infrastructure, applications, databases, cloud services, or something else.
 
 Already have an account and just want to send data? Jump to [Sending Data to KloudMate](../sending-data-to-kloudmate/).
 
@@ -19,7 +19,7 @@ Already have an account and just want to send data? Jump to [Sending Data to Klo
 
    ![Signup form](../images/setting-up-kloudmate-1.png)
 
-3. Check your inbox for a verification code from `noreply@kloudmate.com`. The spam folder is the usual culprit if it's missing.
+3. Check your inbox for a verification code from `noreply@kloudmate.com`. Check your spam folder if it doesn't arrive.
 4. Enter the code on the next screen and click **Next**.
 
    ![Verification code](../images/setting-up-kloudmate-2.png)
@@ -56,13 +56,13 @@ Two options appear, with one marked **Recommended for your stack** based on the 
 | **Kubernetes**, **VMs**, or **Mixed** | **OpenTelemetry** — install the KloudMate agent (Helm chart for K8s, Linux/Windows binary for VMs). Auto-instruments Node, Python, Java, .NET, and Go pods on K8s with no code changes. |
 | **Serverless (AWS)** | **AWS Integration** — connect your AWS account; Lambda, EC2, RDS metrics and CloudWatch logs flow in without an agent install. |
 
-Pick the recommended one unless you have a reason not to. The other option is still available — connect AWS even from a Kubernetes deployment if you want both. The next section covers less common cases.
+Select the recommended option unless your setup requires otherwise. The other option is still available — connect AWS even from a Kubernetes deployment if you want both. The next section covers less common cases.
 
 The OpenTelemetry path opens install instructions in a new tab and advances the wizard to Step 5. The AWS path runs the AWS onboarding flow inline.
 
 ### Step 5 — Verify ingestion
 
-The verify step waits for any signal — trace, log, metric, RUM event — to land in the workspace. As soon as the first one arrives, the step ticks complete and the wizard finishes. If you'd rather come back later, click **Skip for now** — the home-page checklist picks up where you left off.
+The verify step waits for any signal — trace, log, metric, RUM event — to land in the workspace. As soon as the first one arrives, the step ticks complete and the wizard finishes. To continue later, click **Skip for now** — the home-page checklist picks up where you left off.
 
 ## 3. Pick the right ingestion path for your goal
 
@@ -85,7 +85,7 @@ For a side-by-side decision walkthrough and a phased rollout pattern, see [Sendi
 
 ## 4. What to do next
 
-When the wizard finishes, you land on the home page with a **Setup checklist** drawer open. It points you at the next handful of things worth doing — instrument an application, build a dashboard, create an alert, wire a notification channel, invite a teammate. Each row jumps you straight to the right page, with the option to ask the assistant if you'd rather be walked through.
+When the wizard finishes, you land on the home page with a **Setup checklist** drawer open. It lists the next steps worth completing — instrument an application, build a dashboard, create an alert, wire a notification channel, invite a teammate. Each row jumps you straight to the right page, with the option to ask the assistant if you'd rather be walked through.
 
 Re-open it any time from the **Setup** pill in the header.
 

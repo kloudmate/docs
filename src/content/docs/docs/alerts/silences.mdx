@@ -6,7 +6,7 @@ sidebar:
 draft: true
 ---
 
-A **Silence** suppresses notifications for alerts whose labels match the silence's matchers, for a bounded time window. Use silences when you know an alert is going to be noisy and you don't want it paging anyone — a deployment you expect to spike error rates, a known third-party outage, a maintenance you can't fully scope with a maintenance window.
+A **Silence** suppresses notifications for alerts whose labels match the silence's matchers, for a bounded time window. Use silences when you know an alert will be noisy and you don't want it paging anyone — a deployment expected to spike error rates, a known third-party outage, or a maintenance window you can't fully scope.
 
 Silences cap at 30 days. The cap exists so silences don't get forgotten about and quietly mask real problems — re-create one explicitly if you need it longer.
 
@@ -19,7 +19,7 @@ Screenshot pending — the Silences list page showing active and expired silence
 :::
 ![Silences list](../_placeholders/screenshot-placeholder.png)
 
-The list has three tabs with live counts: **Active (N)** (default), **Expired (N)**, and **All (N)**. Columns: **Matchers** (chips, with overflow tooltip), **Expires** (countdown like *"In 4h"* or *"Expired 12m ago"*), **Scope** (a `Standalone` or `Group-bound` chip), **Reason**, **Created by**.
+The list has three tabs with live counts: **Active (N)** (default), **Expired (N)**, and **All (N)**. Columns: **Matchers** (chips, with overflow tooltip), **Expires** (countdown like e.g. *"In 4h"* or *"Expired 12m ago"*), **Scope** (a `Standalone` or `Group-bound` chip), **Reason**, **Created by**.
 
 ## Anatomy of a silence
 
@@ -27,7 +27,7 @@ The list has three tabs with live counts: **Active (N)** (default), **Expired (N
 |---|---|
 | **Matchers** | Label conditions that pick which alerts the silence applies to. Same operator set as [Routing Rules](../routing-rules/#matchers): equals, not equals, in, not in. |
 | **Expires at** | Date and time the silence stops. Capped at 30 days from creation. |
-| **Reason** | Free-form text — recommended so future readers know why the silence exists. |
+| **Reason** | Free-form text — recommended so others know why the silence exists. |
 | **Scope** | Either **Group-bound** (auto-expires when a specific [Alert Group](../alert-groups/) resolves) or **Standalone** (lives until its `expires_at`). |
 
 ## Create a silence
@@ -48,7 +48,7 @@ On any [Alert Group](../alert-groups/) detail page, click **Silence this group**
 
 - The group's labels populated as matchers.
 - A hidden `auto_expire_group_id` set to the current group, so the silence stops automatically when the group resolves.
-- A banner above the form reads "This silence will auto-expire when group `<title>` resolves."
+- A banner above the form reads e.g. "This silence will auto-expire when group `<title>` resolves."
 
 Save it from here. The silence shows up as **Group-bound** on the list.
 
@@ -65,7 +65,7 @@ Pick a silence for a reactive, one-off suppression you'll re-evaluate within 30 
 
 ## Viewing and ending a silence
 
-Each row's kebab menu has **View** and **End silence**. Ending an active silence un-suppresses matching alerts immediately — new firings notify as normal.
+Each row's kebab menu has **View** and **End silence**. Ending an active silence removes suppression for matching alerts immediately — new firings notify as normal.
 
 ## Related
 

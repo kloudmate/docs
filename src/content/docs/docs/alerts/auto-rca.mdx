@@ -6,7 +6,7 @@ sidebar:
 draft: true
 ---
 
-Auto-RCA hands an [Alert Group](../alert-groups/) to KloudMate's AI investigator the moment it opens, so by the time you click into the group there's already a root-cause summary waiting. You enable it per [Routing Rule](../routing-rules/) — every group the rule produces gets investigated.
+Auto-RCA hands an [Alert Group](../alert-groups/) to KloudMate's AI investigator the moment it opens, so by the time you open the group there's already a root-cause summary waiting. You enable it per [Routing Rule](../routing-rules/) — every group the rule produces gets investigated.
 
 ## How it works
 
@@ -24,17 +24,17 @@ Screenshot pending — an alert group detail page showing an attached investigat
 
 ## Enable Auto-RCA on a routing rule
 
-1. Open **Settings → Routing Rules** and edit the rule you want to enrich.
+1. Open **Alerts → Routing Rules** and edit the rule you want to enrich.
 2. Scroll to the **Auto-RCA** section.
 3. Toggle **Auto-RCA** on.
-4. Set the **Delay** if the default 5 minutes isn't right. A shorter delay gets answers faster; a longer one captures more signals before investigating.
+4. Set the **Delay** if the default 5 minutes isn't right. A shorter delay surfaces answers faster; a longer one captures more signals before the investigation runs.
 5. Save.
 
 Every group this rule opens from now on will trigger an investigation after the configured delay.
 
 ## When Auto-RCA is most useful
 
-Auto-RCA shines on rules that bundle related signals — pile-up after a deploy, cascading errors across services, downstream impact of an upstream incident. For very narrow per-host or per-instance rules, the investigation has less to work with and you may prefer to disable it to save on compute.
+Auto-RCA works best on rules that bundle related signals — a spike after a deploy, cascading errors across services, or downstream impact from an upstream incident. For very narrow per-host or per-instance rules, the investigation has less to work with and you may prefer to disable it to reduce compute usage.
 
 ## Related
 

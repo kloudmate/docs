@@ -4,7 +4,7 @@ description: "Step-by-step guide to setting up and configuring KloudMate alerts.
 sidebar:
   order: 2
 ---
-KloudMate lets you create and configure alerts for events that are critical to your application. Each alert watches a query, evaluates a condition, and — when the condition holds long enough — fires into the grouping and routing engine so the right people hear about it.
+KloudMate lets you create and configure alerts for events that are critical to your application. Each alert watches a query, evaluates a condition, and — when the condition holds long enough — fires into the grouping and routing engine so the right people are notified.
 
 ## Getting started
 
@@ -126,7 +126,7 @@ To avoid the **NoData** issue when using multiple queries in a single alert, use
 
 ### 2. Configure evaluation settings
 
-This section opens with a **Folder** dropdown — pick an existing folder (or type a new name to create one inline) to organize the rule and inherit shared defaults. The folder's `interval_seconds`, `no_data_state`, and `eval_error_state` flow into the rule as inheritable defaults you can override per-field. See [Folders](../folders/).
+This section opens with a **Folder** dropdown — select an existing folder (or type a new name to create one inline) to organize the rule and inherit shared defaults. The folder's `interval_seconds`, `no_data_state`, and `eval_error_state` flow into the rule as inheritable defaults you can override per-field. See [Folders](../folders/).
 
 ![Evaluation settings](./images/setting-up-kloudmate-alarms-4.png)
 
@@ -151,7 +151,7 @@ Two top-level fields and one section:
 - **Alert name** — Enter a name for the alert.
 - **Description** — Add a description to help identify the alert's purpose.
 
-**Responder context** — a labelled section that holds the five fixed annotations responders see when the notification lands. The hint above the section reads *"Help on-call responders understand the alarm and act quickly."*
+**Responder context** — a labelled section that holds the five fixed annotations responders see when the notification lands. The hint above the section reads e.g. *"Help on-call responders understand the alarm and act quickly."*
 
 - **Severity** — Free-form severity (e.g. `sev1`, `critical`, `p1`). Supports Liquid templates so severity can depend on the firing value.
 - **Summary** — Multiline message included in notifications. Supports templates.

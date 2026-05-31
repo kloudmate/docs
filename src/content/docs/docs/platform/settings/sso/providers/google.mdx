@@ -9,7 +9,7 @@ sidebar:
 This guide connects Google to KloudMate using OIDC, via OAuth credentials you create in Google Cloud. Google is OIDC-only here — there's no SAML variant in this guide.
 
 :::caution
-**Plain "Sign in with Google" isn't restricted to your company** — any Google account can complete it. To limit sign-in to your organization and use email-based routing, you need a **Google Workspace** (custom-domain) account and you must verify that domain in KloudMate. A `gmail.com` domain can't be verified.
+**Plain "Sign in with Google" is not restricted to your company** — any Google account can complete it. To limit sign-in to your organization and use email-based routing, you need a **Google Workspace** (custom-domain) account and you must verify that domain in KloudMate. A `gmail.com` domain can't be verified.
 :::
 
 ## Before you start
@@ -63,7 +63,7 @@ Because Google itself doesn't gate this flow to one company, KloudMate's domain 
 1. [Verify your company domain](../../domain-verification/) — your Workspace domain, for example `acme.com`.
 2. Only emails on that verified domain route through this connection when someone signs in by email.
 
-Then choose a [provisioning mode](../../provisioning-and-enforcement/). With **invite-only**, even a user who authenticates with Google must already be invited — useful insurance given Google's open consent flow.
+Then choose a [provisioning mode](../../provisioning-and-enforcement/). With **invite-only**, even a user who authenticates with Google must already be invited — recommended given Google's open consent flow.
 
 ## Finish up
 

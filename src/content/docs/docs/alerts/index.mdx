@@ -40,7 +40,7 @@ Folders group related alert rules and let member rules inherit shared defaults �
 
 ### Alert groups
 
-When matching alerts fire close together, KloudMate bundles them into a single **Alert Group** — a durable, deduplicated container that escalates as higher-severity signals join, holds the auto-RCA if you've enabled one, and provides a single thread to notify against. See [Alert Groups](./alert-groups/).
+When matching alerts fire close together, KloudMate bundles them into a single **Alert Group** — a durable, deduplicated container that updates as higher-severity signals join, holds the auto-RCA if you've enabled one, and provides a single thread to notify against. See [Alert Groups](./alert-groups/).
 
 ### Routing rules
 
@@ -48,7 +48,7 @@ Routing rules decide which channels get notified for which alerts. Each rule mat
 
 ### Silences
 
-A silence suppresses notifications for matching labels for a bounded time window — useful when you know an alert is going to be noisy and don't want to flood your channels. See [Silences](./silences/).
+A silence suppresses notifications for matching labels for a bounded time window — useful when you know an alert will be noisy and don't want to flood your channels. See [Silences](./silences/).
 
 ### Multi-dimensional alerts
 
