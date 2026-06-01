@@ -1,17 +1,20 @@
 ---
 title: Weekly Product Digest — 2026-06-01
-summary: Customer-facing product and documentation-impact summary for the week of 2026-06-01.
+summary: Customer-facing product and documentation-impact summary for the week.
 date: 2026-06-01
 period_start: 2026-06-01
 period_end: 2026-06-07
 type: engineering-digest
+generated_by: fallback-heuristic
 ---
 
 # Weekly KloudMate Product Digest
 Period: 2026-06-01 to 2026-06-07
 
+> ⚠️ This digest was generated using heuristics because the LLM call was unavailable.
+
 ## Executive Summary
-No customer-facing changes were recorded across all repositories during this period. The week consisted solely of internal work that does not affect product behavior, configuration, or documentation.
+0 customer-relevant change(s) collected across 0 repository/repositories. See sections below for details.
 
 ## New
 _None this week._
@@ -29,7 +32,7 @@ _None this week._
 _None identified._
 
 ## Internal / Excluded Notes
-_None._
+Excluded 0 internal change(s) from primary summary.
 
 ## Source References
-_None._
+_No sources._
