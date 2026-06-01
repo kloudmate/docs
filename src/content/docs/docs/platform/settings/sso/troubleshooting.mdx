@@ -6,7 +6,7 @@ sidebar:
   order: 5
 ---
 
-When an SSO sign-in fails, KloudMate lands the user on a branded **We couldn't sign you in** screen with a short, plain-language reason. If the identity provider returned a raw detail (like `invalid_client`), it's tucked behind a **Technical details** expander — open that when you're debugging setup. A **Back to login** button returns to the start.
+When an SSO sign-in fails, KloudMate lands the user on a branded **We couldn't sign you in** screen with a short, plain-language reason. If the identity provider returned a raw detail (e.g. `invalid_client`), it is available under a **Technical details** expander — open it when debugging the setup. A **Back to login** button returns to the start.
 
 This page lists the errors you might hit, grouped by where they happen, with the most likely cause and the fix.
 
@@ -47,12 +47,12 @@ These show up while you're configuring SSO, usually as a toast or inline message
 | **That domain was removed — refresh and try again** (`SsoDomainNotFound`) | The domain was removed elsewhere | Refresh the page and retry |
 | **Some fields are invalid — please review and try again** (`ValidationError`) | One or more form fields failed validation | The form highlights the specific fields — correct them and resubmit |
 
-## Provider-specific gotchas
+## Provider-specific notes
 
 A couple of failures trace back to one IdP's quirks:
 
 - **Entra ID issuer mismatch.** Using the `common` or `organizations` discovery URL makes OIDC fail with an issuer mismatch (surfaced as `OidcCallbackFailed`). Use the **tenant-specific** URL `https://login.microsoftonline.com/<tenant-id>/v2.0/.well-known/openid-configuration`. See [Microsoft Entra ID](../providers/entra-id/).
-- **Google domain restriction.** Plain Google sign-in accepts any Google account. To restrict to your company and route by email, use a Google Workspace (custom-domain) account and verify that domain — `gmail.com` can't be verified. See [Google](../providers/google/).
+- **Google domain restriction.** Plain Google sign-in accepts any Google account. To restrict access to your company and route by email, use a Google Workspace account with a custom domain and verify that domain — `gmail.com` cannot be verified. See [Google](../providers/google/).
 
 ## Related
 

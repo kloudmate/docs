@@ -44,11 +44,11 @@ Screenshot pending — the Notification Channels create form with KloudMate Inci
 
 2. Name the rule and set a priority (lower wins).
 
-3. Add **matchers** that identify which alerts should feed this IM service. For example, `service equals payments` to route every payments alert into the payments IM service.
+3. Add **matchers** that identify which alerts should feed this IM service, e.g. `service equals payments` to route every payments alert to the payments IM service.
 
-4. Pick **group-by** keys (e.g. `service`, `env`) so related alerts fold into a single notifiable group.
+4. Select **group-by** keys (e.g. `service`, `env`) so related alerts fold into a single notifiable group.
 
-5. Pick the **KloudMate Incidents channel** you created in Step 1 as a destination.
+5. Select the **KloudMate Incidents channel** you created in Step 1 as a destination.
 
 6. Optionally enable **Auto-RCA** if you want KloudMate's AI investigator to attach a summary to the incident automatically.
 
@@ -74,7 +74,7 @@ Things to check:
 
 ## Migrating from the older flow
 
-If you used to wire this up via **Webhook channel + Notification Policy with Alarm condition**, the upgrade migrated each policy to a routing rule. You don't need to recreate anything — but the recommended path going forward is the KloudMate Incidents channel, not a raw webhook, because:
+If you used to wire this up via **Webhook channel + Notification Policy with Alarm condition**, the upgrade migrated each policy to a routing rule. No recreation is required — but the recommended path going forward is the KloudMate Incidents channel, not a raw webhook, because:
 
 - KloudMate Incidents channels carry HMAC signing automatically.
 - The KloudMate Incidents receiver knows how to dedupe against existing incidents and append RCA summaries when they arrive late.

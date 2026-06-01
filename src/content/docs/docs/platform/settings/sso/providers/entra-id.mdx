@@ -58,7 +58,7 @@ Click **Add connection**.
 
 ### Email claim note
 
-Entra often omits the `email` claim. KloudMate falls back to `preferred_username` / `upn`, which works for most users — but to be safe, make sure each user has a mailbox, or add the optional **email** claim to the app's token configuration:
+Entra often omits the `email` claim. KloudMate falls back to `preferred_username` / `upn`, which works for most users — to ensure reliability, make sure each user has a mailbox, or add the optional **email** claim to the app's token configuration:
 
 1. Open **Token configuration → Add optional claim**.
 2. Choose **ID** as the token type, select **email**, and save.
@@ -90,4 +90,4 @@ In the enterprise app, open **Attributes & Claims** and confirm the **Unique Use
 2. Choose a [provisioning mode](../../provisioning-and-enforcement/).
 3. Test sign-in with a work email on a verified domain via **Sign in with SSO**.
 
-Stuck on an issuer or email error? See [Troubleshooting](../../troubleshooting/).
+For issuer or email errors, see [Troubleshooting](../../troubleshooting/).

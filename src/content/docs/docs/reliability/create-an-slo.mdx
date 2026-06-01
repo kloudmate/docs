@@ -14,7 +14,7 @@ Workspace **admin** is required. Non-admins don't see the Create SLO button.
 
 ## Where to start the wizard
 
-Three entry points lead to the same wizard at `/<workspaceId>/slos/create`:
+Four entry points lead to the same wizard at `/<workspaceId>/slos/create`:
 
 - **Reliability Overview → Create SLO** (top-right).
 - **Reliability Overview → Quick-start → Create an SLO** card.
@@ -65,7 +65,7 @@ For APM, log-based, and custom-metric kinds, the service-name, metric-name, seve
 
 5. **Enabled** toggle defaults on. Leave it off to save the SLO without starting evaluations.
 
-6. Watch the **compliance preview card** at the bottom. Once all required fields are filled, KloudMate runs a live preview about 800ms after your last keystroke and shows *"If you save this SLO, it would currently be at X%"* along with the would-be error budget and a *"Would breach"* chip if applicable.
+6. Watch the **compliance preview card** at the bottom. Once all required fields are filled, KloudMate runs a live preview about 800ms after your last keystroke and shows e.g. *"If you save this SLO, it would currently be at X%"* along with the would-be error budget and a *"Would breach"* chip if applicable.
 
 7. Click **Save**. KloudMate creates the SLO and redirects you to its detail page.
 </Steps>
@@ -76,7 +76,7 @@ The Edit form uses the same layout as Create, but:
 
 - All steps are open simultaneously (not stepwise gated).
 - The **service is locked** — you can't reassign an SLO to a different service.
-- The **SLI kind is locked** — changing the kind means a different SLI; an info banner suggests creating a new SLO instead.
+- The **SLI kind is locked** — changing the kind would mean a different SLI; an info banner suggests creating a new SLO instead.
 - The compliance preview is hidden (the SLO has real evaluations now).
 - Save only writes the fields that actually changed.
 
@@ -84,7 +84,7 @@ You can reach Edit from the SLO detail page header or via the row dropdown on th
 
 ## Deleting an SLO
 
-The Delete confirmation marks the SLO as **soft-deleted** — it disappears from the list, but its data is preserved. Any burn-rate alerts on the SLO are automatically disabled (their config is kept), so an undelete later restores them intact.
+The Delete confirmation marks the SLO as **soft-deleted** — it disappears from the list, but its data is preserved. Any burn-rate alerts on the SLO are automatically disabled (their configuration is kept), so restoring the SLO later brings them back intact.
 
 ## Related
 

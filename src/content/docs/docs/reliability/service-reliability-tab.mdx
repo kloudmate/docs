@@ -26,7 +26,7 @@ Screenshot pending — service detail page with the Reliability tab active and a
 
 When the service has at least one SLO, a small chip appears in the page header next to the existing labels:
 
-- `N SLOs · Y% min compliance` — healthy.
+- e.g. `N SLOs · Y% min compliance` — healthy.
 - `N SLOs · M breached` — red, when at least one is breached.
 
 Clicking the chip jumps to the Reliability tab. The chip is **only rendered when SLOs exist** — services without any keep the header clean.
@@ -48,7 +48,7 @@ Each linked SLO shows as a card:
 
 Clicking a card opens the SLO detail page.
 
-Matching is **service-only** in v1 — every incident-based SLO on the affected service appears, even if the SLO's severity / metadata filters might exclude this specific incident. Slight over-reporting is the deliberate trade-off; re-implementing the SLO evaluator in the browser would be fragile.
+Matching is **service-only** in v1 — every incident-based SLO on the affected service appears, even if the SLO's severity / metadata filters might exclude this specific incident. Slight over-reporting is the deliberate trade-off; re-evaluating SLO logic in the browser would be fragile.
 
 ## Alert detail — Define an SLO
 
@@ -59,7 +59,7 @@ Screenshot pending — alert detail page header showing the Define an SLO CTA ne
 :::
 ![Alert detail Define an SLO CTA](../_placeholders/screenshot-placeholder.png)
 
-The CTA is a discovery signal — *"this alert exists; consider an SLO covering the same condition."* It does **not** auto-prefill the wizard because alert configurations don't map cleanly to SLI / target / window choices.
+The CTA is a discovery prompt — consider defining an SLO covering the same condition as this alert. It does **not** auto-prefill the wizard because alert configurations don't map cleanly to SLI / target / window choices.
 
 ## Related
 

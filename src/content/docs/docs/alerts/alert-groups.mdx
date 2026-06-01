@@ -19,7 +19,7 @@ Screenshot pending — the Alert groups list with the State toggle (All / Open /
 :::
 ![Alert Groups list](../_placeholders/screenshot-placeholder.png)
 
-Columns: **Group** (title + a few label chips), **State** (Open / Resolved), **Signals**, **Opened**, **Last signal**, and an investigation indicator when [Auto-RCA](../auto-rca/) ran.
+Columns: **Group** (title + label chips), **State** (Open / Resolved), **Signals**, **Opened**, **Last signal**, and an investigation indicator when [Auto-RCA](../auto-rca/) ran.
 
 Filters across the top:
 
@@ -33,7 +33,7 @@ Severity isn't a filter on the list — it lives on the per-instance signals ins
 
 A group carries:
 
-- **Title** — set by the first signal that opened the group. **Immutable** after that, even if a higher-severity signal joins later. A lock icon next to the title makes this obvious; hovering it reads *"Set by first signal — cannot be changed."*
+- **Title** — set by the first signal that opened the group. **Immutable** after that, even if a higher-severity signal joins later. A lock icon next to the title indicates this; hovering it reads *"Set by first signal — cannot be changed."*
 - **State** — `Open` while at least one underlying signal is firing; `Resolved` once everything quiets.
 - **Labels** — the keys you grouped by on the routing rule, derived from the signals that joined the group.
 - **Signal count** — total signals attached to the group so far.
@@ -81,9 +81,9 @@ The **Firing instances** panel is the dominant body section. It's a table of the
   - **Instance labels** — the labels that distinguish this instance from siblings (common labels are stripped out).
   - **Severity** — the per-instance severity, if the signal carries one.
   - **Since** — how long this instance has been in its current state.
-- A summary chip above the table reads, e.g., *"7 unique instances · 4 firing, 3 resolved"*.
+- A summary chip above the table reads, e.g. *"7 unique instances · 4 firing, 3 resolved"*.
 
-Use this panel to skim what's actually broken inside the group at a glance — service A's `prod` and `staging` are firing, while `dev` already recovered.
+Use this panel to see what's firing inside the group at a glance — for example, service A's `prod` and `staging` are firing while `dev` has already recovered.
 
 ### Attached investigation
 
@@ -103,7 +103,7 @@ See [Auto-RCA](../auto-rca/) for how this gets created.
 
 ## When a group resolves
 
-KloudMate marks a group `Resolved` once every underlying signal has resolved and a short flap-grace period has elapsed (a few minutes — long enough to absorb signals that flap rapidly without prematurely closing the group). Resolved groups stay in the list under the **Resolved** filter and remain searchable indefinitely.
+KloudMate marks a group `Resolved` once every underlying signal has resolved and a short flap-grace period has elapsed (a few minutes — long enough to absorb signals that flap rapidly without closing the group prematurely). Resolved groups stay in the list under the **Resolved** filter and remain searchable indefinitely.
 
 ## Related
 
