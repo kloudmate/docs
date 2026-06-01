@@ -2,7 +2,7 @@
 title: "Integrate with KloudMate Alerts"
 description: "Open Incident Management incidents from KloudMate alerts using a KloudMate Incidents notification channel and a routing rule."
 sidebar:
-  label: "Integrate with KloudMate Alerts"
+  label: "KloudMate Alerts"
   order: 3
 draft: true
 ---
@@ -12,6 +12,10 @@ import { Steps } from '@astrojs/starlight/components';
 To open an Incident Management incident whenever an alert fires, you wire two things together: a **KloudMate Incidents** notification channel (which bridges KloudMate alerts into the IM service) and a **Routing Rule** (which decides which alerts feed the channel).
 
 This replaces the older "webhook channel + notification policy with Alarm condition" flow. The KloudMate Incidents channel handles the bridge plumbing for you; routing rules give you label-level control over which alerts trigger which IM services.
+
+:::note
+The **Routing Rule** on this page is an [Alerts routing rule](../../alerts/routing-rules/) — it routes alert *notifications* to channels. Don't confuse it with [Incident Management → Routing Rules](../../routing-rules/), which decides how an alert becomes an incident once it has reached IM.
+:::
 
 ## Prerequisites
 
@@ -82,7 +86,8 @@ If you used to wire this up via **Webhook channel + Notification Policy with Ala
 
 ## Related
 
-- [Routing Rules](../../alerts/routing-rules/) — the rule editor.
+- [Alerts Routing Rules](../../alerts/routing-rules/) — the rule editor used here (routes notifications).
+- [IM Routing Rules](../../routing-rules/) — the different feature that turns alerts into incidents.
 - [Alert Groups](../../alerts/alert-groups/) — what gets routed.
 - [Notification Channels](../../platform/settings/notification-channels/#kloudmate-incidents) — KloudMate Incidents channel setup.
 - [IM Services](../services/) — the destination side.

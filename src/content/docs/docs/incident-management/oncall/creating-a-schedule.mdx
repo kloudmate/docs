@@ -1,0 +1,87 @@
+---
+title: "Create an On-Call Schedule"
+description: "Set up your first on-call schedule: name it, pick a timezone, and add a rotating layer of participants."
+sidebar:
+  label: "Create a Schedule"
+  order: 2
+---
+
+import { Steps } from '@astrojs/starlight/components';
+
+The fastest way to understand on-call schedules is to build the common one: a single rotation that hands the pager between a few people every week. This page walks that end to end, then covers each field so you can adjust it.
+
+:::note[Availability]
+On-Call Schedules are a paid Incident Management feature. If you don't see **On-Call Schedules** in the Incident Management navigation, your plan doesn't include it yet — contact your account team to turn it on.
+:::
+
+## Create a schedule
+
+<Steps>
+1. Open **Incident Management → On-Call Schedules** and click **Create schedule**.
+
+2. Give the schedule a **name** that says what it covers — "Payments primary", not "Schedule 1".
+
+3. Pick a **timezone**. Every handoff time, restriction window, and start date in this schedule is computed here, so choose the team's working timezone rather than your own. The default is **UTC**.
+
+4. Add a **layer**. A new layer starts as a **weekly** rotation that hands off at **09:00** with today as its start date — the defaults for the common case.
+
+5. Add **participants** in the order they should take the pager. Order matters: the first person covers the first shift, the second covers the next, and so on. Reordering them later changes who's on call when.
+
+6. Check the **rotation preview**. It renders a calendar of upcoming shifts so you can confirm the handoffs land where you expect before saving.
+
+7. Click **Save**.
+</Steps>
+
+:::note[Placeholder image]
+Screenshot pending — the create-schedule form with the name and timezone fields and a first layer.
+:::
+![Create on-call schedule form](../../_placeholders/screenshot-placeholder.png)
+
+## Example: a weekly rotation across three people
+
+This is the 80% case — one layer, weekly handoff every Monday at 09:00, three participants:
+
+| Field | Value |
+|---|---|
+| Rotation type | Weekly |
+| Handoff time | 09:00 |
+| Start date | A **Monday** (see the gotcha below) |
+| Participants (in order) | Alice, Bob, Carol |
+
+Alice covers this week. Bob takes over next Monday at 09:00, Carol the Monday after, then it loops back to Alice. The handoff always happens at 09:00 in the schedule's timezone.
+
+:::caution[A weekly handoff lands on the start date's weekday]
+A weekly rotation hands off on whatever weekday the **start date** falls on. To hand off on Mondays, pick a Monday as the start date. Set it to a Wednesday and the pager changes hands every Wednesday instead.
+:::
+
+## Layer field reference
+
+Every layer has the same fields. The defaults below are what a new layer ships with.
+
+| Field | Values | Default | Notes |
+|---|---|---|---|
+| Rotation type | Daily, Weekly, Custom | Weekly | How often the pager changes hands. |
+| Rotation length | 1–365 days | 7 (weekly) | Editable only for **Custom**; daily is fixed at 1 day, weekly at 7. |
+| Handoff time | HH:MM | 09:00 | The time of day the shift changes, in the schedule's timezone. |
+| Start date | YYYY-MM-DD | Today | The first shift's anchor. For a weekly rotation, its weekday is the handoff day. |
+| Restriction | None, Time of day, Day of week | None | Limits when the layer is active. See [Layers and restrictions](../layers-and-restrictions/). |
+| Participants | Ordered list of users | — | Shift order follows this list. |
+
+:::note[Placeholder image]
+Screenshot pending — the layer editor with the rotation type, handoff time, start date, and ordered participant list.
+:::
+![Layer editor with rotation settings](../../_placeholders/screenshot-placeholder.png)
+
+## Read the rotation preview
+
+The preview is the quickest check that a schedule does what you meant. It lays out who's on call across the coming weeks, including the exact handoff moments. If a handoff lands on the wrong day or the wrong person leads, fix the start date or participant order and watch the preview update before you save.
+
+:::note[Placeholder image]
+Screenshot pending — the rotation preview calendar showing several upcoming shifts and their handoff boundaries.
+:::
+![Rotation preview calendar](../../_placeholders/screenshot-placeholder.png)
+
+## Next
+
+- [Layers and restrictions](../layers-and-restrictions/) — add a second layer or limit a layer to business hours.
+- [Overrides](../overrides/) — hand off temporarily for a vacation or a swap.

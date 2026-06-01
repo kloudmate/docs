@@ -1,0 +1,61 @@
+---
+title: "On-Call Schedules"
+description: "Build rotations that decide who gets paged at any moment, using layers, time restrictions, and overrides."
+sidebar:
+  label: "Overview"
+  order: 1
+---
+
+On-call schedules decide who gets paged when an incident needs a person. Rather than wiring a specific name into an escalation policy, you point the policy — or a [routing rule](../routing-rules/) — at a schedule, and KloudMate resolves it to whoever is on call at that exact moment.
+
+:::note[Availability]
+On-Call Schedules are a paid Incident Management feature. If **On-Call Schedules** isn't in your Incident Management navigation, your plan doesn't include it yet — contact your account team to turn it on.
+:::
+
+## How a schedule decides who's on call
+
+A schedule is built from a few nested pieces. Once the mental model clicks, every other page here falls into place.
+
+- **Schedule** — a named container bound to one **timezone**. Every time below (handoff times, restriction windows, start dates) is computed in that timezone, so set it deliberately.
+- **Layer** — an ordered list of **participants** that rotates on its own cadence. A schedule can stack several layers on top of each other.
+- **Rotation** — the cadence a layer hands off on: **daily**, **weekly**, or a **custom** length of 1–365 days. The active participant advances at the layer's **handoff time**, starting from its **start date**.
+- **Restriction** — an optional window that limits when a layer is active: none, time-of-day, or day-of-week. Outside its windows, a layer steps aside and the next layer down takes over.
+- **Override** — a one-off swap that replaces whoever would be on call for a specific window, with an optional reason.
+
+### Resolution order
+
+When KloudMate needs to page someone, it resolves the schedule in a strict order. Knowing this order is the difference between a schedule that pages the right person and one that surprises you:
+
+1. **Override** — if an override covers the moment, its user is on call. When two overrides overlap, the one created most recently wins.
+2. **Layers, top to bottom** — with no override, the **highest layer that has an active participant** wins. A layer is active when its rotation has started and the moment falls inside its restriction windows. A layer with no restriction is always active.
+3. **Nobody** — if no override applies and every layer is either not yet started or restricted out, no one is on call.
+
+The most common surprise is expecting a lower layer to be ignored whenever a higher layer exists. It isn't. A lower layer takes over exactly where the layer above it is restricted out or has no one rostered — which is what makes "business hours primary, 24/7 backup" work. See [Layers and restrictions](./layers-and-restrictions/).
+
+:::caution
+If every layer is restricted out and no override covers the moment, **no one is on call** — and an escalation step that pages that schedule has nobody to reach. For any schedule an escalation policy depends on, keep one always-on (no-restriction) layer at the bottom as a catch-all.
+:::
+
+## See who's on call now
+
+The schedules list shows each schedule with the person on call right now and a **handoff countdown** — "Handoff in 5h", "Handoff in 2d" — so you can tell at a glance who's holding the pager and when it changes hands.
+
+:::note[Placeholder image]
+Screenshot pending — the On-Call Schedules list with each schedule's current on-call person and handoff countdown.
+:::
+![On-Call Schedules list showing who is on call now](../../_placeholders/screenshot-placeholder.png)
+
+## How schedules connect to incidents
+
+A schedule doesn't page anyone on its own. It becomes useful when something targets it:
+
+- An **escalation policy** step can target a schedule instead of a named user. See [Escalation Policies](../escalation-policy/).
+- A **routing rule** can notify one or more schedules when an alert matches. See [Routing Rules](../routing-rules/).
+
+In both cases the schedule is resolved *at notification time* — KloudMate looks up who's on call at that instant and pages them through their notify methods (email, SMS, or voice). Reorder a rotation or add an override a minute before an incident fires, and the new result is what pages.
+
+## In this section
+
+- [Create a schedule](./creating-a-schedule/) — the create flow and a simple weekly rotation.
+- [Layers and restrictions](./layers-and-restrictions/) — stack layers and limit them to time windows for follow-the-sun and business-hours coverage.
+- [Overrides](./overrides/) — cover a vacation or a one-off swap without touching the rotation.

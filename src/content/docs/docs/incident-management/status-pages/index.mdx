@@ -1,0 +1,84 @@
+---
+title: "Status Pages"
+description: "Publish a branded status page so customers can see component health, active incidents, and 90-day uptime history."
+sidebar:
+  label: "Overview"
+  order: 1
+---
+
+import { Steps } from '@astrojs/starlight/components';
+
+A status page tells your customers what's working and what isn't, without them opening a ticket. You publish component health, active incidents, and uptime history at a public URL; when something breaks, you post updates there instead of answering the same question a hundred times.
+
+:::note[Availability]
+Status Pages are a paid Incident Management feature. If you don't see **Status Pages** in the Incident Management navigation, your plan doesn't include it yet — contact your account team to turn it on.
+:::
+
+## What visitors see
+
+A published status page shows:
+
+- An **overall status banner** — Operational, Degraded Performance, Partial Outage, or Major Outage — derived from active incidents and component health.
+- **Components**, optionally grouped, each with a **90-day uptime strip**. Hovering a day shows its status, duration, and any related incidents.
+- **Active incidents**, newest update first.
+- A **history** view for browsing past months.
+- **RSS and Atom feeds** so people can subscribe to changes.
+
+:::note[Placeholder image]
+Screenshot pending — the public status page with the overall banner, grouped components with uptime strips, and an active incident.
+:::
+![Public status page](../../_placeholders/screenshot-placeholder.png)
+
+## The editor
+
+You manage everything from one editor with three tabs:
+
+- **Components** — what the page reports on.
+- **Incidents** — what you post during an outage. See [Post incidents and updates](./posting-incidents/).
+- **Settings** — branding, the public URL, and a custom domain. See [Branding and custom domain](./branding-and-custom-domain/).
+
+## Create a status page
+
+<Steps>
+1. Open **Incident Management → Status Pages** and click **Create**.
+
+2. Enter a **name** — the title visitors see.
+
+3. Set a **slug**. It becomes part of the default public URL, so use lowercase letters, numbers, and hyphens (for example `acme-status`).
+
+4. Add an optional **description** shown under the title.
+
+5. Pick a **primary color** for the page's accent. The default is `#1453ff`.
+
+6. Save. The page starts as a **draft** — only you can see it until you publish.
+</Steps>
+
+## Add components
+
+Components are the services or features your page reports on — "API", "Dashboard", "Webhooks". For each component you set:
+
+- **Name** — what visitors see.
+- **Group** *(optional)* — components with the same group label are visually grouped on the page.
+- **Linked service** *(optional)* — link a component to an [IM service](../services/) and its status tracks that service's health automatically, so you don't update it by hand.
+- **Display order** — reorder components to control how they stack on the page.
+
+A component's status is one of **Operational**, **Degraded**, **Partial Outage**, or **Major Outage**. (On the public page, "Degraded" reads as "Degraded Performance".)
+
+:::note[Placeholder image]
+Screenshot pending — the editor's Components tab with a few components, one grouped and one linked to a service.
+:::
+![Status page editor Components tab](../../_placeholders/screenshot-placeholder.png)
+
+## Publish and unpublish
+
+A page is either a **draft** (only your team can see it) or **public**. Publish when the components are set up and you're ready for visitors; unpublish to take it private again. Publishing doesn't lock anything — you keep editing components, incidents, and settings while it's live.
+
+:::note[Placeholder image]
+Screenshot pending — the Status Pages list showing each page's health and any active incidents, with draft and public states.
+:::
+![Status Pages list](../../_placeholders/screenshot-placeholder.png)
+
+## In this section
+
+- [Post incidents and updates](./posting-incidents/) — communicate during an outage and publish from an existing incident.
+- [Branding and custom domain](./branding-and-custom-domain/) — logo, colors, and serving the page from your own domain.

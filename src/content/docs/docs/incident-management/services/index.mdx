@@ -1,41 +1,41 @@
 ---
 title: "Services"
-description: "Group incidents by service and manage related integrations and escalation defaults."
+description: "Group incidents by service, and give each an owner and a default escalation policy."
 sidebar:
   label: "Overview"
   order: 1
 ---
 
-Services group incidents by application area, microservice, or operational ownership so your team can manage related incidents together.
+Services group incidents by application area, microservice, or operational ownership, so your team manages related incidents together. Each service has an **owner** and a default **escalation policy**.
+
+To track a service against a reliability target, define a [Service Level Objective (SLO)](../../reliability/) for it.
 
 ![image](./images/services-1.jpeg)
 
-The Services page lists each service with its:
-
-- Name
-- Description
-- Owner
-- Default escalation policy
-- Current health state
+The Services page lists each service with its name, description, owner, default escalation policy, and current health.
 
 :::note
-  A service can have multiple integrations. The escalation policy shown on the service is the default policy used when an integration does not define its own override.
+A service can own several alert sources. The escalation policy on the service is the default — an alert source uses it unless it sets its own override, and a [routing rule](../routing-rules/) can override it per incident.
 :::
 
-## Service Details
+## Service details
 
-Open any service to view:
+Open a service to review:
 
 - Triggered, acknowledged, and resolved incident counts
-- Service owner details
-- Related integrations
+- The service owner
+- The default escalation policy (linked)
+- The service's **alert sources**, listed with their name, description, type, and escalation policy
 
-![image](./images/services-1.png)
+You can add an alert source directly from the service page, and use the settings menu to edit or archive the service.
 
-You can also add an integration directly from the service page.
+:::note[Placeholder image]
+Screenshot pending — a service detail page with its incident counts and the alert sources table (name, description, type, escalation policy).
+:::
+![Service detail with alert sources](../../_placeholders/screenshot-placeholder.png)
 
-![image](./images/services-2.jpeg)
+## Next
 
-Use the settings menu to edit or archive the service.
-
-![image](./images/services-3.jpeg)
+- [Create a service](./creating-services/) — set its owner and escalation policy.
+- [Alert Sources](../integrations/) — what feeds incidents into a service.
+- [SLOs](../../reliability/) — track a service against a reliability target.

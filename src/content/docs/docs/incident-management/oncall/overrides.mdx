@@ -1,0 +1,63 @@
+---
+title: "Overrides"
+description: "Temporarily replace who's on call for a fixed window — to cover a vacation or a one-off swap — without changing the rotation."
+sidebar:
+  label: "Overrides"
+  order: 4
+---
+
+import { Steps } from '@astrojs/starlight/components';
+
+An override hands the pager to a specific person for a fixed window, then gives it back. Reach for one when the rotation is right in general but wrong for a few days — someone's on vacation, swapping a shift, or covering a deploy. The rotation underneath is untouched; the override sits on top of it for its window only.
+
+:::note[Availability]
+On-Call Schedules are a paid Incident Management feature. If you don't see **On-Call Schedules** in the Incident Management navigation, your plan doesn't include it yet — contact your account team to turn it on.
+:::
+
+## Add an override
+
+<Steps>
+1. Open the schedule and start a new **override**.
+
+2. Pick the **user** who'll cover the window.
+
+3. Set the **start** and **end** — both are a date and time, interpreted in the schedule's timezone.
+
+4. Add an optional **reason** ("Bob PTO", "covering deploy") so the rest of the team knows why.
+
+5. Save. The override takes effect immediately for its window.
+</Steps>
+
+An override beats every layer for the time it covers — whoever the rotation would have chosen is set aside until it ends. If two overrides overlap, the one created most recently wins.
+
+:::note[Placeholder image]
+Screenshot pending — the override dialog with a user, start and end times, and a reason.
+:::
+![Add override dialog](../../_placeholders/screenshot-placeholder.png)
+
+## Example: cover a vacation
+
+Bob is on call next week but away Wednesday and Thursday. Cover the gap with one override:
+
+| Field | Value |
+|---|---|
+| User | Dana |
+| Start | Wednesday 00:00 |
+| End | Friday 00:00 |
+| Reason | Bob PTO |
+
+Dana is on call from Wednesday until Friday at 00:00; Bob resumes automatically when the override ends. Nothing about the weekly rotation changes — the next handoff still happens on schedule.
+
+## Remove an override
+
+Plans change. Open the schedule, find the override in its list, and delete it. The rotation underneath resumes for that window as if the override had never existed.
+
+:::note[Placeholder image]
+Screenshot pending — a schedule detail page with its list of active and upcoming overrides.
+:::
+![Schedule detail with overrides list](../../_placeholders/screenshot-placeholder.png)
+
+## Related
+
+- [Create a schedule](../creating-a-schedule/) — the rotation an override sits on top of.
+- [Layers and restrictions](../layers-and-restrictions/) — permanent coverage structure.

@@ -1,6 +1,6 @@
 ---
 title: "Incidents"
-description: "Review incident status, team workload, and assigned incidents in KloudMate."
+description: "Review incident status and team workload, and work the full incident list with filters and bulk actions."
 sidebar:
   label: "Overview"
   order: 1
@@ -15,6 +15,8 @@ Incidents in KloudMate move through three core statuses:
 - **Acknowledged:** A responder has taken ownership and is actively reviewing it.
 - **Resolved:** The incident has been fixed and closed.
 
+Status isn't a field you set directly — it's derived from whether the incident has been acknowledged and resolved. Acknowledging a triggered incident moves it to Acknowledged; resolving it moves it to Resolved. You can reverse either action too (unacknowledge, unresolve).
+
 At the top of the page, you can review:
 
 - Total incident count
@@ -27,3 +29,26 @@ At the top of the page, you can review:
 The **My Incidents** list shows incidents currently assigned to you, including severity, responders, triggered time, and current status.
 
 Use **View All** to open the full incident list across the workspace.
+
+## The incident list
+
+The full list is where you work through incidents at scale. Each row shows the incident's **ID** — its stable key, which links to the detail page — along with the title, service, severity, triggered time, responders, and status.
+
+Filter the list by:
+
+- **Status** — triggered, acknowledged, or resolved.
+- **Service**, **alert source**, and **escalation policy**.
+- **Assigned to me** — only incidents you're a responder on.
+- **Show Resolved** — include resolved incidents, which are hidden by default.
+
+You can also act in bulk: select several incidents and acknowledge, resolve, or change the severity of all of them at once — handy when one root cause spawned a wave of incidents.
+
+:::note[Placeholder image]
+Screenshot pending — the incident list with the bulk-action toolbar and the service / alert source / escalation policy filters.
+:::
+![Incident list with filters and bulk actions](../../_placeholders/screenshot-placeholder.png)
+
+## Related
+
+- [Incident Details](./incident-details/) — the activity timeline, responders, and status actions.
+- [Services](../services/) · [Alert Sources](../integrations/) · [Escalation Policies](../escalation-policy/) — what the list filters on.

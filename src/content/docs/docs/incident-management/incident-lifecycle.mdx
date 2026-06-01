@@ -1,58 +1,75 @@
 ---
 title: "Incident Lifecycle"
-description: "Understand how incidents move from alert trigger to acknowledgment, escalation, and resolution."
+description: "Understand how incidents move from alert trigger through routing, on-call paging, escalation, and resolution."
 sidebar:
   label: "Incident Lifecycle"
   order: 3
 ---
-An incident lifecycle begins when an alert or event triggers an incident and ends when that incident is resolved.
+An incident's life begins when an alert triggers it and ends when someone resolves it. In between, KloudMate moves it through a coordinated flow that pulls in alert sources, routing rules, services, escalation policies, and on-call schedules.
 
-In KloudMate, incidents move through a coordinated flow that combines alerts, integrations, services, and escalation policies.
+:::note[Placeholder image]
+Screenshot pending — the updated incident pipeline diagram: alert source → routing rule → incident / service → escalation policy → on-call → resolution.
+:::
+![Incident lifecycle pipeline](../_placeholders/screenshot-placeholder.png)
 
-![image](./images/incident-lifecycle-1.jpg)
+## Alert
 
-## Alerts
+An alert fires when a monitored condition or threshold is met. It's the starting signal for an incident.
 
-Alerts are generated when monitored conditions or thresholds are met. They act as the starting signal for incident creation.
+## Alert source
 
-## Integrations
+An [alert source](../integrations/) receives alerts from an external system — KloudMate alerts, CloudWatch, or a generic webhook — and maps each payload into incident fields. Every alert source belongs to a **service** and can set a default **escalation policy**.
 
-Integrations receive alerts from external systems and route them into KloudMate Incident Management.
+## Routing rule
 
-Important rules:
+Before an incident opens, the alert runs through your [routing rules](../routing-rules/). A matching rule decides:
 
-- Each integration belongs to a service
-- Each integration can have one escalation policy
-- If an integration does not define its own escalation policy, it inherits the default policy from its service
+- which **service** the incident opens against,
+- which **escalation policy** pages,
+- the **severity**,
+- whether to **suppress** the alert entirely, and
+- whether to **add responders** or **notify on-call schedules**.
 
-## Incidents
+This is where raw alert traffic becomes the right incident — or gets dropped before it pages anyone.
 
-An incident is created when an integrated alert is triggered and requires operational attention.
+### Where routing rules fit
 
-## Services
+Routing rules sit between the alert source and the incident. If no rule matches, the incident inherits its service and escalation policy from the alert source and service defaults, so routing rules are an optional layer of control rather than a requirement.
 
-Services group related incidents together by microservice, application area, or ownership boundary.
+## Incident
 
-Each service:
+Unless a rule suppresses it, an incident is created and needs operational attention. It records its service, source, severity, and a full activity timeline. See [Incidents](../incidents/).
 
-- Has a default escalation policy
-- Can contain multiple integrations
-- Can allow an integration to override the default escalation policy
+## Service
 
-## Escalation Policies
+[Services](../services/) group related incidents by microservice, application area, or ownership. Each service has a default escalation policy and can own multiple alert sources.
 
-An escalation policy defines who should be notified and how the incident response should progress if the incident is not acknowledged in time.
+## Escalation policy
 
-## Escalation Steps
+An [escalation policy](../escalation-policy/) defines who is notified and how the response progresses if no one acknowledges in time. A policy waits an initial delay, then works through its steps; if nobody acknowledges, it can repeat from the top.
 
-Escalation steps form the escalation chain inside a policy.
+## Escalation steps
 
-When an incident reaches a responder set:
+Each step notifies one or more recipients — users, on-call schedules, or Slack channels:
 
-- If the incident is acknowledged or resolved before the escalation timeout, the workflow stops at that step
-- If the incident is not acknowledged in time, the next escalation step is triggered
+- If the incident is acknowledged or resolved before the step's timer elapses, the policy stops there.
+- If not, the next step fires.
+
+## On-call resolution
+
+When a step targets an [on-call schedule](../oncall/) instead of a named person, KloudMate resolves the schedule at that exact moment — checking overrides, layers, and restrictions — and pages whoever is on call right then.
+
+### Where on-call fits
+
+On-call schedules don't page anyone on their own. They're a target an escalation step (or a routing rule) points at, resolved to a real person only when the notification needs to go out. That late resolution is why a last-minute override or rotation change still takes effect.
+
+## Resolution
+
+The incident is resolved when a responder marks it resolved — directly, or through Slack ChatOps. While you respond, you can [publish the incident to a status page](../status-pages/posting-incidents/) to keep customers informed.
 
 ## Related Resources
 
 - [What Is Incident Management?](../what-is-incident-management/)
+- [Routing Rules](../routing-rules/)
 - [Escalation Policies](../escalation-policy/)
+- [On-Call Schedules](../oncall/)

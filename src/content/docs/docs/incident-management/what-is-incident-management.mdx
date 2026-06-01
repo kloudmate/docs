@@ -5,48 +5,76 @@ sidebar:
   label: "What Is Incident Management?"
   order: 2
 ---
-An incident is any event or issue that negatively affects services, application workflows, end users, or customers.
+An incident is any event or issue that negatively affects your services, application workflows, end users, or customers.
 
-KloudMate Incident Management helps teams detect, assign, escalate, and resolve incidents within a unified workflow.
+KloudMate Incident Management gives your team one place to detect, route, assign, escalate, and resolve those incidents — from the moment an alert fires to the update you post for customers.
 
-## What the Module Covers
+## What the module covers
 
-Incident Management in KloudMate helps your team:
+Incident Management helps your team:
 
-- Detect and track active incidents
-- Assign incidents to the right service and responders
-- Route alerts through integrations
-- Apply escalation rules automatically
-- Collaborate on investigation and resolution
+- Detect and track active incidents in one view.
+- Route incoming alerts to the right service, severity, and escalation policy automatically.
+- Page the people on call through layered schedules.
+- Escalate step by step until someone acknowledges.
+- Keep customers informed with a public status page.
 
-## Key Components
+## How a signal becomes a resolved incident
+
+A monitored condition trips an alert, and from there it follows a predictable path:
+
+1. An **alert source** receives the alert — from KloudMate alerts, CloudWatch, or a generic webhook.
+2. A **routing rule** decides which service the incident opens against, which escalation policy pages, and what severity it carries. A rule can also suppress noise before it becomes an incident at all.
+3. The **incident** opens on its **service**.
+4. The service's **escalation policy** notifies responders step by step until someone acknowledges.
+5. When a step targets an **on-call schedule**, KloudMate resolves it to whoever is on call at that moment and pages them.
+6. Once you're responding, you can **publish the incident to a status page** to keep customers in the loop.
+
+Routing rules and status pages are optional, but this is the backbone every incident moves along.
+
+## Key components
 
 ![image](./images/what-is-incident-management_-1.jpeg)
 
 ### Overview
 
-The overview page gives you a real-time snapshot of incident counts, statuses, MTTA, and MTTR.
+A real-time snapshot of incident counts, statuses, MTTA, and MTTR.
 
 ### Incidents
 
-Incidents are the core records your team acknowledges, investigates, and resolves.
+The core records your team acknowledges, investigates, and resolves. Each one carries an activity timeline of every status change and notification. See [Incidents](../incidents/).
 
 ### Services
 
-Services group incidents by application area, microservice, or functional ownership.
+Services group incidents by application area or ownership. Each carries an owner and a default escalation policy. See [Services](../services/).
 
-### Integrations
+### Alert Sources
 
-Integrations receive alerts from KloudMate, CloudWatch, webhooks, and other sources.
+Alert sources receive alerts from KloudMate, CloudWatch, and webhooks, then map each incoming payload to an incident. (Formerly called Integrations.) See [Alert Sources](../integrations/).
 
 ### Escalation Policies
 
-Escalation policies define who gets notified, how they are notified, and when incidents move to the next response step.
+Escalation policies define who gets notified, how, and when an unacknowledged incident moves to the next step. Steps can target users, on-call schedules, and Slack channels. See [Escalation Policies](../escalation-policy/).
+
+### On-Call Schedules
+
+Layered rotations that decide who's on call at any moment, with time restrictions and one-off overrides. Escalation policies and routing rules resolve a schedule to a person at notification time. See [On-Call Schedules](../oncall/).
+
+### Routing Rules
+
+Rules that decide, when an alert reaches IM, which service and escalation policy an incident gets, its severity, and whether to suppress it. See [Routing Rules](../routing-rules/).
+
+### Status Pages
+
+Branded public pages that show component health, active incidents, and uptime history, so customers can self-serve during an outage. See [Status Pages](../status-pages/).
 
 ## Related Resources
 
 - [Incident Lifecycle](../incident-lifecycle/)
 - [Incidents](../incidents/)
 - [Services](../services/)
-- [Integrations](../integrations/)
+- [Alert Sources](../integrations/)
 - [Escalation Policies](../escalation-policy/)
+- [On-Call Schedules](../oncall/)
+- [Routing Rules](../routing-rules/)
+- [Status Pages](../status-pages/)

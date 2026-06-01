@@ -10,6 +10,10 @@ import { Steps } from '@astrojs/starlight/components';
 
 Routing Rules decide which channels get notified for which alerts. Each rule matches firing alerts by their labels, groups matched alerts by the label keys you choose, and dispatches notifications to the destination channels you configure.
 
+:::note[Not the incident routing rules]
+This page routes alert *notifications* to channels. To control how an alert becomes an incident inside Incident Management — its service, escalation policy, and severity — see [Incident Management → Routing Rules](../../incident-management/routing-rules/) instead.
+:::
+
 Routing Rules replace the older **Notification Policies** flow. If you previously routed by tags, your existing policies were migrated to routing rules during upgrade — the matching logic now keys off [labels](../create-alerts/#4-folder-severity-and-labels) instead of free-form tags.
 
 ## Where to find them

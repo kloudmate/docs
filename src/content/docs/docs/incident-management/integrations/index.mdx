@@ -1,32 +1,44 @@
 ---
-title: "Integrations"
-description: "Create and manage incident integrations that route alerts into KloudMate."
+title: "Alert Sources"
+description: "Alert sources receive alerts from KloudMate, CloudWatch, and webhooks, and turn them into incidents."
 sidebar:
   label: "Overview"
   order: 1
 ---
 
-Integrations are endpoints that accept alerts from external systems and turn them into incidents inside KloudMate.
+Alert sources bring alerts into Incident Management. Each one accepts alerts from an external system, maps the incoming payload to incident fields, and opens incidents on a service.
 
-Each integration belongs to a service and can use a dedicated escalation policy or inherit the service default.
+:::note
+Alert sources were previously called **Integrations**. The feature is the same; only the name changed.
+:::
 
-## Integrations Overview
+Every alert source belongs to a **service** (required) and can set a default **escalation policy** (optional). Leave the policy unset and the source inherits the service's default.
 
-Open **Incident Management -> Integrations** to view the list of configured integrations.
+## Alert source types
+
+| Type | Use it for |
+|---|---|
+| **KloudMate Alarm** | Opening incidents from KloudMate alerts. |
+| **CloudWatch Alarm** | Receiving AWS CloudWatch alarms, delivered through SNS. |
+| **Webhook** | Any system that can POST JSON, with your own templates mapping the payload to incident fields. |
+
+KloudMate Alarm and CloudWatch Alarm sources use built-in templates. To integrate them, see [Integrate with KloudMate Alerts](./integrating-with-kloudmate-alerts/) and [Integrate with AWS CloudWatch Alarms](./integrating-with-aws-cloudwatch/). For custom webhooks, see [Add an alert source](./adding-integrations/).
+
+## The alert sources list
+
+Open **Incident Management → Alert Sources** to see every source with its name, description, type, service, and escalation policy.
 
 ![image](./images/integrations-1.jpeg)
 
-Each row shows the integration name, description, type, related service, and assigned escalation policy.
+## Alert source details
 
-:::note
-  Each integration can use only one escalation policy at a time.
-:::
-
-## Integration Details
-
-Open any integration to:
+Open a source to:
 
 - Enable or disable it
-- Copy the integration URL
+- Copy its inbound **source URL** — a unique, hashed endpoint
 - Edit its configuration
 - Archive it
+
+:::note
+Each alert source uses one escalation policy at a time — its own override, or the service default.
+:::
