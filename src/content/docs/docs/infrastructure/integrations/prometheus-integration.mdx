@@ -1,6 +1,8 @@
 ---
 title: "Prometheus Integration"
 description: "Ingest Prometheus metrics into KloudMate through the KloudMate Agent."
+sidebar:
+  order: 1
 ---
 Use this integration when your workloads already expose Prometheus metrics and you want KloudMate to ingest them without changing application code.
 
@@ -8,7 +10,7 @@ KloudMate does not scrape Prometheus directly. Instead, you configure the KloudM
 
 ## Prerequisites
 
-1. Install and run the [KloudMate Agent](../../kloudmate-agent/).
+1. Install and run the [KloudMate Agent](../../../kloudmate-agent/).
 2. Ensure you can access the Prometheus configuration or know the scrape targets you want the Agent to use.
 
 ## Step 1: Define the Prometheus Receiver
@@ -65,11 +67,11 @@ systemctl status kmagent
 
 After the Agent restarts:
 
-- open [Explore](../../visualize-data/explore/)
+- open [Explore](../../../visualize-data/explore/)
 - query one of the scraped Prometheus metrics
 - build dashboards or alarms once the data is visible
 
 ## Related Paths
 
-- [KloudMate Agent](../../kloudmate-agent/)
-- [Explore](../../visualize-data/explore/)
+- [KloudMate Agent](../../../kloudmate-agent/)
+- [Explore](../../../visualize-data/explore/)
