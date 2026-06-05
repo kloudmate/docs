@@ -4,127 +4,116 @@ description: "Frequently Asked Questions about KloudMate observability, billing,
 sidebar:
   order: 20
 ---
+
 # General FAQs
 
 ## What is Observability?
 
-In Cloud Computing, observability is about the use of tools to accumulate, correlate and analyse streams of data from a distributed application and its underlying infrastructure. This provides various [benefits](https://blog.kloudmate.com/top-5-commandments-of-observability-in-2022-7059d19cb6d2), such as effective monitoring, troubleshooting and debugging of an application, allowing you to meet service level agreements (SLAs) and business needs.
+In distributed systems, observability is the practice of using tools to aggregate, correlate, and analyze streams of data from applications and the underlying infrastructure. This provides various [benefits](https://blog.kloudmate.com/top-5-commandments-of-observability-in-2022-7059d19cb6d2), such as effective monitoring, troubleshooting, and debugging of applications — helping teams meet service level agreements (SLAs) and business goals.
 
-Observability comes packed with features such as the ability to log, monitor, & trace different servers, applications, system and data processes, across the lifecycle of the environment.
+Observability relies on the ability to log, monitor, and trace different servers, applications, systems, and data processes across the lifecycle of the environment.
 
 ## Is Observability the same as Monitoring?
 
-Monitoring only helps with regular, pre-configured system health checks, identifying problems and providing on-time, reactive notifications, to fix issues.
+Monitoring helps with regular, pre-configured system health checks — identifying problems and providing reactive notifications to fix issues.
 
-But, an ‘Observable’ system goes a step ahead and provides you with a deeper understanding into the 'Why' of any system. Observability helps explore and understand patterns that have not been pre-defined in the system.
+Observability goes a step further by helping you understand *why* something went wrong. It allows you to explore and understand patterns that haven't been pre-defined, giving you deeper insight into complex, distributed systems.
 
-An [Observability platform for Serverless Apps](https://blog.kloudmate.com/observability-and-its-role-in-overcoming-challenges-in-lambda-monitoring-ce0ef76c5581) like KloudMate, ensures you don’t just Monitor, but Observe the entire lifecycle of transactions, across several systems. All in a simple, intuitive & comprehensive interface.
+KloudMate ensures you don't just monitor, but observe the entire lifecycle of transactions across your stack — all in a single, unified interface.
 
 ## What is KloudMate?
 
-KloudMate is an all-in-one observability platform, that offers a revolutionary new way to gain deep visibility into your AWS resources, attain faster insights, or automate problem identification & real-time alerts. [Click here](../getting-started/what-is-kloudmate/) to learn more.
+KloudMate is an AI-powered observability and agentic SRE-Ops platform. It helps developers identify and troubleshoot issues, optimize application performance, and gain end-to-end visibility into distributed systems and infrastructure.
+
+KloudMate combines AI, eBPF, and OpenTelemetry to provide a single-source-of-truth for logs, metrics, traces, and more — across cloud, on-premise, and hybrid environments. [Click here](../getting-started/what-is-kloudmate/) to learn more.
 
 ## How do I set up KloudMate?
 
-Setting up KloudMate takes less than 5 minutes! [Click here](../aws-integration/account-setup/) to follow a step-by-step process to integrate KloudMate with your AWS environment. 
+Getting started with KloudMate takes just a few minutes. [Follow this guide](../getting-started/setting-up-kloudmate/) to connect your environment and start sending data to KloudMate.
 
 ## Do I need to change my code?
 
-Integration with KloudMate requires no code changes at your end. Just [follow this link](../aws-integration/account-setup/) to see how you can integrate your AWS account(s) with KloudMate in less than 5 minutes!
+Not necessarily. KloudMate supports auto-instrumentation via the KloudMate Agent and eBPF, which requires no code changes. For deeper instrumentation, OpenTelemetry-based manual instrumentation is also available for most languages and frameworks.
 
 ## How is my data stored in KloudMate?
 
-KloudMate works on top of AWS CloudWatch to collect logs and metrics. All the imported data is then encrypted and stored in a dedicated and secure database, hosted on AWS.
+All data ingested into KloudMate is encrypted and stored in a dedicated, secure database hosted on AWS. Data is encrypted both at-rest and in-transit.
 
 ## How can I be sure that my data is secure with KloudMate?
 
-As users of our own product, we understand how important the security and privacy of your data is.
-
-While all data is encrypted both at-rest and in-transit, we also track all the latest security best practices around the globe, promptly upgrade our services to fix new vulnerabilities and constantly make sure we are using the latest technologies available.
-
-We work closely with industry leaders in web application and infrastructure security domains, who perform penetration tests and audits of [kloudmate.com](http://kloudmate.com/)
+KloudMate follows the latest security best practices, promptly upgrades services to address new vulnerabilities, and works with industry leaders in web application and infrastructure security who conduct regular penetration tests and audits of [kloudmate.com](https://www.kloudmate.com). You can review KloudMate's security posture at [kloudmate.com/security](https://www.kloudmate.com/security).
 
 ## How much does KloudMate cost?
 
-We are currently in the Beta phase, inviting select customers to join the platform and share their experience with us.
+KloudMate offers a free plan as well as paid subscription tiers. Visit [kloudmate.com/pricing](https://www.kloudmate.com/pricing) for current plan details and pricing.
 
-Customers who have early access to KloudMate will be able to use it for free during the beta, and receive 6 months worth of usage credits during commercial launch, thereafter. [Click here](https://app.kloudmate.com/signup) to go to the sign up page.
+## What does KloudMate monitor?
 
-Our pricing will remain simple and upfront, with subscription plans that suit all kinds of usage patterns.
+KloudMate supports observability across a wide range of environments and workloads, including:
 
-## Which AWS Serverless services does KloudMate support?
-
-KloudMate currently integrates with over 15 most widely used serverless services, such as AWS Lambda, API Gateway, DynamoB, Kinesis Stream, S3, ECS, EKS, SQS, Firehose and more!
-
-## I don't use Serverless workloads. Is KloudMate for me?
-
-KloudMate is an all-in-one Monitoring and Observability tool. Serverless functionalities aside, KloudMate can be used to manage and monitor your cross-region cloud inventory, performance, cost and billing insights, and much more.
-
-## Is there any overhead or latency added to my Lambdas?
-
-KloudMate does not affect the performance of your lambda functions in any way. It only requires read access and collects all the information from AWS CloudWatch.
+Infrastructure (hosts, VMs, Kubernetes, Docker)
+Cloud services (AWS, Azure, and more)
+Databases (PostgreSQL, MySQL, MongoDB, Redis, OracleDB, MSSQL)
+Applications and microservices (via OpenTelemetry and auto-instrumentation)
+Serverless functions (AWS Lambda and others)
+Real User Monitoring (RUM)
+Synthetic Monitoring
+LLM Observability
+Network Monitoring
 
 ## What programming languages does KloudMate support?
 
-KloudMate supports most of the programming languages that are supported by AWS Lambda, including Node.js, Python, JAVA, C#, Ruby, among others.
+KloudMate supports instrumentation for most major languages via OpenTelemetry, including Node.js, Python, Java, Go, .NET, PHP, Ruby, and React. Auto-instrumentation via eBPF is also available for zero-code observability.
 
-## Do employees using KloudMate also need access to the AWS console?
+## Is there any overhead added to my applications?
 
-The beauty of KloudMate is that you can access crucial information about your Cloud environment, and monitor all your AWS resources across several regions using KloudMate's AWS inventory even if you don't have access to the AWS console.
+KloudMate's eBPF-based observability is non-intrusive and does not affect the performance of your applications. The KloudMate Agent is lightweight and designed for minimal resource overhead.
 
-## How does KloudMate help businesses using AWS?
+## Do team members need access to the cloud console?
 
-KloudMate can prove to be a business critical application for those using the AWS Cloud to deploy their infrastructure and applications. With the help of KloudMate, businesses can improve performance and cost strategies, monitor cloud resources and debug applications hosted on serverless infrastructure, to name a few.
+No. KloudMate provides a unified interface for monitoring your entire environment, regardless of whether individual team members have direct access to your cloud provider's console.
+
+## How does KloudMate help engineering teams?
+
+KloudMate helps teams detect and resolve issues faster, reduce observability costs (by over 60% compared to traditional APM tools), automate diagnosis and triage, and collaborate more effectively — all from a single platform.
 
 ## How do I get technical support from KloudMate?
 
-You can click on the Chat icon on the website (also available within the application), to talk to us in real-time, or [drop us an email](mailto:hello@kloudmate.com) and someone will get back to you in no time.
+You can use the chat icon within the application or website to reach the team in real-time, or [send an email](mailto:hello@kloudmate.com). You can also join the [o11y Lounge Slack community](https://join.slack.com/t/o11y-lounge/shared_invite/zt-zvzq985i-Khwnq2jsm5uLTdBe87gCgw) to connect with the KloudMate team and other users.
 
-Looking for more? Join our [Slack Community](https://kloudmate.slack.com/join/shared_invite/zt-zvzq985i-Khwnq2jsm5uLTdBe87gCgw#/shared-invite/email) to share your experience and interact with the core team members, fellow developers and customers.
+---
 
 # Billing FAQs
 
-## Is there a free plan?
+## Do I need to provide a credit card to sign up for a free trial?
+No. You can start on the Free plan or begin a 14-day Pro trial without a credit card. Billing details are only needed when you decide to continue on a paid plan.
 
-Yes! We want everyone to experience what Observability can do for them. And so, we have a generous free tier that you can instantly [SignUp](https://app.kloudmate.com/signup) for. No credit card needed, no questions asked. Free, for life!
+## How do I sign up for KloudMate?
+Create an account at app.kloudmate.com/signup, then send data using OpenTelemetry, CloudWatch, or one of our integrations. You will start seeing your logs, metrics, and traces within minutes.
 
-## Is the free plan, really free?
+## How does the billing work?
+KloudMate uses purely usage-based pricing. You are billed monthly for the volume of logs and traces you ingest (per GB) and metrics (per million samples), plus any extended data-retention you choose. The Pro plan starts at $99 / month.
 
-The free plan is absolutely free! It offers 1GB of log ingestion, 1 million Lambda invocations, and 3 days of data retention. For most Developers exploring Serverless to deploy applications, this should be good enough, even for the long term.
+## Is pricing per user or per host?
+No. Every plan includes unlimited users, with no per-host or per-agent fees. You pay only for the telemetry you send — logs and traces by volume, and metrics by sample count.
 
-## What are the various 'Usage' factors that a plan comprises of?
+## How does data-retention pricing work?
+Each plan includes a default retention window, and you can extend it. Longer retention for logs and traces raises their storage cost by the multiplier shown in the calculator, so you can trade off how long you keep data against cost. Metrics are billed by sample count, so their retention does not change the price.
 
-There are 3 types of usage associated with all the plans:
+## How do AI credits work?
+KloudMate Assistant runs on credits. A chat message costs 1 credit, and a full investigation costs 2. Every plan includes a monthly allowance — 5 credits on Free and 20 on Pro — and you can buy prepaid credits any time you need more. Enterprise teams can bring their own AI provider key instead of using credits.
 
-- Number of Lambda executions (measured in millions)
-- Log Analytics (measured in GB)
-- Log retention (measured in days)
+## Do you offer annual billing?
+Yes. Annual billing is available at a discount compared with paying monthly. Get in touch and we will set it up for you.
 
-## What does KloudMate consider as an 'Execution'?
+## What payment methods are accepted?
+We accept all major credit and debit cards. Enterprise customers can also pay by invoice — talk to us and we will set that up.
 
-An execution is when Lambda invokes a function successfully, by providing a secure, isolated runtime environment. The environment manages the resources that are required to run your function and complete the task.
+## Can I change plans at any time?
+Yes. You can upgrade, downgrade, or adjust retention whenever you need, and the change is reflected in your usage-based bill. There are no long-term lock-ins on the Free or Pro plans.
 
-## What happens when I reach my usage limits?
+## Can we run KloudMate in our own cloud?
+Yes. KloudMate Infinity runs the full platform inside your own cloud account, deployed and operated by KloudMate, so your telemetry never leaves your network. It is available on Enterprise plans.
 
-If you are on a free account, your usage will be automatically paused (unless upgraded to a higher plan). The limits of the free plan reset every billing cycle, allowing you to resume and continue using the platform.
-
-Our paid plans on the other hand, have an 'overage' component, that you can pay for as you go.
-
-## Can I invite others to join my account?
-
-Yes! The powers of KloudMate's observability tools are best used with multiple eyes looking at the intelligence it offers. Every KloudMate plan allows you to invite unlimited users, colleagues or team members, so you can work together and make informed, collaborative decisions.
-
-## Our usage of Serverless is fairly high. Can we get a customized plan?
-
-Absolutely! Feel free to reach out to our [Customer Success team](mailto:cs@kloudmate.com?subject=Customized%20Plan%20Enquiry) and they'll design something tailored for your usage, in no time!
-
-## There are only monthly and annual subscription plans. We'd like the option to pay quarterly in advance
-We understand certain Enterprises prefer to pay quarterly in advance, for various reasons. Please [reach out to us](mailto:enterprise@kloudmate.com?subject=Customized%20Plan%20Enquiry) and we'll have it taken care of.
-
-## Is there added cost to my AWS bill?
-
-KloudMate uses AWS APIs to gather data from your cloud components. For AWS Lambda function Logs, AWS charges data transferred out of CloudWatch equivalently to data transferred out of an EC2 server. Check it out at AWS CloudWatch pricing. The total cost should represent a small percentage of your total AWS bill. 
-
-For alerts, we use CloudWatch GetMetricData API to fetch metrics to evaluate the alert. You'll be billed based on how many alerts you set and how frequently you've configured to evaluate them.
-
-For other cloud components (SQS, ECS, DynamoDB, etc), the cost will depend on how frequently you determine the polling frequency. Each API request will be billed according to CloudWatch API pricing set by AWS.
+## Our usage is fairly high. Can we get a customized plan?
+Absolutely. For high-volume workloads we offer custom pricing, custom retention, dedicated support, and bring-your-own-key AI on the Enterprise plan. Get in touch and we will tailor a plan to your needs.
