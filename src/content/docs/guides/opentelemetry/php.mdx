@@ -439,6 +439,324 @@ That's it! Zero-code instrumentation means **zero code changes** in your applica
 
 ---
 
+## Laravel
+
+This section provides a dedicated, step-by-step walkthrough for instrumenting a **Laravel** application with OpenTelemetry zero-code instrumentation and sending data to KloudMate.
+
+### Prerequisites
+
+- PHP 8.0+ (PHP 8.2 recommended)
+- [Composer](https://getcomposer.org/)
+- An existing Laravel application
+- KloudMate workspace API key
+
+### Step 1: Create or Use an Existing Laravel App
+
+If you don't have an existing app, create one:
+
+```bash
+composer create-project laravel/laravel my-laravel-app
+cd my-laravel-app
+```
+
+Add a simple test route in `routes/web.php` to generate traffic later:
+
+```php
+<?php
+
+use Illuminate\Support\Facades\Route;
+
+Route::get('/rolldice', function () {
+    return response()->json(['result' => random_int(1, 6)]);
+});
+```
+
+### Step 2: Install the OpenTelemetry PHP Extension
+
+Zero-code instrumentation requires the `opentelemetry` PHP extension.
+
+#### Linux (Ubuntu/Debian)
+
+```bash
+sudo apt-get install php-dev php-pear
+sudo pecl install opentelemetry
+```
+
+#### macOS
+
+```bash
+pecl install opentelemetry
+```
+
+#### Enable the Extension
+
+Add the following line to your `php.ini` file:
+
+```ini
+extension=opentelemetry.so
+```
+
+> **Tip:** Find your `php.ini` location by running `php --ini`.
+
+#### Verify Installation
+
+```bash
+php -m | grep opentelemetry
+```
+
+You should see `opentelemetry` in the output.
+
+### Step 3: Install OpenTelemetry Packages via Composer
+
+Run the following commands in your Laravel project root directory:
+
+```bash
+composer require open-telemetry/opentelemetry-auto-laravel
+composer require open-telemetry/sdk
+composer require open-telemetry/exporter-otlp
+composer require open-telemetry/api
+```
+
+#### What each package does
+
+| Package | Purpose |
+|---------|---------|
+| `open-telemetry/opentelemetry-auto-laravel` | Automatic zero-code instrumentation hooks for Laravel |
+| `open-telemetry/sdk` | OpenTelemetry SDK for trace/metric/log export |
+| `open-telemetry/exporter-otlp` | OTLP protocol exporter to send data to collectors/agents |
+| `open-telemetry/api` | OpenTelemetry API contracts |
+
+### Step 4: Configure Environment Variables
+
+Add the following variables to your Laravel `.env` file:
+
+```ini
+# ============================================
+# OpenTelemetry Configuration
+# ============================================
+
+# Enable auto-instrumentation (REQUIRED)
+OTEL_PHP_AUTOLOAD_ENABLED=true
+
+# Service identification
+OTEL_SERVICE_NAME=my-laravel-app
+OTEL_SERVICE_VERSION=1.0.0
+
+# Exporter configuration
+OTEL_TRACES_EXPORTER=otlp
+OTEL_EXPORTER_OTLP_ENDPOINT=https://otel.kloudmate.com:4318
+OTEL_EXPORTER_OTLP_HEADERS="Authorization=<token>"
+OTEL_EXPORTER_OTLP_PROTOCOL=http/protobuf
+
+# Also export logs and metrics (optional)
+OTEL_LOGS_EXPORTER=otlp
+OTEL_METRICS_EXPORTER=otlp
+
+# Resource attributes
+OTEL_RESOURCE_ATTRIBUTES=deployment.environment=development,host.name=localhost
+```
+
+Replace `<token>` with your KloudMate API key.
+
+#### Important Notes
+
+| Variable | Description |
+|----------|-------------|
+| `OTEL_PHP_AUTOLOAD_ENABLED=true` | **Critical.** Enables the auto-loader to register instrumentations automatically. |
+| `OTEL_SERVICE_NAME` | Name that identifies your application in the observability backend. |
+| `OTEL_EXPORTER_OTLP_ENDPOINT` | URL of your KloudMate OTLP endpoint. |
+| `OTEL_EXPORTER_OTLP_HEADERS` | Your KloudMate API key for authentication. |
+| `OTEL_EXPORTER_OTLP_PROTOCOL` | `http/protobuf` (default) or `grpc`. Must match what your collector supports. |
+
+#### Docker to Host Machine (KM Agent on Host)
+
+If your Laravel app runs in Docker and the KM Agent runs on the host machine, use:
+
+```ini
+OTEL_EXPORTER_OTLP_ENDPOINT=http://host.docker.internal:4318
+```
+
+> **Note:** Ensure your KM Agent is listening on `0.0.0.0` (all interfaces), not just `127.0.0.1`, otherwise the container cannot reach it.
+
+### Step 5: Understanding Zero-Code Instrumentation
+
+The `opentelemetry-auto-laravel` package uses the `opentelemetry` PHP extension to automatically instrument your application **without any code changes**.
+
+#### What gets automatically instrumented
+
+- **HTTP Requests** — Incoming requests to controllers and middleware
+- **Database Queries** — Eloquent and Query Builder operations
+- **Cache Operations** — Redis, Memcached, and file cache calls
+- **Queue Jobs** — Job dispatching and processing (sync, database, redis drivers)
+- **Exceptions & Errors** — Automatic error tracking and stack traces
+- **Outgoing HTTP Requests** — Guzzle HTTP client calls
+
+#### What you do NOT need to do
+
+- No manual span creation
+- No middleware additions
+- No controller modifications
+- No service provider registration
+- No `use` statements or imports
+
+### Step 6: Run the Application
+
+```bash
+php artisan serve
+```
+
+Visit `localhost:8000/rolldice` in your browser. You should see spans on the Traces page in your KloudMate account.
+
+### Step 7: Verify the Integration
+
+#### 1. Confirm the PHP Extension is Active
+
+```bash
+php artisan tinker
+```
+
+Inside Tinker, run:
+
+```php
+echo extension_loaded('opentelemetry') ? 'YES' : 'NO';
+```
+
+Expected output: `YES`
+
+#### 2. Generate Some Traffic
+
+Make requests to your application routes to generate telemetry data.
+
+#### 3. Check Your Observability Backend
+
+- If using **KM Agent** — check the agent logs or the KloudMate dashboard.
+- If using **OTel Collector** — check the collector container/service logs.
+
+You should see traces, spans, and metadata automatically captured from your Laravel app.
+
+### Step 8: Sending Telemetry to an OpenTelemetry Collector
+
+In most production deployments, it's beneficial to use an OpenTelemetry Collector. Follow these steps to configure and run a local collector.
+
+1. Create a file named `otel-collector-config.yaml` in the `/tmp/` directory and save the following configuration:
+
+```yaml
+receivers:
+  otlp:
+    protocols:
+      grpc:
+        endpoint: 0.0.0.0:4317
+
+exporters:
+  debug:
+    verbosity: detailed
+
+  otlphttp:
+    endpoint: https://otel.kloudmate.com:4318
+    headers:
+      Authorization:
+
+processors:
+  batch:
+    send_batch_size: 5000
+    timeout: 10s
+
+service:
+  pipelines:
+    traces:
+      receivers: [otlp]
+      exporters: [debug, otlphttp]
+      processors: [batch]
+
+    metrics:
+      receivers: [otlp]
+      exporters: [debug, otlphttp]
+      processors: [batch]
+
+    logs:
+      receivers: [otlp]
+      exporters: [debug, otlphttp]
+      processors: [batch]
+```
+
+:::note
+The `otlphttp` exporter in the config, along with the KloudMate API key as the `Authorization` header, will send the data from the collector to KloudMate.
+:::
+
+2. Run the following Docker command to start the collector:
+
+```bash
+docker run -p 4317:4317 \
+ -v /tmp/otel-collector-config.yaml:/etc/otel-collector-config.yaml \
+ otel/opentelemetry-collector:latest \
+ --config=/etc/otel-collector-config.yaml
+```
+
+3. Update your application environment variables to point to the local collector:
+
+```bash
+export OTEL_EXPORTER_OTLP_ENDPOINT=http://localhost:4317
+export OTEL_EXPORTER_OTLP_PROTOCOL=grpc
+```
+
+4. Run the application again. By default, it will export traces and metrics over OTLP/gRPC to the collector running on `localhost:4317`.
+
+### Optional: Fine-Tuning & Debugging
+
+#### Disable Specific Instrumentations
+
+If you want to disable Laravel auto-instrumentation:
+
+```ini
+OTEL_PHP_DISABLED_INSTRUMENTATIONS=laravel
+```
+
+#### Switch to gRPC Protocol
+
+```ini
+OTEL_EXPORTER_OTLP_PROTOCOL=grpc
+OTEL_EXPORTER_OTLP_ENDPOINT=https://otel.kloudmate.com:4317
+```
+
+#### Enable Debug Logging
+
+If traces are not appearing, enable SDK debug mode:
+
+```ini
+OTEL_LOG_LEVEL=debug
+```
+
+#### Add Custom Resource Attributes
+
+```ini
+OTEL_RESOURCE_ATTRIBUTES=deployment.environment=production,host.name=prod-server-01,service.namespace=my-org
+```
+
+### Quick Reference: Minimal Configuration
+
+The absolute minimum required to get zero-code instrumentation working with KloudMate:
+
+```ini
+OTEL_PHP_AUTOLOAD_ENABLED=true
+OTEL_SERVICE_NAME=my-laravel-app
+OTEL_EXPORTER_OTLP_ENDPOINT=https://otel.kloudmate.com:4318
+OTEL_EXPORTER_OTLP_HEADERS="Authorization=<token>"
+```
+
+Replace `<token>` with your KloudMate API key.
+
+### Summary
+
+| Step | Action |
+|------|--------|
+| 1 | Install the `opentelemetry` PHP extension via `pecl` |
+| 2 | Install `opentelemetry-auto-laravel` + SDK + Exporter via Composer |
+| 3 | Add `OTEL_*` environment variables to your `.env` file |
+| 4 | Ensure your KloudMate Agent / Collector is running and accessible |
+| 5 | Run your application — instrumentation is fully automatic |
+
+---
+
 *Source URL for the example application:* [Getting Started with OpenTelemetry PHP](https://opentelemetry.io/docs/languages/php/getting-started/)
 
 For more details and advanced configurations, refer to the official OpenTelemetry documentation:
