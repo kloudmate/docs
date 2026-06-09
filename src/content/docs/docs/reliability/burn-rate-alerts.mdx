@@ -21,7 +21,7 @@ Burn-rate alerts live in two places:
 | **Short window in minutes** | Required, positive integer. |
 | **Long window in minutes** | Required, must be greater than short. |
 | **Burn rate threshold** | Required, must be > 1. |
-| **Notification channels** | Multi-select from the workspace's notification channels. |
+| **Notification channels** | Multi-select from the workspace's notification channels — at least one is required. |
 | **Enabled** | Toggle. Disabled alerts show a `Disabled` chip but keep their config. |
 
 ## The four presets
@@ -56,14 +56,13 @@ Screenshot pending — the burn-rate alert form with the four preset buttons (Cr
 
 The workspace-wide page at `/<workspaceId>/slos/alerts` lists every burn-rate alert across every SLO.
 
-Columns: **State** / **Alert** / **SLO** / **Service** / **Channels**.
+Columns: **State** / **Alert** / **SLO** / **Channels**. Each row shows its parent SLO's name and SLI kind — there's no Service column, since most SLOs aren't tied to a service.
 
-Default sort is **firing-first** — currently-firing alerts at the top (longest-firing first), then grouped by SLO. The **Firing for Xh** chip on a row indicates how long the alert has been firing.
+Default sort is **firing-first** — currently-firing alerts at the top. The **State** chip reads *Firing for X*, *Quiet*, or *Disabled*.
 
 Filters:
 
 - **Firing only** toggle. The Overview hub's e.g. *"N alerts firing"* chip deep-links here with this toggle on via `?firing=1`.
-- **Filter by service** (multi-select).
 
 Click any row to open the parent SLO's detail page — alerts are created and edited from there.
 

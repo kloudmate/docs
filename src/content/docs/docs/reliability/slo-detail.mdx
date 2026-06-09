@@ -19,11 +19,11 @@ The page is composed of, top to bottom:
 
 ### Header
 
-Name, service link, SLI kind chip, target / window summary, and a `Disabled` chip if applicable. Admins see **Edit** and **Delete** buttons.
+Name, SLI kind chip, target / window summary, and a `Disabled` chip if applicable. For an **Incident availability** SLO the header also shows a **Service** link (a soft-deleted service still renders, suffixed *"(deleted)"*); every other kind is workspace-level and shows no service. Admins see **Edit** and **Delete** buttons.
 
 ### Window picker
 
-A 5-segment toggle: `1d` / `7d` / `30d` / `90d` / `Calendar month`. The SLO's **default window** is bold and tooltipped as *"refreshed on schedule"*.
+A segmented toggle: `1d` / `7d` / `30d` / `Calendar month`. The SLO's **default window** is bold and tooltipped as *"Default window — refreshed hourly."*
 
 Picking a different window kicks off a **one-off re-evaluation** — the SLO's scheduled evaluations keep using the default. A caption next to the picker reminds you:
 
@@ -34,7 +34,7 @@ e.g. > *Picking a different window checks the SLO once for that window. The defa
 A header strip shows *"Current snapshot"* on the left and *"Last checked X ago"* (or *"Not checked yet"*) on the right. Below it, four metric stats in a responsive grid:
 
 - **Compliance** — large, color-coded percentage. Helper text: *"Share of events that met the SLI. Target X%."*
-- **Error budget left** — formatted with unit (seconds for incident-based, events for everything else). Negative budget renders as e.g. `-1.4h` / `-3.3d` rather than raw seconds.
+- **Error budget left** — how much more you can fail this window before the SLO breaches, in the SLI's unit: a duration for the time-based kinds (incident availability, time slices, synthetic uptime), a count of events for the ratio kinds (the APM kinds and custom metric). A negative (exhausted) budget renders as e.g. `-1.4h` / `-3.3d` rather than raw seconds.
 - **Default window** — e.g. `30d`.
 - **Status** — `Healthy` / `Breached` / `Not evaluated` chip with a one-line helper (e.g. *"On track — within target."* or *"Below target — error budget used up."*).
 

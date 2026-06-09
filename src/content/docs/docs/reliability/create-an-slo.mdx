@@ -1,6 +1,6 @@
 ---
 title: "Create an SLO"
-description: "Walk through the 3-step SLO wizard — anchor on a service, pick an SLI kind, set target and window."
+description: "Walk through the two-step SLO wizard — pick and configure an SLI, then set target and window — with a live compliance preview."
 sidebar:
   order: 3
 draft: true
@@ -8,7 +8,7 @@ draft: true
 
 import { Steps } from '@astrojs/starlight/components';
 
-Creating an SLO is a 3-step wizard. Each step's title carries the picked value as a secondary caption once you fill it in, so you can see your choices at a glance without scrolling.
+Creating an SLO is a **two-step wizard**: pick the signal you want to measure (the SLI) and configure it, then set the target and window. A live preview on the right shows the projected compliance and error budget before you save.
 
 Workspace **admin** is required. Non-admins don't see the Create SLO button.
 
@@ -17,77 +17,77 @@ Workspace **admin** is required. Non-admins don't see the Create SLO button.
 Four entry points lead to the same wizard at `/<workspaceId>/slos/create`:
 
 - **Reliability Overview → Create SLO** (top-right).
-- **Reliability Overview → Quick-start → Create an SLO** card.
-- **Service detail → Reliability tab → Create SLO** (pre-selects the service).
-- **Alert detail → Define an SLO** action (no pre-fill; the alert's query doesn't map cleanly to an SLI).
+- **Reliability Overview → Quick start → Create an SLO** card.
+- **Service detail → Reliability tab → Create SLO** — deep-links with `?service_id=…`, which pre-selects the **Incident availability** kind and prefills that service in the SLI (since the service lives inside the SLI, not on the SLO).
+- **Alert detail → Define an SLO** action — opens the wizard with no prefill.
 
-A page-level **What is a Service Level Objective?** info banner sits above the steps for first-time users, defining the core terms inline.
+A **What is an SLO?** info tooltip sits above the steps for first-time users (create mode only), defining the core terms inline.
 
-## The three steps
+## The two steps
 
 :::note[Placeholder image]
-Screenshot pending — the SLO create wizard with the three steps and the page-level info banner above them, captured on a populated workspace.
+Screenshot pending — the SLO create wizard with the two steps on the left and the live preview rail on the right, captured on a populated workspace.
 :::
 ![SLO create wizard](../_placeholders/screenshot-placeholder.png)
 
-### Step 1 — Anchor on a service
+### Step 1 — Define the SLI
 
-Pick from the workspace's IM services in a single-select dropdown. Every SLO belongs to one service, and that choice is **permanent** — you can edit the target, window, name, and selector later, but not the anchor service.
+Pick the **family** first (a card), then the specific kind:
 
-If you reach the wizard from a service's Reliability tab, the service is pre-selected via the `?service_id=…` query parameter.
+- **By Count** — a ratio of good ÷ total events: APM error rate, APM latency, APM request rate, Custom metric.
+- **By Monitor Uptime** — uptime from incidents or a synthetic monitor: Incident availability, Synthetic uptime.
+- **By Time Slices** — a custom uptime definition over time: Time slices.
 
-### Step 2 — Define the SLI
+After you pick a kind, a short "When to use this" description appears and the kind-specific form renders below. For details on each kind and its fields, see [SLI kinds](./sli-kinds/).
 
-Single-select dropdown with the seven SLI kinds:
+Only **Incident availability** asks for a service — every other kind is workspace-level. The metric and service-name pickers are free-solo, so you can also type a value that doesn't have telemetry yet.
 
-- Incident availability
-- APM latency
-- APM error rate
-- APM request rate
-- APM trace ratio
-- Custom metric (ratio of counts **or** value threshold)
-- Log-based
+When you click **Next**, KloudMate validates the SLI's configuration before advancing, so you can't carry an incomplete selector into the next step.
 
-After picking a kind, a short "When to use this" description appears as helper text, and the kind-specific form renders below. For details on each kind and its fields, see [SLI kinds](./sli-kinds/).
-
-For APM, log-based, and custom-metric kinds, the service-name, metric-name, severity, and attribute pickers suggest values discovered from your workspace's OpenTelemetry telemetry. Pickers are free-solo, so you can also type a value that doesn't have telemetry yet — useful when you're setting up an SLO before the service starts emitting.
-
-### Step 3 — Target and window
+### Step 2 — Target and window
 
 <Steps>
 1. **Name** the SLO (required).
 
-2. Add a **description** (optional).
+2. Set the **target %** — `0–100`, supports decimals (e.g. `99.99`). Defaults to `99.9`.
 
-3. Set the **target %** — `0–100`, supports decimals (e.g. `99.99`).
+3. Add a **description** (optional) — shown on the SLO detail page and in reports.
 
-4. Pick a **default window** — a 5-segment toggle, defaults to `30d`. Options: `1d`, `7d`, `30d`, `90d`, `Calendar month`.
+4. Pick a **default window** — a segmented toggle, defaults to `30d`. Options: `1d`, `7d`, `30d`, `Calendar month`.
 
 5. **Enabled** toggle defaults on. Leave it off to save the SLO without starting evaluations.
 
-6. Watch the **compliance preview card** at the bottom. Once all required fields are filled, KloudMate runs a live preview about 800ms after your last keystroke and shows e.g. *"If you save this SLO, it would currently be at X%"* along with the would-be error budget and a *"Would breach"* chip if applicable.
+6. Watch the **preview** rail (see below) for the projected compliance %, error budget, and a *"Would breach"* chip if applicable.
 
-7. Click **Save**. KloudMate creates the SLO and redirects you to its detail page.
+7. Click **Create SLO**. KloudMate creates the SLO and redirects you to its detail page.
 </Steps>
+
+## The live preview
+
+The right-hand rail shows a **Preview** card labelled *"Not persisted."* Whenever the SLI, target, or window settle (about 800 ms after your last change), KloudMate runs a one-off evaluation and shows:
+
+- The projected **compliance %**, large and color-coded, with an **On track** or **Would breach** chip.
+- The would-be **error budget left**, in the SLI's unit (a duration for time-based kinds, a count for ratio kinds).
+- A **trend chart** when the SLI produces a per-bucket series (today that's Time slices and Synthetic uptime); other kinds show a placeholder until the SLI is evaluated.
+
+If a metric or service has no data over the window, the preview surfaces a non-fatal warning so you can fix the name or filters. The preview never persists anything — it doesn't create snapshots or emit metrics.
 
 ## Editing an SLO
 
-The Edit form uses the same layout as Create, but:
+The Edit form uses the same layout as Create, with both steps open at once. Differences:
 
-- All steps are open simultaneously (not stepwise gated).
-- The **service is locked** — you can't reassign an SLO to a different service.
-- The **SLI kind is locked** — changing the kind would mean a different SLI; an info banner suggests creating a new SLO instead.
-- The compliance preview is hidden (the SLO has real evaluations now).
-- Save only writes the fields that actually changed.
+- The **SLI kind is locked** — changing the kind would mean a different SLI, so an info banner suggests creating a new SLO instead. The rest of the SLI (including the service on an incident-based SLO) is still editable.
+- The **preview still runs**, showing the effect of your *unsaved* edits before you save.
+- **Save only writes the fields you changed.**
 
-You can reach Edit from the SLO detail page header or via the row dropdown on the [SLOs list](./slo-detail/).
+You can reach Edit from the SLO detail page header or via the row menu on the [SLOs list](./slo-detail/).
 
 ## Deleting an SLO
 
-The Delete confirmation marks the SLO as **soft-deleted** — it disappears from the list, but its data is preserved. Any burn-rate alerts on the SLO are automatically disabled (their configuration is kept), so restoring the SLO later brings them back intact.
+The Delete confirmation **soft-deletes** the SLO — it disappears from the list, but its data is preserved and it stops being evaluated on the next tick. Any burn-rate alerts on the SLO are automatically disabled (their configuration is kept), so restoring the SLO later brings them back intact.
 
 ## Related
 
-- [SLI kinds](./sli-kinds/) — the seven SLI types and their fields.
+- [SLI kinds](./sli-kinds/) — the six SLI kinds and their fields.
 - [SLO detail](./slo-detail/) — what you land on after saving.
 - [Burn-rate alerts](./burn-rate-alerts/) — the next thing to set up.

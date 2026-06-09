@@ -1,116 +1,149 @@
 ---
 title: "SLI Kinds"
-description: "The seven SLI kinds KloudMate supports and when to use each."
+description: "The six SLI kinds KloudMate supports — grouped into By Count, By Monitor Uptime, and By Time Slices — and when to use each."
 sidebar:
   order: 4
 draft: true
 ---
 
-Step 2 of the SLO wizard picks the **SLI** — the specific signal you measure compliance against. KloudMate ships seven SLI kinds, each with its own conditional form fields. This page walks through them with a "When to use this" callout and the form fields for each.
+Step 1 of the SLO wizard picks the **SLI** — the specific signal you measure compliance against. KloudMate ships **six** SLI kinds, each with its own conditional form fields. This page walks through them with a "When to use this" callout and the form fields for each.
 
-For the APM, log-based, and custom-metric kinds, the service-name, metric-name, severity, and attribute pickers suggest values discovered from your workspace's OTel telemetry (spans / logs / metrics stores). All pickers are free-solo, so you can type a value that doesn't have telemetry yet.
+## How the kinds are organized
 
-## Incident availability
+The kind picker groups the kinds into three families (the same way Datadog frames its SLO types). Pick a family card first, then the specific kind:
+
+| Family | Reliability measured as | Error budget | Kinds |
+|---|---|---|---|
+| **By Count** | A ratio of good ÷ total events. | A count of events. | APM error rate, APM latency, APM request rate, Custom metric |
+| **By Monitor Uptime** | Uptime from incidents or a synthetic monitor. | A duration (downtime). | Incident availability, Synthetic uptime |
+| **By Time Slices** | The share of time a metric meets a condition. | A duration. | Time slices |
+
+Two things changed in how SLIs are sourced, and they're worth calling out up front:
+
+- **Only Incident availability references a service.** Every other kind is **workspace-level** — it measures a metric or a synthetic monitor, not an Incident-Management service. The service for an incident-based SLO is part of *that SLI's* configuration, not a property of the SLO.
+- **No raw-log or raw-trace SLIs.** KloudMate doesn't scan raw logs or arbitrary traces for SLIs. If you want reliability based on logs or traces, derive a metric from them in your collector and use **Custom metric** or **Time slices**. The APM kinds read pre-aggregated service span-metrics, not raw spans.
+
+For the metric-based kinds (Custom metric, Time slices) the metric-name and attribute pickers suggest values discovered from your workspace's OpenTelemetry metrics. The APM kinds' service-name picker suggests services emitting span metrics. All pickers are free-solo, so you can type a value that doesn't have telemetry yet — useful when you set up an SLO before the service starts emitting.
+
+## By Monitor Uptime
+
+### Incident availability
 
 **When to use:** *"This service should be up at least 99.9% of the time, measured by unresolved incident duration."*
 
 Fields:
 
-- **Severities (optional)** — multi-select, free-text (e.g. `critical`, `high`). Leave empty to count all severities.
+- **Service** — required. The Incident-Management service whose incidents count against this SLO. This is the only place an SLO chooses a service. If the service is later deleted, it still shows in the picker as *"name (deleted)"* so the SLO keeps working.
+- **Severities (optional)** — multi-select, free-text (e.g. `critical`, `high`). Leave empty to count incidents of all severities.
 
-Incident availability anchors on incident duration on the SLO's service. The SLI is *"share of the window when no incident at the picked severities was open."*
+The SLI is *"share of the window when no matching incident was open on this service."* Time inside an enabled one-shot **maintenance window** on the service is **excluded** from the calculation rather than counted as bad. The error budget is a **duration** (seconds of downtime).
 
-## APM latency
+### Synthetic uptime
 
-**When to use:** *"P99 of this service should be under 200 ms."* (RED's Duration.)
+**When to use:** *"Track a synthetic monitor's uptime — the share of time its checks pass, with downtime as the error budget."*
 
 Fields:
 
-- **Service name** — required. Picker suggests services emitting spans.
-- **Latency threshold (ms)** — required.
+- **Synthetic monitor** — required. Pick one of the workspace's synthetic monitors.
 
-The SLI counts spans whose duration is below the threshold as good, all spans as denominator. A 200 ms threshold with a 99% target means *"at least 99% of spans should be under 200 ms."*
+Synthetic uptime is a **preset**, not a separate engine — it's stored as a **Time slices** SLI over the monitor's success signal (`kloudmate_synthetic_check_success`), with one slice per check (the slice width is set to the monitor's check frequency) and a "slice is good when the check passed" condition. Slices with no run (monitor paused or not yet running) count as good, so a paused monitor doesn't burn the budget. The error budget reads as **downtime** (a duration).
 
-## APM error rate
+## By Count
+
+The By Count kinds express reliability as **good ÷ total events**, so the error budget is a count.
+
+### APM error rate
 
 **When to use:** *"Less than 1% of requests to this service should error."* (RED's Errors.)
 
 Fields:
 
-- **Service name** — required. Picker suggests services emitting spans.
-- **Error status values** — required, multi. Picker suggests values found for `http.status_code` in the workspace's spans.
+- **Service name** — required. Picker suggests services emitting span metrics.
 
-The SLI is *"share of spans whose `http.status_code` is **not** in the error list."*
+The SLI is *"share of a service's spans that did **not** error."* A span counts as an error when its OpenTelemetry span status is `Error`. It's computed from the service's pre-aggregated request/error span-metrics — KloudMate doesn't scan raw traces. If you need a custom definition of "error" (e.g. specific HTTP status codes), derive an error metric in your collector and use **Custom metric** instead.
 
-## APM request rate
+### APM latency
 
-**When to use:** *"This service should serve at least 60 RPM continuously."* (RED's Rate, time-sliced.)
-
-Fields:
-
-- **Service name** — required. Picker suggests services emitting spans.
-- **Min requests / minute** — required.
-- **Bucket size (minutes, optional)** — default `1`. This controls the time-slicing granularity; the default 1-minute bucket is suitable for most cases.
-
-The SLI counts each bucket as good if its request rate is at or above the minimum, bad otherwise.
-
-## APM trace ratio
-
-**When to use:** *"Build an SLI from any pair of span-attribute filters."* Examples: cache hit rate, payment-success rate, business-event ratios.
+**When to use:** *"At least 99% of this service's spans should complete under 200 ms."* (RED's Duration.)
 
 Fields:
 
-- **Service name** — optional. When set, applies implicitly to both filter sets.
-- **Numerator filters** — required. Spans matching **all** of these attribute filters count as good.
-- **Denominator filters** — required. Spans matching **all** of these form the universe (good + bad).
+- **Service name** — required. Picker suggests services emitting span metrics.
+- **Latency threshold (ms)** — required.
 
-Filter rows are key/op/value triplets — see [Filter rows](#filter-rows) below.
+The SLI counts spans that finished at or below the threshold as good, all spans as the denominator. It reads the service's pre-aggregated duration **histogram**, summing the buckets whose upper bound is within the threshold — so a 200 ms threshold with a 99% target means *"at least 99% of spans should be under 200 ms."*
 
-## Custom metric
+### APM request rate
 
-**When to use:** *"Build an SLI from OTLP metrics."*
-
-A tabbed switch above the form picks the mode:
-
-### Ratio of counts (default)
-
-Both numerator and denominator are SUM-aggregated metrics with optional filters. Used for counter-based SLIs, e.g. `http.requests.success` over `http.requests.total`.
+**When to use:** *"This service should serve at least 60 requests/minute continuously."* (RED's Rate, time-sliced.)
 
 Fields:
 
-- **Numerator metric name** + optional filters.
-- **Denominator metric name** + optional filters.
+- **Service name** — required. Picker suggests services emitting span metrics.
+- **Min requests / minute** — required. The floor.
+- **Bucket size (minutes, optional)** — default `1`. Controls the time-slicing granularity; larger buckets smooth spiky traffic, smaller buckets detect short stalls.
 
-### Value threshold
+The window is split into buckets; each bucket counts as good if its request volume is at or above the floor, bad otherwise. **Empty buckets count as below the floor (bad)** — correct for a traffic floor, but it means a sparse metric reads as catastrophic, so the preview warns when the metric covers little of the window.
 
-Numerator counts observations whose value matches a comparison (`<`, `≤`, `>`, `≥`). Denominator is the total count of observations. Used for gauge-based SLIs, e.g. synthetic latency or SSL certificate days remaining.
+### Custom metric
+
+**When to use:** *"Build an SLI from arbitrary OTLP metrics — a ratio of two metric aggregations (good ÷ total)."*
+
+A Custom metric SLI is a ratio of two independent metric aggregations:
+
+- **Good events** (the numerator) — the metric + aggregation + optional filters for the events that count as a success.
+- **Total events** (the denominator) — the metric + aggregation + optional filters for all eligible events.
+
+Both sides can use the **same metric** split by filters (e.g. a status label `success` over no filter) or **two different metrics** (e.g. `http.requests.success` over `http.requests.total`). The error budget is a count of **events**.
+
+The aggregation for each side adapts to the metric you pick — see [Type-aware aggregation](#type-aware-aggregation) below.
+
+:::note
+There is no "value threshold" mode. SLO windows read pre-aggregated rollup tables (sum/count/min/max per bucket), not individual observations, so *"% of observations under X"* can't be computed as a count. For *"% of requests under a latency threshold"* use **APM latency**; for *"% of time a metric stays under a threshold"* use **Time slices**.
+:::
+
+## By Time Slices
+
+### Time slices
+
+**When to use:** *"A custom uptime definition — the share of time a metric (or a formula across several metrics) meets a condition."*
+
+This is the time-based counterpart to Custom metric: instead of counting events, it splits the window into fixed slices and scores each slice good or bad. The error budget is a **duration**.
 
 Fields:
 
-- **Metric name** + optional filters.
-- **Comparison** — `<`, `≤`, `>`, `≥`.
-- **Threshold value**.
+- **Queries** — one or more metric queries (labelled `a`, `b`, …), each a metric + aggregation + optional filters. Use **Add query** for more.
+- **Formula (optional)** — combine the queries by id, e.g. `$a / $b`. A single-query SLI evaluates as `$a`. Use **Add formula** to reveal the field.
+- **Uptime condition** — *"A slice is good when the value is `<` / `≤` / `>` / `≥` &lt;value&gt;."*
+- **Slice width** — `1 minute` or `5 minutes`.
+- **No-data policy** — how slices with no measured data count: **Good** (default — a gap isn't a breach, suits low-traffic or synthetic uptime), **Bad** (a gap is a real problem, suits always-on metrics), or **Excluded** (drop the slice from the denominator).
 
-Metric name pickers suggest metric names from the workspace's metrics store; filter rows suggest the metric's label keys and values.
+Each slice's (formula) value is compared against the condition; compliance is the share of good time.
 
-## Log-based
+:::note
+Histogram metrics aren't supported per-slice yet. For a latency-style time-slice, use a counter ratio (e.g. errors/requests) or an average via the metric's `_sum`/`_count`. The form flags a histogram metric with a clear message.
+:::
 
-**When to use:** *"Less than 1% of this service's logs should be errors."*
+## Type-aware aggregation
 
-Fields:
+For Custom metric and Time slices, the aggregation dropdown and its default adapt to the metric's instrument type and temporality, captured automatically when you pick the metric (the same way dashboard panels and alert rules work):
 
-- **Service name** — required. Picker suggests services emitting logs.
-- **Error severities** — required, multi. Picker suggests values found for `severity_text` in the workspace's logs (e.g. `ERROR`, `FATAL`).
-- **Body pattern** — optional regex against the log body.
-- **Attribute filters** — optional key/op/value rows against log attributes — see [Filter rows](#filter-rows) below.
+| Metric type | Aggregations offered | Default |
+|---|---|---|
+| **Counter (delta)** | Sum, Rate, Last | **Sum** — totals the per-interval counts over the window. |
+| **Counter (cumulative)** | Increase, Rate, Last | **Increase** — last − first counts events over the window. |
+| **Gauge** | Avg, Sum, Min, Max, Last, Count… | **Avg** over the window. |
+| **Histogram** | P25 … P99 | **P95** (Custom metric only — histograms aren't supported per-slice). |
+
+A free-typed metric whose type isn't known yet is treated as a counter (the engine's default).
 
 ## Filter rows
 
-The filter rows used by trace-ratio, custom-metric, and log-based SLIs have three columns:
+The optional filter rows on Custom metric and Time slices queries have three columns:
 
-- **Attribute** — autocomplete that suggests attribute keys discovered from the relevant OTel store (spans / logs / metrics).
+- **Attribute** — autocomplete that suggests the metric's label keys.
 - **Operator** — `Equals` / `Not equals` / `In (any of)` / `Not in`.
-- **Value** — autocomplete that suggests values for the chosen attribute. Switches to multi-select for `In` / `Not in`, scalar for `Equals` / `Not equals`.
+- **Value** — autocomplete that suggests values for the chosen attribute. Multi-select for `In` / `Not in`, scalar for `Equals` / `Not equals`.
 
 **+ Add filter** appends a new row; the trash icon removes one.
 
@@ -118,3 +151,4 @@ The filter rows used by trace-ratio, custom-metric, and log-based SLIs have thre
 
 - [Create an SLO](./create-an-slo/) — the wizard that uses these forms.
 - [SLO detail](./slo-detail/) — the page you land on after creating.
+- [What is an SLO?](./what-is-an-slo/) — the vocabulary these kinds build on.

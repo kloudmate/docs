@@ -15,11 +15,11 @@ The rest of this page defines the vocabulary the Reliability area uses so the ot
 | Term | Plain-English meaning |
 |---|---|
 | **SLO** (Service-level Objective) | A reliability promise written as "this service should achieve X% over a Y-day window." |
-| **SLI** (Service-level Indicator) | The specific signal being measured — e.g. spans under 200 ms, incidents resolved within an hour, error logs as a fraction of total logs. |
+| **SLI** (Service-level Indicator) | The specific signal being measured — e.g. spans under 200 ms, seconds without an open incident, or a good/total ratio of custom metrics. |
 | **Target %** | The promise — e.g. `99.9%`. |
-| **Window** | The look-back period for the calculation — 1 day, 7 days, 30 days, 90 days, or the current calendar month. |
+| **Window** | The look-back period for the calculation — a rolling 1, 7, or 30 days, or the current calendar month. |
 | **Compliance %** | Where the service is right now versus the target. |
-| **Error budget** | How much "bad" you can afford under the target before breaching. For incident-based SLOs it's seconds of downtime; for everything else it's a count of bad events. |
+| **Error budget** | How much "bad" you can afford under the target before breaching. For the time-based SLIs (incident availability, time slices, synthetic uptime) it's a duration of downtime; for the count-based SLIs (the APM kinds and custom metric) it's a count of bad events. |
 | **Burn rate** | How fast you're consuming the error budget right now relative to the rate that would keep you exactly on target. `1×` means you're on pace; `14.4×` means you're consuming a 30-day budget in a few hours. |
 | **Burn-rate alert** | A notification rule that fires when burn rate is too high over **both** a short and a long window simultaneously. The long window suppresses brief blips; the short window keeps the alert responsive. |
 
@@ -33,6 +33,6 @@ Workspace **admin** is required to create, edit, or delete SLOs and burn-rate al
 
 ## Related
 
-- [Create an SLO](./create-an-slo/) — the 3-step wizard.
-- [SLI kinds](./sli-kinds/) — the seven SLI types you can pick from.
+- [Create an SLO](./create-an-slo/) — the two-step wizard.
+- [SLI kinds](./sli-kinds/) — the six SLI kinds you can pick from.
 - [Burn-rate alerts](./burn-rate-alerts/) — page on dangerous burn rates.

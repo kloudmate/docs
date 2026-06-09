@@ -6,9 +6,9 @@ sidebar:
 draft: true
 ---
 
-The **SLO Compliance** report is a new source on the Reports module. It produces one row per SLO with its compliance percentage and error budget remaining over the selected time range.
+The **SLO Compliance** report is a source on the Reports module. It produces one row per enabled SLO with its latest compliance snapshot, error budget, and burn-rate-alert state.
 
-The source has **no additional configuration** — it's a workspace-wide rollup of every enabled SLO. No filters, no per-SLO toggles. For a narrower report, create one report per service or filter the export afterward.
+The source has **no additional configuration** — it's a workspace-wide rollup of every enabled SLO. No filters, no per-SLO toggles. For a narrower view, filter the export afterward.
 
 ## Create an SLO Compliance report
 
@@ -29,15 +29,17 @@ You can also reach this flow from the [Reliability Overview hub](../reliability/
 
 ## What the report contains
 
-For every enabled SLO in the workspace, the export includes:
+For every enabled SLO in the workspace, the export has one row with:
 
-- SLO name + description.
-- Service.
-- SLI kind.
-- Target % and default window.
-- **Compliance %** over the selected time range.
-- **Error budget remaining** at the end of the range.
-- Status (Healthy / Breached / Not evaluated).
+- **Service** — only for **Incident availability** SLOs (resolved from the SLI); blank for the workspace-level kinds.
+- **SLO** name.
+- **SLI kind**.
+- **Window** — the SLO's default window.
+- **Target %**.
+- **Compliance %** — from the SLO's latest cached snapshot for its default window.
+- **Error budget** — remaining at that snapshot, in the SLI's unit (a duration or an event count). A negative value means breached.
+- **Burn-rate alert** — the worst current burn-rate-alert state on the SLO (e.g. *Firing for 2.0h*, *configured*, or *—*).
+- **Status** — `OK`, `BREACHED`, or `no snapshot yet` for a newly-created SLO before its first evaluation.
 
 ## Related
 

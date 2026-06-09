@@ -13,7 +13,7 @@ Reliability isn't only a top-level area. KloudMate surfaces SLO context where yo
 Every IM service detail page (`/<workspaceId>/im/services/<id>`) now has tabs:
 
 - **Overview** (default) — the existing stat cards and integrations table.
-- **Reliability** (new) — a service-scoped Create SLO button and a table of every SLO anchored on this service. Same row shape as the workspace [SLO list](./slo-detail/). Empty state with explanatory copy when the service has no SLOs yet.
+- **Reliability** (new) — a service-scoped Create SLO button and a table of the service's **Incident availability** SLOs. Those are the only SLOs tied to a service; metric- and APM-based SLOs are workspace-level and don't appear here. Same row shape as the workspace [SLO list](./slo-detail/). The Create SLO button deep-links into the wizard with the service prefilled (it pre-selects the Incident availability kind). Empty state with explanatory copy when the service has no incident-based SLOs yet.
 
 Tab is URL-synced — `?tab=overview` or `?tab=reliability`. Refreshing or sharing the link preserves the active tab.
 
@@ -24,12 +24,12 @@ Screenshot pending — service detail page with the Reliability tab active and a
 
 ### SLO summary chip in the service header
 
-When the service has at least one SLO, a small chip appears in the page header next to the existing labels:
+When the service has at least one **Incident availability** SLO, a small chip appears in the page header next to the existing labels:
 
-- e.g. `N SLOs · Y% min compliance` — healthy.
+- e.g. `N SLOs · Y% min compliance` — healthy (the lowest compliance across the service's evaluated SLOs).
 - `N SLOs · M breached` — red, when at least one is breached.
 
-Clicking the chip jumps to the Reliability tab. The chip is **only rendered when SLOs exist** — services without any keep the header clean.
+Clicking the chip jumps to the Reliability tab. The chip is **only rendered when the service has incident-based SLOs** — services without any keep the header clean.
 
 ## Incident detail — Linked SLOs panel
 
