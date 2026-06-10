@@ -46,7 +46,9 @@ Optional:
 
 ### Matchers
 
-Matchers are label conditions. Each row picks a label key, an operator, and a value:
+Each matcher is one label condition — a label key, an operator, and a value. An alert has to satisfy **every** matcher you add (they combine with AND) before this rule handles it. Leave the list empty and the rule becomes a catch-all: it handles every alert no higher-priority rule already caught.
+
+The available operators:
 
 | Operator | Wire format | Meaning |
 |---|---|---|
@@ -125,10 +127,12 @@ Screenshot pending — the Suggest rules drawer with three suggestion cards, eac
 
 Each suggestion shows:
 
-- A derived title from the proposed matchers (e.g. "Payments service, prod").
-- A short rationale (e.g. "This pattern would have grouped 23 alerts last week.").
-- A **preview matches** count.
-- **Accept** opens the create-rule form pre-filled with the suggestion, **Dismiss** drops the card.
+- A title describing the proposed grouping (e.g. "Group by service + env").
+- A short rationale — how much notification noise the rule would have collapsed over the lookback window.
+- A **preview matches** count for that window.
+- **Accept** opens the create-rule form pre-filled with the suggestion's matchers, group-by keys, and cadence, under a name derived from what the rule targets. **Dismiss** drops the card.
+
+Some suggestions are grouping-only: they propose group-by keys with no matchers. Accepting one starts the rule as a catch-all that groups everything by those keys — add matchers before saving if you want to scope it to a subset of alerts.
 
 Suggestions don't persist — closing the drawer discards them. Re-run the suggester whenever you want fresh proposals.
 
