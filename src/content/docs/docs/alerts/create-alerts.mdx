@@ -133,6 +133,7 @@ This section opens with a **Folder** dropdown — select an existing folder (or 
 - **Alert condition** — Select the query or expression that should trigger the alert, such as **A**, **B**, or **C**.
 - **Evaluate every** — How frequently the alert condition should be evaluated (e.g. `60s`, `1m`).
 - **Pending duration** — How long the condition must remain true before the alert fires (e.g. `5m`). Leave empty to fire immediately.
+- **Recovery period** — How long the condition must stay within threshold before the rule resolves (e.g. `5m`), which stops a flapping metric from resolving and immediately re-firing. While the rule waits out this window, the instance shows as **Recovering** — still firing, not yet back to Normal. Leave empty to resolve as soon as the condition clears.
 - **Alert state if No data** — State to enter when the query returns no data.
 - **Alert state if Error** — State to enter when the query returns an error.
 

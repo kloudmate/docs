@@ -16,7 +16,7 @@ This page covers the concepts behind the Alerts module. Once they click, the res
 
 ### Alert rule
 
-An alert rule contains the evaluation criteria — one or more queries, expressions, and a condition. It also specifies how often KloudMate evaluates the rule and how long the condition must hold before the rule fires.
+An alert rule contains the evaluation criteria — one or more queries, expressions, and a condition. It also specifies how often KloudMate evaluates the rule, how long the condition must hold before the rule fires, and how long it must stay clear before the rule resolves.
 
 ### Alert query
 
@@ -67,6 +67,7 @@ A single rule can produce multiple alert instances, one per dimension. A rule wa
 
 - **Firing / Alerting** — the rule's condition has held longer than the pending duration.
 - **Pending** — the condition is currently true but hasn't held long enough yet.
+- **Recovering** — the condition has cleared, but the rule is still firing while it waits out the recovery period before resolving.
 - **Normal** — everything's quiet.
 - **Error** — the evaluation hit an error (bad query, source unreachable).
 - **No Data** — the query returned no data for the configured window.
