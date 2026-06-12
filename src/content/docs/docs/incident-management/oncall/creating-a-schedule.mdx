@@ -1,6 +1,6 @@
 ---
 title: "Create an On-Call Schedule"
-description: "Set up your first on-call schedule: name it, pick a timezone, and add a rotating layer of participants."
+description: "Set up an on-call schedule: start from a template, then shape rotations and coverage in the calendar editor."
 sidebar:
   label: "Create a Schedule"
   order: 2
@@ -8,7 +8,7 @@ sidebar:
 
 import { Steps } from '@astrojs/starlight/components';
 
-The fastest way to understand on-call schedules is to build the common one: a single rotation that hands the pager between a few people every week. This page walks that end to end, then covers each field so you can adjust it.
+The fastest way to understand on-call schedules is to build the common one: a single rotation that hands the on-call duty between a few people every week. This page walks that end to end through the template picker and the calendar editor, then covers each rotation field so you can adjust it.
 
 :::note[Availability]
 On-Call Schedules are a paid Incident Management feature. If you don't see **On-Call Schedules** in the Incident Management navigation, your plan doesn't include it yet — contact your account team to turn it on.
@@ -17,71 +17,118 @@ On-Call Schedules are a paid Incident Management feature. If you don't see **On-
 ## Create a schedule
 
 <Steps>
-1. Open **Incident Management → On-Call Schedules** and click **Create schedule**.
+1. Open **Incident Management → On-Call Schedules** and click **New schedule**.
 
-2. Give the schedule a **name** that says what it covers — "Payments primary", not "Schedule 1".
+2. Pick a starting point from the **Quick start** template picker (see below). For a single weekly rotation, choose **Weekly handoff**.
 
-3. Pick a **timezone**. Every handoff time, restriction window, and start date in this schedule is computed here, so choose the team's working timezone rather than your own. The default is **UTC**.
+3. Answer the short **guided wizard** — the timezone, who covers, and when to hand off. It pre-creates the rotation for you and drops you into the calendar editor.
 
-4. Add a **layer**. A new layer starts as a **weekly** rotation that hands off at **09:00** with today as its start date — the defaults for the common case.
+4. Review the **calendar**. It lays out every rotation's shifts, color-coded per person, so you can confirm the handoffs land where you expect.
 
-5. Add **participants** in the order they should take the pager. Order matters: the first person covers the first shift, the second covers the next, and so on. Reordering them later changes who's on call when.
+5. Adjust the **schedule name** (the pencil in the top bar) and the **timezone** if needed, then open any rotation to fine-tune it.
 
-6. Check the **rotation preview**. It renders a calendar of upcoming shifts so you can confirm the handoffs land where you expect before saving.
-
-7. Click **Save**.
+6. Click **Save schedule**.
 </Steps>
 
 :::note[Placeholder image]
-Screenshot pending — the create-schedule form with the name and timezone fields and a first layer.
+Screenshot pending — the New schedule flow with the Quick start template picker.
 :::
-![Create on-call schedule form](../../_placeholders/screenshot-placeholder.png)
+![New on-call schedule template picker](../../_placeholders/screenshot-placeholder.png)
 
-## Example: a weekly rotation across three people
+## Quick start: pick a template
 
-This is the 80% case — one layer, weekly handoff every Monday at 09:00, three participants:
+**New schedule** opens a **Quick start** picker with four cards. Each one is just a head start — everything it creates is fully editable afterward in the calendar editor.
+
+- **Weekly handoff** — one rotation that rotates through its members, handing off once a week. The 80% case.
+- **Workweek / weekend** — two complementary rotations: a weekday team and a separate nights-and-weekends rotation.
+- **Follow the sun** — one rotation per region, each in its own timezone, so coverage hands around the globe. You add as many **regions** as you need; each region has its own name, timezone, members, and active days/times, and each becomes a rotation.
+- **Custom** — an empty editor. No rotations are pre-created; you add them yourself.
+
+Picking any template except **Custom** opens a short **guided wizard** that asks plain-language questions — the timezone, who's covering, and when to hand off — and pre-creates the matching rotation(s). **Custom** skips the wizard and drops you straight into an empty calendar editor.
+
+## The schedule editor
+
+The editor is **calendar-first**. The main surface is a week/day **calendar** showing every rotation's shifts, color-coded per person, so the whole schedule reads at a glance.
+
+- A right-hand **Rotations** panel lists each rotation with a one-line summary and its timezone, plus a **+ Create rotation** button.
+- An **Overrides** panel sits below it for one-off swaps. See [Overrides](../overrides/).
+- The top bar carries the **schedule name** (click the pencil to rename), a **timezone** selector, and **Save schedule**.
+
+Each calendar event shows the responder's name with the rotation name beneath it. Click an event to open a details popover — the person, the rotation, the shift's start and end, and an **Edit rotation** shortcut.
+
+:::note[Placeholder image]
+Screenshot pending — the calendar editor with color-coded shifts, the Rotations panel, and the Overrides panel.
+:::
+![On-call schedule calendar editor](../../_placeholders/screenshot-placeholder.png)
+
+## Create a rotation
+
+Open a rotation from the **Rotations** panel — **+ Create rotation** for a new one, or an existing row to edit it — to open the **rotation drawer**.
+
+<Steps>
+1. Give the rotation a **name**. It labels the rotation's shifts on the calendar and its row in the Rotations panel.
+
+2. Set the **timezone** — leave it on **Use schedule timezone**, or override it for this rotation (the basis for follow-the-sun). All of this rotation's times are evaluated in its effective timezone.
+
+3. Set the **coverage**. Leave it at **24/7** for always-on, or choose **Custom** and set **Active days** (pick days, or a day range) and **Active times** (the **All day** toggle, or a from–to window). See [Rotations and coverage](../rotations-and-coverage/).
+
+4. Choose the **shift assignment**: **Handoff and rotate to next member** (one person on call per shift) or **All members are on-call for each shift** (everyone in the rotation at once).
+
+5. For a rotating shift, set the **handoff** — every *N* hours, days, or weeks. For a weekly cadence, pick the handoff **weekday** and **time**; a **start date** anchors the first shift.
+
+6. Add **members** in the order they should take a shift. Order matters: the first person covers the first shift, the second the next, and so on. Reordering them later changes who's on call when.
+
+7. Save the rotation. It appears on the calendar immediately so you can check it before saving the schedule.
+</Steps>
+
+:::note[Placeholder image]
+Screenshot pending — the rotation drawer with name, timezone, coverage, shift assignment, handoff, and the ordered member list.
+:::
+![Rotation drawer with rotation settings](../../_placeholders/screenshot-placeholder.png)
+
+## Example: a weekly handoff across three people
+
+This is the 80% case — one rotation that rotates weekly, handing off every Monday at 09:00, across three members:
 
 | Field | Value |
 |---|---|
-| Rotation type | Weekly |
-| Handoff time | 09:00 |
-| Start date | A **Monday** (see the gotcha below) |
-| Participants (in order) | Alice, Bob, Carol |
+| Shift assignment | Handoff and rotate to next member |
+| Handoff | Weekly, Mondays at 09:00 |
+| Coverage | 24/7 |
+| Members (in order) | Alice, Bob, Carol |
 
-Alice covers this week. Bob takes over next Monday at 09:00, Carol the Monday after, then it loops back to Alice. The handoff always happens at 09:00 in the schedule's timezone.
+Alice covers this week. Bob takes over next Monday at 09:00, Carol the Monday after, then it loops back to Alice. The handoff always happens at 09:00 in the rotation's timezone.
 
-:::caution[A weekly handoff lands on the start date's weekday]
-A weekly rotation hands off on whatever weekday the **start date** falls on. To hand off on Mondays, pick a Monday as the start date. Set it to a Wednesday and the pager changes hands every Wednesday instead.
-:::
+Because the handoff **weekday** is its own field, you set it directly — pick **Monday** and the rotation hands off on Mondays, no matter which date you started it on.
 
-## Layer field reference
+## Rotation field reference
 
-Every layer has the same fields. The defaults below are what a new layer ships with.
+Every rotation has the same fields. The defaults below are what a fresh rotation starts with.
 
 | Field | Values | Default | Notes |
 |---|---|---|---|
-| Rotation type | Daily, Weekly, Custom | Weekly | How often the pager changes hands. |
-| Rotation length | 1–365 days | 7 (weekly) | Editable only for **Custom**; daily is fixed at 1 day, weekly at 7. |
-| Handoff time | HH:MM | 09:00 | The time of day the shift changes, in the schedule's timezone. |
-| Start date | YYYY-MM-DD | Today | The first shift's anchor. For a weekly rotation, its weekday is the handoff day. |
-| Restriction | None, Time of day, Day of week | None | Limits when the layer is active. See [Layers and restrictions](../layers-and-restrictions/). |
-| Participants | Ordered list of users | — | Shift order follows this list. |
+| Name | Text | — | Labels the rotation's shifts on the calendar and its row in the Rotations panel. |
+| Timezone | Use schedule timezone, or any timezone | Use schedule timezone | The basis for this rotation's handoff and coverage times. Override it for follow-the-sun. |
+| Coverage | 24/7, Custom | 24/7 | When the rotation is active. Custom adds Active days and Active times. |
+| Active days | Selected weekdays, or a day range | — | Custom coverage only. The days a shift can start. |
+| Active times | All day, or a from–to window | All day | Custom coverage only. The hours within the active days. |
+| Shift assignment | Handoff and rotate to next member, All members are on-call for each shift | Handoff and rotate | One person per shift (advancing each handoff), or everyone in the rotation at once. |
+| Handoff | Every *N* hours / days / weeks (weekly: on a weekday at a time) | Weekly | How often the on-call member changes. Applies only when the rotation hands off. |
+| Start date | Date | Today | Anchors the first shift, together with the handoff time. |
+| Members | Ordered list of users | — | Shift order follows this list; the first member takes the first shift. |
+
+## Read the calendar
+
+The calendar is the quickest check that a schedule does what you meant. It lays out who's on call across the coming weeks — every rotation's shifts, color-coded per person, with the exact handoff moments. Where two rotations overlap, you'll see both responders on the calendar at once, which is the additive behavior working as intended.
+
+If a handoff lands on the wrong day or the wrong person leads, open the rotation, fix the handoff weekday or the member order, and watch the calendar update before you save. The **Schedules** tab's coverage timeline is also where you confirm there are no gaps with nobody on call.
 
 :::note[Placeholder image]
-Screenshot pending — the layer editor with the rotation type, handoff time, start date, and ordered participant list.
+Screenshot pending — the calendar showing several upcoming shifts and their handoff boundaries, with an event details popover open.
 :::
-![Layer editor with rotation settings](../../_placeholders/screenshot-placeholder.png)
-
-## Read the rotation preview
-
-The preview is the quickest check that a schedule does what you meant. It lays out who's on call across the coming weeks, including the exact handoff moments. If a handoff lands on the wrong day or the wrong person leads, fix the start date or participant order and watch the preview update before you save.
-
-:::note[Placeholder image]
-Screenshot pending — the rotation preview calendar showing several upcoming shifts and their handoff boundaries.
-:::
-![Rotation preview calendar](../../_placeholders/screenshot-placeholder.png)
+![On-call schedule calendar preview](../../_placeholders/screenshot-placeholder.png)
 
 ## Next
 
-- [Layers and restrictions](../layers-and-restrictions/) — add a second layer or limit a layer to business hours.
+- [Rotations and coverage](../rotations-and-coverage/) — add a second rotation or limit one to business hours.
 - [Overrides](../overrides/) — hand off temporarily for a vacation or a swap.

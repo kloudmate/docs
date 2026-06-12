@@ -1,12 +1,12 @@
 ---
 title: "On-Call Schedules"
-description: "Build rotations that decide who gets paged at any moment, using layers, time restrictions, and overrides."
+description: "Build additive rotations that decide who's on call at any moment, using coverage windows, per-rotation timezones, and overrides."
 sidebar:
   label: "Overview"
   order: 1
 ---
 
-On-call schedules decide who gets paged when an incident needs a person. Rather than wiring a specific name into an escalation policy, you point the policy — or a [routing rule](../routing-rules/) — at a schedule, and KloudMate resolves it to whoever is on call at that exact moment.
+On-call schedules decide who's on call when an incident needs a person. Rather than wiring a specific name into an escalation policy, you point the policy — or a [routing rule](../routing-rules/) — at a schedule, and KloudMate resolves it to whoever is on call at that exact moment.
 
 :::note[Availability]
 On-Call Schedules are a paid Incident Management feature. If **On-Call Schedules** isn't in your Incident Management navigation, your plan doesn't include it yet — contact your account team to turn it on.
@@ -14,48 +14,61 @@ On-Call Schedules are a paid Incident Management feature. If **On-Call Schedules
 
 ## How a schedule decides who's on call
 
-A schedule is built from a few nested pieces. Once the mental model clicks, every other page here falls into place.
+A schedule is a named wrapper around one or more **rotations**. Once the mental model clicks, every other page here falls into place.
 
-- **Schedule** — a named container bound to one **timezone**. Every time below (handoff times, restriction windows, start dates) is computed in that timezone, so set it deliberately.
-- **Layer** — an ordered list of **participants** that rotates on its own cadence. A schedule can stack several layers on top of each other.
-- **Rotation** — the cadence a layer hands off on: **daily**, **weekly**, or a **custom** length of 1–365 days. The active participant advances at the layer's **handoff time**, starting from its **start date**.
-- **Restriction** — an optional window that limits when a layer is active: none, time-of-day, or day-of-week. Outside its windows, a layer steps aside and the next layer down takes over.
-- **Override** — a one-off swap that replaces whoever would be on call for a specific window, with an optional reason.
+- **Schedule** — a named container with a default **timezone**. It holds one or more rotations. The timezone is the default basis for every time inside the schedule, though any rotation can override it.
+- **Rotation** — the unit that actually puts a person on call. Each rotation answers four questions:
+  - **Members** — an ordered list of people. The first member takes the first shift.
+  - **Shift assignment** — either **Handoff and rotate to next member** (one person is on call per shift, and it advances to the next member at each handoff) or **All members are on-call for each shift** (everyone in the rotation is on call together).
+  - **Shift length / handoff** — how long each shift lasts before the on-call person changes: sub-day (for example 8h or 12h), daily, weekly, or every *N* hours, days, or weeks. (This only applies when the rotation hands off.)
+  - **Coverage** — when the rotation is active: **24/7**, or a **Custom** window built from active days and active times.
+  - A rotation can also carry its own **timezone** that overrides the schedule's — the basis for follow-the-sun.
+- **Override** — a timed swap that replaces the on-call set for a fixed window. See [Overrides](./overrides/).
 
-### Resolution order
+### Rotations are additive
 
-When KloudMate needs to page someone, it resolves the schedule in a strict order. Knowing this order is the difference between a schedule that pages the right person and one that surprises you:
+Here is the one rule that governs everything else: **rotations add up. There is no precedence and no "top" rotation.**
 
-1. **Override** — if an override covers the moment, its user is on call. When two overrides overlap, the one created most recently wins.
-2. **Layers, top to bottom** — with no override, the **highest layer that has an active participant** wins. A layer is active when its rotation has started and the moment falls inside its restriction windows. A layer with no restriction is always active.
-3. **Nobody** — if no override applies and every layer is either not yet started or restricted out, no one is on call.
+Who's on call at any instant is the **union of every active rotation's current assignee(s)**, deduplicated by person. A rotation is *active* at a given moment when that moment falls inside its coverage window — a 24/7 rotation is always active. If three rotations are active at once, all three of their current responders are on call together, and an escalation step that targets the schedule notifies every one of them.
 
-The most common surprise is expecting a lower layer to be ignored whenever a higher layer exists. It isn't. A lower layer takes over exactly where the layer above it is restricted out or has no one rostered — which is what makes "business hours primary, 24/7 backup" work. See [Layers and restrictions](./layers-and-restrictions/).
+This is what makes multi-responder and follow-the-sun coverage natural:
 
-:::caution
-If every layer is restricted out and no override covers the moment, **no one is on call** — and an escalation step that pages that schedule has nobody to reach. For any schedule an escalation policy depends on, keep one always-on (no-restriction) layer at the bottom as a catch-all.
+- **Multi-responder** — run two rotations over the same hours and both responders are on call at the same time (for example, a primary plus a shadowing secondary).
+- **Follow-the-sun** — give each region its own rotation in its own timezone, and coverage hands around the globe as each region's working hours come round.
+
+:::tip[Overlapping coverage means *both* people are on call]
+If two rotations' coverage windows overlap, KloudMate doesn't pick a winner — it puts **both** current responders on call for the overlap. There's no "higher rotation wins." To have exactly one person on call at a time, give your rotations coverage windows that don't overlap.
 :::
 
-## See who's on call now
+## See who's on call
 
-The schedules list shows each schedule with the person on call right now and a **handoff countdown** — "Handoff in 5h", "Handoff in 2d" — so you can tell at a glance who's holding the pager and when it changes hands.
+The **On-call** section has two tabs:
+
+- **My on-call** — your personal, cross-schedule view: whether you're on call right now and your upcoming shifts across *every* schedule you belong to. This is the page to check before you log off for the day.
+- **Schedules** — a compact list of every schedule, each showing who's on call now, a roughly two-week coverage timeline, and the timezone the times are shown in. Use it to scan coverage at a glance and spot windows where no one is rostered.
 
 :::note[Placeholder image]
-Screenshot pending — the On-Call Schedules list with each schedule's current on-call person and handoff countdown.
+Screenshot pending — the On-call section showing the My on-call and Schedules tabs, with each schedule's current on-call people and coverage timeline.
 :::
-![On-Call Schedules list showing who is on call now](../../_placeholders/screenshot-placeholder.png)
+![On-call section with My on-call and Schedules tabs](../../_placeholders/screenshot-placeholder.png)
+
+## Mind the gaps
+
+Because rotations are additive rather than a fallback stack, **custom coverage windows can leave moments with no rotation active — and so nobody on call**. If an incident fires during such a gap, an escalation step that targets the schedule has no one to reach.
+
+For any schedule an escalation policy depends on, keep at least one **24/7 rotation** (or make sure your rotations' windows tile the clock with no gap). The **Schedules** tab's coverage timeline is the quickest way to spot an uncovered window before you rely on the schedule. See [Rotations and coverage](./rotations-and-coverage/) for worked examples.
 
 ## How schedules connect to incidents
 
-A schedule doesn't page anyone on its own. It becomes useful when something targets it:
+A schedule doesn't notify anyone on its own. It becomes useful when something targets it:
 
 - An **escalation policy** step can target a schedule instead of a named user. See [Escalation Policies](../escalation-policy/).
 - A **routing rule** can notify one or more schedules when an alert matches. See [Routing Rules](../routing-rules/).
 
-In both cases the schedule is resolved *at notification time* — KloudMate looks up who's on call at that instant and pages them through their notify methods (email, SMS, or voice). Reorder a rotation or add an override a minute before an incident fires, and the new result is what pages.
+In both cases the schedule is resolved *at notification time* — KloudMate looks up who's on call at that instant, which may be **several people**, and notifies each of them through their own notify methods (email, SMS, or voice). Edit a rotation or add an override a minute before an incident fires, and the new result is what gets notified.
 
 ## In this section
 
-- [Create a schedule](./creating-a-schedule/) — the create flow and a simple weekly rotation.
-- [Layers and restrictions](./layers-and-restrictions/) — stack layers and limit them to time windows for follow-the-sun and business-hours coverage.
-- [Overrides](./overrides/) — cover a vacation or a one-off swap without touching the rotation.
+- [Create a schedule](./creating-a-schedule/) — the template picker, the calendar editor, and a simple weekly rotation.
+- [Rotations and coverage](./rotations-and-coverage/) — coverage windows, per-rotation timezones, and additive patterns for business-hours, follow-the-sun, and overnight coverage.
+- [Overrides](./overrides/) — cover a vacation or a one-off swap without touching the rotations.

@@ -57,11 +57,11 @@ Each step notifies one or more recipients — users, on-call schedules, or Slack
 
 ## On-call resolution
 
-When a step targets an [on-call schedule](../oncall/) instead of a named person, KloudMate resolves the schedule at that exact moment — checking overrides, layers, and restrictions — and pages whoever is on call right then.
+When a step targets an [on-call schedule](../oncall/) instead of a named person, KloudMate resolves the schedule at that exact moment — applying any override, otherwise taking the union of its active rotations — and notifies whoever is on call right then, which may be several people.
 
 ### Where on-call fits
 
-On-call schedules don't page anyone on their own. They're a target an escalation step (or a routing rule) points at, resolved to a real person only when the notification needs to go out. That late resolution is why a last-minute override or rotation change still takes effect.
+On-call schedules don't notify anyone on their own. They're a target an escalation step (or a routing rule) points at, resolved to whoever is on call only when the notification needs to go out. That late resolution is why a last-minute override or rotation change still takes effect.
 
 ## Resolution
 

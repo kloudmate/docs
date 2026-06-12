@@ -15,7 +15,7 @@ Incident Management helps your team:
 
 - Detect and track active incidents in one view.
 - Route incoming alerts to the right service, severity, and escalation policy automatically.
-- Page the people on call through layered schedules.
+- Notify the people on call through on-call schedules.
 - Escalate step by step until someone acknowledges.
 - Keep customers informed with a public status page.
 
@@ -27,7 +27,7 @@ A monitored condition trips an alert, and from there it follows a predictable pa
 2. A **routing rule** decides which service the incident opens against, which escalation policy pages, and what severity it carries. A rule can also suppress noise before it becomes an incident at all.
 3. The **incident** opens on its **service**.
 4. The service's **escalation policy** notifies responders step by step until someone acknowledges.
-5. When a step targets an **on-call schedule**, KloudMate resolves it to whoever is on call at that moment and pages them.
+5. When a step targets an **on-call schedule**, KloudMate resolves it to whoever is on call at that moment — possibly several people — and notifies each of them.
 6. Once you're responding, you can **publish the incident to a status page** to keep customers in the loop.
 
 Routing rules and status pages are optional, but this is the backbone every incident moves along.
@@ -58,7 +58,7 @@ Escalation policies define who gets notified, how, and when an unacknowledged in
 
 ### On-Call Schedules
 
-Layered rotations that decide who's on call at any moment, with time restrictions and one-off overrides. Escalation policies and routing rules resolve a schedule to a person at notification time. See [On-Call Schedules](../oncall/).
+Additive rotations that decide who's on call at any moment, with coverage windows and one-off overrides. A schedule can resolve to several people at once. Escalation policies and routing rules resolve a schedule to whoever is on call at notification time. See [On-Call Schedules](../oncall/).
 
 ### Routing Rules
 

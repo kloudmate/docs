@@ -33,7 +33,7 @@ A policy has two levels: the policy itself, and an ordered list of steps.
 A single step can mix three kinds of recipient:
 
 - **Users** — each notified by **email**, **SMS**, or **voice**. Pick at least one method per user. SMS and voice need a paid plan and a verified phone number; the editor disables them with a tooltip when either is missing.
-- **On-call schedules** — the step pages whoever is on call on the schedule at the moment it fires. The schedule resolves to a person at notification time. On-call schedules need the Pro plan.
+- **On-call schedules** — the step notifies whoever is on call on the schedule at the moment it fires. A schedule can resolve to several people at once, and each is notified through their own methods. On-call schedules need the Pro plan.
 - **Slack channels** — posted to a shared channel. A channel's **fallback order** lets you tier channels: `0` is primary, higher numbers are fallbacks. Per-user Slack DMs aren't supported — only shared channels.
 
 :::note

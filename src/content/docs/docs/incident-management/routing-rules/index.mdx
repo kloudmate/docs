@@ -27,7 +27,7 @@ When an alert arrives from an [alert source](../integrations/), KloudMate runs i
 - **Set the severity** — override the severity carried by the alert.
 - **Suppress the incident** — drop the alert so no incident opens.
 - **Add responders** — attach specific users to the incident.
-- **Notify on-call schedules** — page whoever is on call on one or more [schedules](../oncall/).
+- **Notify on-call schedules** — notify whoever is on call on one or more [schedules](../oncall/) — possibly several people per schedule.
 
 ## Scope, priority, and order
 
@@ -73,7 +73,7 @@ When a rule matches, its actions feed a single routing decision. How conflicting
 | Set severity | Overrides the incident's severity | **First match wins** |
 | Suppress incident | Drops the alert — no incident opens | **First match wins**, and stops evaluation |
 | Add responders | Attaches users to the incident | **Accumulates** across every matching rule |
-| Notify on-call schedules | Pages the people on call on the named schedules | **Accumulates** across every matching rule |
+| Notify on-call schedules | Notifies the people on call on the named schedules | **Accumulates** across every matching rule |
 
 "First match wins" means the highest-priority rule to set a value owns it; later rules can't override it. "Accumulates" means responders and notified schedules from *every* matching rule are merged together (duplicates removed).
 

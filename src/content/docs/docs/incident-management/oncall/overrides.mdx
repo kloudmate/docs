@@ -8,7 +8,7 @@ sidebar:
 
 import { Steps } from '@astrojs/starlight/components';
 
-An override hands the pager to a specific person for a fixed window, then gives it back. Reach for one when the rotation is right in general but wrong for a few days — someone's on vacation, swapping a shift, or covering a deploy. The rotation underneath is untouched; the override sits on top of it for its window only.
+An override puts a specific person on call for a fixed window, then restores the normal rotations. Reach for one when the rotations are right in general but wrong for a few days — someone's on vacation, swapping a shift, or covering a deploy. The rotations underneath are untouched; the override sits on top of them for its window only.
 
 :::note[Availability]
 On-Call Schedules are a paid Incident Management feature. If you don't see **On-Call Schedules** in the Incident Management navigation, your plan doesn't include it yet — contact your account team to turn it on.
@@ -28,7 +28,7 @@ On-Call Schedules are a paid Incident Management feature. If you don't see **On-
 5. Save. The override takes effect immediately for its window.
 </Steps>
 
-An override beats every layer for the time it covers — whoever the rotation would have chosen is set aside until it ends. If two overrides overlap, the one created most recently wins.
+An override **replaces the active on-call set** for the time it covers — whoever the rotations would otherwise put on call is set aside until it ends, and only the override's person is on call. If two overrides overlap, the one created most recently wins.
 
 :::note[Placeholder image]
 Screenshot pending — the override dialog with a user, start and end times, and a reason.
@@ -50,7 +50,7 @@ Dana is on call from Wednesday until Friday at 00:00; Bob resumes automatically 
 
 ## Remove an override
 
-Plans change. Open the schedule, find the override in its list, and delete it. The rotation underneath resumes for that window as if the override had never existed.
+Plans change. Open the schedule, find the override in its list, and delete it. The rotations underneath resume for that window as if the override had never existed.
 
 :::note[Placeholder image]
 Screenshot pending — a schedule detail page with its list of active and upcoming overrides.
@@ -59,5 +59,5 @@ Screenshot pending — a schedule detail page with its list of active and upcomi
 
 ## Related
 
-- [Create a schedule](../creating-a-schedule/) — the rotation an override sits on top of.
-- [Layers and restrictions](../layers-and-restrictions/) — permanent coverage structure.
+- [Create a schedule](../creating-a-schedule/) — the rotations an override sits on top of.
+- [Rotations and coverage](../rotations-and-coverage/) — the permanent coverage structure an override sits on top of.
