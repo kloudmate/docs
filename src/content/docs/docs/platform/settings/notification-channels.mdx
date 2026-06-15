@@ -150,6 +150,159 @@ Here are examples of how to perform this validation in common programming langua
   </TabItem>
 </Tabs>
 
+#### Notification Payloads
+
+Every webhook is delivered as a single `POST` with a JSON body and `Content-Type: application/json`. The body you receive is exactly the bytes that were HMAC-signed (see above), so verify the signature against the raw body before parsing.
+
+The payload shape depends on which KloudMate feature triggered the notification:
+
+- **Alert group** notifications carry a top-level `event` field (`opened`, `appended`, `resolved`, or `rca_completed`) that identifies the lifecycle stage.
+- The other payloads have no `event` field — identify them by their distinctive top-level keys: `slo_name` (SLO burn rate), `monitor_id` (synthetic monitor), `serviceName` (new issue), and `investigationId` (AI investigation).
+
+The tabs below show one representative example of each payload, with notes on how the variants differ.
+
+<Tabs>
+  <TabItem label="Alert group">
+    Sent when an [alert group](../../../alerts/) opens, gains new alerts, resolves, or completes a root-cause analysis. The payload is **summary-first**: each rule reports aggregate `counts` plus up to five `sample_instances`, and `instances_omitted` tells you how many more are visible at `group.url`.
+
+    ```json
+    {
+      "event": "opened",
+      "emitted_at": "2026-05-23T10:00:05.123Z",
+      "group": {
+        "id": "550e8400-e29b-41d4-a716-446655440000",
+        "title": "High CPU on payments-api",
+        "state": "Open",
+        "severity": "sev1",
+        "severity_escalated": false,
+        "opened_at": "2026-05-23T10:00:00.000Z",
+        "resolved_at": null,
+        "labels": { "service": "payments-api", "env": "production" },
+        "annotations": { "runbook": "https://wiki.example.com/runbooks/cpu" },
+        "commonAnnotations": { "runbook": "https://wiki.example.com/runbooks/cpu" },
+        "routing_rule": { "id": "rr-1", "name": "Production critical" },
+        "workspace_id": "ws-1",
+        "signal_count": 3,
+        "url": "https://app.kloudmate.com/ws-1/alerts/groups/550e8400-e29b-41d4-a716-446655440000"
+      },
+      "totals": { "newly_firing": 3, "still_firing": 0, "newly_resolved": 0 },
+      "rules": [
+        {
+          "alarm_id": "alarm-cpu-1",
+          "alarm_name": "CPU > 90%",
+          "counts": { "newly_firing": 3, "still_firing": 0, "newly_resolved": 0 },
+          "severity_breakdown": { "sev1": 3 },
+          "sample_instances": [
+            {
+              "transition": "newly_firing",
+              "source_event_id": "3f2504e0-4f89-41d3-9a0c-0305e82c3301",
+              "severity": "sev1",
+              "labels": {
+                "alarm_id": "alarm-cpu-1",
+                "alarm_name": "CPU > 90%",
+                "host": "ip-10-0-1-23"
+              },
+              "annotations": { "runbook": "https://wiki.example.com/runbooks/cpu" },
+              "received_at": "2026-05-23T10:00:00.000Z"
+            }
+          ],
+          "instances_omitted": 0
+        }
+      ],
+      "rca": null
+    }
+    ```
+
+    **Variants by `event`:**
+    - `appended` — new alerts joined an already-open group; `totals`/`counts` reflect the newly firing instances.
+    - `resolved` — `group.state` becomes `"Resolved"`, `group.resolved_at` is set, and affected instances appear under `newly_resolved`.
+    - `rca_completed` — the `rca` object is populated instead of `null`:
+
+    ```json
+    "rca": {
+      "investigation_id": "inv-9",
+      "summary": "Deployment v1.42 introduced a regression in the payments service.",
+      "url": "https://app.kloudmate.com/ws-1/assistant/investigations/inv-9"
+    }
+    ```
+  </TabItem>
+  <TabItem label="New issue">
+    Sent when a new [issue](../../../issues/) is created for a service.
+
+    ```json
+    {
+      "subject": "[FATAL] New Issue - api (workspace-name / org-name)",
+      "serviceName": "api",
+      "severity": "FATAL",
+      "errorMessage": "TypeError: Cannot read property 'x' of undefined",
+      "occurrence": 7,
+      "lastOccurrenceAt": "2026-05-23T09:55:00.000Z",
+      "actionUrl": "https://app.kloudmate.com/ws-1/issues/iss-1",
+      "actionLabel": "View in KloudMate"
+    }
+    ```
+  </TabItem>
+  <TabItem label="SLO burn rate">
+    Sent when an [SLO burn-rate alert](../../../reliability/burn-rate-alerts/) starts firing or resolves. `threshold` and the observed burn rates are formatted with a trailing `×` (an infinite rate renders as `∞`); windows render as `5m`, `1h`, etc.
+
+    ```json
+    {
+      "subject": "🔥 SLO burn-rate firing: Checkout availability",
+      "slo_name": "Checkout availability",
+      "alert_name": "Fast burn",
+      "severity_tier": "critical",
+      "threshold": "14.4×",
+      "short_window": "5m",
+      "long_window": "1h",
+      "observed_short_burn": "21.3×",
+      "observed_long_burn": "16.8×",
+      "status_line": "Firing since 2026-05-23 10:00:00 UTC",
+      "actionUrl": "https://app.kloudmate.com/ws-1/slos/slo-1",
+      "actionLabel": "View SLO"
+    }
+    ```
+
+    On resolve, `subject` becomes `"✅ SLO burn-rate resolved: Checkout availability"` and `status_line` becomes a duration, e.g. `"Fired for 17 minutes"`. `severity_tier` is one of `critical`, `high`, `medium`, or `low`.
+  </TabItem>
+  <TabItem label="Synthetic monitor">
+    Sent when a [synthetic monitor](../../../synthetic/) goes down or recovers.
+
+    ```json
+    {
+      "subject": "🔴 Monitor is DOWN: API health",
+      "monitor_id": "mon-1",
+      "name": "API health",
+      "target": "https://api.example.com/healthz",
+      "cause": "HTTP 503",
+      "start_time": "2026-05-23 10:00:00 UTC",
+      "duration": "",
+      "actionUrl": "https://app.kloudmate.com/ws-1/synthetics/mon-1",
+      "actionLabel": "View Details"
+    }
+    ```
+
+    On recovery, `subject` becomes `"🟢 Monitor is UP: API health"`, `duration` is populated (e.g. `"15 minutes"`), and an `end_time` field is added.
+  </TabItem>
+  <TabItem label="AI investigation">
+    Sent when an [AI investigation](../../../kloudmate-assistant/investigations/) completes. `rootCauseAnalysisText` is plain text, truncated to 8000 characters.
+
+    ```json
+    {
+      "investigationId": "inv-1",
+      "workspaceId": "ws-1",
+      "title": "API outage investigation",
+      "subject": "[AI Investigation Completed] API outage (workspace-name / org-name)",
+      "workspaceName": "workspace-name",
+      "orgName": "org-name",
+      "completedAt": "2026-05-23 10:00:00 UTC",
+      "rootCauseAnalysisText": "Deployment v1.42 introduced a regression in the payments service.",
+      "actionUrl": "https://app.kloudmate.com/ws-1/assistant/investigations/inv-1",
+      "actionLabel": "View Investigation"
+    }
+    ```
+  </TabItem>
+</Tabs>
+
 ### KloudMate Incidents
 
 KloudMate Incidents is the channel type that bridges into [Incident Management](../../../incident-management/). When an alert routes through a KloudMate Incidents channel, KloudMate opens an incident on the linked IM service automatically — no separate webhook plumbing required.
