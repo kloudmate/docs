@@ -35,7 +35,7 @@ Create a unique ingestion endpoint in KloudMate to receive your CloudWatch alert
 
 6. Click **Save**.
 
-7. From the details page of your new alert source, copy the **Source URL** (e.g., `https://api.kloudmate.com/im/hooks/cw-a1b2c3d4e5f6`).
+7. From the details page of your new alert source, copy the **Source URL** (e.g. `https://api.kloudmate.com/im/hooks/cw-a1b2c3d4e5f6`).
 </Steps>
 
 :::note[Placeholder image]
@@ -103,7 +103,7 @@ KloudMate processes incoming CloudWatch alarm payloads automatically to keep you
 
 ### Grouping and deduplication
 
-To prevent alert fatigue and duplicate notifications, KloudMate groups incoming alarm events:
+To prevent alert fatigue and duplicate notifications, KloudMate groups incoming alert events:
 
 - When an alarm enters the `ALARM` state, AWS SNS pushes the event payload to KloudMate.
 - KloudMate generates a unique **Group ID** by hashing the `AlarmName` from the payload.
@@ -116,7 +116,7 @@ When the underlying issue clears, KloudMate resolves the incident automatically:
 
 - When the CloudWatch alarm transitions back to `OK`, AWS SNS pushes the state change to KloudMate.
 - KloudMate inspects the payload (`NewStateValue == "OK"`), identifies it as a recovery signal, and automatically marks the active incident as **Resolved**.
-- This immediately halts the escalation policy, stopping any further team paging or alerts.
+- This immediately halts the escalation policy, stopping any further notifications.
 
 ## Related
 
