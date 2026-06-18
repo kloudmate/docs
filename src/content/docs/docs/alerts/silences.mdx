@@ -25,14 +25,14 @@ The list has three tabs with live counts: **Active (N)** (default), **Expired (N
 
 | Field | What it does |
 |---|---|
-| **Matchers** | Label conditions that pick which alerts the silence applies to. Same operator set as [Routing Rules](../routing-rules/#matchers): equals, not equals, in, not in. |
+| **Matchers** | Label conditions that pick which alerts the silence applies to. Same operator set as [Routing Rules](../routing-rules/#matchers): Equals, Not equals, Matches regex, Doesn't match regex. |
 | **Expires at** | Date and time the silence stops. Capped at 30 days from creation. |
 | **Reason** | Free-form text — recommended so others know why the silence exists. |
 | **Scope** | Either **Group-bound** (auto-expires when a specific [Alert Group](../alert-groups/) resolves) or **Standalone** (lives until its `expires_at`). |
 
 ## Create a silence
 
-There are two ways to create a silence:
+There are a few ways to create a silence:
 
 ### From Alerts → Silences
 
@@ -52,14 +52,20 @@ On any [Alert Group](../alert-groups/) detail page, click **Silence this group**
 
 Save it from here. The silence shows up as **Group-bound** on the list.
 
+### From an alert's Pause Notifications
+
+On an alert rule's **more options (⋯) → Pause Notifications**, KloudMate creates a silence scoped to that alert (an `alarm_id` matcher) with an expiry — the alert keeps evaluating, only its notifications are muted. Add matchers to narrow the pause to specific instances.
+
 ## Silence vs. maintenance window
 
-Both features suppress **notifications, not evaluation** — the alert still evaluates on its schedule, the state change is recorded in history, but no notification is dispatched. The differences are operational, not behavioral:
+Both features are a **notification gate, not a state change** — the alert still evaluates on its schedule and its state transitions are still recorded in history; only the notification is withheld. Silencing every firing instance of an alert group keeps the group **Open** (shown as **Muted**) — it does **not** resolve the group, and muting never emits a *resolved* notification. The differences between the two are operational, not behavioral:
 
-- **Silences** are ad-hoc, label-matcher driven, capped at 30 days, and can be auto-bound to a specific alert group so they expire when the group resolves. Matchers use Alertmanager-style operators: `equals`, `not_equals`, `in`, `not_in`.
-- **Maintenance Windows** are scheduled — one-time (RFC3339 start/end) or recurring (`DAILY` / `WEEKLY` / `MONTHLY` with a timezone-aware time-of-day) — and use a different matcher set (`=`, `!=`, `CONTAINS`, `NOT_CONTAINS`) against alarm labels and tags through association matchers.
+- **Silences** are ad-hoc, label-matcher driven, capped at 30 days, and can be auto-bound to a specific alert group so they expire when the group resolves.
+- **Maintenance Windows** are scheduled — one-time (RFC3339 start/end) or recurring (`DAILY` / `WEEKLY` / `MONTHLY` with a timezone-aware time-of-day).
 
-Both leave the alarm evaluating in the background. Suppressed state transitions are marked with `silenced_at` and `silenced_by_*` columns visible on the alert state history, so you can always tell after the fact whether a quiet stretch was a real recovery or a suppressed notification.
+Both use the same four label-matcher operators — **Equals**, **Not equals**, **Matches regex**, **Doesn't match regex** — matched against alert rule labels and alert instance labels.
+
+Both leave the alert evaluating. Suppressed state transitions are marked with `silenced_at` and `silenced_by_*` columns visible on the alert state history, so you can always tell after the fact whether a quiet stretch was a real recovery or a suppressed notification.
 
 Pick a silence for a reactive, one-off suppression you'll re-evaluate within 30 days. Pick a [Maintenance Window](../maintenance-windows/) for planned downtime, recurring quiet hours, or anything that needs a calendar schedule.
 

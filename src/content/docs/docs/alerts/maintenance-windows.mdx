@@ -4,7 +4,7 @@ description: "Schedule recurring or one-time maintenance windows that suppress a
 sidebar:
   order: 9
 ---
-A Maintenance Window defines a scheduled period during which matching alerts continue to evaluate but their notifications are suppressed. State changes are still recorded in alert history (marked with `silenced_at` / `silenced_by_*` so you can audit what happened), but no notification fires.
+A Maintenance Window defines a scheduled period during which matching alerts continue to evaluate but their notifications are suppressed. State changes are still recorded in alert history (marked with `silenced_at` / `silenced_by_*` so you can audit what happened), but no notification fires. Like a [Silence](../silences/), a maintenance window is a **notification gate**: it mutes notifications for the matching alerts but never changes their state or resolves them.
 
 Use a maintenance window when you have a calendar-driven quiet period: a planned deployment, a recurring batch job window, a vendor outage you've been told to expect. For one-off, ad-hoc suppression in the moment, use [Silences](../silences/) instead.
 
@@ -49,7 +49,7 @@ Additional settings:
 - **Start time** — Date and time when the maintenance window begins.
 - **End time** — Date and time when the maintenance window ends.
 - **Frequency** — Available only for recurring windows; select daily, weekly, or monthly schedules.
-- **Label Matchers** — Use labels from alerts to target the maintenance window to specific services (e.g., instance name, service name).
+- **Label Matchers** — Target the window to specific alerts by their labels (e.g. service name, host, region). Each matcher is a label key, an operator, and a value, combined with AND. The operators are the same four used across the alert module — **Equals**, **Not equals**, **Matches regex**, **Doesn't match regex** — matched against alert rule labels and alert instance labels.
 
 4. Click **Save** to create the new maintenance window.
 

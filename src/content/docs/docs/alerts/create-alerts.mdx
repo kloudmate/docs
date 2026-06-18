@@ -25,6 +25,8 @@ From the **more options (⋯)** icon on any rule, you can:
 
 ![Alert row actions](./images/setting-up-kloudmate-alarms-1.jpeg)
 
+**Pause Notifications** opens a dialog that creates a temporary [silence](../silences/) scoped to this alert — the alert keeps evaluating, but its notifications are muted until the silence expires. Add matchers to limit the pause to specific instances.
+
 To learn about the key concepts of KloudMate Alerts, see the [Alerts Overview](../).
 
 ## Creating a new alert
@@ -134,10 +136,14 @@ This section opens with a **Folder** dropdown — select an existing folder (or 
 - **Evaluate every** — How frequently the alert condition should be evaluated (e.g. `60s`, `1m`).
 - **Pending duration** — How long the condition must remain true before the alert fires (e.g. `5m`). Leave empty to fire immediately.
 - **Recovery period** — How long the condition must stay within threshold before the rule resolves (e.g. `5m`), which stops a flapping metric from resolving and immediately re-firing. While the rule waits out this window, the instance shows as **Recovering** — still firing, not yet back to Normal. Leave empty to resolve as soon as the condition clears.
-- **Alert state if No data** — State to enter when the query returns no data.
-- **Alert state if Error** — State to enter when the query returns an error.
+- **Alert state if No data** — Which state the alert enters when the query returns no data points. Options: **Firing**, **No Data**, **Normal**, or **Error**.
+- **Alert state if Error** — Which state the alert enters when a query returns an error. Options: **Firing**, **Error**, or **Normal**.
 
-Click **Preview alarms** to run the query immediately and check the result.
+:::note[How “Firing” interacts with the pending duration]
+When **Alert state if No data** or **Alert state if Error** is set to **Firing**, the alert doesn't fire the instant data goes missing or a query errors. It fires only after the condition has held for the **Pending duration** above — so a brief gap or a transient error won't page anyone, and a series that's already firing rides through the blip without resetting. Set the **Pending duration** to `0` to fire immediately instead.
+:::
+
+Click **Preview alerts** to run the query immediately and check the result.
 
 :::tip
 If the rule belongs to a folder with shared defaults, **Evaluate every**, **Alert state if No data**, and **Alert state if Error** appear with placeholder values inherited from the folder. Leave them blank to keep inheriting, or type a value to override. A small **Reset to folder default** link appears under any field you've overridden.

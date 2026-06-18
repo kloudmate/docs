@@ -8,7 +8,7 @@ draft: true
 
 import { Steps } from '@astrojs/starlight/components';
 
-Routing Rules decide which channels get notified for which alerts. Each rule matches firing alerts by their labels, groups matched alerts by the label keys you choose, and dispatches notifications to the destination channels you configure.
+Routing Rules decide which channels get notified for which alerts. They govern **every** alert notification — both **individual alerts** and **correlated alert groups**. Each rule matches alerts by their labels; the **first matching rule wins** and sends those alerts to its destination channels. Whether the matched alerts notify one-by-one or fold into a single [Alert Group](../alert-groups/) is decided by the rule's **group-by** keys.
 
 :::note[Not the incident routing rules]
 This page routes alert *notifications* to channels. To control how an alert becomes an incident inside Incident Management — its service, escalation policy, and severity — see [Incident Management → Routing Rules](../../incident-management/routing-rules/) instead.
@@ -18,7 +18,7 @@ Routing Rules replace the older **Notification Policies** flow. If you previousl
 
 ## Where to find them
 
-Open **Alerts → Routing rules** in the left navigation. Rules are evaluated in priority order — each matching alert joins a group keyed by the rule's group-by labels, and the rule decides which channels notify and how often.
+Open **Alerts → Routing rules** in the left navigation. Rules are evaluated in priority order (lowest number wins). The first rule an alert matches decides which channels notify and how often — and, through its group-by keys, whether the alert notifies on its own or correlates with others into one [Alert Group](../alert-groups/).
 
 :::note[Placeholder image]
 Screenshot pending — the Routing Rules list page showing several rules with priority, matchers, group-by chips, destinations, and the default passthrough row pinned at the bottom.
@@ -36,7 +36,7 @@ A routing rule has six parts:
 | **Name** | How the rule appears in the list and audit log. |
 | **Priority** | Lower numbers win. When an alert matches multiple rules, the highest-priority (lowest-numbered) rule routes it. |
 | **Matchers** | Label conditions that pick which alerts this rule applies to. |
-| **Group-by** | Which label keys define a single notifiable unit. Two alerts with the same group-by values fold into one [Alert Group](../alert-groups/). |
+| **Group-by** | Whether and how matched alerts correlate. Leave it empty (or set only `alarm_id`) for **one notification per alarm rule** — no grouping. Add a real label key (e.g. `service`) to **correlate** matching alerts that share that value into one [Alert Group](../alert-groups/). `severity` can't be used here. |
 | **Cadence** | `group_wait` (how long to wait after the first signal before sending the first notification) and `group_interval` (how often to re-notify on an open group). |
 | **Destination channels** | One or more notification channels that receive the dispatched payload. |
 
@@ -52,26 +52,26 @@ The available operators:
 
 | Operator | Wire format | Meaning |
 |---|---|---|
-| equals | `equals` | Label value matches exactly. |
-| not equals | `not_equals` | Label value does not match. |
-| in | `in` | Label value matches any item in a comma-separated list. |
-| not in | `not_in` | Label value matches none of the items. |
+| Equals | `equals` | Label value matches the string exactly. |
+| Not equals | `not_equals` | Label value differs from the string (also matches alerts that don't carry the label at all). |
+| Matches regex | `matches_regex` | Label value matches the regular expression. |
+| Doesn't match regex | `not_matches_regex` | Label value doesn't match the regex (also matches alerts without the label). |
 
-There is no substring operator today — `in` is the closest equivalent for matching against a known set of values.
+A matcher value is always a single string. To match any of several values, use a regex alternation — for example `service` **Matches regex** `api|web` matches either service. (There's no `in`/`not_in` operator; the regex form replaces it.)
+
+As you add or edit matchers, the editor shows a live **Affected Alert Instances** preview — the alert instances this rule currently matches, with a running match count — so you can confirm the rule's scope before saving.
 
 ### Group-by keys
 
-Group-by determines what counts as "the same alert" for notification purposes. The editor suggests these common keys, and you can type any other label key:
+Group-by decides **whether** matched alerts correlate and, if so, along **which** dimension:
 
-- `service` — one notification per service.
-- `env` — one per environment.
-- `host` — one per host.
-- `region` — one per region.
-- `team` — one per owning team.
-- `alarm_id` — one per rule.
-- `issue_id` — one per issue.
-- `check_id` — one per synthetic check.
-- `alarm_rule_folder_id` — one per folder.
+- **Leave it empty — or set only `alarm_id`** — and the rule doesn't correlate anything: each alarm rule notifies on its own, one notification per rule. These notifications surface through the normal alerts UI, not the [Alert Groups](../alert-groups/) page.
+- **Add a real label key** and matching alerts that share that key's value fold into a single alert group. The editor suggests common keys — `service`, `env`, `host`, `region`, `team`, `issue_id`, `check_id`, `alarm_rule_folder_id` — and you can type any other label key.
+
+Two constraints the editor enforces:
+
+- If you add a real dimension alongside `alarm_id`, the `alarm_id` is dropped automatically — pinning each group to a single alarm would defeat the correlation.
+- `severity` can't be a grouping dimension. It's a per-instance property fixed when the group opens, not an axis to group on.
 
 You can combine keys (e.g. `service` + `env`) to scope each group tightly. Pick keys based on which dimension changes the most: aggressive grouping (only `service`) reduces notification noise but sacrifices precision in the group title.
 
@@ -95,7 +95,7 @@ If you want a clean "everything else goes to Slack" path, point the default pass
 
 3. **Add matchers.** Pick a label key, an operator, and a value. Add as many rows as needed; all matchers are combined with AND.
 
-4. **Set group-by keys.** Pick one or more label keys that define a single notifiable unit. Start with `service` if you're unsure.
+4. **Set group-by keys.** Leave this empty to notify once per alarm rule, or add a real label key (start with `service`) to correlate matching alerts into one group. `severity` isn't allowed here.
 
 5. **Tune cadence.** Leave the defaults (`30s` wait, `5m` interval) for most cases. Tighten them for paging rules, or loosen them for digest-style summaries.
 
@@ -112,7 +112,7 @@ The kebab menu on each row offers:
 
 - **Edit** — opens the rule editor.
 - **Duplicate** — opens the editor pre-filled with the rule's settings under a "(copy)" name so you can adjust matchers or priority and save as a new rule.
-- **Delete** — removes the rule. The default passthrough can't be deleted.
+- **Delete** — removes the rule. The delete is **blocked while open alert groups still route through this rule** — resolve or re-route those groups first, then delete. The default passthrough rule can't be deleted at all.
 
 The **Enabled** toggle in each row disables the rule without deleting it — useful for staging a rule before enabling it.
 

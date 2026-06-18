@@ -36,7 +36,7 @@ Severity isn't a filter on the list — it lives on the per-instance signals ins
 A group carries:
 
 - **Title** — set by the first signal that opened the group. **Immutable** after that, even if a higher-severity signal joins later. A lock icon next to the title indicates this; hovering it reads *"Set by first signal — cannot be changed."*
-- **State** — `Open` while at least one underlying signal is firing; `Resolved` once everything quiets.
+- **State** — `Open` while at least one underlying instance is firing; `Resolved` once everything quiets. A firing group whose firing instances are **all silenced** stays `Open` but carries a **Muted** badge (*"Firing, but all instances are silenced — notifications muted"*) — muting gates notifications, it doesn't resolve the group.
 - **Labels** — the keys you grouped by on the routing rule, derived from the signals that joined the group.
 - **Signal count** — total signals attached to the group so far.
 - **Routing rule** — the rule that opened the group.
@@ -78,12 +78,12 @@ The **Firing instances** panel is the dominant body section. It's a table of the
 
 - **Common labels bar** at the top — labels shared by every instance, so the per-row labels column only shows what varies.
 - **Columns**:
-  - **State** — `Firing` (filled red chip) or `Resolved` (outlined green chip).
+  - **State** — the instance's current state: **Firing**, **No Data**, **Error**, or **Resolved**. Silenced instances are flagged as muted, so you can see at a glance which ones are firing but suppressed.
   - **Alarm** — the alert rule name. Links to the rule when the signal is KloudMate-native (carries an `alarm_id` label).
   - **Instance labels** — the labels that distinguish this instance from siblings (common labels are stripped out).
   - **Severity** — the per-instance severity, if the signal carries one.
   - **Since** — how long this instance has been in its current state.
-- A summary chip above the table reads, e.g. *"7 unique instances · 4 firing, 3 resolved"*.
+- A summary above the table reports the alert and instance counts with a per-state breakdown, e.g. *"2 alerts · 7 instances · 4 firing, 3 resolved"*.
 
 Use this panel to see what's firing inside the group at a glance — for example, service A's `prod` and `staging` are firing while `dev` has already recovered.
 

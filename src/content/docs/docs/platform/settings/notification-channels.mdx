@@ -163,7 +163,7 @@ The tabs below show one representative example of each payload, with notes on ho
 
 <Tabs>
   <TabItem label="Alert group">
-    Sent when an [alert group](../../../alerts/) opens, gains new alerts, resolves, or completes a root-cause analysis. The payload is **summary-first**: each rule reports aggregate `counts` plus up to five `sample_instances`, and `instances_omitted` tells you how many more are visible at `group.url`.
+    Sent when an [alert group](../../../alerts/) opens, gains new alerts, resolves, or completes a root-cause analysis. Each rule reports its full `instances` array — no sampling, every instance in the notification is included, each tagged with its `state` — alongside per-state `counts`. Each rule also exposes `commonLabels` and `commonAnnotations` — the label and annotation values identical across all of that rule's instances — so receivers and the chat/email templates can show them once instead of on every row; the individual `instances[]` still carry their own complete `labels` and `annotations`. Both `totals` and each rule's `counts` are keyed by the user-facing state (`Firing`, `Resolved`, `No Data`, `Error`, `Normal`). `group.mode` is `"group"` for a correlated alert group and `"standalone"` for a single-alert notification (one per alarm rule). Chat and email channels cap how many instance rows they render; the webhook always carries the complete list.
 
     ```json
     {
@@ -179,34 +179,43 @@ The tabs below show one representative example of each payload, with notes on ho
         "resolved_at": null,
         "labels": { "service": "payments-api", "env": "production" },
         "annotations": { "runbook": "https://wiki.example.com/runbooks/cpu" },
-        "commonAnnotations": { "runbook": "https://wiki.example.com/runbooks/cpu" },
         "routing_rule": { "id": "rr-1", "name": "Production critical" },
         "workspace_id": "ws-1",
-        "signal_count": 3,
-        "url": "https://app.kloudmate.com/ws-1/alerts/groups/550e8400-e29b-41d4-a716-446655440000"
+        "signal_count": 2,
+        "url": "https://app.kloudmate.com/ws-1/alerts/groups/550e8400-e29b-41d4-a716-446655440000",
+        "mode": "group"
       },
-      "totals": { "newly_firing": 3, "still_firing": 0, "newly_resolved": 0 },
+      "totals": { "Firing": 2 },
       "rules": [
         {
           "alarm_id": "alarm-cpu-1",
           "alarm_name": "CPU > 90%",
-          "counts": { "newly_firing": 3, "still_firing": 0, "newly_resolved": 0 },
-          "severity_breakdown": { "sev1": 3 },
-          "sample_instances": [
+          "commonLabels": { "service": "payments-api", "env": "production" },
+          "commonAnnotations": { "runbook": "https://wiki.example.com/runbooks/cpu" },
+          "counts": { "Firing": 2 },
+          "instances": [
             {
-              "transition": "newly_firing",
               "source_event_id": "3f2504e0-4f89-41d3-9a0c-0305e82c3301",
-              "severity": "sev1",
-              "labels": {
-                "alarm_id": "alarm-cpu-1",
-                "alarm_name": "CPU > 90%",
-                "host": "ip-10-0-1-23"
+              "state": "Firing",
+              "labels": { "service": "payments-api", "env": "production", "host": "ip-10-0-1-23" },
+              "annotations": {
+                "runbook": "https://wiki.example.com/runbooks/cpu",
+                "summary": "CPU at 96% on ip-10-0-1-23"
               },
-              "annotations": { "runbook": "https://wiki.example.com/runbooks/cpu" },
               "received_at": "2026-05-23T10:00:00.000Z"
+            },
+            {
+              "source_event_id": "9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d",
+              "state": "Firing",
+              "labels": { "service": "payments-api", "env": "production", "host": "ip-10-0-1-24" },
+              "annotations": {
+                "runbook": "https://wiki.example.com/runbooks/cpu",
+                "summary": "CPU at 93% on ip-10-0-1-24"
+              },
+              "received_at": "2026-05-23T10:00:02.000Z"
             }
           ],
-          "instances_omitted": 0
+          "dashboardUrl": "https://app.kloudmate.com/ws-1/dashboards/db-1?panel=4"
         }
       ],
       "rca": null
@@ -214,8 +223,8 @@ The tabs below show one representative example of each payload, with notes on ho
     ```
 
     **Variants by `event`:**
-    - `appended` — new alerts joined an already-open group; `totals`/`counts` reflect the newly firing instances.
-    - `resolved` — `group.state` becomes `"Resolved"`, `group.resolved_at` is set, and affected instances appear under `newly_resolved`.
+    - `appended` — new or still-firing alerts on an already-open group; each instance carries its current `state`, and `counts`/`totals` tally them by state.
+    - `resolved` — `group.state` becomes `"Resolved"`, `group.resolved_at` is set, and every instance reports `"state": "Resolved"`, so `counts`/`totals` move under `Resolved`.
     - `rca_completed` — the `rca` object is populated instead of `null`:
 
     ```json
