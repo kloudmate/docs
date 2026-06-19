@@ -1,6 +1,6 @@
 ---
 title: "Rotations and Coverage"
-description: "Combine additive on-call rotations with coverage windows and per-rotation timezones to build business-hours, follow-the-sun, and overnight coverage."
+description: "Combine on-call rotations with coverage windows, per-rotation timezones, and priority to build business-hours, follow-the-sun, and overnight coverage."
 sidebar:
   label: "Rotations & Coverage"
   order: 3
@@ -12,11 +12,11 @@ A single rotation covers the simple case. Real coverage often needs more: a dayt
 On-Call Schedules are a paid Incident Management feature. If you don't see **On-Call Schedules** in the Incident Management navigation, your plan doesn't include it yet — contact your account team to turn it on.
 :::
 
-## Rotations are additive
+## How overlapping rotations resolve
 
-There's no precedence and no "primary" rotation that suppresses the others. At any moment, whoever's on call is the **union of every active rotation's current assignee(s)**, deduplicated by person. A rotation is *active* when the moment falls inside its coverage window; a 24/7 rotation is always active.
+By default, rotations are **additive**. At any moment, whoever's on call is the **union of every active rotation's current assignee(s)**, deduplicated by person. A rotation is *active* when the moment falls inside its coverage window; a 24/7 rotation is always active.
 
-The practical consequence: **where two rotations' coverage windows overlap, both responders are on call.** That's the building block for multi-responder coverage, and the thing to watch when you want exactly one person on call at a time — give those rotations windows that don't overlap.
+So **where two rotations' coverage windows overlap, both responders are on call** — the building block for multi-responder coverage. When you want exactly one person on call there instead, you have two levers: give the rotations windows that don't overlap, or give one a higher **priority** so it takes over the overlap. Priority is covered [below](#rotation-priority).
 
 ## Coverage windows
 
@@ -50,6 +50,31 @@ So a rotation with **Active days Mon–Fri** and **Active times 22:00–05:00** 
 
 If you also need Saturday and Sunday nights covered, add the missing days to the rotation (or add a second rotation for the weekend). This start-day rule is the most common point of confusion with overnight coverage, so check it on the calendar before you rely on it.
 
+## Rotation priority
+
+Trimming windows or adding days handles most overlaps. Sometimes two rotations *have* to cover the same moment, though, and you want only one of them on call. That's what **priority** does.
+
+Every rotation has a **priority** — a whole number, **0 by default**. Where rotations overlap in time, the **highest priority present wins**: it stays on call and hides every lower-priority rotation for as long as the overlap lasts. Rotations that share a priority stay additive, so they're all on call together. A higher number wins — a rotation at priority `1` takes over one left at `0`.
+
+Because every rotation starts at `0`, a schedule behaves exactly as it always has until you raise one. Priority does nothing until one rotation sits above another. You set it in the rotation drawer, right under the rotation name.
+
+### Hand an overlap to one rotation
+
+The common case is an overnight weekday rotation bleeding into the weekend. Pair the overnight after-hours rotation from above with an all-day weekend rotation:
+
+| Rotation | Coverage | Priority |
+|---|---|---|
+| After hours | Custom — Mon–Fri, 22:00–05:00 | 0 |
+| Weekend | Custom — Sat–Sun, all day | 1 |
+
+The after-hours rotation's **Friday** shift starts on Friday and runs into **Saturday 05:00** — the start-day rule from above. That tail overlaps the Weekend rotation's Saturday. Left at the same priority, both people are on call from Saturday 00:00 to 05:00, so the weekday responder gets pulled in on a day off.
+
+Give **Weekend** the higher priority and the overlap resolves: the after-hours shift ends at **Saturday 00:00**, Weekend owns all of Saturday, and the calendar shows the handover at midnight. The rest of the week is untouched — the two rotations only interact where they overlap.
+
+:::tip[Leave priority at 0 to stay additive]
+Default priority keeps every rotation additive — the same multi-responder and follow-the-sun behavior described on this page. Reach for priority only when an overlap should resolve to one rotation instead of both.
+:::
+
 ## Shift assignment within a rotation
 
 Each rotation also decides how its members share the shifts:
@@ -72,7 +97,7 @@ Two additive rotations give you a daytime team alongside an always-available on-
 
 During business hours **both** rotations are active, so the day-shift responder *and* the on-call engineer are on call at once — an escalation step notifies both. Outside business hours only the 24/7 rotation is active, so the on-call engineer holds it alone. The always-on rotation guarantees there's never a moment with nobody on call.
 
-If you'd rather have exactly one person on call at a time, replace the 24/7 rotation with one whose coverage window *complements* the business-hours window (nights and weekends) so the two tile the week without overlapping — just be careful not to leave a gap. (Covering both weeknights and full weekends usually takes two after-hours rotations, since a single rotation has one active-times window.)
+If you'd rather have exactly one person on call at a time, you have two options. Give the **Business hours** rotation a higher **priority** so it takes over during the day while the 24/7 rotation holds nights and weekends alone — one responder at every moment, no gaps. Or replace the 24/7 rotation with one whose window *complements* business hours (nights and weekends) so the two tile the week without overlapping, taking care not to leave a gap. (That second route usually takes two after-hours rotations, since a rotation has a single active-times window.)
 
 :::note[Placeholder image]
 Screenshot pending — a schedule with a business-hours rotation and an after-hours rotation side by side on the calendar.
@@ -89,7 +114,7 @@ To hand coverage around the globe, give each region its own rotation with its **
 | EMEA | Europe/London | 09:00–17:00 |
 | Americas | America/New_York | 09:00–17:00 |
 
-Because each window is evaluated in the rotation's **own** timezone, you express every region's hours as plain local working hours — no timezone math. As the clock advances, coverage hands from APAC to EMEA to the Americas and back. Small overlaps between regions are fine: during an overlap both regions' responders are on call, which is the additive model doing exactly what you want at a handover.
+Because each window is evaluated in the rotation's **own** timezone, you express every region's hours as plain local working hours — no timezone math. As the clock advances, coverage hands from APAC to EMEA to the Americas and back. Small overlaps between regions are fine: while they overlap, both regions' responders are on call — what you want at a handover. Keep every region at the same priority (the default `0`) so none masks another.
 
 :::tip[Each region's hours are its *own* local time]
 Set each follow-the-sun rotation's timezone to the region it covers and enter 09:00–17:00 as that region's local hours. There's no need to translate everything into one shared timezone — that was a constraint of the old model, not this one.

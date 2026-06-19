@@ -13,17 +13,16 @@ The Lambda Telemetry Extension sends a function's logs, metrics, and traces to K
 
 KloudMate gives you two ways to monitor Lambda, and they fit different needs.
 
-The [AWS account integration](../account-setup/) connects a whole account with one CloudFormation stack and reads metrics from CloudWatch. Use it to cover everything at once, without touching individual functions.
+The [AWS account integration](../account-setup/) connects a whole account when you deploy one CloudFormation stack. From there KloudMate works automatically — it discovers your functions, reads their CloudWatch metrics, and subscribes their log groups for you, with no roles or subscriptions to wire up by hand. Use it to cover an account end to end without touching individual functions.
 
-The Telemetry Extension instruments the functions you pick. You get traces on top of logs and metrics, the data shows up within seconds instead of waiting on CloudWatch, and there's no cross-account role to set up. Use it where you want richer, faster telemetry.
+The Telemetry Extension instruments the functions you choose. It adds traces on top of logs and metrics, and the data arrives within seconds instead of waiting on CloudWatch. Use it where you want richer, faster telemetry.
 
 | | AWS account integration | Telemetry Extension |
 | --- | --- | --- |
-| Setup | One CloudFormation stack per account | A layer and two env vars per function |
-| Cross-account IAM role | Required | Not needed |
-| Signals | Metrics, logs | Logs, metrics, **and traces** |
-| Delivery | CloudWatch delay (about a minute) | Within seconds |
-| Per-function change | None | Add a layer, set env vars |
+| Setup | Deploy one CloudFormation stack | Add a layer and two env vars per function |
+| Coverage | Every function in the account, automatically | The functions you add it to |
+| Signals | Metrics and logs, from CloudWatch | Logs, metrics, **and traces** |
+| Delivery | CloudWatch's delay (about a minute) | Within seconds |
 
 You can run both — the account integration for broad coverage, the extension where you want traces — with one overlap to watch for.
 

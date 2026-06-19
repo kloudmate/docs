@@ -68,17 +68,19 @@ Open a rotation from the **Rotations** panel — **+ Create rotation** for a new
 <Steps>
 1. Give the rotation a **name**. It labels the rotation's shifts on the calendar and its row in the Rotations panel.
 
-2. Set the **timezone** — leave it on **Use schedule timezone**, or override it for this rotation (the basis for follow-the-sun). All of this rotation's times are evaluated in its effective timezone.
+2. Set the **priority** if this rotation should win an overlap with another. Leave it at **0** — the default — to keep the rotation additive with the rest; a higher number takes over lower ones where they overlap. See [Rotation priority](../rotations-and-coverage/#rotation-priority).
 
-3. Set the **coverage**. Leave it at **24/7** for always-on, or choose **Custom** and set **Active days** (pick days, or a day range) and **Active times** (the **All day** toggle, or a from–to window). See [Rotations and coverage](../rotations-and-coverage/).
+3. Set the **timezone** — leave it on **Use schedule timezone**, or override it for this rotation (the basis for follow-the-sun). All of this rotation's times are evaluated in its effective timezone.
 
-4. Choose the **shift assignment**: **Handoff and rotate to next member** (one person on call per shift) or **All members are on-call for each shift** (everyone in the rotation at once).
+4. Set the **coverage**. Leave it at **24/7** for always-on, or choose **Custom** and set **Active days** (pick days, or a day range) and **Active times** (the **All day** toggle, or a from–to window). See [Rotations and coverage](../rotations-and-coverage/).
 
-5. For a rotating shift, set the **handoff** — every *N* hours, days, or weeks. For a weekly cadence, pick the handoff **weekday** and **time**; a **start date** anchors the first shift.
+5. Choose the **shift assignment**: **Handoff and rotate to next member** (one person on call per shift) or **All members are on-call for each shift** (everyone in the rotation at once).
 
-6. Add **members** in the order they should take a shift. Order matters: the first person covers the first shift, the second the next, and so on. Reordering them later changes who's on call when.
+6. For a rotating shift, set the **handoff** — every *N* hours, days, or weeks. For a weekly cadence, pick the handoff **weekday** and **time**; a **start date** anchors the first shift.
 
-7. Save the rotation. It appears on the calendar immediately so you can check it before saving the schedule.
+7. Add **members** in the order they should take a shift. Order matters: the first person covers the first shift, the second the next, and so on. Reordering them later changes who's on call when.
+
+8. Save the rotation. It appears on the calendar immediately so you can check it before saving the schedule.
 </Steps>
 
 :::note[Placeholder image]
@@ -108,6 +110,7 @@ Every rotation has the same fields. The defaults below are what a fresh rotation
 | Field | Values | Default | Notes |
 |---|---|---|---|
 | Name | Text | — | Labels the rotation's shifts on the calendar and its row in the Rotations panel. |
+| Priority | Whole number, 0 or higher | 0 | Where rotations overlap, a higher priority takes over and hides lower ones; equal priority stays additive. |
 | Timezone | Use schedule timezone, or any timezone | Use schedule timezone | The basis for this rotation's handoff and coverage times. Override it for follow-the-sun. |
 | Coverage | 24/7, Custom | 24/7 | When the rotation is active. Custom adds Active days and Active times. |
 | Active days | Selected weekdays, or a day range | — | Custom coverage only. The days a shift can start. |
@@ -119,7 +122,7 @@ Every rotation has the same fields. The defaults below are what a fresh rotation
 
 ## Read the calendar
 
-The calendar is the quickest check that a schedule does what you meant. It lays out who's on call across the coming weeks — every rotation's shifts, color-coded per person, with the exact handoff moments. Where two rotations overlap, you'll see both responders on the calendar at once, which is the additive behavior working as intended.
+The calendar is the quickest check that a schedule does what you meant. It lays out who's on call across the coming weeks — every rotation's shifts, color-coded per person, with the exact handoff moments. Where two rotations overlap, you'll see both responders on the calendar at once — the additive default. If you gave one rotation a higher **priority**, the lower one drops out of the overlap instead, so a shift can disappear from the calendar on purpose.
 
 If a handoff lands on the wrong day or the wrong person leads, open the rotation, fix the handoff weekday or the member order, and watch the calendar update before you save. The **Schedules** tab's coverage timeline is also where you confirm there are no gaps with nobody on call.
 

@@ -1,6 +1,6 @@
 ---
 title: "On-Call Schedules"
-description: "Build additive rotations that decide who's on call at any moment, using coverage windows, per-rotation timezones, and overrides."
+description: "Build rotations that decide who's on call at any moment, using coverage windows, priority, per-rotation timezones, and overrides."
 sidebar:
   label: "Overview"
   order: 1
@@ -25,19 +25,19 @@ A schedule is a named wrapper around one or more **rotations**. Once the mental 
   - A rotation can also carry its own **timezone** that overrides the schedule's — the basis for follow-the-sun.
 - **Override** — a timed swap that replaces the on-call set for a fixed window. See [Overrides](./overrides/).
 
-### Rotations are additive
+### How rotations combine
 
-Here is the one rule that governs everything else: **rotations add up. There is no precedence and no "top" rotation.**
-
-Who's on call at any instant is the **union of every active rotation's current assignee(s)**, deduplicated by person. A rotation is *active* at a given moment when that moment falls inside its coverage window — a 24/7 rotation is always active. If three rotations are active at once, all three of their current responders are on call together, and an escalation step that targets the schedule notifies every one of them.
+By default, **rotations add up**. Who's on call at any instant is the **union of every active rotation's current assignee(s)**, deduplicated by person. A rotation is *active* at a given moment when that moment falls inside its coverage window — a 24/7 rotation is always active. If three rotations are active at once, all three of their current responders are on call together, and an escalation step that targets the schedule notifies every one of them.
 
 This is what makes multi-responder and follow-the-sun coverage natural:
 
 - **Multi-responder** — run two rotations over the same hours and both responders are on call at the same time (for example, a primary plus a shadowing secondary).
 - **Follow-the-sun** — give each region its own rotation in its own timezone, and coverage hands around the globe as each region's working hours come round.
 
-:::tip[Overlapping coverage means *both* people are on call]
-If two rotations' coverage windows overlap, KloudMate doesn't pick a winner — it puts **both** current responders on call for the overlap. There's no "higher rotation wins." To have exactly one person on call at a time, give your rotations coverage windows that don't overlap.
+When you *don't* want both people on call for an overlap, give one rotation a higher **priority**. The higher priority takes over and hides the lower one for as long as they overlap. Every rotation sits at priority `0` until you change it, so schedules stay additive unless you opt in — see [Rotations and coverage](./rotations-and-coverage/#rotation-priority).
+
+:::tip[Overlapping coverage adds up — unless you set a priority]
+When two rotations' coverage windows overlap, both current responders are on call by default. To hand the overlap to one of them, raise that rotation's **priority**: a higher number wins and hides the lower one while they overlap. Equal priority (the default) keeps both on call.
 :::
 
 ## See who's on call
