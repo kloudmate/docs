@@ -1,0 +1,135 @@
+---
+title: "Set Up the Lambda Telemetry Extension"
+description: "Attach the KloudMate layer to a Lambda function and point it at your OTLP endpoint with two environment variables."
+sidebar:
+  label: "Setup"
+  order: 2
+---
+import { Steps, Tabs, TabItem } from '@astrojs/starlight/components';
+
+You'll take one Lambda function from no telemetry to logs, metrics, and traces in KloudMate. It's about five minutes, and nothing in your function code changes.
+
+## Before you start
+
+- A KloudMate ingest API key. Create one under [API Keys](../../../platform/settings/api-keys/).
+- Your KloudMate OTLP endpoint — `https://otel.kloudmate.com:4318` for most accounts.
+- Permission to update the function's configuration (its layers and environment variables).
+
+## Add the layer and configure the function
+
+<Steps>
+
+1. **Find the layer ARN for your function.** It has to match the function's **Region** and **architecture** (x86_64 or arm64). Copy the matching ARN from [Layer ARNs](../layer-arns/).
+
+2. **Add the layer to the function.** A function can carry up to five layers, so this one sits alongside any you already use.
+
+3. **Set the environment variables:**
+
+   ```bash
+   OTEL_EXPORTER_OTLP_ENDPOINT=https://otel.kloudmate.com:4318
+   OTEL_EXPORTER_OTLP_HEADERS=Authorization=YOUR_KLOUDMATE_API_KEY
+   OTEL_SERVICE_NAME=my-service        # optional; defaults to the function name
+   ```
+
+4. **Deploy and invoke the function.** The change takes effect on the next invocation. Open the function in KloudMate to confirm data is arriving.
+
+</Steps>
+
+:::caution
+If this account is already connected through the [AWS account integration](../../account-setup/), it subscribes every Lambda log group automatically — so this function's logs would arrive twice. Add `OTEL_LOGS_EXPORTER=none` to the variables above to send only metrics and traces from the extension, and let CloudWatch keep the logs.
+:::
+
+## Configure it with infrastructure as code
+
+Drop the same layer ARN and environment variables into whatever you use to manage the function. The examples below use `us-east-1` (x86_64) — swap in the ARN for your Region and architecture, and your own API key.
+
+<Tabs>
+<TabItem label="Terraform">
+
+```hcl
+resource "aws_lambda_function" "my_function" {
+  function_name = "my-service"
+  # ...your existing configuration...
+
+  layers = [
+    "arn:aws:lambda:us-east-1:429321095007:layer:lambda-telemetry-extension:2",
+  ]
+
+  environment {
+    variables = {
+      OTEL_EXPORTER_OTLP_ENDPOINT = "https://otel.kloudmate.com:4318"
+      OTEL_EXPORTER_OTLP_HEADERS  = "Authorization=YOUR_KLOUDMATE_API_KEY"
+      OTEL_SERVICE_NAME           = "my-service"
+    }
+  }
+}
+```
+
+</TabItem>
+<TabItem label="AWS SAM">
+
+```yaml
+Resources:
+  MyFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: my-service
+      Layers:
+        - arn:aws:lambda:us-east-1:429321095007:layer:lambda-telemetry-extension:2
+      Environment:
+        Variables:
+          OTEL_EXPORTER_OTLP_ENDPOINT: https://otel.kloudmate.com:4318
+          OTEL_EXPORTER_OTLP_HEADERS: Authorization=YOUR_KLOUDMATE_API_KEY
+          OTEL_SERVICE_NAME: my-service
+```
+
+</TabItem>
+<TabItem label="AWS CLI">
+
+```bash
+aws lambda update-function-configuration \
+  --function-name my-service \
+  --layers arn:aws:lambda:us-east-1:429321095007:layer:lambda-telemetry-extension:2 \
+  --environment "Variables={
+    OTEL_EXPORTER_OTLP_ENDPOINT=https://otel.kloudmate.com:4318,
+    OTEL_EXPORTER_OTLP_HEADERS=Authorization=YOUR_KLOUDMATE_API_KEY,
+    OTEL_SERVICE_NAME=my-service
+  }"
+```
+
+</TabItem>
+<TabItem label="Console">
+
+1. Open the function in the AWS Lambda console.
+2. Under **Layers**, choose **Add a layer → Specify an ARN**, paste the ARN for your Region and architecture, and add it.
+3. Under **Configuration → Environment variables**, add `OTEL_EXPORTER_OTLP_ENDPOINT`, `OTEL_EXPORTER_OTLP_HEADERS`, and (optionally) `OTEL_SERVICE_NAME`.
+4. Save, then invoke the function.
+
+</TabItem>
+</Tabs>
+
+## Confirm it's working
+
+Invoke the function once, then check KloudMate:
+
+- **Logs** — the function's output shows up in Log Explorer, tagged with its service name.
+- **Metrics** — `faas.invoke_duration` and the related metrics appear for the function.
+- **Traces** — with X-Ray active tracing enabled, each invocation produces a trace.
+
+Nothing within a minute? Set `OTEL_LOG_LEVEL=debug` and check the function's own CloudWatch logs — the extension reports what it's doing on lines tagged `[KloudMate]`.
+
+## Troubleshooting
+
+| What you see | Likely cause and fix |
+| --- | --- |
+| No data in KloudMate | Check that the API key in `OTEL_EXPORTER_OTLP_HEADERS` is valid and the endpoint is reachable. Turn on `OTEL_LOG_LEVEL=debug` and read the `[KloudMate]` lines. |
+| `export rejected (401)` | The API key is missing or wrong. Recheck the `Authorization` value against [API Keys](../../../platform/settings/api-keys/). |
+| Function fails to start | The layer's architecture doesn't match the function. Use the ARN that matches x86_64 or arm64. |
+| Logs and metrics work, but no traces | Traces need X-Ray active tracing on the function. Turn it on, or expect logs and metrics only. |
+
+## Related Resources
+
+- [Layer ARNs](../layer-arns/)
+- [Configuration & Data](../configuration/)
+- [Overview](../)
+- [API Keys](../../../platform/settings/api-keys/)

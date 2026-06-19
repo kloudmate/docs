@@ -19,6 +19,7 @@ Once connected, KloudMate can automatically discover AWS resources and begin ing
 - **Automatic Resource Discovery**: Quickly discover and monitor supported AWS resources, starting with AWS Lambda.
 - **Centralized CloudWatch Logs**: Subscribe to existing CloudWatch Log Groups directly from the KloudMate dashboard and forward them into the centralized Log Explorer.
 - **Serverless Observability**: Get out-of-the-box dashboards and metrics (such as invocations, errors, cold starts, and memory usage) for AWS Lambda workloads.
+- **Direct Lambda Telemetry**: Push logs, metrics, and traces straight from a function with the [Lambda Telemetry Extension](./lambda-telemetry-extension/) layer — no CloudFormation stack or CloudWatch subscription required.
 
 ## Available Guides
 
@@ -27,3 +28,4 @@ Explore the following guides to set up and configure your AWS integrations:
 - **[AWS Account Setup](./account-setup/)**: Learn how to connect your AWS environment to KloudMate using CloudFormation and cross-account IAM roles.
 - **[CloudWatch Logs](./cloudwatch-logs/)**: Instructions for subscribing to CloudWatch Log groups and making them fully searchable inside KloudMate.
 - **[AWS Lambda Monitoring](./lambda-monitoring/)**: Explore how KloudMate aggregates Lambda metrics, invocations, and issues in a unified console.
+- **[Lambda Telemetry Extension](./lambda-telemetry-extension/)**: Send Lambda logs, metrics, and traces to KloudMate with a layer, skipping the cross-account CloudFormation setup.
