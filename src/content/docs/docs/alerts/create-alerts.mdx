@@ -143,6 +143,10 @@ This section opens with a **Folder** dropdown — select an existing folder (or 
 When **Alert state if No data** or **Alert state if Error** is set to **Firing**, the alert doesn't fire the instant data goes missing or a query errors. It fires only after the condition has held for the **Pending duration** above — so a brief gap or a transient error won't page anyone, and a series that's already firing rides through the blip without resetting. Set the **Pending duration** to `0` to fire immediately instead.
 :::
 
+:::tip
+For the full lifecycle — how **Pending duration**, **Recovery period**, and the **No data** / **Error** states interact across an alert's states — see [Alert Lifecycle & States](../alert-lifecycle/).
+:::
+
 Click **Preview alerts** to run the query immediately and check the result.
 
 :::tip
