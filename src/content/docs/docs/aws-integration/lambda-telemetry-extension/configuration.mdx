@@ -37,12 +37,35 @@ The extension reports these for every invocation. Use the names to build dashboa
 | `aws.lambda.billed_duration` | seconds | AWS billed time |
 | `aws.lambda.produced_bytes` | bytes | Response payload size |
 | `aws.lambda.runtime_duration` | seconds | Handler time, not counting the extension |
+| `aws.lambda.restore_duration` | seconds | SnapStart restore duration |
 
 Each metric is tagged with the request ID, a cold-start flag, and the invocation status, so you can filter and group by any of them.
 
+You can use these metrics to build dashboards that track your function's health and resource consumption over time.
+
+![Lambda OTel Dashboard showing invocation trends, memory usage, billed duration, and cold start metrics](./images/telemetry-metrics-dashboard.png)
+
 ## Logs and traces
 
-Your function's stdout/stderr lines arrive as logs, with the severity read from each line. With [X-Ray active tracing](https://docs.aws.amazon.com/lambda/latest/dg/services-xray.html) enabled, each invocation also produces a trace, and that invocation's logs link to it. Without active tracing, you still get logs and metrics.
+Your function's stdout/stderr lines arrive as logs, with the severity read from each line. Without active tracing, you still get logs and metrics.
+
+### Logs in Log Explorer
+
+Every logs or print statement from your function code is forwarded directly to the **Log Explorer**, alongside lifecycle events like `START`, `END`, and `REPORT` requests.
+
+![Log Explorer displaying Lambda execution logs and lifecycle messages](./images/telemetry-log-explorer.png)
+
+### Trace Correlation
+
+With [X-Ray active tracing](https://docs.aws.amazon.com/lambda/latest/dg/services-xray.html) enabled, each invocation also produces a trace. This connects the logs from that specific execution to a unified trace timeline.
+
+In the **Traces** explorer, you can list and filter invocations by their duration and status:
+
+![Traces list showing recent execution spans and durations](./images/telemetry-traces-list.png)
+
+Selecting an execution trace opens a detailed breakdown of the execution timeline. This breaks down the lifecycle into sub-spans like `responseLatency`, `responseDuration`, and `runtimeOverhead`:
+
+![Trace details showing sub-span latency and runtime overhead timeline](./images/telemetry-traces-detail.png)
 
 ## Related Resources
 
