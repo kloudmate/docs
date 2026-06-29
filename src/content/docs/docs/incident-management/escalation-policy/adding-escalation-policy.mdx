@@ -22,10 +22,7 @@ This page walks through building a policy from scratch — the policy-level sett
 4. Set the **repeat count** — how many extra times to run the whole policy from step 1 if nobody acknowledges. `0` runs the policy once.
 </Steps>
 
-:::note[Placeholder image]
-Screenshot pending — the policy form with the name, description, wait time, and repeat count fields.
-:::
-![Escalation policy form](../../_placeholders/screenshot-placeholder.png)
+![Escalation policy form](./images/escalation-policy-form.png)
 
 ## Add steps
 
@@ -46,19 +43,13 @@ Each step names its recipients and how long to wait before escalating.
 5. Click **Save**.
 </Steps>
 
-:::note[Placeholder image]
-Screenshot pending — a step with a user, an on-call schedule, and a Slack channel as recipients.
-:::
-![Escalation step with mixed recipients](../../_placeholders/screenshot-placeholder.png)
+![Escalation step with mixed recipients](./images/escalation-step-recipients.png)
 
 :::caution[Retry interval must be shorter than escalate-after]
 Retries only run during a step's escalate-after window. If the retry interval is at least as long as that window, the first retry never fires before the policy advances — the editor flags this with a warning. Set the retry interval shorter than escalate-after.
 :::
 
-:::note[Placeholder image]
-Screenshot pending — the retry configuration (retry interval and max retries) and the connector between two steps.
-:::
-![Step retry configuration and connector](../../_placeholders/screenshot-placeholder.png)
+![Step retry configuration and connector](./images/escalation-step-retry.png)
 
 ## A worked example
 

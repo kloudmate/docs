@@ -57,10 +57,7 @@ Each condition picks a **field**, an **operator**, and a **value**. The availabl
 
 **In** matches against a comma-separated set of values. **Matches regex** tests the value against a regular expression. **Greater than** / **Less than** compare numerically, so they're available only on payload fields.
 
-:::note[Placeholder image]
-Screenshot pending — the rule editor with the match mode selector and a couple of conditions.
-:::
-![Routing rule editor with match conditions](../../_placeholders/screenshot-placeholder.png)
+![Routing rule editor with match conditions](./images/rule-editor-conditions.png)
 
 ## Actions
 
@@ -81,10 +78,7 @@ When a rule matches, its actions feed a single routing decision. How conflicting
 A rule that suppresses the incident ends evaluation immediately — no lower-priority rule runs, and no responders or on-call notifications from other rules are added. Put suppression rules at a low priority and scope them tightly.
 :::
 
-:::note[Placeholder image]
-Screenshot pending — the action picker showing the assign / set / suppress / add-responder / notify-on-call actions.
-:::
-![Routing rule action picker](../../_placeholders/screenshot-placeholder.png)
+![Routing rule action picker](./images/rule-action-picker.png)
 
 ## How service, policy, and severity are resolved
 
@@ -107,10 +101,7 @@ The rule editor includes a tester so you don't have to wait for a real alert. Fe
 
 Use it to confirm a new rule does what you expect — and that it doesn't accidentally suppress traffic you care about — before it goes live.
 
-:::note[Placeholder image]
-Screenshot pending — the rule tester with a sample payload and the resulting routing decision.
-:::
-![Routing rule tester with a decision result](../../_placeholders/screenshot-placeholder.png)
+![Routing rule tester with a decision result](./images/rule-tester.png)
 
 ## Create a routing rule
 
