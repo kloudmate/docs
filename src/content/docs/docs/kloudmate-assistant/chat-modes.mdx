@@ -24,7 +24,7 @@ This mode is best suited for:
 - Asking questions about recent errors or issues
 - Getting quick explanations without launching a background investigation
 
-In this example, the Assistant searches the relevant logs and returns a direct explanation of the exporter failure, including the root cause pattern, affected component, signal type, service context, and a short investigation summary.
+In this example, the Assistant analyzes a service for errors and root cause. It checks current health, logs, traces, and issues, then surfaces relevant observations along with a root cause recommendation.
 
 ![image](./images/chat-modes-13.png)
 
@@ -32,11 +32,11 @@ In this example, the Assistant searches the relevant logs and returns a direct e
 
 KloudMate Builder is designed for drafting dashboards and alarms before you apply them. Use this mode when you want help creating or modifying alerting and dashboard configurations from natural-language instructions.
 
-In this example, KloudMate Builder interprets the request as an alert creation task for frontend CPU usage and prepares a draft configuration based on that intent.
+In this example, KloudMate Builder interprets the request as a dashboard creation task and drafts a dashboard with relevant panels based on that intent.
 
 ![image](./images/chat-modes-15.png)
 
-This helps users move from a natural-language request to a structured alarm draft without manually configuring every field from scratch. The Builder selects an appropriate metric, applies the relevant service filter, and translates the requested threshold into a reviewable alert definition that can be refined and saved.
+This helps users move from a natural-language request to a structured dashboard draft without manually configuring every panel from scratch. The Builder selects appropriate metrics, applies relevant variables and filters, and lays out the panels into a reviewable dashboard that can be refined and saved.
 
 ## KloudMate Docs
 
