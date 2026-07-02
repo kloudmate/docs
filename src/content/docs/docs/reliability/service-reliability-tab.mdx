@@ -12,7 +12,7 @@ Reliability isn't only a top-level area. KloudMate surfaces SLO context where yo
 Every IM service detail page (`/<workspaceId>/im/services/<id>`) now has tabs:
 
 - **Overview** (default) — the existing stat cards and integrations table.
-- **Reliability** (new) — a service-scoped Create SLO button and a table of the service's **Incident availability** SLOs. Those are the only SLOs tied to a service; metric- and APM-based SLOs are workspace-level and don't appear here. Same row shape as the workspace [SLO list](./slo-detail/). The Create SLO button deep-links into the wizard with the service prefilled (it pre-selects the Incident availability kind). Empty state with explanatory copy when the service has no incident-based SLOs yet.
+- **Reliability** (new) — a service-scoped Create SLO button and a table of the service's **Incident availability** SLOs. Those are the only SLOs tied to a service; metric- and APM-based SLOs are workspace-level and don't appear here. Same row shape as the workspace [SLO list](../slo-detail/). The Create SLO button deep-links into the wizard with the service prefilled (it pre-selects the Incident availability kind). Empty state with explanatory copy when the service has no incident-based SLOs yet.
 
 Tab is URL-synced — `?tab=overview` or `?tab=reliability`. Refreshing or sharing the link preserves the active tab.
 
@@ -56,6 +56,6 @@ The CTA is a discovery prompt — consider defining an SLO covering the same con
 
 ## Related
 
-- [Reliability Overview](../reliability/) — workspace-wide hub.
-- [SLO detail](./slo-detail/) — where the cards link to.
-- [Create an SLO](./create-an-slo/) — what Define an SLO opens.
+- [Reliability Overview](../) — workspace-wide hub.
+- [SLO detail](../slo-detail/) — where the cards link to.
+- [Create an SLO](../create-an-slo/) — what Define an SLO opens.
