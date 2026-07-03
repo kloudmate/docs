@@ -76,7 +76,7 @@ The Step 4 recommendation is a good default, but the right path depends on what 
 | **Databases** (Postgres, MySQL, Mongo, Redis, etc.) | [Database Monitoring](../../database-monitoring/) | Connect the database; query stats, slow logs, and connection health stream in. |
 | **AWS services** (Lambda, EC2, RDS, ECS, DynamoDB, …) | [AWS Integration](../../aws-integration/) | Agentless cloud-platform pull via the AWS API. |
 | **Azure services** | [Azure Integration](../../azure-integration/) | Azure Monitor + Event Hub. |
-| **Existing Prometheus metrics** | [Prometheus Integration](../../infrastructure/prometheus-integration/) | Forward your Prometheus metrics via the OTel-based remote-write path. |
+| **Existing Prometheus metrics** | [Prometheus Integration](../../infrastructure/integrations/prometheus-integration/) | Forward your Prometheus metrics via the OTel-based remote-write path. |
 | **Existing OpenTelemetry pipelines** | [OpenTelemetry Collector](../../opentelemetry/) | Add an OTLP exporter — no changes to your collector-first architecture. |
 | **Synthetic monitoring** (uptime, browser checks) | [Synthetics](../../synthetic/) | Set up checks from the UI; no agent or SDK required. |
 | **Real-User Monitoring (RUM)** | [RUM](../../rum/) | Drop the browser SDK into your frontend to capture session, performance, and error data. |
