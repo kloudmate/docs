@@ -62,6 +62,7 @@ export default defineConfig({
       ],
       title: 'KloudMate Docs',
       description: 'Documentation for KloudMate observability platform',
+      favicon: '/favicon.ico',
       logo: {
         light: './src/assets/logo-light.png',
         dark: './src/assets/logo-dark.png',

@@ -1,0 +1,53 @@
+---
+title: "Set up SSO with OneLogin"
+description: "Connect OneLogin to KloudMate using a SAML Custom Connector, including ACS, audience, and email attribute mapping."
+sidebar:
+  label: "OneLogin"
+  order: 6
+---
+
+This guide connects OneLogin to KloudMate using SAML, via OneLogin's **SAML Custom Connector**.
+
+## Before you start
+
+- You're the KloudMate **organization owner** on a **paid plan**.
+- You're an admin in OneLogin.
+- Copy KloudMate's values first from the **Service provider details** card — you'll need the **ACS URL** and the **SP Entity ID** (the `entityID` in the downloaded SP metadata).
+
+## 1. Create the SAML app
+
+1. In the OneLogin admin portal, go to **Applications → Applications → Add App**.
+2. Search for **SAML Custom Connector (Advanced)** and add it.
+3. Give it a display name like `KloudMate` and save.
+
+## 2. Configure the SAML settings
+
+On the app's **Configuration** tab, set:
+
+- **ACS (Consumer) URL** — your KloudMate **ACS URL**, `https://api.kloudmate.com/sso/saml`
+- **ACS (Consumer) URL Validator** — a regex that matches the ACS URL (OneLogin requires one; escape the dots, for example `^https:\/\/api\.kloudmate\.com\/sso\/saml$`)
+- **Audience (EntityID)** — your KloudMate **SP Entity ID**
+- **Recipient** — the same as the ACS URL
+- **NameID format** — `Email`
+
+Save the configuration.
+
+## 3. Map the email attribute
+
+On the **Parameters** tab, confirm the NameID (or an attribute named `email`) is set to the user's **Email**. KloudMate reads the email from the NameID or an `email` attribute, so one of those must carry it.
+
+## 4. Copy OneLogin's metadata into KloudMate
+
+1. On the app's **More Actions** menu, choose **SAML Metadata** to download the IdP metadata XML (or copy the **Issuer URL** / metadata URL from the **SSO** tab).
+2. In KloudMate, open **Connections → Add connection**, choose **SAML 2.0**, keep **Paste metadata XML**, and paste the metadata into **IdP metadata XML**.
+3. Set **Display name** to `OneLogin` and click **Add connection**.
+
+To configure manually instead of pasting metadata, switch the dialog to **Enter manually** and copy OneLogin's **SAML 2.0 Endpoint (HTTP)** into **SSO URL (entry point)**, its **Issuer URL** into **Issuer (IdP entity ID)**, and its **X.509 Certificate** into **IdP signing certificate**.
+
+## Finish up
+
+1. [Verify your company domain](../../domain-verification/).
+2. Choose a [provisioning mode](../../provisioning-and-enforcement/).
+3. Test sign-in with a work email on a verified domain via **Sign in with SSO**.
+
+Hitting an error? See [Troubleshooting](../../troubleshooting/).

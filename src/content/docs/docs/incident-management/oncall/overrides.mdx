@@ -1,0 +1,57 @@
+---
+title: "Overrides"
+description: "Temporarily replace who's on call for a fixed window — to cover a vacation or a one-off swap — without changing the rotation."
+sidebar:
+  label: "Overrides"
+  order: 4
+---
+
+import { Steps } from '@astrojs/starlight/components';
+
+An override puts a specific person on call for a fixed window, then restores the normal rotations. Reach for one when the rotations are right in general but wrong for a few days — someone's on vacation, swapping a shift, or covering a deploy. The rotations underneath are untouched; the override sits on top of them for its window only.
+
+:::note[Availability]
+On-Call Schedules are a paid Incident Management feature. If you don't see **On-Call Schedules** in the Incident Management navigation, your plan doesn't include it yet — contact your account team to turn it on.
+:::
+
+## Add an override
+
+<Steps>
+1. Open the schedule and start a new **override**.
+
+2. Pick the **user** who'll cover the window.
+
+3. Set the **start** and **end** — both are a date and time, interpreted in the schedule's timezone.
+
+4. Add an optional **reason** ("Bob PTO", "covering deploy") so the rest of the team knows why.
+
+5. Save. The override takes effect immediately for its window.
+</Steps>
+
+An override **replaces the active on-call set** for the time it covers — whoever the rotations would otherwise put on call is set aside until it ends, and only the override's person is on call. If two overrides overlap, the one created most recently wins.
+
+![Add override dialog](./images/override-dialog.png)
+
+## Example: cover a vacation
+
+Bob is on call next week but away Wednesday and Thursday. Cover the gap with one override:
+
+| Field | Value |
+|---|---|
+| User | Dana |
+| Start | Wednesday 00:00 |
+| End | Friday 00:00 |
+| Reason | Bob PTO |
+
+Dana is on call from Wednesday until Friday at 00:00; Bob resumes automatically when the override ends. Nothing about the weekly rotation changes — the next handoff still happens on schedule.
+
+## Remove an override
+
+Plans change. Open the schedule, find the override in its list, and delete it. The rotations underneath resume for that window as if the override had never existed.
+
+![Schedule detail with overrides list](./images/schedule-overrides-list.png)
+
+## Related
+
+- [Create a schedule](../creating-a-schedule/) — the rotations an override sits on top of.
+- [Rotations and coverage](../rotations-and-coverage/) — the permanent coverage structure an override sits on top of.

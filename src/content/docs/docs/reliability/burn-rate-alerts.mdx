@@ -1,0 +1,73 @@
+---
+title: "Burn-rate Alerts"
+description: "Page on burn-rate spikes before the error budget runs out — four presets cover the typical responsiveness-vs-noise tradeoffs."
+sidebar:
+  order: 6
+---
+
+A **burn-rate alert** fires when an SLO's burn rate is too high over **both** a short and a long window simultaneously. The long window suppresses brief blips; the short window keeps the alert responsive. Both are required to catch real problems without paging on every momentary spike.
+
+Burn-rate alerts live in two places:
+
+- **Per SLO**, under the SLO detail page's Burn-rate alerts section — for creating, editing, and deleting alerts.
+- **Workspace-wide**, on the [Burn-rate alerts page](#workspace-wide-burn-rate-alerts) (`/<workspaceId>/slos/alerts`) — the on-call surface that lists every burn-rate alert in the workspace, firing-first.
+
+## Anatomy of a burn-rate alert
+
+| Field | What it does |
+|---|---|
+| **Name** | Required. How the alert shows up in the list. |
+| **Short window in minutes** | Required, positive integer. |
+| **Long window in minutes** | Required, must be greater than short. |
+| **Burn rate threshold** | Required, must be > 1. |
+| **Notification channels** | Multi-select from the workspace's notification channels — at least one is required. |
+| **Enabled** | Toggle. Disabled alerts show a `Disabled` chip but keep their config. |
+
+## The four presets
+
+Four preset buttons sit above the create form. Each picks a common responsiveness-vs-noise tradeoff:
+
+| Preset (button label) | Short / Long | Threshold | When to use |
+|---|---|---|---|
+| **Critical (1m / 5m, 14.4×)** | 1 m / 5 m | 14.4× | Page immediately — for very high-priority SLOs. |
+| **Fast (5m / 1h, 14.4×)** | 5 m / 1 h | 14.4× | Page now — catches sudden outages. |
+| **Slow (30m / 6h, 6×)** | 30 m / 6 h | 6× | Catches gradual problems before the budget runs out. |
+| **Background (2h / 24h, 3×)** | 2 h / 24 h | 3× | Daily-check level for less critical SLOs. |
+
+Clicking a preset fills the form fields and seeds a default name (`Critical burn`, `Fast burn`, etc.). You can rename and tweak any field before saving.
+
+![Burn-rate alert form with presets](./images/burn-rate-alert-form.png)
+
+## Create a burn-rate alert
+
+1. Open the SLO's detail page.
+2. Scroll to **Burn-rate alerts** and click **Add burn-rate alert**.
+3. Select a preset (recommended) or fill in short / long / threshold manually.
+4. Name the alert.
+5. Select one or more **Notification channels**.
+6. Leave **Enabled** on (or off if you want to stage the alert).
+7. Click **Save**.
+
+## Workspace-wide burn-rate alerts
+
+The workspace-wide page at `/<workspaceId>/slos/alerts` lists every burn-rate alert across every SLO.
+
+Columns: **State** / **Alert** / **SLO** / **Channels**. Each row shows its parent SLO's name and SLI kind — there's no Service column, since most SLOs aren't tied to a service.
+
+Default sort is **firing-first** — currently-firing alerts at the top. The **State** chip reads *Firing for X*, *Quiet*, or *Disabled*.
+
+Filters:
+
+- **Firing only** toggle. The Overview hub's e.g. *"N alerts firing"* chip deep-links here with this toggle on via `?firing=1`.
+
+Click any row to open the parent SLO's detail page — alerts are created and edited from there.
+
+## Permissions
+
+Workspace **admin** is required to create, edit, or delete burn-rate alerts. Everyone else can read the list.
+
+## Related
+
+- [SLO detail](../slo-detail/) — where burn-rate alerts live per SLO.
+- [Notification Channels](../../platform/settings/notification-channels/) — set up the channels burn-rate alerts dispatch to.
+- [What is an SLO?](../what-is-an-slo/) — burn-rate definition.

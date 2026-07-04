@@ -1,0 +1,62 @@
+---
+title: "Troubleshooting SSO"
+description: "Decode KloudMate's SSO sign-in errors — what each code means, the likely cause, and how to fix it."
+sidebar:
+  label: "Troubleshooting"
+  order: 5
+---
+
+When an SSO sign-in fails, KloudMate lands the user on a branded **We couldn't sign you in** screen with a short, plain-language reason. If the identity provider returned a raw detail (e.g. `invalid_client`), it is available under a **Technical details** expander — open it when debugging the setup. A **Back to login** button returns to the start.
+
+This page lists the errors you might hit, grouped by where they happen, with the most likely cause and the fix.
+
+## Sign-in (callback) errors
+
+These appear on the callback screen after the user comes back from the IdP.
+
+| Error | What it means | How to fix it |
+| --- | --- | --- |
+| **SSO isn't set up for this organization or email** (`SSONotConfigured`) | No SSO connection or verified domain matches that email | Confirm a [connection](../) exists and the user's domain is [verified](../domain-verification/) |
+| **Couldn't verify your identity provider's response** (`OidcCallbackFailed`) | The OIDC token or ID token failed validation | Check the **Client secret** (a wrong one shows `invalid_client` in the details), confirm the redirect URI `https://api.kloudmate.com/sso/oidc` is registered in the IdP, and for Entra ID use the **tenant-specific** discovery URL, not `common`. Large clock skew on either side can also cause this |
+| **Couldn't verify your identity provider's response** (`SamlValidationFailed`) | The SAML assertion's signature, audience, or destination didn't check out | Re-import the IdP signing certificate (or fresh metadata), make sure the IdP **Audience** equals your **SP Entity ID**, and that the **Recipient/Destination** equals your **ACS URL** (`https://api.kloudmate.com/sso/saml`) |
+| **Your identity provider didn't return an email address** (`OidcMissingEmail` / `SamlMissingEmail`) | The IdP didn't send an email claim | Map the email claim (OIDC) or send email in the **NameID** or an `email` attribute (SAML). For Entra ID, ensure the user has a mailbox or map the optional `email` claim — see [the Entra guide](../providers/entra-id/) |
+| **Your account isn't set up for this org — ask an admin to invite you** (`UserNotProvisioned` / `UserNotInOrg`) | Provisioning is **invite-only** and this person wasn't invited | [Invite them](../../users-permissions/), or switch provisioning to **JIT** — see [Provisioning & enforcement](../provisioning-and-enforcement/) |
+| **Login session expired — please try again** (`SsoStateInvalid`) | The login attempt's state/session timed out or was reused | Start the sign-in again from the login page |
+| **Something went wrong signing you in — please try again** (`SsoLoginFailed`) | A generic failure, or the callback was reached with no token | Retry; if it persists, open **Technical details** and check your connection settings |
+
+## Password-login signal
+
+| Behavior | What it means | What to do |
+| --- | --- | --- |
+| Password login redirects to the IdP instead of signing in (`SSORequiredException`) | The member is on a verified domain, where SSO is required | This is expected — finish signing in at your IdP. The owner keeps password access as a fallback; see [enforcement](../provisioning-and-enforcement/) |
+
+## Setup and plan errors
+
+These show up while you're configuring SSO, usually as a toast or inline message.
+
+| Error | What it means | How to fix it |
+| --- | --- | --- |
+| **SSO is available on paid plans** (`PaidPlanRequiredException`) | The org isn't on a paid plan | Upgrade from **Settings → [Subscription & Billing](../../subscription-billing/)** |
+| **Couldn't read the IdP metadata — check the XML** (`InvalidSamlMetadata` / `InvalidSamlConnection`) | The pasted SAML metadata couldn't be parsed | Re-copy the full metadata document from your IdP, or switch to **Enter manually** |
+| **Discovery URL is invalid or not allowed (must be a public https URL)** (`InvalidOidcConnection` / `UnsafeUrl`) | The OIDC discovery URL is malformed or unreachable | Use the IdP's public `https://` `.well-known/openid-configuration` URL. A [self-hosted IdP](../providers/generic/) must be reachable over public HTTPS |
+| **Enter a valid domain (e.g. acme.com)** (`InvalidDomain`) | The domain you typed isn't a valid hostname | Enter a bare domain like `acme.com`, with no scheme or path |
+| **Public email domains (gmail.com, etc.) can't be used** (`PublicDomainNotAllowed`) | You tried to verify a shared public domain | Use a domain your company controls |
+| **This domain is already verified by another organization** (`DomainAlreadyVerified`) | Another org claimed the domain first | Contact support if the domain is genuinely yours |
+| **TXT record not found or didn't match** (`DomainVerificationFailed`) | The DNS TXT record is missing, wrong, or hasn't propagated | Re-check the **Host / Name** and **Value**, wait a few minutes, then click **Verify** again — see [Domain verification](../domain-verification/) |
+| **That connection was deleted — refresh and try again** (`SsoConnectionNotFound`) | The connection was removed in another tab/session | Refresh the page and retry |
+| **That domain was removed — refresh and try again** (`SsoDomainNotFound`) | The domain was removed elsewhere | Refresh the page and retry |
+| **Some fields are invalid — please review and try again** (`ValidationError`) | One or more form fields failed validation | The form highlights the specific fields — correct them and resubmit |
+
+## Provider-specific notes
+
+A couple of failures trace back to one IdP's quirks:
+
+- **Entra ID issuer mismatch.** Using the `common` or `organizations` discovery URL makes OIDC fail with an issuer mismatch (surfaced as `OidcCallbackFailed`). Use the **tenant-specific** URL `https://login.microsoftonline.com/<tenant-id>/v2.0/.well-known/openid-configuration`. See [Microsoft Entra ID](../providers/entra-id/).
+- **Google domain restriction.** Plain Google sign-in accepts any Google account. To restrict access to your company and route by email, use a Google Workspace account with a custom domain and verify that domain — `gmail.com` cannot be verified. See [Google](../providers/google/).
+
+## Related
+
+- [SSO overview & setup](../)
+- [Verify your company domain](../domain-verification/)
+- [Provisioning & enforcement](../provisioning-and-enforcement/)
+- [Provider guides](../providers/)

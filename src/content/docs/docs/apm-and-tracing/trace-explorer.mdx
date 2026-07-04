@@ -5,7 +5,7 @@ sidebar:
   order: 1
 ---
 
-Click **Traces** in the left navigation menu to open the section.
+Click **Traces** in the left navigation menu to open the section. It opens on the **Trace Summary** view by default.
 
 At the top of the page, the **span volume graph** visualizes trace activity over the selected time range. This gives you a quick pulse check on traffic patterns before you inspect individual traces.
 
@@ -32,10 +32,11 @@ Click the filter icon on the right to open the full attribute picker. Active fil
 Use the left sidebar to filter results by:
 
 - Service
+- Severity
 - HTTP Method
 - HTTP Status
-- Severity
 - Database Name
+- Duration (a latency histogram with a range slider)
 
 Each filter section includes a search box for quick lookup. When filters are active, a recent-filters notice appears at the top of the sidebar.
 
@@ -49,33 +50,50 @@ Click **Saved Queries** to view and apply previously saved searches. To save a n
 
 ## Traces Result Views
 
-### Spans
-
-The **Spans** tab is the default view. It lists every individual span captured within the selected time range and active filters. Each row displays `Timestamp`, `Span Name`, `Services`, `Duration`, and `Error`.
-
-This view is best when you need the most granular view of tracing activity.
-
-![image](./images/traces-6.jpeg)
+Switch between views using the toggle above the results. They all read the same trace data through the active time range and filters — each gives you a different level of detail.
 
 ### Trace Summary
 
-The **Trace Summary** tab groups spans into complete traces, giving you a higher-level view of end-to-end request journeys. Each row represents a single trace, showing its entry point, number of services, spans involved, total duration, and any errors.
+**Trace Summary** is the default view. It groups spans into complete traces, giving you a higher-level view of end-to-end request journeys. Each row represents a single trace, showing its entry point, number of services, spans involved, total duration, and any errors.
 
 ![image](./images/traces-2.png)
 
-### Root Spans
+### Trace Groups
 
-The **Root Spans** tab shows only the root span from each trace. This makes it easier to compare top-level requests without the noise of child spans.
+**Trace Groups** rolls traces up by **entry point** — one row per `(service, root operation)` — so you can see which endpoints drive your traffic, latency, and errors at a glance. Each row shows:
 
-![image](./images/traces-3.png)
+- **Entry point** — the root service and operation
+- **Traces** — number of traces for that entry point
+- **Spans (avg)** — average spans per trace
+- **Entities (avg)** — average number of services involved per trace (hover for the per-service breakdown)
+- **p95** — 95th-percentile trace duration
+- **Errors** — number of traces with errors
+- **Trend** — a sparkline of trace volume over the window (hover for per-bucket counts)
 
-### Services
+Filter the groups from the left panel by **entry operation**, **service**, and **duration**.
 
-The **Services** tab summarizes traffic by service so you can identify hotspots, dependency trends, and the applications generating the most trace volume.
+#### Drilling into a group
 
-![image](./images/traces-4.png)
+Click a group row to open its **drill-down drawer**. The drawer shows the group's metrics across the top, then the list of traces that belong to it. From here you can:
+
+- **Filter the group's traces** by span attributes using the drawer's search bar.
+- **Scroll the list** — it pages automatically as you reach the bottom.
+- **Open any trace** — click a row to open its full [Trace Detail](../trace-detail/) stacked on top of the drawer. Closing it returns you to the group; closing the group returns you to the list.
+
+### Spans
+
+The **Spans** view lists every individual span captured within the selected time range and active filters. Each row displays `Timestamp`, `Span Name`, `Services`, `Duration`, and `Error`.
+
+This view is best when you need the most granular look at tracing activity. To isolate errors, add a **Severity → Error** filter from the sidebar.
+
+![image](./images/traces-6.jpeg)
+
+## Open a trace
+
+Select a trace or span from any result view to open it in [Trace Detail](../trace-detail/), where you inspect the timeline waterfall, per-span attributes, and the Service List, Request Flow, and AI Flow views.
 
 ## Related Paths
 
+- [Trace Detail](../trace-detail/)
 - [APM Views](../apm-views/)
 - [Explore](../../visualize-data/explore/)

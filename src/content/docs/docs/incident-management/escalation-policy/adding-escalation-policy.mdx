@@ -1,39 +1,69 @@
 ---
 title: "Create an Escalation Policy"
-description: "Create an escalation policy with one or more notification and timeout steps."
+description: "Build an escalation policy: set the initial wait and repeat, then add steps that page users, on-call schedules, and Slack channels."
 sidebar:
   label: "Create an Escalation Policy"
   order: 2
 ---
 
-Use the steps below to create a new escalation policy.
+import { Steps } from '@astrojs/starlight/components';
 
-1. Click **Add Escalation Policy** from the escalation policies page.
+This page walks through building a policy from scratch — the policy-level settings first, then the steps that do the paging.
 
-![image](./images/adding-escalation-policy-1.jpeg)
+## Create the policy
 
-2. Enter a **Name** and **Description**.
-3. Set the initial **Wait Time** in minutes.
+<Steps>
+1. Open **Incident Management → Escalation Policies** and click **Add Escalation Policy**.
 
-![image](./images/adding-escalation-policy-1.png)
+2. Enter a **name** and **description**.
 
-4. Under **Add Escalation Steps**, configure the notification targets for the first step:
-   - Select the notification channel
-   - Select the assignee
-   - Use **Add Another Alert** to add multiple channels in the same step
+3. Set the **wait time** — minutes before the first step fires. Leave it at `0` to page immediately.
 
-:::note
-  If you plan to notify Slack, first complete [Slack Integration](../../slack-integration/).
+4. Set the **repeat count** — how many extra times to run the whole policy from step 1 if nobody acknowledges. `0` runs the policy once.
+</Steps>
+
+![Escalation policy form](./images/escalation-policy-form.png)
+
+## Add steps
+
+Each step names its recipients and how long to wait before escalating.
+
+<Steps>
+1. In a step, add one or more **recipients**:
+   - **Users** — pick a user, then choose how to notify them: **email**, **SMS**, or **voice**. Select at least one method. SMS and voice are disabled (with a tooltip) unless your plan includes them and the user has a verified phone number.
+   - **On-call schedule** — pick a schedule; the step notifies whoever is on call when it fires — possibly several people. Requires the Pro plan.
+   - **Slack channel** — pick a connected channel and set its fallback order (`0` is primary). Connect Slack first under [Slack Integration](../../slack-integration/).
+
+2. Set **Escalate after** — minutes to wait for an acknowledgement before the next step fires.
+
+3. *(Optional)* Turn on **retries** for the step: set a **retry interval** and a **max retries** count to re-page the same recipients until someone acknowledges.
+
+4. Add more steps as needed. The connector between steps spells out what happens next — "Escalate after 10 minutes • then escalate to step 2", or "then repeat the policy from step 1", or "then stop".
+
+5. Click **Save**.
+</Steps>
+
+![Escalation step with mixed recipients](./images/escalation-step-recipients.png)
+
+:::caution[Retry interval must be shorter than escalate-after]
+Retries only run during a step's escalate-after window. If the retry interval is at least as long as that window, the first retry never fires before the policy advances — the editor flags this with a warning. Set the retry interval shorter than escalate-after.
 :::
 
-5. Set the **Escalate After** timeout in minutes for that step.
+![Step retry configuration and connector](./images/escalation-step-retry.png)
 
-![image](./images/adding-escalation-policy-2.png)
+## A worked example
 
-6. Click **Add Escalation** to create additional steps as needed.
+A policy that pages on-call first, then widens if no one answers:
 
-![image](./images/adding-escalation-policy-3.png)
+1. **Wait 0 min** — step 1 fires as soon as the incident opens.
+2. **Step 1** pages the **on-call schedule** plus a **backup user** by email and SMS. **Escalate after 5 min.**
+3. No ack in 5 minutes → **Step 2** posts to a **Slack channel** and pages the **manager** by voice. **Escalate after 10 min.**
+4. Still no ack → with **repeat count 1**, the policy runs from step 1 once more.
 
-7. Click **Save** when the policy is complete.
+As soon as anyone acknowledges, the policy stops.
 
-![image](./images/adding-escalation-policy-4.png)
+## Related
+
+- [Escalation Policies overview](../) — the model and timing.
+- [On-Call Schedules](../../oncall/) — what a schedule recipient resolves to.
+- [Slack Integration](../../slack-integration/) — required for channel recipients.

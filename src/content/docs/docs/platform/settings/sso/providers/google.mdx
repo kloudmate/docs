@@ -1,0 +1,72 @@
+---
+title: "Set up SSO with Google"
+description: "Connect Google (Google Cloud OAuth) to KloudMate using OIDC, with notes on restricting sign-in to your Workspace domain."
+sidebar:
+  label: "Google"
+  order: 4
+---
+
+This guide connects Google to KloudMate using OIDC, via OAuth credentials you create in Google Cloud. Google is OIDC-only here — there's no SAML variant in this guide.
+
+:::caution
+**Plain "Sign in with Google" is not restricted to your company** — any Google account can complete it. To limit sign-in to your organization and use email-based routing, you need a **Google Workspace** (custom-domain) account and you must verify that domain in KloudMate. A `gmail.com` domain can't be verified.
+:::
+
+## Before you start
+
+- You're the KloudMate **organization owner** on a **paid plan**.
+- You can create credentials in a Google Cloud project.
+- You use **Google Workspace** with your own domain (so you can verify it later).
+
+## 1. Configure the OAuth consent screen
+
+1. In the [Google Cloud console](https://console.cloud.google.com/), pick or create a project.
+2. Go to **APIs & Services → OAuth consent screen**.
+3. Choose **Internal** if you want only your Workspace users (recommended), complete the app name and support email, and save.
+
+## 2. Create OAuth credentials
+
+1. Go to **APIs & Services → Credentials → Create credentials → OAuth client ID**.
+2. Choose **Web application**.
+3. Under **Authorized redirect URIs**, add:
+
+   ```text
+   https://api.kloudmate.com/sso/oidc
+   ```
+
+4. Create the client, then copy the **Client ID** and **Client secret**.
+
+## 3. Add the connection in KloudMate
+
+Open **Connections → Add connection**, choose **OIDC**, and fill in:
+
+- **Display name** — `Google`
+- **Discovery URL**:
+
+  ```text
+  https://accounts.google.com/.well-known/openid-configuration
+  ```
+
+- **Client ID** and **Client secret** — from the OAuth client
+- **Scopes** — leave as `openid email profile`
+
+Click **Add connection**.
+
+### Email mapping
+
+With the `email` scope (included by default), Google returns the user's email in the ID token, which is exactly what KloudMate reads — no extra mapping needed.
+
+## 4. Restrict to your domain
+
+Because Google itself doesn't gate this flow to one company, KloudMate's domain verification does the gating:
+
+1. [Verify your company domain](../../domain-verification/) — your Workspace domain, for example `acme.com`.
+2. Only emails on that verified domain route through this connection when someone signs in by email.
+
+Then choose a [provisioning mode](../../provisioning-and-enforcement/). With **invite-only**, even a user who authenticates with Google must already be invited — recommended given Google's open consent flow.
+
+## Finish up
+
+Test sign-in: on the login page, type a Workspace email on your verified domain and click **Sign in with SSO**.
+
+Hitting an error? See [Troubleshooting](../../troubleshooting/).

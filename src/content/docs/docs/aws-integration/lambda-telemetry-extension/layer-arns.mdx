@@ -1,0 +1,72 @@
+---
+title: "Lambda Layer ARNs"
+description: "Per-region ARNs for the KloudMate Lambda Telemetry Extension layer, for both x86_64 and arm64 architectures."
+sidebar:
+  label: "Layer ARNs"
+  order: 3
+---
+
+Copy the layer ARN that matches your function's **Region** and **architecture**, then attach it in [Setup](../setup/). The layer is published publicly in every Region below, so any AWS account can use it. Copy the full ARN, including the version number at the end.
+
+:::caution
+Two things have to match the function, or the layer won't attach (and the function won't start):
+
+- **Region** — use the ARN from the same Region as your function.
+- **Architecture** — `lambda-telemetry-extension` for **x86_64**, `lambda-telemetry-extension-arm64` for **arm64**.
+:::
+
+## x86_64
+
+| Region | Layer ARN |
+| --- | --- |
+| ap-east-1 ⁺ | `arn:aws:lambda:ap-east-1:429321095007:layer:lambda-telemetry-extension:3` |
+| ap-northeast-1 | `arn:aws:lambda:ap-northeast-1:429321095007:layer:lambda-telemetry-extension:4` |
+| ap-northeast-2 | `arn:aws:lambda:ap-northeast-2:429321095007:layer:lambda-telemetry-extension:4` |
+| ap-south-1 | `arn:aws:lambda:ap-south-1:429321095007:layer:lambda-telemetry-extension:4` |
+| ap-southeast-1 | `arn:aws:lambda:ap-southeast-1:429321095007:layer:lambda-telemetry-extension:4` |
+| ap-southeast-2 | `arn:aws:lambda:ap-southeast-2:429321095007:layer:lambda-telemetry-extension:4` |
+| ca-central-1 | `arn:aws:lambda:ca-central-1:429321095007:layer:lambda-telemetry-extension:4` |
+| eu-central-1 | `arn:aws:lambda:eu-central-1:429321095007:layer:lambda-telemetry-extension:4` |
+| eu-north-1 | `arn:aws:lambda:eu-north-1:429321095007:layer:lambda-telemetry-extension:4` |
+| eu-south-1 ⁺ | `arn:aws:lambda:eu-south-1:429321095007:layer:lambda-telemetry-extension:3` |
+| eu-west-1 | `arn:aws:lambda:eu-west-1:429321095007:layer:lambda-telemetry-extension:4` |
+| eu-west-2 | `arn:aws:lambda:eu-west-2:429321095007:layer:lambda-telemetry-extension:4` |
+| eu-west-3 | `arn:aws:lambda:eu-west-3:429321095007:layer:lambda-telemetry-extension:4` |
+| sa-east-1 | `arn:aws:lambda:sa-east-1:429321095007:layer:lambda-telemetry-extension:4` |
+| us-east-1 | `arn:aws:lambda:us-east-1:429321095007:layer:lambda-telemetry-extension:4` |
+| us-east-2 | `arn:aws:lambda:us-east-2:429321095007:layer:lambda-telemetry-extension:4` |
+| us-west-1 | `arn:aws:lambda:us-west-1:429321095007:layer:lambda-telemetry-extension:4` |
+| us-west-2 | `arn:aws:lambda:us-west-2:429321095007:layer:lambda-telemetry-extension:4` |
+
+## arm64
+
+| Region | Layer ARN |
+| --- | --- |
+| ap-east-1 ⁺ | `arn:aws:lambda:ap-east-1:429321095007:layer:lambda-telemetry-extension-arm64:3` |
+| ap-northeast-1 | `arn:aws:lambda:ap-northeast-1:429321095007:layer:lambda-telemetry-extension-arm64:4` |
+| ap-northeast-2 | `arn:aws:lambda:ap-northeast-2:429321095007:layer:lambda-telemetry-extension-arm64:4` |
+| ap-south-1 | `arn:aws:lambda:ap-south-1:429321095007:layer:lambda-telemetry-extension-arm64:4` |
+| ap-southeast-1 | `arn:aws:lambda:ap-southeast-1:429321095007:layer:lambda-telemetry-extension-arm64:4` |
+| ap-southeast-2 | `arn:aws:lambda:ap-southeast-2:429321095007:layer:lambda-telemetry-extension-arm64:4` |
+| ca-central-1 | `arn:aws:lambda:ca-central-1:429321095007:layer:lambda-telemetry-extension-arm64:4` |
+| eu-central-1 | `arn:aws:lambda:eu-central-1:429321095007:layer:lambda-telemetry-extension-arm64:4` |
+| eu-north-1 | `arn:aws:lambda:eu-north-1:429321095007:layer:lambda-telemetry-extension-arm64:4` |
+| eu-south-1 ⁺ | `arn:aws:lambda:eu-south-1:429321095007:layer:lambda-telemetry-extension-arm64:3` |
+| eu-west-1 | `arn:aws:lambda:eu-west-1:429321095007:layer:lambda-telemetry-extension-arm64:4` |
+| eu-west-2 | `arn:aws:lambda:eu-west-2:429321095007:layer:lambda-telemetry-extension-arm64:4` |
+| eu-west-3 | `arn:aws:lambda:eu-west-3:429321095007:layer:lambda-telemetry-extension-arm64:4` |
+| sa-east-1 | `arn:aws:lambda:sa-east-1:429321095007:layer:lambda-telemetry-extension-arm64:4` |
+| us-east-1 | `arn:aws:lambda:us-east-1:429321095007:layer:lambda-telemetry-extension-arm64:4` |
+| us-east-2 | `arn:aws:lambda:us-east-2:429321095007:layer:lambda-telemetry-extension-arm64:4` |
+| us-west-1 | `arn:aws:lambda:us-west-1:429321095007:layer:lambda-telemetry-extension-arm64:4` |
+| us-west-2 | `arn:aws:lambda:us-west-2:429321095007:layer:lambda-telemetry-extension-arm64:4` |
+
+:::note
+⁺ `ap-east-1` (Hong Kong) and `eu-south-1` (Milan) are opt-in AWS Regions. The layer is available there once you've enabled the Region in your account. Need a Region that isn't listed? [Get in touch](../../../getting-started/get-help/) and we'll add it.
+:::
+
+## Related Resources
+
+- [Setup](../setup/)
+- [Configuration & Data](../configuration/)
+- [Overview](../)

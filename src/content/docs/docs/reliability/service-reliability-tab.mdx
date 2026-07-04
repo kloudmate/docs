@@ -1,0 +1,61 @@
+---
+title: "Service Reliability tab"
+description: "Reliability surfaces on the service detail page, incident detail, and alert detail."
+sidebar:
+  order: 7
+---
+
+Reliability isn't only a top-level area. KloudMate surfaces SLO context where you're already working — on the service detail page, on incident detail, and on alert detail.
+
+## Service detail — Reliability tab
+
+Every IM service detail page (`/<workspaceId>/im/services/<id>`) now has tabs:
+
+- **Overview** (default) — the existing stat cards and integrations table.
+- **Reliability** (new) — a service-scoped Create SLO button and a table of the service's **Incident availability** SLOs. Those are the only SLOs tied to a service; metric- and APM-based SLOs are workspace-level and don't appear here. Same row shape as the workspace [SLO list](../slo-detail/). The Create SLO button deep-links into the wizard with the service prefilled (it pre-selects the Incident availability kind). Empty state with explanatory copy when the service has no incident-based SLOs yet.
+
+Tab is URL-synced — `?tab=overview` or `?tab=reliability`. Refreshing or sharing the link preserves the active tab.
+
+![Service detail Reliability tab](./images/service-reliability-tab.png)
+
+### SLO summary chip in the service header
+
+When the service has at least one **Incident availability** SLO, a small chip appears in the page header next to the existing labels:
+
+- e.g. `N SLOs · Y% min compliance` — healthy (the lowest compliance across the service's evaluated SLOs).
+- `N SLOs · M breached` — red, when at least one is breached.
+
+Clicking the chip jumps to the Reliability tab. The chip is **only rendered when the service has incident-based SLOs** — services without any keep the header clean.
+
+## Incident detail — Linked SLOs panel
+
+On incident detail (`/<workspaceId>/im/incidents/<id>`), a **Linked SLOs** panel appears below the standard service / integration / escalation-policy labels — but only when the affected service has at least one **incident-based-availability** SLO.
+
+![Incident detail Linked SLOs panel](./images/incident-linked-slos.png)
+
+Each linked SLO shows as a card:
+
+- SLO name with **Breached** / **Disabled** chips as applicable.
+- Kind + target + window.
+- Current compliance %.
+
+Clicking a card opens the SLO detail page.
+
+Matching is **service-only** in v1 — every incident-based SLO on the affected service appears, even if the SLO's severity / metadata filters might exclude this specific incident. Slight over-reporting is the deliberate trade-off; re-evaluating SLO logic in the browser would be fragile.
+
+## Alert detail — Define an SLO
+
+The alert detail page header now includes a **Define an SLO** outlined button (admin-only) next to the existing actions (Ask AI, Jira integration, Edit Alert). Clicking it opens the SLO create wizard at `/<workspaceId>/slos/create`.
+
+:::note[Placeholder image]
+Screenshot pending — alert detail page header showing the Define an SLO CTA next to Edit Alert and Ask AI.
+:::
+![Alert detail Define an SLO CTA](../_placeholders/screenshot-placeholder.png)
+
+The CTA is a discovery prompt — consider defining an SLO covering the same condition as this alert. It does **not** auto-prefill the wizard because alert configurations don't map cleanly to SLI / target / window choices.
+
+## Related
+
+- [Reliability Overview](../) — workspace-wide hub.
+- [SLO detail](../slo-detail/) — where the cards link to.
+- [Create an SLO](../create-an-slo/) — what Define an SLO opens.

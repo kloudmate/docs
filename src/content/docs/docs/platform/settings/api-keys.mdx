@@ -1,33 +1,38 @@
 ---
 title: "API Keys"
-description: "Manage API keys for data ingestion and integration with KloudMate."
+description: "Create and manage API keys: User Keys for programmatic and MCP access, and Ingest Keys for sending telemetry to KloudMate."
 sidebar:
   label: "API Keys"
   order: 2
 ---
 
-API keys are required to authenticate and send telemetry data (logs, metrics, and traces) from your applications and infrastructure to KloudMate. 
+import { Steps } from '@astrojs/starlight/components';
 
-KloudMate uses a dedicated **API Keys** management section to give you granular control over the keys used across your organization. 
+API keys authenticate requests to KloudMate. You'll use them for two jobs: sending telemetry *into* your workspace, and reading data back *out* through the KloudMate API or the [MCP server](../../../kloudmate-assistant/mcp-server/). What a key can do comes down to its **type**, which you choose when you create it.
 
-## Manage API Keys
+Find your keys under **Settings → API Keys**. The page lists every key in the workspace along with its type, note, and creation date. A key belongs to the workspace it's created in, so create it in the workspace whose data you want to reach. Adding a key requires the **Admin** role.
 
-You can create, view, and revoke API keys by navigating to **Settings -> API Keys** from the main sidebar.
+## Key types
 
-### Create an API Key
+KloudMate has three key types. Pick the one that matches what you're building.
 
-1. Navigate to **Settings -> API Keys**.
-2. Click the **Add Key** or **Create API Key** button.
-3. Provide a recognizable name for the key to identify its purpose or the environment it will be used in (e.g., `prod-kubernetes-cluster` or `frontend-app`).
-4. Click **Create** or **Save**. 
+### User Key
 
-Once created, the new API Key will be displayed. **Copy this key immediately**, as you will need it to configure your OpenTelemetry collectors, SDKs, or the KloudMate agent.
+A User Key works for any KloudMate API operation and is tied to **your** account's permissions — it can read whatever you can read. This is the key to use for the [KloudMate MCP server](../../../kloudmate-assistant/mcp-server/), and for any script or service that queries your observability data through the API.
 
-### Using API Keys
+Pass it as a bearer token:
 
-When configuring your instrumentation, you will typically need to provide your API key in the headers of your telemetry exports. 
+```http
+Authorization: Bearer YOUR_API_KEY
+```
 
-For OpenTelemetry configurations (OTLP), this is generally provided in the `Authorization` header:
+Because the key carries your access, treat it like a password. Anyone holding it can act as you in the workspace.
+
+### Ingest Key — Backend
+
+A Backend ingest key is for server-side telemetry. Your OpenTelemetry collectors, SDKs, and the KloudMate agent use it to ship logs, metrics, and traces. It bypasses CORS and puts no restriction on where data comes from, so keep it on your servers — never ship it in a browser or mobile app.
+
+For OpenTelemetry (OTLP) exporters, pass it in the `Authorization` header:
 
 ```yaml
 exporters:
@@ -37,13 +42,37 @@ exporters:
       Authorization: "Bearer YOUR_API_KEY"
 ```
 
-### Revoking an API Key
+### Ingest Key — Frontend
 
-If an API key is compromised or no longer needed, you should revoke it to prevent unauthorized data ingestion.
+A Frontend ingest key is for telemetry sent straight from a browser or mobile app, such as [Real-User Monitoring](../../../rum/). Because the key ships in client code where anyone can read it, you must list the **allowed hosts** it can send from. Data from any other origin is rejected, which limits the damage if the key leaks.
 
-1. Navigate to **Settings -> API Keys**.
-2. Locate the key you want to remove.
-3. Click the delete from the actions menu on the row.
-4. Confirm the deletion. 
+## Create an API key
 
-*Note: Revoking an API key will immediately stop any active agents or applications using that key from sending data to KloudMate.*
+<Steps>
+
+1. Go to **Settings → API Keys** and click **Add New**. (The button appears only if you have the Admin role.)
+
+2. Choose a **Key Type** — User Key, Ingest Key – Backend, or Ingest Key – Frontend. You can't change the type after the key is created, so pick the one that fits.
+
+3. For a Frontend ingest key, add at least one **allowed host**. Include the protocol and port if there is one, for example `https://app.example.com`. Data sent from any other origin is rejected.
+
+4. Add a **Note** that says what the key is for — `mcp-server`, `prod-otel-collector`, `rum-web`. The list shows only the note, so make it recognizable.
+
+5. Click **Submit**.
+
+</Steps>
+
+The key is shown **once**, right after you create it:
+
+> Please copy and save the API key below as it will not be shown again.
+
+Copy it then and store it somewhere safe — a secret manager, your client's config, or a CI secret. There's no way to retrieve it later; if you lose it, create a new one and delete the old.
+
+## Edit or delete a key
+
+You can edit or delete only the keys **you** created. Open the actions menu on a key's row to find both.
+
+- **Edit** lets you change the note and, for a Frontend key, its allowed hosts. The key type is fixed once created.
+- **Delete** is permanent — *this action cannot be undone*. Any agent, collector, app, or MCP client using that key stops working the moment you delete it, so swap in a replacement first if the key is in active use.
+
+Delete a key promptly if it's exposed or no longer needed. That's the way to cut off access for a key that's been leaked.

@@ -1,25 +1,33 @@
 ---
 title: "Slack Integration"
-description: "Connect Slack to Incident Management so responders can receive and manage incidents through Slack."
+description: "Connect Slack to Incident Management so responders can receive and manage incidents from Slack."
 sidebar:
   label: "Slack Integration"
-  order: 8
+  order: 11
 ---
 
-Use the Slack integration to send incident notifications into Slack and let responders interact with incidents from their workspace.
+KloudMate uses a single unified Slack app for both notification delivery and IM ChatOps. Installing it once gives you:
 
-## Connect Slack
+- Threaded notifications on alert groups and incidents (replies stay attached to the parent message).
+- Per-user ChatOps actions — acknowledge, resolve, comment on incidents without leaving Slack.
+- Cross-surface visibility — the same install shows up under both **Settings → Notification Channels** and **Incidents → Settings → ChatOps**.
 
-1. Open **Incidents -> Settings** from the left navigation.
+You can start the install from either entry point — the OAuth flow lands the same row in both surfaces.
 
-![image](./images/slack-integration-1.png)
+## Connect Slack from Incident Management
 
-2. In the **Chat Ops** tab, click **Connect** for Slack.
-3. Complete the Slack authorization flow.
-4. Select the Slack channel you want to use.
-5. Add a message for your app manager if required.
-6. Submit the connection.
+1. Open **Incidents → Settings** from the left navigation.
 
-:::note
-  After the workspace connection is complete, each team member must connect their own Slack account before they can manage incidents from Slack.
-:::
+![Slack Chat Ops settings](./images/slack-integration-1.png)
+
+2. In the **Chat Ops** tab, click **Connect** under the Slack card. Only workspace admins can run this step.
+3. Complete the Slack OAuth flow — pick the Slack workspace and channel KloudMate should post into.
+4. KloudMate returns you to the Chat Ops tab and shows the linked workspace + channel.
+
+The new Slack row appears under both **Settings → Notification Channels** and **Incidents → Settings → Chat Ops**. You can use it as a notification destination on a [Routing Rule](../../alerts/routing-rules/) immediately.
+
+## Per-user account linking
+
+After the org-level install is complete, each responder needs to link their own Slack account before they can acknowledge or resolve incidents from Slack. From the Chat Ops tab, scroll to **User Settings** and click **Connect account** — a one-time OAuth flow links your KloudMate identity to your Slack account.
+
+Once linked, the same tab shows your Slack username with a **Disconnect** action.

@@ -1,60 +1,132 @@
 ---
-title: "Add an Integration"
-description: "Create KloudMate Alarm, CloudWatch Alarm, or webhook integrations for Incident Management."
+title: "Add an Alert Source"
+description: "Create KloudMate Alert group, CloudWatch Alarm, or webhook alert sources, map webhook payloads to incidents with Liquid templates, and POST alerts to the inbound URL."
 sidebar:
-  label: "Add an Integration"
+  label: "Add an Alert Source"
   order: 2
 ---
 
-Use the steps below to create a new incident integration.
+import { Steps } from '@astrojs/starlight/components';
 
-1. Click **Add Integration** from the Integrations page.
+An alert source receives alerts and turns them into incidents on a service. This page covers creating each type, mapping a webhook's payload to incident fields with templates, and sending alerts to its inbound URL.
 
-![image](./images/adding-integrations-1.jpeg)
+## Create an alert source
 
-2. Select an **Integration Type**.
+<Steps>
+1. Click **Add** from the Alert Sources page.
 
-Available types:
+2. Choose a **type**: KloudMate Alert group, CloudWatch Alarm, or Webhook.
 
-- **KloudMate Alarm**
-- **CloudWatch Alarm**
-- **Webhook**
+3. Pick the **service** the source opens incidents on. This is required.
 
-![image](./images/adding-integrations-1.png)
+4. Enter a **name** and **description**.
 
-:::note
-  KloudMate Alarm and CloudWatch Alarm integrations use predefined templates. Webhook integrations let you configure title, grouping, and auto-resolution logic manually.
-:::
+5. *(Optional)* Choose an **escalation policy** override. Leave it unset to use the service's default.
 
-## Create a KloudMate Alarm or CloudWatch Alarm Integration
+6. For a **Webhook**, configure the templates (below). KloudMate Alert group and CloudWatch Alarm sources use built-in templates, so there's nothing more to configure.
 
-1. Select the service.
-2. Enter the integration name and description.
-3. Optionally choose an escalation policy override.
-4. Click **Save**.
-
-![image](./images/adding-integrations-2.png)
-
-:::note
-  If no escalation policy is selected, the service default is applied automatically.
-:::
-
-## Create a Webhook Integration
-
-1. Select the service.
-2. Enter the integration name and description.
-3. Configure the **Title Template**.
-4. Configure the **Grouping Template**.
-5. Configure the **Auto Resolve Template**.
-6. Select an escalation policy if needed.
 7. Click **Save**.
+</Steps>
 
-![image](./images/adding-integrations-3.png)
+![Alert source type selector](./images/adding-integrations-1.png)
 
-After the integration is created, you will be taken to the integration details screen where you can copy the integration URL or edit/archive the integration.
+After saving, you land on the source's details page, where you can copy its inbound URL.
 
-![image](./images/adding-integrations-2.jpeg)
+## The inbound URL
 
-## Related Resources
+Every alert source gets its own hashed endpoint:
 
-- [Integrating with KloudMate Alarms](../integrating-with-kloudmate-alarms/)
+```
+https://<your-api-host>/im/hooks/<hash>
+```
+
+Copy it from the source's details page with **Copy source URL**, then point your sender at it. The hash is what ties an incoming payload to this source.
+
+**CloudWatch** sources receive alarms through **Amazon SNS**: point an SNS topic at the URL, and KloudMate confirms the subscription automatically the first time it's hit. CloudWatch wraps the alarm JSON inside the SNS message, and KloudMate unwraps it for you.
+
+## Send an alert
+
+For a **Webhook** source, send your alert as a JSON `POST` to the inbound URL. The body can be any shape — your [templates](#map-a-webhook-payload-with-templates) decide how each field maps to the incident.
+
+```bash
+curl -X POST https://<your-api-host>/im/hooks/<hash> \
+  -H "Content-Type: application/json" \
+  -d '{
+    "alert": "High error rate on checkout-api",
+    "state": "firing",
+    "priority": "high",
+    "fingerprint": "checkout-api-error-rate",
+    "summary": "Error rate is 12% over the last 5 minutes",
+    "runbook": "https://runbooks.example.com/checkout-errors"
+  }'
+```
+
+KloudMate responds with the incident it opened or updated. Sending another alert that maps to the same [grouping key](#how-grouping-and-auto-resolve-behave) folds onto that incident instead of opening a duplicate; send one your [auto-resolve template](#map-a-webhook-payload-with-templates) reads as resolved to close it.
+
+## Map a webhook payload with templates
+
+A webhook can come from anywhere, so you tell KloudMate how to read it. Five fields take [Liquid](https://liquidjs.com/) templates that render against the incoming JSON:
+
+| Field | Sets | Notes |
+|---|---|---|
+| **Title template** | The incident title | |
+| **Incident description template** | The incident description | Markdown — `**bold**`, `_italic_`, `` `code` ``, bullets, and `[links](url)` render in the incident. |
+| **Severity template** | The severity | Must resolve to `critical`, `high`, `medium`, or `low`. |
+| **Grouping template** | The grouping key | Alerts that render the same key fold into one incident. Leave it empty to group by title. |
+| **Auto resolve template** | Whether to auto-resolve | Resolve it to `true`, `ok`, or `1` to close the matching incident automatically. |
+
+### A worked example
+
+For the payload from [Send an alert](#send-an-alert), these templates open an incident titled *High error rate on checkout-api* at **high** severity:
+
+| Field | Template | Renders to |
+|---|---|---|
+| Title template | `{{ alert }}` | High error rate on checkout-api |
+| Incident description template | `{{ summary }} — [Runbook]({{ runbook }})` | Error rate is 12% over the last 5 minutes — Runbook |
+| Severity template | `{{ priority }}` | high |
+| Grouping template | `{{ fingerprint }}` | checkout-api-error-rate |
+| Auto resolve template | `{% if state == "resolved" %} true {% else %} false {% endif %}` | false |
+
+Send the same payload with `"state": "resolved"` and the auto-resolve template renders `true`, closing the matching incident.
+
+### Liquid syntax
+
+The template tester's **Syntax reference** covers the constructs you'll use:
+
+- **Variables** — `{{ alarmName }}` renders a value from the payload.
+- **Conditions** — `{% if status == "Normal" %}Resolved{% else %}Triggered{% endif %}`, using `==` and `!=`.
+- **Loops** — `{% for item in items %}{{ item.evalString }}{% endfor %}` iterates an array.
+- **Trusted HTML** — `{{ html | raw }}` outputs unescaped HTML, only when you trust the source.
+
+An unknown variable renders as empty rather than erroring, so a template won't break if a field is missing from the payload.
+
+### Test before you save
+
+The **template tester** checks a template against a real payload without waiting for an alert:
+
+<Steps>
+1. Pick a **sample payload** — a CloudWatch alarm or a KloudMate alarm — or paste your own JSON.
+
+2. Edit the **template**.
+
+3. Click **Test** to see the rendered output. For the auto-resolve template, the tester also tells you whether the incident would auto-resolve.
+</Steps>
+
+![Webhook alert source template fields](./images/webhook-template-fields.png)
+
+![Template tester with rendered output](./images/webhook-template-tester.png)
+
+![Liquid syntax reference](./images/webhook-liquid-reference.png)
+
+### How grouping and auto-resolve behave
+
+**Grouping** keeps repeat alerts together. While an incident is open, every alert that renders the same grouping key folds onto it instead of opening a duplicate. Leave the grouping template empty and KloudMate groups by the rendered title instead.
+
+**Auto resolve** closes the matching open incident when the auto-resolve template renders `true`, `ok`, or `1`. A resolving alert that matches no open incident is ignored — KloudMate never opens an incident from a recovery. Once an incident is resolved, the next firing alert with the same grouping key opens a *new* incident, linked as a recurrence of the one before it.
+
+## Related
+
+- [Alert Sources overview](../) — types and details.
+- [Integrate with KloudMate Alerts](../integrating-with-kloudmate-alerts/) — wire KloudMate alerts into IM through a channel and routing rule.
+- [Integrate with AWS CloudWatch Alarms](../integrating-with-aws-cloudwatch/) — route AWS CloudWatch alarms to KloudMate via SNS.
+- [Routing Rules](../../routing-rules/) — decide which service, escalation policy, and severity an incident gets.

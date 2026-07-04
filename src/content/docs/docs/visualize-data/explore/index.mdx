@@ -3,7 +3,7 @@ title: "Explore"
 description: "Query, aggregate, and visualize metrics in KloudMate Explore."
 sidebar:
   label: "Overview"
-  order: 1
+  order: 0
 ---
 
 import { Image } from 'astro:assets';
@@ -17,7 +17,7 @@ import exploreQueries from './images/explore-queries.png';
 import exploreRun from './images/explore-run.png';
 import exploreSave from './images/explore-save.png';
 
-Explore is the ad hoc query workspace in KloudMate. It lets you build and validate queries before saving them into a dashboard, with support for metrics, logs, and traces.
+Explore is the ad hoc query workspace in KloudMate. It lets you build and validate queries before saving them to a dashboard, with support for metrics, logs, and traces.
 
 This walkthrough focuses on metrics.
 
@@ -65,7 +65,7 @@ This walkthrough focuses on metrics.
 5. **Add Queries and Expressions**
    Use **Add Query** to compare multiple metric series in one panel.
 
-   Use **Add Expression** to derive values from existing queries, including math, reduce, and condition expressions. See [Writing Expressions for KloudMate Alarms](../../alarms/expressions/) for the full expression syntax.
+   Use **Add Expression** to derive values from existing queries, including math, reduce, and condition expressions. See [Alert Expressions](../../alerts/expressions/) for the full expression syntax.
 
 <Image src={exploreQueries} alt="Queries and Expressions" />
 

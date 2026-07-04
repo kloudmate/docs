@@ -1,0 +1,51 @@
+---
+title: "Lambda Telemetry Extension"
+description: "Send AWS Lambda logs, metrics, and traces to KloudMate with a layer — no CloudFormation and no code changes."
+sidebar:
+  label: "Overview"
+  order: 1
+---
+import { LinkCard, CardGrid } from '@astrojs/starlight/components';
+
+The Lambda Telemetry Extension sends a function's logs, metrics, and traces to KloudMate. You add a layer to the function and set two environment variables — there's no code to change, no CloudFormation stack, and no CloudWatch subscription.
+
+## When to use it
+
+KloudMate gives you two ways to monitor Lambda, and they fit different needs.
+
+The [AWS account integration](../account-setup/) connects a whole account when you deploy one CloudFormation stack. From there KloudMate works automatically — it discovers your functions, reads their CloudWatch metrics, and subscribes their log groups for you, with no roles or subscriptions to wire up by hand. Use it to cover an account end to end without touching individual functions.
+
+The Telemetry Extension instruments the functions you choose. It adds traces on top of logs and metrics, and the data arrives within seconds instead of waiting on CloudWatch. Use it where you want richer, faster telemetry.
+
+| | AWS account integration | Telemetry Extension |
+| --- | --- | --- |
+| Setup | Deploy one CloudFormation stack | Add a layer and two env vars per function |
+| Coverage | Every function in the account, automatically | The functions you add it to |
+| Signals | Metrics and logs, from CloudWatch | Logs, metrics, **and traces** |
+| Delivery | CloudWatch's delay (about a minute) | Within seconds |
+
+You can run both — the account integration for broad coverage, the extension where you want traces — with one overlap to watch for.
+
+:::caution
+**Avoid duplicate logs.** The account integration subscribes every Lambda log group automatically. A function that also runs the extension sends its logs twice — once through CloudWatch, once through the extension. On those functions, set `OTEL_LOGS_EXPORTER=none` so the extension sends only metrics and traces, and CloudWatch keeps handling the logs.
+:::
+
+## What you get
+
+- **Logs** — everything your function writes to stdout/stderr, searchable in Log Explorer.
+- **Metrics** — invocation duration, billed duration, memory used, and cold-start time.
+- **Traces** — one trace per invocation, linked to your AWS X-Ray trace when active tracing is on.
+
+## Get started
+
+<CardGrid>
+<LinkCard title="Setup" href="./setup/" description="Add the layer and configure a function in a few minutes." />
+<LinkCard title="Layer ARNs" href="./layer-arns/" description="Find the layer ARN for your region and architecture." />
+<LinkCard title="Configuration & Data" href="./configuration/" description="Environment variables and the metrics you receive." />
+</CardGrid>
+
+## Related Resources
+
+- [AWS Integration](../)
+- [AWS Lambda Monitoring](../lambda-monitoring/)
+- [API Keys](../../platform/settings/api-keys/)

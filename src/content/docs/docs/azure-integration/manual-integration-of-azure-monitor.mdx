@@ -4,7 +4,7 @@ description: "Documentation for Manual Integration of Azure Monitor"
 sidebar:
   order: 3
 ---
-This document provides a step-by-step manual approach to integrating Azure Monitor with KloudMate using **KloudMate agents**. The KloudMate agents allow you to scrape telemetry data from Azure Monitor resources and send them to KloudMate for centralized monitoring and analysis.
+This document provides a step-by-step manual approach to integrating Azure Monitor with KloudMate using **KloudMate agents**. The KloudMate agent scrapes telemetry data from Azure Monitor resources and sends it to KloudMate for centralized monitoring and analysis.
 
 ## Pre-requisite
 1. **Azure Service Principal for Authentication**: You will need a service principal with appropriate permissions to access Azure Monitor APIs.
@@ -124,4 +124,4 @@ These commands will restart the KloudMate agent and display its current status.
 2. In the Services window, locate the "`KloudMate agent`" service.
 3. Right-click the service and select "`Restart`."
 
-Subsequently, monitor the metrics on the KloudMate dashboard and set up an alarm to receive notifications if the potential metrics for a specific application rise. 
+Once data is flowing, monitor the metrics in KloudMate and set up an alert to be notified when metrics for a specific application exceed a threshold.

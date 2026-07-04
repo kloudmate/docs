@@ -1,0 +1,81 @@
+---
+title: "Folders"
+description: "Group alert rules into folders and share evaluation defaults across the members."
+sidebar:
+  order: 4
+---
+
+Folders organize related alert rules and let member rules inherit shared evaluation defaults. They follow the dashboards-style grouping pattern applied to alerts: opt into a folder view, see your rules collapsed under their owning folder, and let one set of defaults propagate to whichever rules need them.
+
+On the **Alerts** list, the layout toggle in the toolbar switches between a flat **List view** and a grouped **Folder view**. In folder view, each folder renders as a collapsible header row with its member rules underneath; rules without a folder land in a pinned **Ungrouped** section.
+
+![Alerts list in folder view](./images/alerts-folder-view.png)
+
+There's no separate Folders page or sidebar entry — everything happens from the Alerts list.
+
+## Create a folder
+
+Folders are created inline from the alert rule editor's **Folder** picker — there's no separate "New folder" button.
+
+1. Open an alert rule (create a new one or edit an existing one).
+2. In the **Configure evaluation settings** section, click the **Folder** dropdown.
+3. Type a new folder name. A `+ Create "<name>"` option appears at the bottom of the dropdown — click it.
+4. KloudMate creates the folder and assigns the current rule to it. A toast confirms the creation.
+5. To set folder-level defaults (interval, no-data state, eval-error state), switch to **Folder view** on the Alerts list, open the folder's kebab menu, and select **Edit folder**.
+
+## Edit folder defaults
+
+In Folder view, each folder header row has a kebab menu with **Edit folder** and **Delete folder**.
+
+**Edit folder** opens a dialog with the folder's settings:
+
+| Field | What it controls |
+|---|---|
+| **Name** | Required, unique within the workspace. |
+| **Description** | Optional. |
+| **Evaluate every** | Default evaluation interval (e.g. `60s`, `1m`, `2h`). Members inherit when blank. |
+| **No data state** | Default state when queries return no data. Options: `Normal`, `Alerting`, `NoData`. |
+| **Eval error state** | Default state when evaluation errors out. Options: `Normal`, `Alerting`, `Error`. |
+
+A note above these reads: *"Member alerts inherit these defaults unless they set their own value. Leave blank for organizational-only folders."*
+
+## Move rules into a folder
+
+Two ways:
+
+- **From the rule editor** — open the rule and pick the folder from the **Folder** dropdown in the **Configure evaluation settings** section.
+- **Bulk-move from the list** — select rules using the checkboxes (a toolbar appears with the selection count). Click **Move to folder…**, select a destination from the radio list (existing folders or **Ungrouped**), and confirm.
+
+Moving a rule does **not** rewrite its `interval_seconds`, `no_data_state`, or `eval_error_state` columns. Whatever the rule had before the move stays. The folder defaults only apply where the rule's field is blank.
+
+## Inheritance and overrides
+
+A rule's eval-config fields follow a clear three-state model:
+
+| Rule field value | What the editor shows | What runs |
+|---|---|---|
+| Blank (inheriting) | Folder default as placeholder + `Inheriting from folder <name>` helper line | The folder default |
+| Filled (overriding) | The rule's stored value + `Overrides folder <name> default` helper line + **Reset to folder default** link | The rule's value |
+| No folder selected | Plain input, no helper text | The rule's value (or system default if blank) |
+
+Clicking **Reset to folder default** clears the field and flips the helper text back to inheriting. Saving with the field blank persists `NULL` for that column — so when the folder default later changes, the rule picks up the new value automatically.
+
+:::tip
+To detach a rule from its folder entirely, change the **Folder** dropdown to the ungrouped option. The eval-config columns keep their stored values; the rule stops inheriting.
+:::
+
+## Delete a folder
+
+From the folder kebab menu, pick **Delete folder**. The confirmation explains: e.g. *"Member alerts will become ungrouped — their stored eval-config values stay intact."* KloudMate detaches the members first and then deletes the folder row. Rules survive the deletion.
+
+## Folder labels in alert groups
+
+A rule's folder identity flows into the alert's labels as `alarm_rule_folder_id` and `alarm_rule_folder_name`. That means:
+
+- [Routing Rules](../routing-rules/) can match on folder identity (e.g. `alarm_rule_folder_name in [Kubernetes, Networking]`).
+- The folder name shows as a label chip on the [Alert Group](../alert-groups/) detail header automatically.
+
+## Related
+
+- [Creating Alerts](../create-alerts/) — picking a folder during rule creation.
+- [Routing Rules](../routing-rules/) — matching on folder labels.

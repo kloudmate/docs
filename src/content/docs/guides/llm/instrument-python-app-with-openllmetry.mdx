@@ -1,0 +1,172 @@
+---
+title: "Instrument a Python LLM App with OpenLLMetry"
+description: "Trace a LangChain agent end to end with OpenLLMetry and send prompts, tool calls, token usage, and latency to KloudMate."
+sidebar:
+  order: 1
+---
+
+This guide walks you through instrumenting a real LLM application — a small LangChain agent that calls tools — and viewing its traces in KloudMate. By the end you'll see each agent run as a single trace: the model's reasoning, every tool call, token usage per call, and where the time went.
+
+You'll build a customer-support agent for an online store. The agent answers a question by deciding which tools to call (look up an order, check a return policy), then writing a reply. That back-and-forth is exactly the kind of multi-step flow that's hard to debug from logs alone — and easy to read as a trace.
+
+OpenLLMetry does the instrumentation. It's an OpenTelemetry-native SDK from Traceloop that auto-instruments LangChain and the underlying model calls, so you add a few lines of setup and change nothing in the agent itself. For the concepts behind it, see [Introduction to OpenLLMetry](/llm-observability/what-is-openllmetry/).
+
+## Prerequisites
+
+- Python 3.9 or later.
+- An OpenAI API key ([where to find it](https://help.openai.com/en/articles/4936850-where-do-i-find-my-openai-api-key)).
+- A KloudMate workspace API key, from **Settings → API Keys**.
+
+## Step 1: Set up the project
+
+Create a directory, activate a virtual environment, and install the packages:
+
+```bash
+mkdir support-agent && cd support-agent
+python3 -m venv venv
+source ./venv/bin/activate
+pip install traceloop-sdk langchain langchain-openai
+```
+
+`traceloop-sdk` brings in OpenLLMetry and the OpenTelemetry exporter. The LangChain packages are the app itself.
+
+## Step 2: Point OpenLLMetry at KloudMate
+
+OpenLLMetry exports over OTLP/HTTP, so it needs your KloudMate endpoint and API key. Set them as environment variables so you don't hard-code secrets:
+
+```bash
+export OPENAI_API_KEY="YOUR_OPENAI_API_KEY"
+export KM_API_KEY="YOUR_KLOUDMATE_API_KEY"
+```
+
+You'll initialize OpenLLMetry once, before the agent runs. A single `Traceloop.init()` call wires up the exporter and instruments LangChain and OpenAI automatically:
+
+```python
+import os
+from traceloop.sdk import Traceloop
+
+Traceloop.init(
+    app_name="support-agent",
+    api_endpoint="https://otel.kloudmate.com:4318",  # the SDK appends /v1/traces
+    headers={"Authorization": os.environ["KM_API_KEY"]},
+    disable_batch=True,  # export each span as it finishes while you're testing
+)
+```
+
+:::note
+KloudMate authenticates with your API key in the `Authorization` header — the raw key, with no `Bearer` prefix. Keep `disable_batch=True` for local testing so traces show up immediately; remove it in production to batch spans and export them in the background.
+:::
+
+## Step 3: Build the agent
+
+Create `app.py`. The agent has two tools backed by in-memory data so the example runs without a database. In a real app these would be API or database calls — but the tool *shape* is what matters, because that's what shows up in the trace.
+
+```python
+import os
+from traceloop.sdk import Traceloop
+
+# Initialize OpenLLMetry BEFORE importing/using LangChain so the calls are traced.
+Traceloop.init(
+    app_name="support-agent",
+    api_endpoint="https://otel.kloudmate.com:4318",
+    headers={"Authorization": os.environ["KM_API_KEY"]},
+    disable_batch=True,
+)
+
+from langchain.agents import AgentExecutor, create_tool_calling_agent
+from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
+from langchain_core.tools import tool
+from langchain_openai import ChatOpenAI
+
+# --- Mock data (stand-ins for real APIs) ---
+ORDERS = {
+    "4412": {"status": "Delivered", "category": "audio", "total": 99.95},
+}
+RETURN_POLICIES = {
+    "audio": {"window_days": 30, "restocking_fee_pct": 10},
+    "default": {"window_days": 30, "restocking_fee_pct": 0},
+}
+
+# --- Tools ---
+@tool
+def get_order_status(order_id: str) -> dict:
+    """Look up an order's status, category, and total by its order ID."""
+    order = ORDERS.get(order_id.strip().lstrip("#"))
+    return order or {"error": f"No order found with id {order_id}."}
+
+@tool
+def get_return_policy(category: str) -> dict:
+    """Get the return window and restocking fee for a product category."""
+    return RETURN_POLICIES.get(category.lower(), RETURN_POLICIES["default"])
+
+TOOLS = [get_order_status, get_return_policy]
+
+# --- Agent ---
+SYSTEM_PROMPT = (
+    "You are ShopMate, a concise customer-support agent. "
+    "Use the tools to look up real order and policy data — never guess order "
+    "details or refund amounts. Give the customer a short, helpful answer."
+)
+
+def build_agent() -> AgentExecutor:
+    llm = ChatOpenAI(model="gpt-4o-mini", temperature=0)
+    prompt = ChatPromptTemplate.from_messages(
+        [
+            ("system", SYSTEM_PROMPT),
+            ("human", "{input}"),
+            MessagesPlaceholder("agent_scratchpad"),
+        ]
+    )
+    agent = create_tool_calling_agent(llm, TOOLS, prompt)
+    return AgentExecutor(agent=agent, tools=TOOLS, verbose=False)
+
+if __name__ == "__main__":
+    agent = build_agent()
+    result = agent.invoke(
+        {"input": "I'd like to return order #4412. What's the policy and how much would I get back?"}
+    )
+    print(result["output"])
+```
+
+## Step 4: Run it
+
+```bash
+python3 app.py
+```
+
+The agent answers the question, and OpenLLMetry exports the trace to KloudMate. Behind that one answer, the agent made two model calls and two tool calls — all captured as a single trace.
+
+## Step 5: View the trace in KloudMate
+
+Open [KloudMate](https://app.kloudmate.com), go to **Traces**, and filter by the service `support-agent`. Open the most recent trace.
+
+You'll see the full agent run as a waterfall: the `AgentExecutor` at the top, the model calls (`ChatOpenAI.chat`), and the tool calls (`get_order_status`, `get_return_policy`) nested underneath with their durations. Select any model span to read the exact prompt and response, the token usage, and the finish reason.
+
+For a tour of everything KloudMate surfaces on an AI trace — the conversation transcript, token and cache breakdown, tool calls, and the AI Flow graph — see [AI Trace Observability](/llm-observability/ai-trace-observability/).
+
+## Step 6: Tag traces with a user and session
+
+Production agents serve many customers across many conversations. Attach a user and session to every span so you can find one customer's traces later, or follow a single conversation end to end. Set these association properties before each run:
+
+```python
+Traceloop.set_association_properties(
+    {"user_id": "cust_1042", "session_id": "sess_8f21"}
+)
+result = agent.invoke({"input": "..."})
+```
+
+KloudMate stores these on every span in the run, so you can filter and group traces by `user_id` or `session_id` when you investigate an issue.
+
+## Step 7: Prepare for production
+
+A few changes once you move past local testing:
+
+- **Batch exports.** Drop `disable_batch=True` so spans export in the background instead of one HTTP request per span.
+- **Decide what to capture.** OpenLLMetry records prompt and completion content by default, which is what makes the conversation view useful. If your prompts carry sensitive data, set `TRACELOOP_TRACE_CONTENT=false` to record metadata (tokens, model, latency) without the message bodies.
+- **Keep init first.** Call `Traceloop.init()` before the rest of your app imports run, so every model and tool call is instrumented.
+
+## Related resources
+
+- [AI Trace Observability](/llm-observability/ai-trace-observability/) — what to look for once your traces land in KloudMate
+- [Introduction to OpenLLMetry](/llm-observability/what-is-openllmetry/)
+- [Instrument a Python App](/guides/opentelemetry/python/) — general OpenTelemetry instrumentation
