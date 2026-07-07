@@ -1,0 +1,70 @@
+---
+title: "Configuration model"
+description: "How the KloudMate agent turns feature and integration toggles into collector configuration, and how managed and manual modes, history, and credentials work."
+sidebar:
+  order: 4
+---
+
+import { LinkCard, CardGrid } from '@astrojs/starlight/components';
+
+The configuration model is what lets you turn features on and off from the web interface instead of hand-editing collector YAML. It underpins the eBPF baseline, application performance monitoring (APM), database monitoring, and every other capability you toggle in the interface. This page explains how it works so the rest of the agent documentation can refer back to it.
+
+## From toggles to configuration
+
+Instead of storing one opaque YAML blob per agent, KloudMate stores a structured set of **integrations** for each agent and generates the collector configuration from them. An integration is a single capability, such as `hostmetrics`, `logs`, `ebpf`, `postgresql`, `mysql`, `redis`, or `nginx`. Each integration has:
+
+- An **enabled** flag.
+- **Settings** specific to that integration, such as collection intervals, endpoints, or a credential reference.
+- **Platform applicability**, so an integration only appears where it makes sense.
+- An optional **capability gate**. For example, the `ebpf` integration is gated on the host's kernel version, so it is skipped with a reason when the kernel is too old.
+
+When you toggle an integration, the control plane recompiles the configuration from your enabled integrations and a platform base profile, and the agent applies the result on its next check-in. You never edit the YAML directly in this flow.
+
+## Managed and manual modes
+
+Every agent has a `config_mode` that is either **managed** or **manual**.
+
+| | Managed mode | Manual mode |
+|---|---|---|
+| Who owns the configuration | KloudMate generates it from your integrations | You own the raw YAML |
+| YAML editor | Read-only preview | Editable |
+| Feature and integration toggles | Available | Disabled |
+| Default for | New agents | Existing agents after upgrade |
+
+- In **managed mode**, the configuration is generated from your enabled integrations every time. The YAML editor shows a read-only preview of what was generated. Toggling a feature regenerates the configuration deterministically.
+- In **manual mode**, you own the YAML blob. The integration toggles are disabled, and the YAML editor is writable. This is the advanced escape hatch for setups that need hand-tuned configuration.
+
+TODO(screenshot): the managed/manual mode toggle and the integrations panel in Agent settings.
+
+## Deterministic generation
+
+Generation is deterministic: the same set of enabled integrations always produces the same configuration, with stable ordering of keys and pipeline components. This matters because the agent decides whether to restart the collector by comparing configuration. Deterministic output means that reordering integrations, or regenerating without a real change, does not produce a different result, so the agent does not restart the collector needlessly.
+
+## Configuration history and rollback
+
+KloudMate keeps the last several generated configurations for each agent. You can review the history and roll back to an earlier configuration by selecting it, which is useful for auditing changes and recovering from a bad edit.
+
+## Credentials
+
+Integrations that need credentials, such as database receivers, support two ways to provide them:
+
+- **Environment or secret reference (default):** the credential is stored as a reference, and the generated configuration emits a placeholder that the agent resolves from an environment variable on the host. The plaintext value never leaves the host.
+- **Plaintext inline (opt-in):** the value is stored and written into the generated configuration directly. The interface shows a clear "stored unencrypted" warning, because the value then lives in the configuration and on the agent's disk.
+
+Environment reference is the recommended default, and it also makes credential rotation easier, because you update the secret on the host without changing the agent's configuration. See [Database credentials](../../database-monitoring/credentials/).
+
+## Migrating existing agents
+
+When an agent is upgraded, it defaults to **manual** mode so nothing changes unexpectedly: it keeps serving the configuration it had. To adopt the structured model, you switch the agent to **managed** mode, which seeds its integrations from a sensible default profile plus anything discovery has found. New agents start in managed mode with the default profile of host metrics, logs, and the eBPF baseline.
+
+:::caution
+Switching an agent from manual to managed mode replaces its hand-edited YAML with generated configuration. A snapshot of the previous configuration is kept in the configuration history, but review the change before you switch a production agent.
+:::
+
+## Next steps
+
+<CardGrid>
+  <LinkCard title="Architecture" href="../architecture/" description="Where configuration generation sits in the control plane." />
+  <LinkCard title="Application APM" href="../../auto-instrumentation/overview/" description="Toggle per-service instrumentation." />
+  <LinkCard title="Advanced configuration" href="../../advanced-configuration/" description="Manual YAML editing and custom receivers." />
+</CardGrid>
