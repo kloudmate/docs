@@ -1,11 +1,50 @@
 ---
 title: "Glossary"
-description: "Definitions of the key terms used across the KloudMate agent documentation, from service identity to receivers and coverages."
-draft: true
+description: "Definitions of the key terms used across the KloudMate agent documentation, from service identity and drop-ins to receivers, profiles, and coverages."
 sidebar:
   order: 4
 ---
 
-:::note
-This page is being written. Content is coming soon.
-:::
+import { LinkCard, CardGrid } from '@astrojs/starlight/components';
+
+Definitions of the terms used across the agent documentation.
+
+**Collector.** The OpenTelemetry (OTel) Collector that the agent embeds and manages. It runs the receivers, processors, and exporters that collect and ship telemetry.
+
+**Coverage.** A unit of database collection for one engine, such as standard metrics, query performance, locks, or query logs. You select coverages, and the agent compiles them into receiver configuration. See [Engines and coverages](../../database-monitoring/engines-and-coverages/).
+
+**Database Activity Monitoring (DAM).** The eBPF baseline's wire-side view of database queries: it parses queries off the network and emits per-query spans, with no credentials. See [eBPF observability](../../ebpf-observability/).
+
+**Drop-in.** A small systemd configuration file the agent writes under a unit's directory to set the instrumentation environment for that one service on Linux. See [Linux (systemd)](../../auto-instrumentation/linux-systemd/).
+
+**eBPF (extended Berkeley Packet Filter).** A Linux kernel technology the agent uses to observe applications, network, and databases without code changes. See [eBPF observability](../../ebpf-observability/).
+
+**ETW (Event Tracing for Windows).** The Windows equivalent of the eBPF baseline. The agent taps ETW to produce request spans and RED metrics for IIS traffic. See [Windows platform notes](../../platform-notes/windows/).
+
+**Fleet manager.** On Kubernetes, the control-plane pod that applies the generated configuration to the cluster and reports status back. See [Kubernetes platform notes](../../platform-notes/kubernetes/).
+
+**Managed mode.** A configuration mode in which KloudMate generates the collector configuration from your enabled integrations, and the YAML editor is a read-only preview. Contrast manual mode. See the [configuration model](../../concepts/config-model/).
+
+**Manual mode.** A configuration mode in which you own the raw collector YAML and the feature toggles are disabled. The advanced escape hatch. See the [configuration model](../../concepts/config-model/).
+
+**Pipeline.** A path through the collector for one signal (metrics, traces, or logs), made of receivers, processors, and exporters.
+
+**Profile.** A bundled template that provides one coverage for one database engine. The agent compiles a selected profile into the right receiver configuration. See [Database monitoring overview](../../database-monitoring/overview/).
+
+**Profiler (CLR profiler).** The Common Language Runtime profiler used to instrument .NET applications on Windows without code changes. See [Windows and .NET application APM](../../auto-instrumentation/windows-dotnet/).
+
+**RED metrics.** Rate, Errors, and Duration: the golden-signal metrics the eBPF baseline produces per service, with no instrumentation.
+
+**Receiver.** A collector component that collects telemetry from a source, such as `hostmetrics`, `filelog`, or a database receiver like `postgresql`.
+
+**Service identity.** A stable identifier the agent assigns to a discovered service so an instrumentation choice keeps applying across restarts. See [Discovery](../../concepts/discovery/).
+
+**Server address.** The canonical, routable address the agent stamps on database telemetry so metrics and traces for the same database join. See [Telemetry identity](../telemetry-identity/).
+
+## Related
+
+<CardGrid>
+  <LinkCard title="Layered instrumentation" href="../../concepts/layered-instrumentation/" description="The L0 to L5 model." />
+  <LinkCard title="Design decisions" href="../design-decisions/" description="Why the agent works the way it does." />
+  <LinkCard title="Metric catalogs" href="../metric-catalogs/" description="The metrics the agent produces." />
+</CardGrid>
