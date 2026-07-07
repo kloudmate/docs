@@ -6,6 +6,10 @@ sidebar:
 ---
 Deploy `kmagent` across an Auto Scaling Group with zero manual per-instance work. Configure once in the Launch Template, every instance (existing + future scale-outs) gets the agent automatically.
 
+:::note
+Once an instance's agent checks in, it starts in managed mode and begins collecting host metrics, logs, and the [eBPF baseline](../../ebpf-observability/) automatically. See the [configuration model](../../concepts/config-model/) and [host metrics and logs](../../baseline/host-metrics-and-logs/).
+:::
+
 ## Prerequisites
 
 - AWS CLI configured with appropriate permissions
@@ -189,7 +193,7 @@ aws ssm send-command \
 - Runs on **10 instances at a time** (--max-concurrency 10)
 - All 50 instances done in **5 batches**
 - Stops if more than 5 instances fail (--max-errors 5)
-- **Zero downtime** — no instance restarts required
+- **Zero downtime**: no instance restarts required
 
 **Monitor progress:**
 

@@ -223,6 +223,15 @@ annotations
 
 3\. Restart the deployments after adding the annotations.
 
+## Configuration and next checks
+
+On Kubernetes, one agent represents one cluster: a fleet-manager pod applies the configuration, and the DaemonSet and Deployment collector pods do the collecting. The Helm chart installs the cluster role-based access control (RBAC) the agent needs. See [Kubernetes platform notes](../../platform-notes/kubernetes/).
+
+- Node, pod, and cluster telemetry starts flowing automatically. See [Host metrics and logs](../../baseline/host-metrics-and-logs/).
+- Where nodes run a supported kernel, the [eBPF baseline](../../ebpf-observability/) turns on per node.
+- Use the **Discovered Services** view to instrument workloads for APM, or enable auto-instrumentation as shown above. See [Application APM on Kubernetes](../../auto-instrumentation/kubernetes/).
+- To monitor in-cluster databases, provide credentials through a Kubernetes Secret referenced by the `dbMonitoring.secretName` Helm value. See [Database monitoring on Kubernetes](../../database-monitoring/on-kubernetes/).
+
 ## **Next Steps**
 
 - Open **Kubernetes Monitoring** to view metrics and events for your *cluster*, **nodes** , **namespaces** , **pods** , and **workloads**

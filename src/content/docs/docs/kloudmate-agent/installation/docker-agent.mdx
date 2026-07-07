@@ -87,6 +87,12 @@ This guide explains how to:
 - Enable multiline log parsing
 - Validate logs in Log Explorer
 
+## Coverage and configuration
+
+In Docker mode the agent collects host and container metrics, container and host logs, and, where the host kernel supports it, the [eBPF baseline](../../ebpf-observability/) (RED metrics, service map, and Database Activity Monitoring) across your containers with no code changes. Per-container application injection is being rolled out; see [Docker platform notes](../../platform-notes/docker/) for current coverage.
+
+New agents start in managed mode, so KloudMate generates the collector configuration for you. See the [configuration model](../../concepts/config-model/).
+
 ## **Next Steps**
 
 - Open **Infrastructure Monitoring** to see all running containers and host metrics

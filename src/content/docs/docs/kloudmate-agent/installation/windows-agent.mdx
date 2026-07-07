@@ -84,6 +84,14 @@ This guide explains how to:
 - Enable multiline log parsing
 - Validate logs in Log Explorer
 
+## Configuration and next checks
+
+The agent installs as a Windows service running as Local System, which is the privilege level it needs to read Internet Information Services (IIS) configuration and Windows Management Instrumentation (WMI). New agents start in managed mode; see the [configuration model](../../concepts/config-model/).
+
+- Host metrics and the Windows Event Log start flowing automatically. See [Host metrics and logs](../../baseline/host-metrics-and-logs/).
+- eBPF does not apply on Windows. The agent provides an equivalent baseline through Event Tracing for Windows (ETW). See [Windows platform notes](../../platform-notes/windows/).
+- To add distributed tracing to .NET applications, see [Windows and .NET application APM](../../auto-instrumentation/windows-dotnet/).
+
 ## **Next Steps**
 
 - Open **Infrastructure Monitoring** to see host metrics and service status

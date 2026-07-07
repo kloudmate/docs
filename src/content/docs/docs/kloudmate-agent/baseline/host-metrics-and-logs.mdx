@@ -1,11 +1,76 @@
 ---
 title: "Host metrics and logs"
-description: "What the KloudMate agent collects automatically after install: host metrics and system logs across Linux, Windows, Kubernetes, and Docker."
-draft: true
+description: "What the KloudMate agent collects automatically after install: host metrics and system logs across Linux, Windows, Kubernetes, and Docker, with no configuration."
 sidebar:
   order: 1
 ---
 
+import { Tabs, TabItem, LinkCard, CardGrid } from '@astrojs/starlight/components';
+
+Host metrics and logs are the agent's zero-config baseline. As soon as the agent is installed and checks in, it starts collecting infrastructure telemetry from the host and shipping it to KloudMate. You do not enable anything or write any configuration for this layer. In the [layered instrumentation model](../../concepts/layered-instrumentation/), this is Layer 1, and it sits directly on top of discovery (Layer 0).
+
+## What flows automatically
+
+What the agent collects depends on the deployment mode, because each platform exposes host telemetry differently.
+
+<Tabs>
+<TabItem label="Linux">
+
+- **Host metrics:** CPU, memory, disk, network, and process metrics, collected by the agent's `hostmetrics` receiver.
+- **System logs:** the systemd journal, collected by the `journald` receiver.
+- **File logs:** log files you point the agent at, collected by the `filelog` receiver.
+
+</TabItem>
+<TabItem label="Windows">
+
+- **Host metrics:** CPU, memory, disk, and network usage, collected from Windows performance counters.
+- **Windows Event Log:** the System, Application, and Security channels.
+- **Internet Information Services (IIS) metrics** and **Windows service status**, where those roles are present.
+
+</TabItem>
+<TabItem label="Kubernetes">
+
+- **Per-node metrics:** CPU, memory, disk, and network for each node, collected by the `kubeletstats` receiver in the DaemonSet.
+- **Pod logs:** container stdout and stderr, collected by the `filelog` receiver in the DaemonSet.
+- **Cluster metrics and events:** workload, namespace, and node state plus cluster events, collected by the `k8s_cluster` receiver in the Deployment.
+
+</TabItem>
+<TabItem label="Docker">
+
+- **Container metrics:** CPU, memory, network, and disk usage for each running container, plus container lifecycle events.
+- **Container logs:** stdout and stderr from each container.
+- **Host metrics:** CPU, memory, disk, and network for the Docker host.
+
+</TabItem>
+</Tabs>
+
 :::note
-This page is being written. Content is coming soon.
+This baseline is the same infrastructure telemetry the agent has always collected. Agent v2 adds the higher layers (the eBPF baseline and opt-in application tracing) on top of it, without changing how host metrics and logs work.
 :::
+
+## Where to view it
+
+The host baseline feeds the infrastructure and log views in KloudMate:
+
+- **Infrastructure monitoring** shows host and container metrics, availability, and trends. See [Infrastructure](../../../infrastructure/).
+- **Kubernetes monitoring** shows cluster, node, namespace, pod, and workload metrics. See [Kubernetes](../../../infrastructure/kubernetes/).
+- **Log Explorer** lets you search and filter logs and correlate them with metrics. See [Log Explorer](../../../logs/log-explorer/).
+
+## Collecting custom application logs
+
+By default the agent collects system logs. To add your own log files, configure the file log receiver with the paths and parsing rules you need. See [Collect file logs with KloudMate Agent](../../../logs/collect-file-logs/), which covers adding custom log paths, enabling multiline parsing, and validating logs in Log Explorer.
+
+## Relationship to the other layers
+
+Host metrics and logs are Layer 1 of the [layered model](../../concepts/layered-instrumentation/). Two nearby layers build on them:
+
+- **Discovery (Layer 0)** inventories what runs on the host, so you can instrument it. See [Discovery](../../concepts/discovery/).
+- **The eBPF baseline (Layer 2)** adds Rate, Errors, and Duration (RED) metrics, a service map, and Database Activity Monitoring on top, with no code changes. See [eBPF observability](../../ebpf-observability/).
+
+## Next steps
+
+<CardGrid>
+  <LinkCard title="eBPF observability" href="../../ebpf-observability/" description="Turn kernel-level RED metrics and the service map on." />
+  <LinkCard title="Discovery" href="../../concepts/discovery/" description="See what the agent found on your host." />
+  <LinkCard title="Application APM" href="../../auto-instrumentation/overview/" description="Add distributed tracing to a service." />
+</CardGrid>
