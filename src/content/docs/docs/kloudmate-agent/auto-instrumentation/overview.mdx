@@ -1,11 +1,75 @@
 ---
 title: "Application APM overview"
 description: "How the KloudMate agent adds distributed tracing to your applications one service at a time, with restart consent and automatic rollback."
-draft: true
 sidebar:
   order: 1
 ---
 
-:::note
-This page is being written. Content is coming soon.
-:::
+import { LinkCard, CardGrid } from '@astrojs/starlight/components';
+
+Application performance monitoring (APM) is the opt-in depth of the agent. Where the eBPF baseline gives you Rate, Errors, and Duration (RED) metrics and a service map with no effort, application APM attaches OpenTelemetry (OTel) auto-instrumentation to a service to produce full distributed traces, with spans for your frameworks, database calls, and outbound requests. Because it requires a process restart, you enable it one service at a time. In the [layered model](../../concepts/layered-instrumentation/), this is Layers 3 to 5.
+
+## The per-service opt-in flow
+
+The flow is the same on every deployment mode, and it mirrors the Kubernetes experience you may already know:
+
+1. **Discover.** The agent inventories your services and lists them under **Discovered Services**. See [Discovery](../../concepts/discovery/).
+2. **Toggle Instrument.** You turn on the **Instrument** toggle for a service.
+3. **Consent to the restart.** Instrumentation only takes effect when the process restarts, so the agent asks before restarting. You can restart now, or leave the change pending until the next restart.
+4. **Traces flow.** After the restart, the service emits application traces to the agent's local collector, correlated with its eBPF spans.
+
+Throughout this flow, the eBPF baseline keeps covering the service, so there is no visibility gap while you enable APM.
+
+## Status chips
+
+Each service in the list shows a status chip so you always know where it stands:
+
+- **Instrumented:** the drop-in or profiler is applied and the service restarted cleanly.
+- **Pending restart:** the change is written but the service has not restarted yet.
+- **Failed, rolled back:** the restart failed, so the agent reverted the change (see rollback below).
+
+TODO(screenshot): the Discovered Services list with per-service Instrument toggles and status chips.
+
+## Restart consent and health gating
+
+The agent never restarts your services silently. In this version:
+
+- Every restart requires **explicit, per-service confirmation**. There is no batched or automatic restart.
+- The agent restarts **one service at a time**.
+- It can apply an optional **health gate**: after the restart it waits for the service to become active and, where the listen port is known, to accept connections before it reports success.
+
+## Automatic rollback
+
+If an instrumented service fails to restart or falls into a crash loop, the agent **rolls back automatically**: it removes the change, reloads, and restarts the service to its previous state, then reports the status as failed and rolled back. Your service returns to how it ran before, and the eBPF baseline continues to cover it. This surgical, opt-in approach keeps the blast radius of instrumentation small: a problem with one service never affects the others.
+
+## Supported runtimes
+
+| Runtime | How the agent instruments it |
+|---|---|
+| Java | OpenTelemetry Java agent, attached per service |
+| Node.js | OpenTelemetry Node.js instrumentation, attached per service |
+| Python | OpenTelemetry Python instrumentation, attached per service |
+| .NET | OpenTelemetry .NET auto-instrumentation (CLR profiler) |
+| PHP | Native OpenTelemetry (PHP 8.2 and newer) or a dd-trace based tracer (PHP 7 and 8.0 to 8.1) |
+| Go | Covered by the eBPF baseline, not injected |
+
+The language agents ship inside the KloudMate agent package, versioned together with it, so there is no separate download and installs work in air-gapped environments.
+
+## Clean traces without duplicates
+
+When you instrument a service, the agent tells the eBPF baseline to stop tracing that service's own requests. You get the richer application spans from the language agent, while eBPF continues to trace the services around it. The two layers share a trace, so an instrumented service and its un-instrumented neighbors appear on one connected trace.
+
+## Instrument everything (advanced)
+
+The default and recommended model is to instrument per service. For automated rollouts, the agent also supports an autonomous mode that instruments every eligible service without per-service toggles. This is an advanced option; see [Advanced configuration](../../advanced-configuration/).
+
+## Per-mode guides
+
+<CardGrid>
+  <LinkCard title="Linux (systemd)" href="../linux-systemd/" description="Instrument Java, Node.js, Python, and .NET on systemd hosts." />
+  <LinkCard title="Kubernetes" href="../kubernetes/" description="Instrument workloads with the OpenTelemetry Operator." />
+  <LinkCard title="Windows and .NET" href="../windows-dotnet/" description="Instrument .NET on IIS and Windows services." />
+  <LinkCard title="PHP" href="../php/" description="Trace PHP 7 and PHP 8 applications." />
+  <LinkCard title="Go (eBPF)" href="../go-ebpf/" description="How Go is covered without injection." />
+  <LinkCard title="Sampling" href="../sampling/" description="Balance trace fidelity against ingestion cost." />
+</CardGrid>
