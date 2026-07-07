@@ -1,11 +1,45 @@
 ---
 title: "Database monitoring on a VM"
-description: "How database monitoring works on a Linux or Windows virtual machine, including endpoint canonicalization."
-draft: true
+description: "How the KloudMate agent monitors databases on a Linux or Windows host, including endpoint canonicalization and file-based log coverages."
 sidebar:
   order: 3
 ---
 
-:::note
-This page is being written. Content is coming soon.
-:::
+import { Steps, LinkCard, CardGrid } from '@astrojs/starlight/components';
+
+On a virtual machine, the agent monitors databases running on the host or reachable from it. Because the agent runs on the same host, it can collect both connection-based coverages and file-based log coverages. For the general flow, see the [Database monitoring overview](../overview/).
+
+## What you can monitor
+
+- **Databases on the host:** a database listening on the host is discovered and prefilled in the wizard.
+- **Reachable remote databases:** you can also monitor a database on another host by entering its endpoint and credentials in the wizard.
+
+Both connection-based and file-based coverages are available on a virtual machine, because the agent can reach the database's log files as well as its network endpoint. See [Engines and coverages](../engines-and-coverages/).
+
+## Endpoint canonicalization
+
+A database on the host often listens on a loopback address such as `localhost` or `127.0.0.1`, but loopback addresses are not unique across your fleet. To make database telemetry join correctly across signals, the agent stamps a **canonical, routable address** on the database's metrics: it resolves a loopback endpoint to the host's routable, non-loopback address.
+
+This matters because your applications, the eBPF baseline, and the database receivers can each report the same database under a different address (a socket path, `localhost`, or the host's IP). The agent normalizes them to the canonical address so the server-side metrics line up with the query spans that hit that database. See [Telemetry identity](../../reference/telemetry-identity/) for how to build dashboards on the database's server address.
+
+## Set up monitoring
+
+<Steps>
+1. **Open the wizard** from a discovered database, or add one manually with its endpoint.
+
+2. **Choose coverages** for the depth you want. See [Engines and coverages](../engines-and-coverages/).
+
+3. **Provide credentials** for the monitoring user, using an environment reference by default. See [Database credentials](../credentials/).
+
+4. **Apply the setup steps** the wizard shows, such as creating the monitoring role and granting it the right permissions.
+
+5. **Save.** The agent compiles the configuration, validates it, and starts collecting.
+</Steps>
+
+## Next steps
+
+<CardGrid>
+  <LinkCard title="Engines and coverages" href="../engines-and-coverages/" description="Choose the coverages for your engine." />
+  <LinkCard title="Credentials" href="../credentials/" description="Provide the monitoring user's credentials." />
+  <LinkCard title="On Kubernetes" href="../on-kubernetes/" description="Monitor in-cluster databases instead." />
+</CardGrid>

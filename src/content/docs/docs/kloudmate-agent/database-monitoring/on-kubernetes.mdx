@@ -1,11 +1,86 @@
 ---
 title: "Database monitoring on Kubernetes"
-description: "How the KloudMate agent monitors in-cluster databases from the cluster collector, using a Kubernetes Secret for credentials."
-draft: true
+description: "How the KloudMate agent monitors in-cluster databases from the cluster collector, using a Kubernetes Secret for credentials and managed mode."
 sidebar:
   order: 4
 ---
 
-:::note
-This page is being written. Content is coming soon.
+import { Steps, LinkCard, CardGrid } from '@astrojs/starlight/components';
+
+On Kubernetes, the agent monitors the databases running in your cluster from the cluster collector. The flow is the same as on a virtual machine, with a few Kubernetes specifics: where the scraping runs, how credentials are supplied through a Kubernetes Secret, and that database monitoring requires managed mode. For the general model, see the [Database monitoring overview](../overview/).
+
+## Where scraping runs
+
+Database scraping runs in the cluster **Deployment** collector, which runs a single replica, so each database is scraped once rather than once per node. This is also where your applications' database spans arrive, so the server-side metrics and the query spans join in the same place.
+
+## Discovery prefills the endpoint
+
+The agent discovers in-cluster databases by their Services and well-known ports, and corroborates the engine from the backing image. Discovery gives the exact Service DNS endpoint, `<service>.<namespace>.svc.cluster.local:<port>`, and the wizard prefills it. This matters on Kubernetes: your applications connect to the database by that Service DNS name, so using the same endpoint is what makes the server-side metrics and the application spans join. Databases outside the cluster are not discovered and are added manually.
+
+## Managed mode is required
+
+Database monitoring folds into the generated configuration, so it needs the agent in **managed mode**. On Kubernetes, database monitoring is a "Configure databases" action on the agent, and it prompts you to switch to managed mode if the agent is still in manual mode. See the [configuration model](../../concepts/config-model/).
+
+## Connection coverages only
+
+On Kubernetes, the connection-based coverages are available (standard metrics, query performance, locks, and query logs). The file-based log coverages (server logs, stderr logs, and slow logs) are hidden, because the cluster collector scrapes databases remotely and cannot read another pod's log files. See [Engines and coverages](../engines-and-coverages/).
+
+## Provide credentials with a Kubernetes Secret
+
+Credentials use an environment reference backed by a Kubernetes Secret that you manage. Set it up before you configure any database, because the collector reads the Secret when its pod starts.
+
+<Steps>
+1. **Create a Kubernetes Secret** with a key of the form `KM_SECRET_<name>` for each database credential. For example, a key `KM_SECRET_postgresql` holding the monitoring user's password.
+
+   ```bash
+   kubectl create secret generic km-db-creds \
+     --namespace km-agent \
+     --from-literal=KM_SECRET_postgresql='<password>'
+   ```
+
+2. **Point the Helm release at the Secret** with the `dbMonitoring.secretName` value, and upgrade the release. The cluster collector then reads the Secret through `envFrom`.
+
+   ```bash
+   helm upgrade kloudmate-release kloudmate/km-kube-agent \
+     --namespace km-agent --reuse-values \
+     --set dbMonitoring.secretName=km-db-creds
+   ```
+
+3. **Configure the database** in the wizard, referencing the key by name. The password value stays in the cluster: it never reaches KloudMate, the pushed configuration, or the ConfigMap.
+</Steps>
+
+:::caution
+Because the collector reads the Secret at pod startup, create the Secret and run the Helm upgrade before you configure a database. If you rotate a password without changing the configuration, the collector keeps the old value until its pod restarts.
 :::
+
+## Worked example: PostgreSQL
+
+<Steps>
+1. **Create a monitoring role** in PostgreSQL and grant it the built-in monitoring role:
+
+   ```sql
+   CREATE ROLE kmmonitor LOGIN PASSWORD '<password>';
+   GRANT pg_monitor TO kmmonitor;
+   ```
+
+2. **Store the password** in a Kubernetes Secret under `KM_SECRET_postgresql` and set `dbMonitoring.secretName`, as above.
+
+3. **Configure PostgreSQL** in the wizard with the Service DNS endpoint (prefilled from discovery), the `kmmonitor` user, and an environment reference to the secret. Choose the coverages you want, such as standard metrics, locks, and query performance.
+
+4. **Enable query performance prerequisites, if used.** Query performance reads `pg_stat_statements`. Add it to `shared_preload_libraries` and create the extension, which needs a PostgreSQL restart:
+
+   ```sql
+   -- postgresql.conf: shared_preload_libraries = 'pg_stat_statements'  (then restart)
+   CREATE EXTENSION pg_stat_statements;
+   ```
+</Steps>
+
+After you apply the configuration, the cluster collector compiles and starts scraping PostgreSQL, and its metrics carry the same database identity as the application spans that hit it.
+
+## Next steps
+
+<CardGrid>
+  <LinkCard title="Credentials" href="../credentials/" description="How the credential modes work." />
+  <LinkCard title="Kubernetes platform notes" href="../../platform-notes/kubernetes/" description="Fleet manager, collector pods, and ConfigMaps." />
+  <LinkCard title="Telemetry identity" href="../../reference/telemetry-identity/" description="Build dashboards that join metrics and traces." />
+</CardGrid>

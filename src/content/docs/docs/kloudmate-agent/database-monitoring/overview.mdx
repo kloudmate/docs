@@ -1,11 +1,48 @@
 ---
 title: "Database monitoring overview"
 description: "How the KloudMate agent monitors databases with server-side receivers and eBPF wire-side spans, driven by a discovery-led wizard."
-draft: true
 sidebar:
   order: 1
 ---
 
-:::note
-This page is being written. Content is coming soon.
-:::
+import { LinkCard, CardGrid } from '@astrojs/starlight/components';
+
+Database monitoring gives you a complete picture of your databases from two complementary angles, and it wires the collection up for you through a wizard instead of hand-written configuration. In the [layered model](../../concepts/layered-instrumentation/), this is Layer 4, and it works alongside the eBPF baseline at Layer 2.
+
+## Two complementary views
+
+The agent sees your databases in two ways that compose rather than overlap:
+
+- **Wire-side, from eBPF (automatic, no credentials):** Database Activity Monitoring (DAM) parses database queries off the network and emits per-query client spans (query, operation, and latency) for the queries your applications issue. These spans are stitched into your distributed traces and the application-to-database edge on the service map. This is the **application-to-database activity view**, and it is on by default. See [eBPF observability](../../ebpf-observability/).
+- **Server-side, from receivers (opt-in, credentials required):** database receivers connect to the engine and read what eBPF structurally cannot see: server health and capacity (connections, cache hit ratio, replication lag, buffers, and table and index statistics), server-side internals (top queries, locks and blocking, deadlocks), and database logs. This is the **database server view**.
+
+The two views join on a shared database identity, so a slow query span from eBPF lines up with the server's locks, cache, and replication metrics for the same database instance. See [Telemetry identity](../../reference/telemetry-identity/).
+
+## Profiles and coverages
+
+The server-side view is organized into **coverages**. A coverage is a unit of collection for one engine, such as standard metrics, query performance, locks, or query logs. Under the hood, each coverage is a bundled **profile** that the agent compiles into the right receiver configuration (a native database receiver, a SQL query receiver, or a log file receiver). You choose coverages; the agent assembles the configuration. See [Engines and coverages](../engines-and-coverages/).
+
+## The discovery-led wizard
+
+You set up monitoring for a database through a wizard, usually starting from a database the agent already discovered:
+
+1. **Pick the engine.** The agent lists discovered databases, so the engine and endpoint are often prefilled.
+2. **Choose coverages.** Toggle the coverage areas you want, such as standard metrics, query performance, or locks.
+3. **Provide credentials.** Enter the monitoring user and its secret, defaulting to an environment reference so the secret never leaves the host. See [Database credentials](../credentials/).
+4. **Follow the setup steps.** The wizard shows the exact grants and prerequisites each coverage needs (for example, `GRANT pg_monitor` or creating an extension), ready to copy.
+5. **Review and apply.** The wizard previews the generated configuration, and on save the agent compiles and applies it.
+
+TODO(screenshot): the database monitoring wizard showing engine selection, coverage toggles, and the credential mode.
+
+## Safe by construction
+
+The agent validates the compiled configuration before it applies it, so a bad database setting never crashes the collector or stops your other telemetry. Each database is isolated, so one misconfigured instance does not affect the others.
+
+## Where to run it
+
+<CardGrid>
+  <LinkCard title="On a VM" href="../on-vm/" description="Monitor databases on a Linux or Windows host." />
+  <LinkCard title="On Kubernetes" href="../on-kubernetes/" description="Monitor in-cluster databases from the cluster collector." />
+  <LinkCard title="Engines and coverages" href="../engines-and-coverages/" description="Which engines and coverages are available." />
+  <LinkCard title="Credentials" href="../credentials/" description="How to provide database credentials safely." />
+</CardGrid>
