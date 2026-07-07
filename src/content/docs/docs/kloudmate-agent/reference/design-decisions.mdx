@@ -11,15 +11,15 @@ This page summarizes the load-bearing design decisions behind the agent and what
 
 ## Opt-in, per-service instrumentation
 
-Rather than instrumenting every process on a host at once, the agent instruments one service at a time, when you choose to. This keeps the blast radius of any change small: a problem with one service's instrumentation never affects the others. The always-on eBPF baseline still gives you broad coverage from the moment the agent is installed, so you get immediate value without a system-wide change. See [Application APM overview](../../auto-instrumentation/overview/).
+Rather than instrumenting every process on a host at once, the agent instruments one service at a time, when you choose to. So a problem with one service's instrumentation never affects the others. The eBPF baseline still gives you broad coverage as soon as the agent is installed, so you get value without a system-wide change. See [Application APM overview](../../auto-instrumentation/overview/).
 
 ## Reuse the OpenTelemetry ecosystem
 
-The agent uses the standard OpenTelemetry (OTel) language agents for Java, Node.js, Python, and .NET, activated through the standard injection environment for each runtime. It does not use a custom loader. The language agents ship inside the KloudMate agent package, versioned with it, so they upgrade together and work in air-gapped environments. See [Linux (systemd)](../../auto-instrumentation/linux-systemd/).
+The agent uses the standard OpenTelemetry (OTel) language agents for Java, Node.js, Python, and .NET, activated through the standard injection environment for each runtime. It does not use a custom loader. The language agents ship inside the KloudMate agent package, versioned with it, so they upgrade together and need no separate download. See [Linux (systemd)](../../auto-instrumentation/linux-systemd/).
 
 ## Generated configuration, not a hand-edited blob
 
-Configuration is generated from a structured set of features and integrations rather than hand-edited YAML. This is what makes it safe to turn a feature on or off from the interface, and it produces deterministic output so the agent does not restart the collector needlessly. The raw YAML editor remains an advanced escape hatch. See the [configuration model](../../concepts/config-model/).
+Configuration is generated from a structured set of features and integrations rather than hand-edited YAML. This is what makes it safe to turn a feature on or off from the interface, and it avoids restarting the collector when nothing really changed. The raw YAML editor remains available for advanced setups. See the [configuration model](../../concepts/config-model/).
 
 ## PHP through a version-gated tracer
 
@@ -27,7 +27,7 @@ PHP 7 has no native OpenTelemetry path, so the agent uses a dd-trace based trace
 
 ## eBPF on by default, gated by capability
 
-The eBPF baseline is enabled by default rather than opt-in, because it delivers the core "install once, see everything" value with no configuration. It is gated by the host's kernel and privileges, and degrades gracefully where it is not supported, so the host still gets metrics and logs. See [eBPF observability](../../ebpf-observability/).
+The eBPF baseline is enabled by default rather than opt-in, because it gives you broad visibility with no configuration. It is gated by the host's kernel and privileges, and degrades gracefully where it is not supported, so the host still gets metrics and logs. See [eBPF observability](../../ebpf-observability/).
 
 ## One protocol for every mode
 

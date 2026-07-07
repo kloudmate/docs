@@ -31,14 +31,14 @@ Every agent has a `config_mode` that is either **managed** or **manual**.
 | Feature and integration toggles | Available | Disabled |
 | Default for | New agents | Existing agents after upgrade |
 
-- In **managed mode**, the configuration is generated from your enabled integrations every time. The YAML editor shows a read-only preview of what was generated. Toggling a feature regenerates the configuration deterministically.
-- In **manual mode**, you own the YAML blob. The integration toggles are disabled, and the YAML editor is writable. This is the advanced escape hatch for setups that need hand-tuned configuration.
+- In **managed mode**, the configuration is generated from your enabled integrations every time. The YAML editor shows a read-only preview of what was generated. Toggling a feature regenerates the configuration.
+- In **manual mode**, you own the YAML blob. The integration toggles are disabled, and the YAML editor is writable. This is for advanced setups that need hand-tuned configuration.
 
 TODO(screenshot): the managed/manual mode toggle and the integrations panel in Agent settings.
 
-## Deterministic generation
+## No needless restarts
 
-Generation is deterministic: the same set of enabled integrations always produces the same configuration, with stable ordering of keys and pipeline components. This matters because the agent decides whether to restart the collector by comparing configuration. Deterministic output means that reordering integrations, or regenerating without a real change, does not produce a different result, so the agent does not restart the collector needlessly.
+The same set of enabled integrations always produces the same configuration. So turning features on and off, or making a change that does not really alter anything, does not cause the agent to restart the collector for no reason.
 
 ## Configuration history and rollback
 

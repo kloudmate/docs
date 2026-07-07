@@ -34,9 +34,9 @@ The agent also stamps a per-instance **`service.name`** of the form `<db.system.
 
 ## Why the agent normalizes the address
 
-The same database can be reported under different addresses by different signals: a receiver might see a fully qualified host name, an application might connect to `localhost` or a socket, and the eBPF baseline might see an empty address for a loopback connection. A naive join would silently fail.
+The same database can appear under different addresses: your application might connect to `localhost` or a socket, while its metrics report a host name. Without a consistent address, the two would not line up.
 
-To fix this, the agent stamps a **canonical, non-loopback address** on database telemetry. On a virtual machine it resolves loopback and socket aliases to the host's routable address; on Kubernetes it uses the Service DNS endpoint, which is exactly what applications connect to. A dedicated identity step in the agent's collector puts this same `server.address` on the database spans from your applications, the eBPF baseline, and the PHP tracer, so all of them join the receiver metrics for the same instance.
+To fix this, the agent puts one **routable, non-loopback address** on database telemetry. On a virtual machine it uses the host's routable address; on Kubernetes it uses the in-cluster address, which is what applications connect to. The agent puts this same `server.address` on the database queries from your applications and the eBPF baseline, so they line up with the database's metrics.
 
 ## Building dashboards
 
@@ -55,7 +55,7 @@ Keying on `server.address` (with `server.port` and `db.system.name` where you ne
 ## Related
 
 <CardGrid>
-  <LinkCard title="Database monitoring overview" href="../../database-monitoring/overview/" description="The two complementary database views." />
+  <LinkCard title="Database monitoring overview" href="../../database-monitoring/overview/" description="The two views of your databases." />
   <LinkCard title="Database monitoring on Kubernetes" href="../../database-monitoring/on-kubernetes/" description="Why the Service DNS endpoint matters." />
   <LinkCard title="Metric catalogs" href="../metric-catalogs/" description="The metrics the agent produces." />
 </CardGrid>

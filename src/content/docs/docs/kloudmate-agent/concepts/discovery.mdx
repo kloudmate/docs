@@ -37,7 +37,7 @@ TODO(screenshot): Discovered Services list on the host detail page, showing runt
 
 ## Stable service identity
 
-Each discovered service is assigned a **stable identity** that survives restarts and process-ID churn. This is what lets an "Instrument" choice keep applying after a service restarts or its process ID changes. The identity is derived deterministically, in order of preference:
+Each discovered service is assigned a **stable identity** that survives restarts and process-ID churn. This is what lets an "Instrument" choice keep applying after a service restarts or its process ID changes. The identity is chosen in this order of preference:
 
 1. The **systemd unit name** (for example, `checkout.service`) when the process belongs to a unit. This is the most stable key.
 2. The **container image or Compose service** when the service runs in a container, so a selection survives container restarts rather than tracking a throwaway container ID.

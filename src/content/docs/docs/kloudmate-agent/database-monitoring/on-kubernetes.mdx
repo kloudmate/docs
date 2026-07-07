@@ -1,29 +1,29 @@
 ---
 title: "Database monitoring on Kubernetes"
-description: "How the KloudMate agent monitors in-cluster databases from the cluster collector, using a Kubernetes Secret for credentials and managed mode."
+description: "How the KloudMate agent monitors databases running in your Kubernetes cluster, using a Kubernetes Secret for credentials and managed mode."
 sidebar:
   order: 4
 ---
 
 import { Steps, LinkCard, CardGrid } from '@astrojs/starlight/components';
 
-On Kubernetes, the agent monitors the databases running in your cluster from the cluster collector. The flow is the same as on a virtual machine, with a few Kubernetes specifics: where the scraping runs, how credentials are supplied through a Kubernetes Secret, and that database monitoring requires managed mode. For the general model, see the [Database monitoring overview](../overview/).
+On Kubernetes, the agent monitors the databases running in your cluster. The flow is the same as on a virtual machine, with a few Kubernetes specifics: how credentials are supplied through a Kubernetes Secret, and that database monitoring requires managed mode. For the general model, see the [Database monitoring overview](../overview/).
 
-## Where scraping runs
+## One monitor per cluster
 
-Database scraping runs in the cluster **Deployment** collector, which runs a single replica, so each database is scraped once rather than once per node. This is also where your applications' database spans arrive, so the server-side metrics and the query spans join in the same place.
+On Kubernetes, one collector in the cluster monitors your databases, so each database is monitored once for the whole cluster rather than once per node.
 
 ## Discovery prefills the endpoint
 
-The agent discovers in-cluster databases by their Services and well-known ports, and corroborates the engine from the backing image. Discovery gives the exact Service DNS endpoint, `<service>.<namespace>.svc.cluster.local:<port>`, and the wizard prefills it. This matters on Kubernetes: your applications connect to the database by that Service DNS name, so using the same endpoint is what makes the server-side metrics and the application spans join. Databases outside the cluster are not discovered and are added manually.
+The agent finds databases running in your cluster and prefills the wizard with their in-cluster address, `<service>.<namespace>.svc.cluster.local:<port>`. Use this address, because your applications connect to the database by the same name, which is what makes its metrics and traces line up. Databases outside the cluster are not discovered and are added manually.
 
 ## Managed mode is required
 
 Database monitoring folds into the generated configuration, so it needs the agent in **managed mode**. On Kubernetes, database monitoring is a "Configure databases" action on the agent, and it prompts you to switch to managed mode if the agent is still in manual mode. See the [configuration model](../../concepts/config-model/).
 
-## Connection coverages only
+## Available coverages
 
-On Kubernetes, the connection-based coverages are available (standard metrics, query performance, locks, and query logs). The file-based log coverages (server logs, stderr logs, and slow logs) are hidden, because the cluster collector scrapes databases remotely and cannot read another pod's log files. See [Engines and coverages](../engines-and-coverages/).
+On Kubernetes, the agent collects database metrics and query coverages: standard metrics, query performance, locks, and query logs. Database log coverages are available on a virtual machine, not on Kubernetes. See [Engines and coverages](../engines-and-coverages/).
 
 ## Provide credentials with a Kubernetes Secret
 

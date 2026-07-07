@@ -1,40 +1,29 @@
 ---
 title: "Engines and coverages"
-description: "The database engines the KloudMate agent monitors and the metric and log coverages available for each, including connection-based and file-based coverages."
+description: "The database engines the KloudMate agent monitors and the metrics, query performance, locks, and logs available for each engine."
 sidebar:
   order: 2
 ---
 
 import { LinkCard, CardGrid } from '@astrojs/starlight/components';
 
-The agent monitors databases through bundled **profiles**. Each profile provides one **coverage** for one engine, and you combine coverages to get the depth you want. This page lists the engines and the coverages available for each.
+You choose what to monitor for a database as a set of **coverages**. This page lists the engines the agent monitors and the coverages available for each.
 
 ## Coverage types
 
-Coverages fall into a few types, depending on what they collect and how:
-
-- **Standard metrics:** the engine's native health and capacity metrics (connections, cache hit ratio, replication lag, buffers, table and index statistics). Collected by the engine's native receiver. A `basic` level uses the receiver defaults; a `full` level turns on every additional metric.
-- **Query performance and top queries:** aggregated statistics for the most expensive queries across all clients, read from the engine's own views (for example, `pg_stat_statements` on PostgreSQL, dynamic management views on SQL Server, and `v$` views on Oracle).
+- **Standard metrics:** the database's health and capacity metrics, such as connections, cache hit ratio, replication lag, buffers, and table and index statistics. You can collect a basic set or a full set.
+- **Query performance:** statistics for the most expensive queries across all clients, so you can find slow and heavy queries.
 - **Locks:** lock and blocking information.
-- **Query logs:** rows from diagnostic views emitted as log records.
-- **Server logs, stderr logs, and slow logs:** the database's own log files.
-
-## Connection-based and file-based coverages
-
-There are two ways a coverage collects data, and the difference matters on Kubernetes:
-
-- **Connection-based coverages** connect to the database (standard metrics, query performance, locks, and query logs). They need credentials but no access to the host.
-- **File-based coverages** read the database's log files on the host (server logs, stderr logs, and slow logs). They need no database connection but do need access to the log files.
-
-File-based coverages require the agent to run where the log files are, so they are available on a virtual machine but hidden on Kubernetes, where the collector scrapes databases remotely and cannot read another pod's files. See [Database monitoring on Kubernetes](../on-kubernetes/).
+- **Query logs:** query activity captured as log records.
+- **Server and slow logs:** the database's own log entries, including slow queries.
 
 ## Engine and coverage matrix
 
-| Engine | Standard metrics | Query performance / top queries | Locks | Query logs | Log files |
+| Engine | Standard metrics | Query performance | Locks | Query logs | Logs |
 |---|---|---|---|---|---|
-| PostgreSQL | Yes | Yes | Yes | No | Server logs, stderr logs |
+| PostgreSQL | Yes | Yes | Yes | No | Server logs |
 | MySQL | Yes | Yes | No | No | Slow log |
-| SQL Server (Microsoft SQL Server) | Yes | Yes | No | Yes | No |
+| SQL Server | Yes | Yes | No | Yes | No |
 | Oracle | Yes | Yes | No | Yes | No |
 | MongoDB | Yes | No | No | No | No |
 | MongoDB Atlas | Yes | No | No | No | No |
@@ -44,19 +33,23 @@ File-based coverages require the agent to run where the log files are, so they a
 | SAP HANA | Yes | No | No | No | No |
 | Snowflake | Yes | Yes | No | No | No |
 
-## Setup steps per coverage
+:::note
+Database log coverages are available on a virtual machine. On Kubernetes, the agent collects database metrics and query coverages. See [Database monitoring on Kubernetes](../on-kubernetes/).
+:::
+
+## Setup steps
 
 Some coverages need a one-time setup step on the database, which the wizard shows you when you select the coverage. For example:
 
-- PostgreSQL query performance needs the `pg_stat_statements` extension, which requires adding it to `shared_preload_libraries` and creating the extension. This step needs a PostgreSQL restart.
-- Query and query-log coverages need the monitoring user to have the right grants (for example, `GRANT pg_monitor` on PostgreSQL, or the equivalent view permissions on SQL Server and Oracle).
-- File-based log coverages may need a log setting enabled on the database (for example, MySQL's slow query log).
+- PostgreSQL query performance needs the `pg_stat_statements` extension enabled, which needs a PostgreSQL restart.
+- Query performance and query-log coverages need the monitoring user to have the right grants, such as `GRANT pg_monitor` on PostgreSQL or the equivalent view permissions on SQL Server and Oracle.
+- Log coverages may need a log setting turned on, such as the MySQL slow query log.
 
-If a prerequisite is missing, the coverage reports it rather than failing silently, and the rest of the coverages keep working.
+If a prerequisite is missing, the agent reports it and the other coverages keep working.
 
-## Filtering database logs by coverage
+## Filtering database logs
 
-All database log records the agent produces are tagged with a `km.db.coverage` attribute set to the coverage name (for example, `query-performance`, `server-logs`, `stderr-logs`, `slow-log`, or `query-log`). You can filter database logs by this attribute in Log Explorer to focus on one kind of coverage.
+Database logs carry a `km.db.coverage` attribute set to the coverage they came from, such as `query-performance`, `server-logs`, or `slow-log`. You can filter database logs by this attribute in Log Explorer.
 
 ## Next steps
 

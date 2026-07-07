@@ -1,97 +1,44 @@
 ---
 title: "Linux (systemd)"
-description: "How the KloudMate agent instruments Java, Node.js, Python, and .NET services on Linux using per-service systemd drop-in files."
+description: "How the KloudMate agent instruments Java, Node.js, Python, and .NET services on Linux, per service, without changing your application code."
 sidebar:
   order: 2
 ---
 
-import { Tabs, TabItem, LinkCard, CardGrid } from '@astrojs/starlight/components';
+import { LinkCard, CardGrid } from '@astrojs/starlight/components';
 
-On Linux, the agent instruments a service by attaching the matching OpenTelemetry (OTel) language agent to it and restarting it. Activation is surgical and per service: the agent writes a **systemd drop-in** for the one unit you chose, not a system-wide preload that would touch every process. This page explains the mechanism and the per-language settings. For the flow, consent, and rollback behavior, see the [Application APM overview](../overview/).
+On Linux, the agent instruments a service by attaching the matching language agent to it and restarting it. It changes only the service you chose, not the whole system. This page covers what that looks like per runtime. For the flow, consent, and rollback behavior, see the [Application APM overview](../overview/).
 
-## How injection works
+## How it works
 
-When you instrument a systemd service, the agent:
+When you instrument a service, the agent adds the tracing settings to that service and, with your consent, restarts it so the settings take effect. Turning instrumentation off reverses the change and restarts the service, leaving it as it was. Applying the same choice twice does nothing, so it is safe to re-run.
 
-1. Writes a drop-in file at `/etc/systemd/system/<unit>.d/` that sets the injection environment for that unit.
-2. Runs `systemctl daemon-reload`.
-3. With your consent, runs `systemctl restart <unit>` so the environment applies. Injection only takes effect on start.
+## Per-runtime support
 
-Disabling instrumentation reverses this: the agent removes the drop-in, reloads, and restarts the service, leaving no trace of the change. Applying the same desired state twice is a no-op, so reconciliation is idempotent.
+The agent uses the standard tracing mechanism for each runtime, so the behavior matches what each language's OpenTelemetry (OTel) agent documents.
 
-A Java drop-in, for example, looks like this:
-
-```ini
-[Service]
-Environment="JAVA_TOOL_OPTIONS=-javaagent:/opt/kmagent/agents/java/opentelemetry-javaagent.jar"
-Environment="OTEL_EXPORTER_OTLP_ENDPOINT=http://localhost:4318"
-Environment="OTEL_EXPORTER_OTLP_PROTOCOL=http/protobuf"
-Environment="OTEL_SERVICE_NAME=checkout"
-```
-
-Every runtime also receives resource attributes and the sampler setting, and exports to the agent's local collector on `http://localhost:4318`.
-
-## Per-language injection
-
-The agent sets the standard OpenTelemetry environment for each runtime.
-
-<Tabs>
-<TabItem label="Java">
-
-```ini
-Environment="JAVA_TOOL_OPTIONS=-javaagent:/opt/kmagent/agents/java/opentelemetry-javaagent.jar"
-```
-
-The Java agent instruments common frameworks, HTTP clients and servers, and database drivers automatically.
-
-</TabItem>
-<TabItem label="Node.js">
-
-```ini
-Environment="NODE_OPTIONS=--require /opt/kmagent/agents/node/otel.js"
-```
-
-The bundled Node.js module registers OpenTelemetry auto-instrumentation at startup.
-
-</TabItem>
-<TabItem label="Python">
-
-```ini
-Environment="PYTHONPATH=/opt/kmagent/agents/python"
-```
-
-The bundled `sitecustomize.py` selects the module set for the running interpreter version and starts auto-instrumentation. A Python version the bundle does not cover runs uninstrumented rather than failing.
-
-</TabItem>
-<TabItem label=".NET">
-
-```ini
-Environment="CORECLR_ENABLE_PROFILING=1"
-Environment="CORECLR_PROFILER={CLSID}"
-Environment="CORECLR_PROFILER_PATH=/opt/kmagent/agents/dotnet/linux-x64/OpenTelemetry.AutoInstrumentation.Native.so"
-Environment="OTEL_DOTNET_AUTO_HOME=/opt/kmagent/agents/dotnet"
-```
-
-.NET on Linux uses the CLR profiler. It is supported, though less common than .NET on Windows; see [Windows and .NET](../windows-dotnet/) for the primary .NET flow.
-
-</TabItem>
-</Tabs>
+| Runtime | How it is attached |
+|---|---|
+| Java | The Java agent, through the standard `JAVA_TOOL_OPTIONS` startup option |
+| Node.js | The Node.js instrumentation, loaded at startup with `NODE_OPTIONS` |
+| Python | The Python auto-instrumentation |
+| .NET | The .NET (CLR) profiler (less common on Linux than on Windows) |
 
 :::note
-PHP is not instrumented through a systemd drop-in. It uses a `php.ini` file and a graceful reload of the PHP process manager instead. See [PHP instrumentation](../php/). Go is not injected at all; it is covered by the [eBPF baseline](../go-ebpf/).
+PHP and Go work differently. PHP uses a `php.ini` setting and a graceful reload instead of a restart; see [PHP instrumentation](../php/). Go is not attached at all; it is covered by the [eBPF baseline](../go-ebpf/).
 :::
 
-## Bundled language agents
+## Bundled with the agent
 
-The language agents (the Java agent, the .NET profiler, the Node.js module, and the Python distribution) ship inside the KloudMate agent's `.deb` and `.rpm` packages under `/opt/kmagent/agents/<language>/`. Their versions are locked to the agent package, so they upgrade when the agent does and there is no download at instrumentation time. This keeps installs air-gap friendly and gives you a single unit to test and release.
+The language agents come inside the KloudMate agent package and are versioned with it, so they upgrade when the agent does and there is no separate download to manage.
 
-## Restart orchestration
+## Restart behavior
 
-The agent restarts one service at a time, only with your consent, and can wait for a health gate (the unit becomes active and, where known, its listen port accepts connections) before reporting success. If a restart fails or crash-loops, the agent rolls the change back. See the [overview](../overview/) for details.
+The agent restarts one service at a time, only with your consent, and can wait for the service to come back up before reporting success. If a restart fails, the agent undoes the change and restarts the service to its previous state. See the [overview](../overview/) for details.
 
-## Non-systemd processes
+## Other process managers
 
-systemd is the first-class path. Processes managed by other supervisors (such as supervisord or pm2) or run bare have no surgical injection point, so the agent treats them as best-effort and reports them as unsupported for automatic instrumentation, with guidance rather than an automatic change.
+systemd is the primary path on Linux. Services run under other process managers, such as supervisord or pm2, or run on their own, do not have a per-service way to attach the agent, so the agent reports them as not supported for automatic instrumentation and offers guidance instead.
 
 ## Next steps
 

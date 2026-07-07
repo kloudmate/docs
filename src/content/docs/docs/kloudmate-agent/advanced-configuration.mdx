@@ -11,7 +11,7 @@ Most agents run well in managed mode with the defaults. This page collects the a
 
 ## Manual YAML and custom receivers
 
-Switching an agent to **manual mode** gives you the raw collector YAML through the editor, so you can hand-tune the configuration or add a receiver that the managed integrations do not cover. This is the escape hatch for non-standard setups. The trade-off is that you own the configuration and the feature toggles are disabled. On Kubernetes, the agent's configuration lives in the collectors' ConfigMaps; do not edit them directly, because the fleet manager owns them in managed mode. See the [configuration model](../concepts/config-model/) and [Kubernetes platform notes](../platform-notes/kubernetes/).
+Switching an agent to **manual mode** gives you the raw collector YAML through the editor, so you can hand-tune the configuration or add a component that the managed integrations do not cover. This is for non-standard setups. The trade-off is that you own the configuration and the feature toggles are disabled. On Kubernetes, the agent's configuration lives in the collectors' ConfigMaps; do not edit them directly, because the fleet manager owns them in managed mode. See the [configuration model](../concepts/config-model/) and [Kubernetes platform notes](../platform-notes/kubernetes/).
 
 The agent's own settings (such as the API key, host name override, and health reporting) are set through `agent.yaml`, environment variables, or command-line flags on the host, and through Helm values on Kubernetes.
 

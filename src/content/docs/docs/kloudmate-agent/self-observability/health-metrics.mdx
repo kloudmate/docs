@@ -9,9 +9,9 @@ import { LinkCard, CardGrid } from '@astrojs/starlight/components';
 
 The agent reports on its own health so you can tell whether it is alive and whether its collector is running, without logging in to the host. These liveness metrics are reported **out-of-band**, on a path that does not go through the collector, so they keep arriving even when the collector is down.
 
-## Why out-of-band
+## Why they are reported separately
 
-The agent runs its OpenTelemetry (OTel) Collector in-process. If the collector fails, it cannot report anything, including the fact that it died: you cannot report your own death through the thing that died. To solve this, the agent runs a small health reporter beside the collector that pushes a set of `kmagent.*` metrics directly to KloudMate. Because this path bypasses the collector, it survives a collector outage and is the signal that tells you the collector is down.
+If the collector stops, it cannot send anything, including a report that it stopped. To avoid that blind spot, the agent reports its `kmagent.*` metrics itself, on a separate path from the collector. They keep arriving even when the collector is down, which is how you find out the collector is down.
 
 ## The metric catalog
 

@@ -9,7 +9,7 @@ import { LinkCard, CardGrid } from '@astrojs/starlight/components';
 
 Extended Berkeley Packet Filter (eBPF) lets the KloudMate agent observe your applications directly from the Linux kernel. You get deep visibility into network traffic, database queries, and application performance **without changing a single line of code or installing SDKs**.
 
-In agent v2, eBPF is part of the automatic baseline. On a managed-mode agent it turns on by default wherever the Linux kernel supports it, so you get Rate, Errors, and Duration (RED) metrics and a service map the moment the agent is running. This page explains what it collects, the kernel requirements, how it degrades gracefully, and how to tune it. In the [layered model](../concepts/layered-instrumentation/), this is Layer 2.
+eBPF is part of the agent's automatic baseline. On a managed-mode agent it turns on by default wherever the Linux kernel supports it, so you get Rate, Errors, and Duration (RED) metrics and a service map as soon as the agent is running. This page covers what it collects, the kernel requirements, how it degrades gracefully, and how to tune it. In the [layered model](../concepts/layered-instrumentation/), this is Layer 2.
 
 ## What eBPF collects
 

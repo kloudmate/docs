@@ -16,9 +16,9 @@ What the agent collects depends on the deployment mode, because each platform ex
 <Tabs>
 <TabItem label="Linux">
 
-- **Host metrics:** CPU, memory, disk, network, and process metrics, collected by the agent's `hostmetrics` receiver.
-- **System logs:** the systemd journal, collected by the `journald` receiver.
-- **File logs:** log files you point the agent at, collected by the `filelog` receiver.
+- **Host metrics:** CPU, memory, disk, network, and process metrics.
+- **System logs:** the systemd journal.
+- **File logs:** log files you point the agent at.
 
 </TabItem>
 <TabItem label="Windows">
@@ -30,9 +30,9 @@ What the agent collects depends on the deployment mode, because each platform ex
 </TabItem>
 <TabItem label="Kubernetes">
 
-- **Per-node metrics:** CPU, memory, disk, and network for each node, collected by the `kubeletstats` receiver in the DaemonSet.
-- **Pod logs:** container stdout and stderr, collected by the `filelog` receiver in the DaemonSet.
-- **Cluster metrics and events:** workload, namespace, and node state plus cluster events, collected by the `k8s_cluster` receiver in the Deployment.
+- **Per-node metrics:** CPU, memory, disk, and network for each node.
+- **Pod logs:** container stdout and stderr.
+- **Cluster metrics and events:** workload, namespace, and node state, plus cluster events.
 
 </TabItem>
 <TabItem label="Docker">
@@ -45,7 +45,7 @@ What the agent collects depends on the deployment mode, because each platform ex
 </Tabs>
 
 :::note
-This baseline is the same infrastructure telemetry the agent has always collected. Agent v2 adds the higher layers (the eBPF baseline and opt-in application tracing) on top of it, without changing how host metrics and logs work.
+Host metrics and logs need no configuration. The other layers, such as the eBPF baseline and application tracing, build on top of this one.
 :::
 
 ## Where to view it

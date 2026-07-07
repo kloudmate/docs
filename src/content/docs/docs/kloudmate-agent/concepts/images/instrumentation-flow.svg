@@ -9,7 +9,7 @@
 
   <rect x="56" y="48" width="28" height="28" rx="8" fill="#3D63E0"/>
   <path transform="translate(70,62)" d="M1,-7 L-4,1 L-0.5,1 L-2,7 L4,-1 L0.5,-1 Z" fill="#FFFFFF"/>
-  <text x="96" y="69" font-size="15" font-weight="600" fill="#3D63E0" letter-spacing="0.3">KloudMate agent · v2</text>
+  <text x="96" y="69" font-size="15" font-weight="600" fill="#3D63E0" letter-spacing="0.3">KloudMate agent</text>
 
   <rect x="790" y="50" width="254" height="32" rx="16" fill="#FFFFFF" stroke="#E7E4DC"/>
   <g transform="translate(832,66)" fill="none" stroke="#3D63E0" stroke-width="1.8" stroke-linecap="round">
@@ -19,7 +19,7 @@
   <text x="850" y="71" font-size="13" font-weight="500" fill="#23221F">Runs on VMs and Docker</text>
 
   <text x="56" y="120" font-size="30" font-weight="600" fill="#23221F" letter-spacing="-0.4">How zero-code instrumentation works</text>
-  <text x="56" y="150" font-size="16" font-weight="400" fill="#6A675F">The agent covers your whole stack three ways — none of them touch your source code.</text>
+  <text x="56" y="150" font-size="16" font-weight="400" fill="#6A675F">The agent covers your whole stack three ways, and none of them touch your source code.</text>
 
   <rect x="430" y="180" width="240" height="54" rx="12" fill="#3D63E0"/>
   <text x="550" y="213" font-size="17" font-weight="600" fill="#FFFFFF" text-anchor="middle">Install the agent</text>
@@ -34,7 +34,7 @@
   <g transform="translate(412,381)" fill="none" stroke="#16A06B" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
     <path d="M0,-11 L9,-6.5 V1 C9,7.5 5,10.5 0,12 C-5,10.5 -9,7.5 -9,1 V-6.5 Z"/><path d="M-4,0 L-1.3,3.2 L4.5,-3.5"/>
   </g>
-  <text x="440" y="388" font-size="17" font-weight="600" fill="#15724E">No source-code changes — ever.</text>
+  <text x="440" y="388" font-size="17" font-weight="600" fill="#15724E">No source-code changes, ever.</text>
 
   <line x1="550" y1="410" x2="550" y2="430" stroke="#3D63E0" stroke-width="2"/>
   <polyline points="550,430 210,430 210,442" fill="none" stroke="#3D63E0" stroke-width="2" marker-end="url(#ah)"/>
