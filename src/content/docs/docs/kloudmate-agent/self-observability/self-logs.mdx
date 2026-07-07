@@ -1,11 +1,38 @@
 ---
 title: "Agent self-logs"
-description: "How the KloudMate agent ships its own error logs out-of-band so you can troubleshoot failures without logging in to the host."
-draft: true
+description: "How the KloudMate agent ships its own error logs out-of-band so you can troubleshoot agent failures without logging in to the host."
 sidebar:
   order: 3
 ---
 
-:::note
-This page is being written. Content is coming soon.
-:::
+import { LinkCard, CardGrid } from '@astrojs/starlight/components';
+
+Self-logs bring the agent's own error output into KloudMate, so you can diagnose a failing agent without opening a shell on the host. Like the [health metrics](../health-metrics/), they are shipped out-of-band, on a path independent of the collector, so an error survives even when the collector cannot run. Self-logs apply on all deployment modes.
+
+## What it ships
+
+The agent forwards its own **ERROR-level logs** directly to KloudMate. It ships only errors, not routine debug or info messages, so the volume stays low and the signal stays high. Each log record carries attributes that tell you where the error came from:
+
+- The **source** within the agent, such as the check-in, discovery, instrumentation, or the collector.
+- The **host or node** the agent runs on.
+- The **agent version**.
+
+## Why it matters
+
+Without self-logs, an error like an invalid configuration or a failed instrumentation is only visible in the agent's local output, which means logging in to the host to read it. With self-logs, that error text appears in KloudMate, so you can see, for example, why a configuration push was rejected or why an instrumentation attempt failed, from the same place you manage the agent.
+
+## On Kubernetes
+
+On Kubernetes, self-logs are shipped per node, carried with per-node identity, so you can see errors from each node's collector and from the fleet manager without running `kubectl logs`. See [Kubernetes platform notes](../../platform-notes/kubernetes/).
+
+## Enabling it
+
+Self-logs are on by default, controlled by the `KM_AGENT_ERROR_LOGS` setting. Leaving them on means agent errors are always visible in KloudMate.
+
+## Next steps
+
+<CardGrid>
+  <LinkCard title="Agent health metrics" href="../health-metrics/" description="Liveness and collector status." />
+  <LinkCard title="Troubleshooting" href="../../troubleshooting/" description="Diagnose problems with health and self-logs." />
+  <LinkCard title="Kubernetes platform notes" href="../../platform-notes/kubernetes/" description="How self-logs work per node." />
+</CardGrid>

@@ -5,7 +5,7 @@ sidebar:
   order: 11
 ---
 
-The KloudMate Agent is designed to be managed centrally from the KloudMate web UI. This means you don't need to SSH into your servers or manually edit local YAML files to update settings—changes made in the dashboard are automatically pushed to your agents across your infrastructure.
+The KloudMate Agent is designed to be managed centrally from the KloudMate web UI. This means you don't need to SSH into your servers or manually edit local YAML files to update settings. Changes made in the dashboard are automatically pushed to your agents across your infrastructure.
 
 ## Agents Overview
 
@@ -53,7 +53,24 @@ From the KloudMate platform, you can update the collector configuration associat
 - **Restart Collector:** Restart the collector service when needed.
 - **Delete:** Removes the agent from the list on the KloudMate Agent landing page. To completely remove the agent, you must also uninstall it from the source environment.
 
+### Managed and manual mode
+
+Each agent runs in one of two configuration modes:
+
+- **Managed mode** (the default for new agents): KloudMate generates the collector configuration from the features and integrations you toggle, and the YAML editor shows a read-only preview. This is the recommended way to configure an agent.
+- **Manual mode:** you own the raw YAML, and the feature toggles are disabled. This is the advanced escape hatch for hand-tuned setups.
+
+You can switch an agent between modes. Switching from manual to managed replaces the hand-edited YAML with generated configuration, so review the change first. For the full model, see the [configuration model](../concepts/config-model/).
+
+### Configuration history and rollback
+
+KloudMate keeps the recent generated configurations for each agent. If a change causes a problem, you can review the history and roll back to an earlier configuration.
+
 ### Common Configurations
+
+:::note
+The snippets below are for manual mode. In managed mode you set these through the feature and integration toggles instead. See [eBPF observability](../ebpf-observability/) and [Database monitoring](../database-monitoring/overview/).
+:::
 
 #### Feature Flags
 
@@ -104,8 +121,21 @@ ebpf:
   postgres_prepared_statements_cache_size: 1024
 ```
 
+## Agent health and status
+
+Beyond the status shown on the landing page, each agent reports on its own health so you can confirm it is running and see when something goes wrong:
+
+- **Health metrics** tell you whether the agent and its collector are up, and classify why the collector is down if it is. See [Agent health metrics](../self-observability/health-metrics/).
+- **Self-logs** bring the agent's own error messages into KloudMate, so you can diagnose a failure without logging in to the host. See [Agent self-logs](../self-observability/self-logs/).
+
+After a configuration change, confirm it applied by checking that telemetry is still flowing and that the agent's health metrics report a clean apply.
+
+## Updating the agent
+
+Update the agent by upgrading its package on the host or the Helm release on Kubernetes, the same way you installed it. The bundled instrumentation agents are versioned with the KloudMate agent, so they update together. See the [installation guides](../installation/linux-agent/).
+
 ## Best Practices
 
-- Use filters and search on the Agents landing page to quickly locate agents by **host** , **platform** , or **status**.
+- Use filters and search on the Agents landing page to quickly locate agents by **host**, **platform**, or **status**.
 - For clusters with multiple agents, consider **bulk restarting** or **updating collectors** where supported.
 - Always confirm that agent configurations have applied successfully by checking your dashboards.
