@@ -163,18 +163,18 @@ The tabs below show one representative example of each payload, with notes on ho
 
 <Tabs>
   <TabItem label="Alert group">
-    Sent when an [alert group](../../../alerts/) opens, gains new alerts, resolves, or completes a root-cause analysis. Each rule reports its full `instances` array — no sampling, every instance in the notification is included, each tagged with its `state` — alongside per-state `counts`. Each rule also exposes `commonLabels` and `commonAnnotations` — the label and annotation values identical across all of that rule's instances — so receivers and the chat/email templates can show them once instead of on every row; the individual `instances[]` still carry their own complete `labels` and `annotations`. Both `totals` and each rule's `counts` are keyed by the user-facing state (`Firing`, `Resolved`, `No Data`, `Error`, `Normal`). `group.mode` is `"group"` for a correlated alert group and `"standalone"` for a single-alert notification (one per alarm rule). Chat and email channels cap how many instance rows they render; the webhook always carries the complete list.
+    Sent when an [alert group](../../../alerts/) opens, appends new alerts, resolves, or completes a root-cause analysis. The `event` field tells you which one. `workspace` identifies the workspace (tenant) the alert belongs to. `group` carries the group's id, title, state, severity, `labels`, `annotations`, and its link in KloudMate. `rules` lists each alarm rule in the group; each rule's `instances` array holds every matched instance with its own `labels`, `annotations`, and `state`, and `commonLabels`/`commonAnnotations` are the values shared by all of them. `totals` and each rule's `counts` are keyed by state: `Firing`, `Resolved`, `No Data`, `Error`, `Normal`. `group.mode` is `"group"` for a correlated group or `"standalone"` for a single alarm rule.
 
     ```json
     {
       "event": "opened",
       "emitted_at": "2026-05-23T10:00:05.123Z",
+      "workspace": { "id": "ws-1", "name": "Acme Production" },
       "group": {
         "id": "550e8400-e29b-41d4-a716-446655440000",
         "title": "High CPU on payments-api",
         "state": "Open",
         "severity": "sev1",
-        "severity_escalated": false,
         "opened_at": "2026-05-23T10:00:00.000Z",
         "resolved_at": null,
         "labels": { "service": "payments-api", "env": "production" },
@@ -223,9 +223,10 @@ The tabs below show one representative example of each payload, with notes on ho
     ```
 
     **Variants by `event`:**
-    - `appended` — new or still-firing alerts on an already-open group; each instance carries its current `state`, and `counts`/`totals` tally them by state.
-    - `resolved` — `group.state` becomes `"Resolved"`, `group.resolved_at` is set, and every instance reports `"state": "Resolved"`, so `counts`/`totals` move under `Resolved`.
-    - `rca_completed` — the `rca` object is populated instead of `null`:
+    - `opened` — the group's first notification. `state` is `"Open"`; `resolved_at` and `rca` are `null`.
+    - `appended` — new activity on an open group. Each instance shows its current `state`.
+    - `resolved` — the group has cleared. `state` is `"Resolved"`, `resolved_at` is set, and instances show their final state (`Resolved`, `Normal`, `No Data`, or `Error`).
+    - `rca_completed` — a root-cause investigation finished. The group's state does not change; `rca` is filled in instead of `null`:
 
     ```json
     "rca": {
