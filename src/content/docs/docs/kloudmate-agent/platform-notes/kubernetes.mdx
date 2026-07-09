@@ -49,6 +49,7 @@ Do not hand-edit the agent's ConfigMaps. In managed mode the fleet manager owns 
 
 - **Application APM** uses the OpenTelemetry Operator. See [Application APM on Kubernetes](../../auto-instrumentation/kubernetes/).
 - **Database monitoring** runs in the Deployment collector and uses a Kubernetes Secret for credentials. See [Database monitoring on Kubernetes](../../database-monitoring/on-kubernetes/).
+- **Log monitoring** (pointing the agent at custom log files) is **not available on Kubernetes**. Pod and container logs are already collected for you by the DaemonSet as part of the [host baseline](../../baseline/host-metrics-and-logs/), and the Logs tab is not offered for Kubernetes agents. See [Log monitoring](../../log-monitoring/).
 
 ## Next steps
 

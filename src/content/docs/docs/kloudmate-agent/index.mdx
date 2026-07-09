@@ -44,6 +44,7 @@ The agent runs across four deployment modes. Not every capability applies to eve
 | Application APM (PHP) | Yes | Not applicable | Not applicable | Rolling out |
 | Database monitoring | Yes | Yes | Yes | Yes |
 | Web server monitoring (nginx, Apache) | Yes | Not applicable | Yes | Yes |
+| Log monitoring (custom log files) | Yes | Yes | Not applicable | Yes |
 | Agent health and self-logs | Yes | Yes | Yes | Yes |
 
 :::note
@@ -65,7 +66,7 @@ On Linux, the eBPF baseline needs kernel 4.14 or newer, and unlocks more on 5.8 
   <LinkCard title="Architecture" href="concepts/architecture/" description="How the agent is managed across deployment modes." />
   <LinkCard title="Layered instrumentation" href="concepts/layered-instrumentation/" description="The automatic baseline and the opt-in layers." />
   <LinkCard title="Discovery" href="concepts/discovery/" description="How the agent inventories your services." />
-  <LinkCard title="Configuration model" href="concepts/config-model/" description="Managed and manual modes, and config history." />
+  <LinkCard title="Configuration model" href="concepts/config-model/" description="Managed and manual modes, and how the collector config is generated." />
 </CardGrid>
 
 ## Future support

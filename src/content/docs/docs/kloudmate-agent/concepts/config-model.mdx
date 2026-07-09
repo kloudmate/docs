@@ -1,6 +1,6 @@
 ---
 title: "Configuration model"
-description: "How the KloudMate agent turns feature and integration toggles into collector configuration, and how managed and manual modes, history, and credentials work."
+description: "How the KloudMate agent turns feature and integration toggles into collector configuration, and how managed and manual modes and credentials work."
 sidebar:
   order: 4
 ---
@@ -40,9 +40,11 @@ TODO(screenshot): the managed/manual mode toggle and the integrations panel in A
 
 The same set of enabled integrations always produces the same configuration. So turning features on and off, or making a change that does not really alter anything, does not cause the agent to restart the collector for no reason.
 
-## Configuration history and rollback
+## Rolling back a change
 
-KloudMate keeps the last several generated configurations for each agent. You can review the history and roll back to an earlier configuration by selecting it, which is useful for auditing changes and recovering from a bad edit.
+A managed configuration is not kept as a history you roll back to, because it does not need to be. It is generated deterministically from your enabled integrations and feature toggles, and validated before it is applied, so it is always reproducible. To undo a managed change, flip the toggle back and KloudMate regenerates the earlier configuration. There is no separate history list or rollback button.
+
+The one configuration KloudMate does preserve is a **manual** one: when you switch an agent from manual to managed mode, it snapshots the hand-edited configuration first, so switching never loses your manual edits.
 
 ## Credentials
 
@@ -58,7 +60,7 @@ Environment reference is the recommended default, and it also makes credential r
 When an agent is upgraded, it defaults to **manual** mode so nothing changes unexpectedly: it keeps serving the configuration it had. To adopt the structured model, you switch the agent to **managed** mode, which seeds its integrations from a sensible default profile plus anything discovery has found. New agents start in managed mode with the default profile of host metrics, logs, and the eBPF baseline.
 
 :::caution
-Switching an agent from manual to managed mode replaces its hand-edited YAML with generated configuration. A snapshot of the previous configuration is kept in the configuration history, but review the change before you switch a production agent.
+Switching an agent from manual to managed mode replaces its hand-edited YAML with generated configuration. KloudMate snapshots the previous manual configuration when you switch, so it is not lost, but review the change before you switch a production agent.
 :::
 
 ## Next steps

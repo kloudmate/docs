@@ -2,7 +2,7 @@
 title: "Configuration & Management"
 description: "Learn how to manage, configure, and monitor your KloudMate Agents centrally from the web interface."
 sidebar:
-  order: 11
+  order: 12
 ---
 
 The KloudMate Agent is designed to be managed centrally from the KloudMate web UI. This means you don't need to SSH into your servers or manually edit local YAML files to update settings. Changes made in the dashboard are automatically pushed to your agents across your infrastructure.
@@ -51,7 +51,11 @@ From the KloudMate platform, you can update the collector configuration associat
 - **Collector Configuration:** Open the web-based YAML editor to make changes to the collector settings and apply updates automatically where the agent is installed.
 - **APM Configuration:** Configure the applications running on your Kubernetes cluster (applicable only for Kubernetes agents).
 - **Restart Collector:** Restart the collector service when needed.
-- **Delete:** Removes the agent from the list on the KloudMate Agent landing page. To completely remove the agent, you must also uninstall it from the source environment.
+- **Delete:** Removes the agent from the KloudMate Agent landing page and clears all of its configuration.
+
+:::caution
+Deleting an agent decommissions it. Its instrumented applications are restarted to remove their instrumentation, and its database monitoring and log monitoring stop. If the agent is still running on the host, it checks back in and reappears as a new, unconfigured agent, so to remove it for good you must also uninstall it from the host. See the [installation guides](../installation/linux-agent/) for the uninstall command.
+:::
 
 ### Managed and manual mode
 
@@ -62,9 +66,9 @@ Each agent runs in one of two configuration modes:
 
 You can switch an agent between modes. Switching from manual to managed replaces the hand-edited YAML with generated configuration, so review the change first. For the full model, see the [configuration model](../concepts/config-model/).
 
-### Configuration history and rollback
+### Rolling back a change
 
-KloudMate keeps the recent generated configurations for each agent. If a change causes a problem, you can review the history and roll back to an earlier configuration.
+Managed configuration is generated from your feature and integration toggles, so to undo a change you flip the toggle back and KloudMate regenerates the earlier configuration. There is no separate history list or rollback button, because a managed configuration is always reproducible from your selections. When you switch an agent from manual to managed mode, KloudMate snapshots the hand-edited configuration first, so switching never loses your manual edits. See the [configuration model](../concepts/config-model/).
 
 ### Common Configurations
 

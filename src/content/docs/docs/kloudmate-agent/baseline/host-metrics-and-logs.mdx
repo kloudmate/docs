@@ -18,7 +18,7 @@ What the agent collects depends on the deployment mode, because each platform ex
 
 - **Host metrics:** CPU, memory, disk, network, and process metrics.
 - **System logs:** the systemd journal.
-- **File logs:** log files you point the agent at.
+- **File logs:** application log files you point the agent at with [log monitoring](../../log-monitoring/).
 
 </TabItem>
 <TabItem label="Windows">
@@ -58,7 +58,7 @@ The host baseline feeds the infrastructure and log views in KloudMate:
 
 ## Collecting custom application logs
 
-By default the agent collects system logs. To add your own log files, configure the file log receiver with the paths and parsing rules you need. See [Collect file logs with KloudMate Agent](../../../logs/collect-file-logs/), which covers adding custom log paths, enabling multiline parsing, and validating logs in Log Explorer.
+The baseline collects system logs, not arbitrary application log **files**. To add your own log files, use [log monitoring](../../log-monitoring/): you point the agent at a folder and file-name pattern and choose how to parse each line, then preview the result before you save. Multiline grouping, for stack traces or pretty-printed JSON, is a modifier you apply on top of any format. For a hand-written receiver in manual mode, see [Collect file logs](../../../logs/collect-file-logs/).
 
 ## Relationship to the other layers
 

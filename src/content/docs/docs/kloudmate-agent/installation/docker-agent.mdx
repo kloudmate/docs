@@ -74,18 +74,11 @@ View all collected data in these KloudMate sections:
 
 ## **Log Integration**
 
-By default, the KloudMate Agent collects basic system logs.
+By default, the KloudMate Agent collects host and container logs.
 
-To configure custom application logs and enable file-based log monitoring, refer to:
+To collect application log **files** on the Docker host, use log monitoring: from the agent's **Logs** tab you point the agent at a folder and file-name pattern and choose how to parse each line (plain text, JSON, or a regular expression). Multiline grouping, for stack traces or pretty-printed JSON, is a modifier you apply on top of any format, and you can preview the parsed records before you save. See [Log monitoring](../../log-monitoring/).
 
-[Collect File Logs with KloudMate Agent](../../../logs/collect-file-logs/) documentation
-
-This guide explains how to:
-
-- Configure the file log receiver
-- Add custom log file paths
-- Enable multiline log parsing
-- Validate logs in Log Explorer
+For a hand-written `filelog` receiver in manual mode, see [Collect File Logs with KloudMate Agent](../../../logs/collect-file-logs/).
 
 ## Coverage and configuration
 
