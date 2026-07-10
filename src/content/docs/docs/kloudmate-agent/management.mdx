@@ -134,6 +134,12 @@ Beyond the status shown on the landing page, each agent reports on its own healt
 
 After a configuration change, confirm it applied by checking that telemetry is still flowing and that the agent's health metrics report a clean apply.
 
+## Resource usage
+
+The agent is light. On a virtual machine or host it runs as a single process and typically uses around **185 MiB of memory** and **under 2% of one CPU core**. Usage grows with the amount of telemetry it handles and the number of services it watches.
+
+On Kubernetes, usage is split across the per-node collector and a few cluster-wide components. See [Resource usage and sizing](../platform-notes/kubernetes/#resource-usage-and-sizing) for per-component figures and suggested CPU and memory requests and limits.
+
 ## Updating the agent
 
 Update the agent by upgrading its package on the host or the Helm release on Kubernetes, the same way you installed it. The bundled instrumentation agents are versioned with the KloudMate agent, so they update together. See the [installation guides](../installation/linux-agent/).
