@@ -1,0 +1,41 @@
+---
+title: "Collector self-telemetry"
+description: "The opt-in in-band collector telemetry the KloudMate agent can emit, covering exporter queues, send failures, and receiver metrics."
+sidebar:
+  order: 2
+---
+
+import { LinkCard, CardGrid } from '@astrojs/starlight/components';
+
+Collector self-telemetry is the deeper, performance-oriented view of the agent's embedded OpenTelemetry (OTel) Collector. Where the [health metrics](../health-metrics/) tell you whether the collector is up, self-telemetry tells you how well it is keeping up while it runs. It is **opt-in**, because it adds metric volume, and it is emitted **in-band** through the collector itself.
+
+## What it reports
+
+When enabled, the collector emits its standard `otelcol_*` metrics, including:
+
+- **Exporter health:** queue size and capacity, send failures, and successfully sent items, so you can see whether the collector is falling behind on shipping data.
+- **Receiver activity:** accepted and refused items, so you can see whether data is being dropped at intake.
+- **Processor and process metrics:** internal pipeline and process counters.
+
+These are the same metrics any OpenTelemetry Collector can produce, so they are familiar and well documented.
+
+## Why it is opt-in and in-band
+
+Two properties follow from where these metrics come from:
+
+- **It adds cost.** The collector produces a metric series per component, which increases the metric volume you ingest. For that reason it is off by default, and you turn it on when you want the detail.
+- **It dies with the collector.** Because these metrics flow through the collector, they stop when the collector stops. That is why they are not a liveness signal: liveness is the job of the out-of-band [health metrics](../health-metrics/).
+
+The two tiers complement each other. If the health metrics show `kmagent.collector.up=1` but the collector self-telemetry goes silent, that divergence itself points to a wedged pipeline.
+
+## Enabling it
+
+Collector self-telemetry is turned on through the agent's settings. Once enabled, the `otelcol_*` metrics arrive in KloudMate alongside your other telemetry, and you can build dashboards and alerts on exporter queue depth and send failures.
+
+## Next steps
+
+<CardGrid>
+  <LinkCard title="Agent health metrics" href="../health-metrics/" description="The out-of-band liveness tier." />
+  <LinkCard title="Agent self-logs" href="../self-logs/" description="The agent's own error logs." />
+  <LinkCard title="Advanced configuration" href="../../advanced-configuration/" description="Other advanced agent settings." />
+</CardGrid>

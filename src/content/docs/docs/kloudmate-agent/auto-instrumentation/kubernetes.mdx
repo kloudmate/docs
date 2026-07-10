@@ -1,0 +1,77 @@
+---
+title: "Kubernetes"
+description: "How the KloudMate agent instruments Kubernetes workloads with the OpenTelemetry Operator, mirroring the per-service Instrument flow on Linux."
+sidebar:
+  order: 3
+---
+
+import { Tabs, TabItem, LinkCard, CardGrid } from '@astrojs/starlight/components';
+
+On Kubernetes, application performance monitoring (APM) follows the same per-workload opt-in model as the rest of the agent, but the injection mechanism is the OpenTelemetry (OTel) Operator rather than systemd drop-ins. When you instrument a workload, the agent adds an injection annotation, the Operator injects the matching language agent into the pods, and the pods restart with tracing enabled. For the general flow, consent, and status behavior, see the [Application APM overview](../overview/).
+
+## Prerequisites
+
+Auto-instrumentation on Kubernetes uses the OpenTelemetry Operator, which the KloudMate agent installs. Enable APM at install time, or turn it on afterward. See the [Kubernetes installation guide](../../installation/kubernetes-agent/), including the prerequisite Cert Manager and the `featuresEnabled.apm` value.
+
+## Enable APM
+
+There are two ways to instrument workloads.
+
+### From the dashboard
+
+After the agent is installed, open the APM configuration for the cluster and use the toggle to enable APM. The agent then detects your running workloads and their languages, and you instrument them from the **Discovered Services** view, the same as on other platforms.
+
+TODO(screenshot): the Kubernetes APM toggle and the per-workload instrument list.
+
+### With deployment annotations
+
+If a workload is not detected automatically, add the OpenTelemetry Operator annotation for its language and restart it. This is the underlying mechanism the toggle uses.
+
+<Tabs>
+<TabItem label="Java">
+
+```bash
+kubectl patch deployment <name> -n <ns> -p '{"spec":{"template":{"metadata":{"annotations":{"instrumentation.opentelemetry.io/inject-java":"km-agent/km-agent-instrumentation-crd"}}}}}'
+```
+
+</TabItem>
+<TabItem label="Node.js">
+
+```bash
+kubectl patch deployment <name> -n <ns> -p '{"spec":{"template":{"metadata":{"annotations":{"instrumentation.opentelemetry.io/inject-nodejs":"km-agent/km-agent-instrumentation-crd"}}}}}'
+```
+
+</TabItem>
+<TabItem label="Python">
+
+```bash
+kubectl patch deployment <name> -n <ns> -p '{"spec":{"template":{"metadata":{"annotations":{"instrumentation.opentelemetry.io/inject-python":"km-agent/km-agent-instrumentation-crd"}}}}}'
+```
+
+</TabItem>
+<TabItem label=".NET">
+
+```bash
+kubectl patch deployment <name> -n <ns> -p '{"spec":{"template":{"metadata":{"annotations":{"instrumentation.opentelemetry.io/inject-dotnet":"km-agent/km-agent-instrumentation-crd"}}}}}'
+```
+
+</TabItem>
+</Tabs>
+
+After adding the annotation, restart the deployment so the Operator injects the agent into new pods.
+
+## Parity with the Linux flow
+
+The mental model is identical to [Linux](../linux-systemd/): discover a workload, toggle Instrument, and traces flow, correlated with the eBPF baseline that already covers the cluster. The difference is only in the mechanism: Kubernetes uses annotation-driven injection and a rolling pod restart, while Linux uses systemd drop-ins and a service restart.
+
+## Monitored namespaces
+
+APM applies to the namespaces you monitor. You set these at install time, and leaving the list empty monitors all namespaces except the system namespaces. See the [Kubernetes installation guide](../../installation/kubernetes-agent/).
+
+## Next steps
+
+<CardGrid>
+  <LinkCard title="Sampling" href="../sampling/" description="Set the trace sampling rate." />
+  <LinkCard title="Kubernetes platform notes" href="../../platform-notes/kubernetes/" description="Fleet manager, collector pods, and health." />
+  <LinkCard title="View traces" href="../../../apm-and-tracing/" description="See the distributed traces in KloudMate." />
+</CardGrid>

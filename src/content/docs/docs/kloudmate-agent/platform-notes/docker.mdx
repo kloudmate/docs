@@ -1,0 +1,49 @@
+---
+title: "Docker platform notes"
+description: "Deep reference for the KloudMate agent in Docker mode: current infrastructure and eBPF coverage across containers, and how application injection works."
+sidebar:
+  order: 3
+---
+
+import { LinkCard, CardGrid } from '@astrojs/starlight/components';
+
+This page is the deep reference for how the agent runs in Docker mode. For installation, see the [Docker installation guide](../../installation/docker-agent/).
+
+## What works today, with no injection
+
+Running in Docker mode, the agent already covers your containers without touching them:
+
+- **Infrastructure, metrics, and logs:** host and container metrics and container logs, from the containerized collector. See [Host metrics and logs](../../baseline/host-metrics-and-logs/).
+- **eBPF baseline:** because the extended Berkeley Packet Filter (eBPF) runs in the host kernel, which containers share, it sees container processes and traffic transparently. You get Rate, Errors, and Duration (RED) metrics, the service map, and Database Activity Monitoring across your containers with no code changes and no injection. See [eBPF observability](../../ebpf-observability/).
+
+So containerized applications get broad coverage as soon as the agent is running.
+
+## Application-level tracing in containers
+
+Full application traces (Layer 3) need the language agent's startup environment inside the container, and host mechanisms such as systemd drop-ins do not cross the container boundary. How the agent handles this depends on the runtime:
+
+- **PHP** containers can be instrumented in place: the agent installs the tracer inside the running container and reloads the process manager, with no redeploy. See [PHP instrumentation](../../auto-instrumentation/php/).
+- **Java, Node.js, Python, and .NET** read their instrumentation from environment variables set at process start, and you cannot change a running container's startup environment without recreating it. The agent does not recreate your running containers. Instead, it computes the exact environment and read-only mounts to instrument the container and surfaces them for you to apply at your **next deploy** (for example, as a Compose override). eBPF continues to cover these containers in the meantime.
+
+Automatic per-image injection through a container startup hook, so an opted-in image is instrumented on its next start without a manual snippet, is planned. It targets **images** rather than individual containers, so a selection is stable across container churn.
+
+## Deployment posture
+
+To configure container-level injection the agent needs host access:
+
+- Run the agent **on the host** with Docker socket and daemon access, or
+- Run it as a **privileged container with host mounts**.
+
+The eBPF baseline likewise needs host kernel access. A plain, non-privileged agent container cannot reach the host runtime.
+
+## PHP 7 in containers
+
+A tracer built on the host must match the container's exact PHP build, so PHP 7 in a container is the hardest case. The reliable path is to add the tracer at image build time. See [PHP instrumentation](../../auto-instrumentation/php/).
+
+## Next steps
+
+<CardGrid>
+  <LinkCard title="Install with Docker" href="../../installation/docker-agent/" description="Run the agent as a container." />
+  <LinkCard title="eBPF observability" href="../../ebpf-observability/" description="The baseline that covers containers." />
+  <LinkCard title="Application APM overview" href="../../auto-instrumentation/overview/" description="How opt-in tracing works." />
+</CardGrid>

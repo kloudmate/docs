@@ -1,0 +1,55 @@
+---
+title: "Windows platform notes"
+description: "Deep reference for the KloudMate agent on Windows: discovery through IIS and WMI, the ETW baseline, injection mechanisms, and privileges."
+sidebar:
+  order: 2
+---
+
+import { LinkCard, CardGrid } from '@astrojs/starlight/components';
+
+This page is the deep reference for how the agent runs on Windows. For installation, see the [Windows installation guide](../../installation/windows-agent/); for how .NET and other runtimes are instrumented, see [Windows and .NET application APM](../../auto-instrumentation/windows-dotnet/).
+
+## A different mechanism, the same model
+
+Windows has no `LD_PRELOAD` and no production eBPF, so the agent uses Windows-native mechanisms while keeping the same discover, instrument, and report model as the other platforms. Instead of systemd drop-ins, the agent uses the Windows registry, Windows Management Instrumentation (WMI), and Internet Information Services (IIS) configuration.
+
+## Discovery
+
+To build the Discovered Services list, the agent enumerates:
+
+- **IIS** sites and application pools, including each pool's managed runtime version and state.
+- **Windows services**, through the Service Control Manager.
+- **Listening ports**, through WMI, so it can map applications to ports.
+
+Discovered services appear with a kind of `iis` or `windows_service`. See [Discovery](../../concepts/discovery/).
+
+## The ETW baseline
+
+Because Windows has no eBPF, the agent provides an equivalent zero-code baseline through a custom Event Tracing for Windows (ETW) receiver. It taps the HTTP.sys provider to emit server spans (at the request-path level) and Rate, Errors, and Duration (RED) metrics for all IIS traffic, without injection. This covers workloads that cannot use the .NET profiler, including legacy .NET Framework 3.5 pools and non-.NET applications on IIS. The receiver reads events only and makes no changes to your applications. See [Windows and .NET application APM](../../auto-instrumentation/windows-dotnet/) for how the ETW baseline and the CLR profiler work together.
+
+## Injection mechanisms
+
+- **.NET** is instrumented with the Common Language Runtime (CLR) profiler, whose environment the agent writes directly to the registry or to the IIS `applicationHost.config`, at per-application-pool granularity on IIS 10 and newer.
+- **Java, Node.js, and Python** are instrumented through the per-service registry environment.
+
+See [Windows and .NET application APM](../../auto-instrumentation/windows-dotnet/) for the details.
+
+## Privileges
+
+The agent runs as a Windows service under the **Local System** account, which gives it the access it needs to:
+
+- Read IIS configuration and query the Service Control Manager and WMI.
+- Write the registry and `applicationHost.config` entries for instrumentation, and recycle pools or restart services.
+- Register as an ETW consumer, which requires elevation.
+
+## Baseline collection
+
+Alongside application instrumentation, the agent collects the Windows host baseline: performance counters, the Windows Event Log, IIS metrics, and Windows service status. See [Host metrics and logs](../../baseline/host-metrics-and-logs/).
+
+## Next steps
+
+<CardGrid>
+  <LinkCard title="Install on Windows" href="../../installation/windows-agent/" description="MSI installation and setup." />
+  <LinkCard title="Windows and .NET APM" href="../../auto-instrumentation/windows-dotnet/" description="Instrument .NET and other runtimes." />
+  <LinkCard title="Host metrics and logs" href="../../baseline/host-metrics-and-logs/" description="The Windows baseline." />
+</CardGrid>

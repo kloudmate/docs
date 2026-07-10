@@ -1,0 +1,85 @@
+---
+title: "Kubernetes platform notes"
+description: "Deep reference for the KloudMate agent on Kubernetes: the fleet manager, collector pods, config-check protocol, per-node health, and ConfigMap management."
+sidebar:
+  order: 1
+---
+
+import { LinkCard, CardGrid } from '@astrojs/starlight/components';
+
+This page is the deep reference for how the agent runs on Kubernetes. For installation, see the [Kubernetes installation guide](../../installation/kubernetes-agent/); for the shared model, see [Architecture](../../concepts/architecture/).
+
+## One agent per cluster, two planes
+
+On Kubernetes the agent keeps its own control-plane and data-plane split:
+
+- **Fleet manager (control plane):** a single pod that checks in with KloudMate, applies the generated configuration to the cluster, and reports status back. It is the on-cluster applier.
+- **Collector pods (data plane):** a **DaemonSet** (one collector per node) collects per-node metrics and pod logs and, where the kernel supports it, runs the eBPF baseline; a **Deployment** (a single replica) collects cluster metrics and events and acts as the OpenTelemetry (OTel) gateway.
+
+A cluster appears in KloudMate as **one agent**, not one per node. Per-node detail is carried on resource attributes rather than as separate agent rows.
+
+## The config-check protocol
+
+The agent and KloudMate use a single check-in protocol across all deployment modes. On Kubernetes, the fleet manager reports the cluster's capabilities (such as whether nodes support eBPF) and receives the generated configuration for both collectors. New fields are additive, so older agents keep working against the unified protocol.
+
+## Real collector status
+
+The fleet manager reports the collectors' **actual** status, not a fixed value. It queries the Kubernetes API for DaemonSet and Deployment readiness and per-node pod status, and reports that back to KloudMate. If you kill a collector pod, its node's status reflects it, so the Kubernetes view shows real per-node collector health.
+
+## Per-node health and self-logs
+
+Because a collector pod exits together with its collector, the agent does not run a separate per-pod health reporter. Instead:
+
+- **Self-logs** are shipped per node, with per-node identity, from both the collector pods and the fleet manager. You see errors such as an invalid configuration without running `kubectl logs`. See [Agent self-logs](../../self-observability/self-logs/).
+- The collectors use their readiness probes for liveness and self-healing.
+
+## ConfigMap management
+
+The collectors read their configuration from ConfigMaps. To manage these safely:
+
+- The Helm chart **seeds** the ConfigMaps at install time.
+- The fleet manager then **owns** the configuration in managed mode, writing the generated configuration into the ConfigMaps.
+- Updates are applied carefully so they do not disturb parts of the configuration the fleet manager does not own, and a configuration change triggers a rollout so the collectors pick it up.
+
+:::danger
+Do not hand-edit the agent's ConfigMaps. In managed mode the fleet manager owns them and will overwrite manual edits. Change configuration through KloudMate instead. See the [configuration model](../../concepts/config-model/).
+:::
+
+## Resource usage and sizing
+
+Typical usage per component (CPU in millicores, where 1000m is one core):
+
+| Component | Runs | CPU | Memory |
+|---|---|---|---|
+| Collector (DaemonSet) | one per node | 3 to 10m | 165 to 210 MiB |
+| Collector (Deployment) | one per cluster | 12 to 16m | about 256 MiB |
+| Fleet manager | one per cluster | 1 to 2m | about 11 MiB |
+| Operator | one per cluster | about 2m | about 30 MiB |
+
+Memory grows with the volume of metrics, traces, and logs the collectors handle. CPU stays low.
+
+### Requests and limits
+
+The Helm chart ships these defaults, set above typical usage so there is headroom for real load:
+
+| Component | Request | Limit |
+|---|---|---|
+| Collector (DaemonSet) | 100m / 256Mi | 2 CPU / 1Gi |
+| Collector (Deployment) | 150m / 384Mi | 2 CPU / 1Gi |
+| Fleet manager | 100m / 128Mi | 500m / 512Mi |
+
+Raise them for very large or high-traffic clusters.
+
+## Related features on Kubernetes
+
+- **Application APM** uses the OpenTelemetry Operator. See [Application APM on Kubernetes](../../auto-instrumentation/kubernetes/).
+- **Database monitoring** runs in the Deployment collector and uses a Kubernetes Secret for credentials. See [Database monitoring on Kubernetes](../../database-monitoring/on-kubernetes/).
+- **Log monitoring** (pointing the agent at custom log files) is **not available on Kubernetes**. Pod and container logs are already collected for you by the DaemonSet as part of the [host baseline](../../baseline/host-metrics-and-logs/), and the Logs tab is not offered for Kubernetes agents. See [Log monitoring](../../log-monitoring/).
+
+## Next steps
+
+<CardGrid>
+  <LinkCard title="Install on Kubernetes" href="../../installation/kubernetes-agent/" description="Helm installation and values." />
+  <LinkCard title="Application APM on Kubernetes" href="../../auto-instrumentation/kubernetes/" description="Instrument workloads." />
+  <LinkCard title="Database monitoring on Kubernetes" href="../../database-monitoring/on-kubernetes/" description="Monitor in-cluster databases." />
+</CardGrid>

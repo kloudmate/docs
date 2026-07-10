@@ -1,0 +1,49 @@
+---
+title: "Linux (systemd)"
+description: "How the KloudMate agent instruments Java, Node.js, Python, and .NET services on Linux, per service, without changing your application code."
+sidebar:
+  order: 2
+---
+
+import { LinkCard, CardGrid } from '@astrojs/starlight/components';
+
+On Linux, the agent instruments a service by attaching the matching language agent to it and restarting it. It changes only the service you chose, not the whole system. This page covers what that looks like per runtime. For the flow, consent, and rollback behavior, see the [Application APM overview](../overview/).
+
+## How it works
+
+When you instrument a service, the agent adds the tracing settings to that service and, with your consent, restarts it so the settings take effect. Turning instrumentation off reverses the change and restarts the service, leaving it as it was. Applying the same choice twice does nothing, so it is safe to re-run.
+
+## Per-runtime support
+
+The agent uses the standard tracing mechanism for each runtime, so the behavior matches what each language's OpenTelemetry (OTel) agent documents.
+
+| Runtime | How it is attached |
+|---|---|
+| Java | The Java agent, through the standard `JAVA_TOOL_OPTIONS` startup option |
+| Node.js | The Node.js instrumentation, loaded at startup with `NODE_OPTIONS` |
+| Python | The Python auto-instrumentation |
+| .NET | The .NET (CLR) profiler (less common on Linux than on Windows) |
+
+:::note
+PHP and Go work differently. PHP uses a `php.ini` setting and a graceful reload instead of a restart; see [PHP instrumentation](../php/). Go is not attached at all; it is covered by the [eBPF baseline](../go-ebpf/).
+:::
+
+## Bundled with the agent
+
+The language agents come inside the KloudMate agent package and are versioned with it, so they upgrade when the agent does and there is no separate download to manage.
+
+## Restart behavior
+
+The agent restarts one service at a time, only with your consent, and can wait for the service to come back up before reporting success. If a restart fails, the agent undoes the change and restarts the service to its previous state. See the [overview](../overview/) for details.
+
+## Other process managers
+
+systemd is the primary path on Linux. Services run under other process managers, such as supervisord or pm2, or run on their own, do not have a per-service way to attach the agent, so the agent reports them as not supported for automatic instrumentation and offers guidance instead.
+
+## Next steps
+
+<CardGrid>
+  <LinkCard title="Sampling" href="../sampling/" description="Set the trace sampling rate for instrumented services." />
+  <LinkCard title="PHP" href="../php/" description="Instrument PHP services on the host." />
+  <LinkCard title="View traces" href="../../../apm-and-tracing/" description="See the distributed traces in KloudMate." />
+</CardGrid>

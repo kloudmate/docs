@@ -1,0 +1,62 @@
+---
+title: "Agent health metrics"
+description: "The out-of-band liveness metrics the KloudMate agent reports about itself and its embedded collector, and how to alert on them."
+sidebar:
+  order: 1
+---
+
+import { LinkCard, CardGrid } from '@astrojs/starlight/components';
+
+The agent reports on its own health so you can tell whether it is alive and whether its collector is running, without logging in to the host. These liveness metrics are reported **out-of-band**, on a path that does not go through the collector, so they keep arriving even when the collector is down.
+
+## Why they are reported separately
+
+If the collector stops, it cannot send anything, including a report that it stopped. To avoid that blind spot, the agent reports its `kmagent.*` metrics itself, on a separate path from the collector. They keep arriving even when the collector is down, which is how you find out the collector is down.
+
+## The metric catalog
+
+The agent reports these metrics, all carrying the resource attributes below:
+
+| Metric | Meaning |
+|---|---|
+| `kmagent.up` | Heartbeat. Its absence is the signal that the agent, host, or network is down. |
+| `kmagent.uptime` | Time since the agent process started. |
+| `kmagent.goroutines` | Internal thread count, useful for spotting a leak. |
+| `kmagent.memory.rss` | Agent process memory. |
+| `kmagent.cpu.utilization` | Agent process CPU. |
+| `kmagent.collector.up` | Whether the embedded collector is running (1 or 0), with `state` and `reason` attributes. |
+| `kmagent.collector.restarts` | How many times the collector has been restarted. |
+| `kmagent.config.apply.success` | Whether the last configuration push applied cleanly (1 or 0). |
+| `kmagent.config.apply.errors` | Cumulative configuration-apply failures. |
+
+Resource attributes: `service.name` is `kmagent` (so you can target it directly in dashboards and alerts), plus `host.name`, `agent.version`, `collector.version`, `os.type`, and `host.arch`.
+
+## What the collector status tells you
+
+`kmagent.collector.up` carries a `reason` attribute that classifies why the collector is down, so you can tell failure modes apart:
+
+| Situation | Signal |
+|---|---|
+| Healthy | `kmagent.collector.up=1`, `state=running` |
+| A bad configuration was pushed | `kmagent.collector.up=0`, `reason=config_invalid` |
+| The collector exited with an error | `kmagent.collector.up=0`, `reason=run_error`, restarts increases |
+| The collector panicked | `kmagent.collector.up=0`, `reason=panic`, restarts increases (then it auto-restarts) |
+| A graceful shutdown | `reason=shutdown` |
+
+The agent recovers from a collector panic and restarts the collector with a backoff, so a transient crash heals itself, and the restart count records that it happened.
+
+## Alerting on a silent agent
+
+The one failure the agent cannot report is total silence: if the agent, host, or network goes down, nothing is emitted. Detect this with a dead-man's-switch alert in KloudMate that fires when `kmagent.up` stops arriving for a host. Because `kmagent.up` is a steady heartbeat with a dedicated `service.name`, it is straightforward to alert on its absence.
+
+## Enabling and tuning
+
+Health reporting is controlled by the agent's settings. You can enable or disable it and set its interval through the agent configuration (the `health-enabled` and `health-interval` settings, which map to the `KM_HEALTH_ENABLED` and `KM_HEALTH_INTERVAL` environment variables). The default interval matches the agent's check-in interval.
+
+## Next steps
+
+<CardGrid>
+  <LinkCard title="Collector self-telemetry" href="../self-telemetry/" description="Opt-in in-band metrics about collector performance." />
+  <LinkCard title="Agent self-logs" href="../self-logs/" description="See the agent's own error logs without SSH." />
+  <LinkCard title="Troubleshooting" href="../../troubleshooting/" description="Use health signals to diagnose problems." />
+</CardGrid>

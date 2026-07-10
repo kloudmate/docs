@@ -1,0 +1,47 @@
+---
+title: "Web server monitoring"
+description: "How the KloudMate agent discovers and monitors nginx and Apache using their status modules, probing without ever changing the server config."
+sidebar:
+  order: 8
+---
+
+import { LinkCard, CardGrid } from '@astrojs/starlight/components';
+
+The agent monitors nginx and Apache web servers by reading their built-in status modules, in the same discovery-led, auto-wired style as [database monitoring](../database-monitoring/overview/). It applies to nginx and Apache on Linux hosts. It does **not** apply on **Windows**, where Internet Information Services (IIS) is covered by the Event Tracing for Windows (ETW) baseline instead. See [Windows and .NET application APM](../auto-instrumentation/windows-dotnet/).
+
+## What it collects
+
+For a monitored web server, the agent collects server metrics such as request rate, active connections, worker or connection state, response codes, and upstream errors. This complements the eBPF baseline, which already shows request paths and latency from the traffic itself.
+
+## How it works
+
+The agent discovers nginx and Apache processes and their listen ports. To collect metrics, each server exposes a status endpoint:
+
+- **nginx** exposes `stub_status`, typically at a path such as `/status`.
+- **Apache** exposes `mod_status`, typically at `/server-status?auto`, with `ExtendedStatus` turned on.
+
+You enable monitoring for a discovered server, and the agent wires up the matching receiver to read that status endpoint.
+
+## Read-only probing
+
+The status modules are usually off by default, and enabling them is a change to your web server's configuration. The agent **never edits your web server configuration**: doing so could take a site down. Instead, it probes the status endpoint and reports what it finds:
+
+- If the endpoint responds and looks like a status page, the agent wires the receiver and starts collecting.
+- If the status module is off or the endpoint is not reachable, the agent reports the server as needing setup and gives you the exact snippet to enable the status module. It does not wire a broken receiver that would flood scrape errors.
+
+This makes web server monitoring safe to turn on: the worst case is a "needs setup" prompt, never a changed or broken server.
+
+## Prerequisites
+
+- **nginx:** the `stub_status` module enabled in a `location` block, reachable on the host.
+- **Apache:** the `mod_status` module enabled with `ExtendedStatus On`, reachable on the host.
+
+Restrict the status endpoint to the loopback interface so only the local agent can read it.
+
+## Next steps
+
+<CardGrid>
+  <LinkCard title="eBPF observability" href="../ebpf-observability/" description="The request-path and latency view from traffic." />
+  <LinkCard title="Database monitoring" href="../database-monitoring/overview/" description="The same auto-wired model for databases." />
+  <LinkCard title="Discovery" href="../concepts/discovery/" description="How the agent finds your web servers." />
+</CardGrid>

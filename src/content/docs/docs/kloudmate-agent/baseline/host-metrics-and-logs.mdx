@@ -1,0 +1,76 @@
+---
+title: "Host metrics and logs"
+description: "What the KloudMate agent collects automatically after install: host metrics and system logs across Linux, Windows, Kubernetes, and Docker, with no configuration."
+sidebar:
+  order: 1
+---
+
+import { Tabs, TabItem, LinkCard, CardGrid } from '@astrojs/starlight/components';
+
+Host metrics and logs are the agent's zero-config baseline. As soon as the agent is installed and checks in, it starts collecting infrastructure telemetry from the host and shipping it to KloudMate. You do not enable anything or write any configuration for this layer. In the [layered instrumentation model](../../concepts/layered-instrumentation/), this is Layer 1, and it sits directly on top of discovery (Layer 0).
+
+## What flows automatically
+
+What the agent collects depends on the deployment mode, because each platform exposes host telemetry differently.
+
+<Tabs>
+<TabItem label="Linux">
+
+- **Host metrics:** CPU, memory, disk, network, and process metrics.
+- **System logs:** the systemd journal.
+- **File logs:** application log files you point the agent at with [log monitoring](../../log-monitoring/).
+
+</TabItem>
+<TabItem label="Windows">
+
+- **Host metrics:** CPU, memory, disk, and network usage, collected from Windows performance counters.
+- **Windows Event Log:** the System, Application, and Security channels.
+- **Internet Information Services (IIS) metrics** and **Windows service status**, where those roles are present.
+
+</TabItem>
+<TabItem label="Kubernetes">
+
+- **Per-node metrics:** CPU, memory, disk, and network for each node.
+- **Pod logs:** container stdout and stderr.
+- **Cluster metrics and events:** workload, namespace, and node state, plus cluster events.
+
+</TabItem>
+<TabItem label="Docker">
+
+- **Container metrics:** CPU, memory, network, and disk usage for each running container, plus container lifecycle events.
+- **Container logs:** stdout and stderr from each container.
+- **Host metrics:** CPU, memory, disk, and network for the Docker host.
+
+</TabItem>
+</Tabs>
+
+:::note
+Host metrics and logs need no configuration. The other layers, such as the eBPF baseline and application tracing, build on top of this one.
+:::
+
+## Where to view it
+
+The host baseline feeds the infrastructure and log views in KloudMate:
+
+- **Infrastructure monitoring** shows host and container metrics, availability, and trends. See [Infrastructure](../../../infrastructure/).
+- **Kubernetes monitoring** shows cluster, node, namespace, pod, and workload metrics. See [Kubernetes](../../../infrastructure/kubernetes/).
+- **Log Explorer** lets you search and filter logs and correlate them with metrics. See [Log Explorer](../../../logs/log-explorer/).
+
+## Collecting custom application logs
+
+The baseline collects system logs, not arbitrary application log **files**. To add your own log files, use [log monitoring](../../log-monitoring/): you point the agent at a folder and file-name pattern and choose how to parse each line, then preview the result before you save. Multiline grouping, for stack traces or pretty-printed JSON, is a modifier you apply on top of any format. For a hand-written receiver in manual mode, see [Collect file logs](../../../logs/collect-file-logs/).
+
+## Relationship to the other layers
+
+Host metrics and logs are Layer 1 of the [layered model](../../concepts/layered-instrumentation/). Two nearby layers build on them:
+
+- **Discovery (Layer 0)** inventories what runs on the host, so you can instrument it. See [Discovery](../../concepts/discovery/).
+- **The eBPF baseline (Layer 2)** adds Rate, Errors, and Duration (RED) metrics, a service map, and Database Activity Monitoring on top, with no code changes. See [eBPF observability](../../ebpf-observability/).
+
+## Next steps
+
+<CardGrid>
+  <LinkCard title="eBPF observability" href="../../ebpf-observability/" description="Turn kernel-level RED metrics and the service map on." />
+  <LinkCard title="Discovery" href="../../concepts/discovery/" description="See what the agent found on your host." />
+  <LinkCard title="Application APM" href="../../auto-instrumentation/overview/" description="Add distributed tracing to a service." />
+</CardGrid>

@@ -71,18 +71,19 @@ View all collected data in these KloudMate sections:
 
 ## **Log Integration**
 
-By default, the KloudMate Agent collects basic system logs.
+By default, the KloudMate Agent collects basic system logs (the Windows Event Log).
 
-To configure custom application logs and enable file-based log monitoring, refer to:
+To collect your own application log **files**, use log monitoring: from the agent's **Logs** tab you point the agent at a folder and file-name pattern and choose how to parse each line (plain text, JSON, or a regular expression). Multiline grouping, for stack traces or pretty-printed JSON, is a modifier you apply on top of any format, and you can preview the parsed records before you save. See [Log monitoring](../../log-monitoring/).
 
-[Collect File Logs with KloudMate Agent](../../../logs/collect-file-logs/) documentation
+For a hand-written `filelog` receiver in manual mode, see [Collect File Logs with KloudMate Agent](../../../logs/collect-file-logs/).
 
-This guide explains how to:
+## Configuration and next checks
 
-- Configure the file log receiver
-- Add custom log file paths
-- Enable multiline log parsing
-- Validate logs in Log Explorer
+The agent installs as a Windows service running as Local System, which is the privilege level it needs to read Internet Information Services (IIS) configuration and Windows Management Instrumentation (WMI). New agents start in managed mode; see the [configuration model](../../concepts/config-model/).
+
+- Host metrics and the Windows Event Log start flowing automatically. See [Host metrics and logs](../../baseline/host-metrics-and-logs/).
+- eBPF does not apply on Windows. The agent provides an equivalent baseline through Event Tracing for Windows (ETW). See [Windows platform notes](../../platform-notes/windows/).
+- To add distributed tracing to .NET applications, see [Windows and .NET application APM](../../auto-instrumentation/windows-dotnet/).
 
 ## **Next Steps**
 

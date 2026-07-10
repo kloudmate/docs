@@ -1,0 +1,35 @@
+---
+title: "Sampling"
+description: "Set a global sampling default and per-service overrides for the KloudMate agent to balance trace fidelity against ingestion cost."
+sidebar:
+  order: 7
+---
+
+import { LinkCard, CardGrid } from '@astrojs/starlight/components';
+
+Sampling controls how many traces an instrumented service keeps. Capturing every request gives the highest fidelity but the highest ingestion cost, while sampling a fraction lowers cost at the expense of some detail. The agent lets you set a sensible global default and override it for individual services. Sampling applies to the opt-in application traces (Layers 3 to 5); the eBPF baseline metrics are collected separately.
+
+## Global default and per-service overrides
+
+- **Global default:** a single sampling rate applies to every service you instrument, so you set the trade-off once.
+- **Per-service override:** you can raise or lower the rate for a specific service, for example keeping every trace on a low-traffic, high-value service while sampling a noisy one more aggressively.
+
+The agent applies the rate to each instrumented service through the standard OpenTelemetry (OTel) sampler settings, so the behavior matches what the language agents document.
+
+## Parent-based sampling keeps traces whole
+
+The agent uses parent-based ratio sampling. When a service continues a trace that an upstream service already started, it respects the upstream sampling decision instead of making its own. This keeps a sampled trace intact end to end: you do not get traces that are captured on one hop and dropped on the next.
+
+## Choosing a rate
+
+- Start with a moderate default and adjust based on your traffic volume and ingestion budget.
+- Increase the rate on services where you need complete traces for debugging or service-level objectives.
+- Decrease the rate on very high-volume services where a representative sample is enough.
+
+## Next steps
+
+<CardGrid>
+  <LinkCard title="Application APM overview" href="../overview/" description="The per-service opt-in flow." />
+  <LinkCard title="Advanced configuration" href="../../advanced-configuration/" description="Overhead tuning and other advanced settings." />
+  <LinkCard title="View traces" href="../../../apm-and-tracing/" description="See the distributed traces in KloudMate." />
+</CardGrid>
