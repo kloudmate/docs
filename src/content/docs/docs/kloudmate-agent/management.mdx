@@ -125,6 +125,35 @@ ebpf:
   postgres_prepared_statements_cache_size: 1024
 ```
 
+## See the agent's own errors
+
+When an agent shows as **Unreachable** or **Degraded** in **Settings → Agents**, you'll usually want its logs. Each agent sends its own **ERROR-level logs** to your workspace, so you can read them in **Log Explorer** without SSHing into the host or running `docker logs` or `kubectl logs`.
+
+These logs are sent separately from the collector's normal telemetry pipeline, through a dedicated logs exporter. This matters because the collector is the component that normally forwards telemetry. If it fails to start on an invalid config, it can't report that failure through the usual path, but the separate exporter still delivers it.
+
+Both the agent process and its collector send logs this way, so a failure in either one appears in the same place.
+
+### Find them in Log Explorer
+
+Open **Log Explorer** and filter on the agent's service name:
+
+- `service.name = kmagent`: the agent's logs are a distinct service, separate from your application telemetry
+- Add a `host.name` filter to narrow to a single agent
+
+Every entry includes a few attributes for context:
+
+- **`host.name`**: links the agent's errors to the rest of that host's data
+- **`agent.version`** and **`collector.version`**: which build reported the error
+- On Kubernetes, also **`k8s.cluster.name`**, **`k8s.node.name`**, **`k8s.pod.name`**, and **`kmagent.role`**
+
+### Turn it off
+
+Error-log shipping is on by default. It reuses the same `KM_API_KEY` and `KM_COLLECTOR_ENDPOINT` as the rest of the agent, so there's nothing extra to set up. To disable it, set `KM_AGENT_ERROR_LOGS=false` (every agent reads this), or pass `--agent-error-logs=false` to the Linux/host agent.
+
+:::note
+  Only the agent's **own** operational logs are sent this way, and only at ERROR level and above. Your application logs and other telemetry always flow through the normal pipeline. These logs go to your own workspace using your own key.
+:::
+
 ## Agent health and status
 
 Beyond the status shown on the landing page, each agent reports on its own health so you can confirm it is running and see when something goes wrong:
