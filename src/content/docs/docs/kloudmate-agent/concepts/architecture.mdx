@@ -32,7 +32,7 @@ The two-sided model is the same in every mode. What changes is how the agent is 
 |---|---|---|
 | Linux / VM | A single agent as a systemd service. | Per service, using systemd. |
 | Windows | A single agent as a Windows service. | Per service or application pool, using the registry and Internet Information Services (IIS). |
-| Kubernetes | A control pod plus collector pods. One agent represents one cluster. | Per workload, using the OpenTelemetry (OTel) Operator. |
+| Kubernetes | A fleet-manager pod plus collector pods. One agent represents one cluster. | Per workload, using the OpenTelemetry (OTel) Operator. |
 | Docker | A containerized collector. | Host metrics, logs, and eBPF today; per-container tracing is rolling out. |
 
 On Kubernetes, one cluster appears as one agent rather than one per node. See [Kubernetes platform notes](../../platform-notes/kubernetes/).

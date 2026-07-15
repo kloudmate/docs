@@ -24,7 +24,7 @@ Throughout this flow, the eBPF baseline keeps covering the service, so there is 
 
 Each service in the list shows a status chip so you always know where it stands:
 
-- **Instrumented:** the drop-in or profiler is applied and the service restarted cleanly.
+- **Instrumented:** instrumentation is applied and the service restarted cleanly.
 - **Pending restart:** the change is written but the service has not restarted yet.
 - **Failed, rolled back:** the restart failed, so the agent reverted the change (see rollback below).
 
@@ -40,7 +40,7 @@ The agent never restarts your services silently. In this version:
 
 ## Automatic rollback
 
-If an instrumented service fails to restart or falls into a crash loop, the agent **rolls back automatically**: it removes the change, reloads, and restarts the service, returning it to its previous state, and then reports the status as failed, rolled back. Your service returns to how it ran before, and the eBPF baseline continues to cover it. Because you instrument one service at a time, a problem with one service never affects the others.
+If an instrumented service fails to restart or falls into a crash loop, the agent **rolls back automatically**: it removes the change, reloads, and restarts the service, returning it to its previous state, and reports the status as failed, rolled back. The eBPF baseline keeps covering it, and because you instrument one service at a time, a problem with one service never affects the others.
 
 ## Supported runtimes
 
@@ -57,7 +57,7 @@ The language agents ship inside the KloudMate agent package and are versioned wi
 
 ## Clean traces without duplicates
 
-When you instrument a service, the agent tells the eBPF baseline to stop tracing that service's own requests. You get the richer application spans from the language agent, while eBPF continues to trace the services around it. The two share one trace, so an instrumented service and its uninstrumented neighbors appear on one connected trace.
+When you instrument a service, the agent tells the eBPF baseline to stop tracing that service's own requests. You get the richer application spans from the language agent, while eBPF keeps tracing the services around it, all on one connected trace.
 
 ## Instrument everything (advanced)
 

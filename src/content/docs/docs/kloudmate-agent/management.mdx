@@ -5,7 +5,7 @@ sidebar:
   order: 12
 ---
 
-The KloudMate Agent is designed to be managed centrally from the KloudMate web UI. This means you don't need to SSH into your servers or manually edit local YAML files to update settings. Changes made in the dashboard are automatically pushed to your agents across your infrastructure.
+You manage the KloudMate Agent centrally from the web UI, so you don't need to SSH into your servers or edit local YAML files. Changes you make in the dashboard are pushed to your agents automatically.
 
 ## Agents Overview
 
@@ -89,7 +89,7 @@ You can control which telemetry signals the agent collects by updating the featu
 
 #### eBPF Configuration
 
-To enable deep kernel-level visibility, you can configure the eBPF Receiver in your `config.yaml`. Below is a standard configuration snippet:
+To configure the eBPF receiver in your `config.yaml`, use a snippet like this:
 
 ```yaml
 metrics:

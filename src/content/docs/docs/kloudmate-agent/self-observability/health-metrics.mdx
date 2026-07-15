@@ -43,7 +43,7 @@ The agent restarts the collector automatically after a crash, and the restart co
 
 ## Alerting on a silent agent
 
-The one failure the agent cannot report is total silence: if the agent, host, or network goes down, nothing is emitted. Detect this with a dead-man's-switch alert in KloudMate that fires when `kmagent.up` stops arriving for a host. Because `kmagent.up` is a steady heartbeat with a dedicated `service.name`, it is straightforward to alert on its absence.
+The one failure the agent cannot report is total silence: if the agent, host, or network goes down, nothing is emitted. Detect this with a dead-man's-switch alert in KloudMate that fires when `kmagent.up` stops arriving for a host.
 
 ## Enabling and tuning
 

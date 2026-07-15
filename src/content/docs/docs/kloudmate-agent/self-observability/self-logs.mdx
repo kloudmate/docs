@@ -11,7 +11,7 @@ Self-logs bring the agent's own error output into KloudMate, so you can diagnose
 
 ## What it ships
 
-The agent forwards its own **ERROR-level logs** directly to KloudMate. It ships only errors, not routine debug or info messages, so the volume stays low and the signal stays high. Each log record carries attributes that tell you where the error came from:
+The agent forwards its own **ERROR-level logs** directly to KloudMate. It ships only errors, not routine debug or info messages. Each log record carries attributes that tell you where the error came from:
 
 - The **source** within the agent, such as the check-in, discovery, instrumentation, or the collector.
 - The **host or node** the agent runs on.
@@ -23,7 +23,7 @@ On Kubernetes, self-logs are shipped per node, carried with per-node identity, s
 
 ## Enabling it
 
-Self-logs are on by default, controlled by the `KM_AGENT_ERROR_LOGS` setting. Leaving them on means agent errors are always visible in KloudMate.
+Self-logs are on by default, controlled by the `KM_AGENT_ERROR_LOGS` setting.
 
 ## Next steps
 

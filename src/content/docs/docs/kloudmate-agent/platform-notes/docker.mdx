@@ -1,6 +1,6 @@
 ---
 title: "Docker platform notes"
-description: "Deep reference for the KloudMate agent in Docker mode: current infrastructure and eBPF coverage across containers, and how application injection works."
+description: "How the KloudMate agent runs in Docker mode: infrastructure and eBPF coverage across containers, and how application tracing works."
 sidebar:
   order: 3
 ---
@@ -15,8 +15,6 @@ Running in Docker mode, the agent already covers your containers without touchin
 
 - **Infrastructure, metrics, and logs:** host and container metrics and container logs, from the containerized collector. See [Host metrics and logs](../../baseline/host-metrics-and-logs/).
 - **eBPF baseline:** because the extended Berkeley Packet Filter (eBPF) runs in the host kernel, which containers share, it sees container processes and traffic transparently. You get Rate, Errors, and Duration (RED) metrics, the service map, and Database Activity Monitoring across your containers with no code changes and no injection. See [eBPF observability](../../ebpf-observability/).
-
-So containerized applications get broad coverage as soon as the agent is running.
 
 ## Application-level tracing in containers
 

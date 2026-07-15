@@ -15,7 +15,7 @@ On Kubernetes, one collector in the cluster monitors your databases, so each dat
 
 ## Discovery prefills the endpoint
 
-The agent finds databases running in your cluster and prefills the wizard with their in-cluster address, `<service>.<namespace>.svc.cluster.local:<port>`. Use this address, because your applications connect to the database by the same name, which is what makes its metrics and traces line up. Databases outside the cluster are not discovered and are added manually.
+The agent finds databases running in your cluster and prefills the wizard with their in-cluster address, `<service>.<namespace>.svc.cluster.local:<port>`. Use this address: it is the name your applications connect to, so the database's metrics and traces line up. Databases outside the cluster are not discovered and are added manually.
 
 ## Managed mode is required
 
