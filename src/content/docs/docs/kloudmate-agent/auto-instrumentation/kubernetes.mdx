@@ -25,7 +25,7 @@ TODO(screenshot): the Kubernetes APM toggle and the per-workload instrument list
 
 ### With deployment annotations
 
-If a workload is not detected automatically, add the OpenTelemetry Operator annotation for its language and restart it. This is the underlying mechanism the toggle uses.
+If a workload is not detected automatically, add the OpenTelemetry Operator annotation for its language and restart the workload. This is the underlying mechanism the toggle uses.
 
 <Tabs>
 <TabItem label="Java">
@@ -62,7 +62,7 @@ After adding the annotation, restart the deployment so the Operator injects the 
 
 ## Parity with the Linux flow
 
-The mental model is identical to [Linux](../linux-systemd/): discover a workload, toggle Instrument, and traces flow, correlated with the eBPF baseline that already covers the cluster. The difference is only in the mechanism: Kubernetes uses annotation-driven injection and a rolling pod restart, while Linux uses systemd drop-ins and a service restart.
+The mental model is identical to [Linux](../linux-systemd/): discover a workload, toggle Instrument, and let traces flow, correlated with the eBPF baseline that already covers the cluster. The difference is only in the mechanism: Kubernetes uses annotation-driven injection and a rolling pod restart, while Linux uses systemd drop-ins and a service restart.
 
 ## Monitored namespaces
 

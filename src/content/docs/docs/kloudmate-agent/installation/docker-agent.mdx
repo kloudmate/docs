@@ -14,7 +14,7 @@ Once installed, the Docker Agent collects:
 - **Container metrics:** CPU, memory, network, and disk usage for each running container
 - **Container lifecycle events:** start, stop, restart
 - **Host metrics:** CPU, memory, disk, and network usage of the Docker host
-- **Container and host logs:** stdout/stderr from containers and system logs from host
+- **Container and host logs:** stdout/stderr from containers and system logs from the host
 - **Alerts:** Configure thresholds for containers or the host to notify on performance issues
 - **Dashboards:** Pre-built views for container-level and host-level performance
 
@@ -82,7 +82,7 @@ For a hand-written `filelog` receiver in manual mode, see [Collect File Logs wit
 
 ## Coverage and configuration
 
-In Docker mode the agent collects host and container metrics, container and host logs, and, where the host kernel supports it, the [eBPF baseline](../../ebpf-observability/) (RED metrics, service map, and Database Activity Monitoring) across your containers with no code changes. Per-container application injection is being rolled out; see [Docker platform notes](../../platform-notes/docker/) for current coverage.
+In Docker mode, the agent collects host and container metrics, container and host logs, and, where the host kernel supports it, the [eBPF baseline](../../ebpf-observability/) (RED metrics, service map, and Database Activity Monitoring) across your containers with no code changes. Per-container application injection is being rolled out; see [Docker platform notes](../../platform-notes/docker/) for current coverage.
 
 New agents start in managed mode, so KloudMate generates the collector configuration for you. See the [configuration model](../../concepts/config-model/).
 

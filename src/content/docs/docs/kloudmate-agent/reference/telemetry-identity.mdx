@@ -13,7 +13,7 @@ For a database's server-side metrics to line up with the traces that hit it, eve
 
 The agent identifies a database by the standard OpenTelemetry (OTel) endpoint attributes:
 
-- **`db.system.name`** identifies the engine. The values are the OpenTelemetry engine names, which for some engines differ from their common name:
+- **`db.system.name`** identifies the engine. The values are the OpenTelemetry engine names, which for some engines differ from their common names:
 
   | Engine | `db.system.name` |
   |---|---|
@@ -49,7 +49,7 @@ Keying on `server.address` (with `server.port` and `db.system.name` where you ne
 
 ## Limits to know
 
-- A loopback connection that the eBPF baseline sees with no endpoint can only be bound to a monitored database when there is exactly one instance of that engine on the host; with several same-engine instances, the agent leaves it unstamped rather than guess.
+- A loopback connection that the eBPF baseline sees with no endpoint can only be bound to a monitored database when there is exactly one instance of that engine on the host; with several same-engine instances, the agent leaves it unstamped rather than guessing.
 - If an application is instrumented by one agent and its database is monitored by a different agent, the two line up only when they already agree on `server.address`, which they usually do when both use the same DNS endpoint.
 
 ## Related

@@ -56,7 +56,7 @@ Because the collector reads the Secret at pod startup, create the Secret and run
 ## Worked example: PostgreSQL
 
 <Steps>
-1. **Create a monitoring role** in PostgreSQL and grant it the built-in monitoring role:
+1. **Create a monitoring role** in PostgreSQL and grant it the built-in `pg_monitor` role:
 
    ```sql
    CREATE ROLE kmmonitor LOGIN PASSWORD '<password>';

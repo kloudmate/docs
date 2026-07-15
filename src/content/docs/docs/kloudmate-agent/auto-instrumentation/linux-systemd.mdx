@@ -34,11 +34,11 @@ The language agents come inside the KloudMate agent package and are versioned wi
 
 ## Restart behavior
 
-The agent restarts one service at a time, only with your consent, and can wait for the service to come back up before reporting success. If a restart fails, the agent undoes the change and restarts the service to its previous state. See the [overview](../overview/) for details.
+The agent restarts one service at a time, only with your consent, and can wait for the service to come back up before reporting success. If a restart fails, the agent undoes the change and restarts the service, returning it to its previous state. See the [overview](../overview/) for details.
 
 ## Other process managers
 
-systemd is the primary path on Linux. Services run under other process managers, such as supervisord or pm2, or run on their own, do not have a per-service way to attach the agent, so the agent reports them as not supported for automatic instrumentation and offers guidance instead.
+systemd is the primary path on Linux. Services that run under other process managers, such as supervisord or pm2, or that run on their own, do not have a per-service way to attach the agent. The agent reports them as not supported for automatic instrumentation and offers guidance instead.
 
 ## Next steps
 

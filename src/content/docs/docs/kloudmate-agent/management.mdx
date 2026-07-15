@@ -21,7 +21,7 @@ The KloudMate agent's landing page allows you to view, add, and manage your agen
 
 ## Adding a New Agent
 
-1. Click the **Add Agent** button located at the top right corner of the page.
+1. Click the **Add Agent** button located at the top-right corner of the page.
 
 ![image](./images/managing-kloudmate-agents-1.png)
 
@@ -40,8 +40,8 @@ The KloudMate agent's landing page allows you to view, add, and manage your agen
 The agent watches for remote configuration changes via a secure connection and updates itself automatically. 
 
 :::danger
-  **Do not edit local files manually.**
-  Manually updating ConfigMaps or local configuration files is not recommended, as these configurations may be overwritten by the central KloudMate APIs. Always use the **KloudMate Agent Config Editor** in the web UI.
+  **Do not hand-edit local files in managed mode.**
+  In managed mode, KloudMate regenerates the collector configuration from your toggles, so manual edits to ConfigMaps or local configuration files will be overwritten. Always use the **KloudMate Agent Config Editor** in the web UI.
 :::
 
 From the KloudMate platform, you can update the collector configuration associated with any agent:
@@ -51,7 +51,7 @@ From the KloudMate platform, you can update the collector configuration associat
 - **Collector Configuration:** Open the web-based YAML editor to make changes to the collector settings and apply updates automatically where the agent is installed.
 - **APM Configuration:** Configure the applications running on your Kubernetes cluster (applicable only for Kubernetes agents).
 - **Restart Collector:** Restart the collector service when needed.
-- **Delete:** Removes the agent from the KloudMate Agent landing page and clears all of its configuration.
+- **Delete:** Remove the agent from the KloudMate Agent landing page and clear all of its configuration.
 
 :::caution
 Deleting an agent decommissions it. Its instrumented applications are restarted to remove their instrumentation, and its database monitoring and log monitoring stop. If the agent is still running on the host, it checks back in and reappears as a new, unconfigured agent, so to remove it for good you must also uninstall it from the host. See the [installation guides](../installation/linux-agent/) for the uninstall command.
@@ -73,7 +73,7 @@ Managed configuration is generated from your feature and integration toggles, so
 ### Common Configurations
 
 :::note
-The snippets below are for manual mode. In managed mode you set these through the feature and integration toggles instead. See [eBPF observability](../ebpf-observability/) and [Database monitoring](../database-monitoring/overview/).
+The snippets below are for manual mode. In managed mode, you set these through the feature and integration toggles instead. See [eBPF observability](../ebpf-observability/) and [Database monitoring](../database-monitoring/overview/).
 :::
 
 #### Feature Flags
@@ -165,7 +165,7 @@ After a configuration change, confirm it applied by checking that telemetry is s
 
 ## Resource usage
 
-The agent is light. On a virtual machine or host it runs as a single process and typically uses around **185 MiB of memory** and **under 2% of one CPU core**. Usage grows with the amount of telemetry it handles and the number of services it watches.
+The agent is light. On a virtual machine or host, it runs as a single process and typically uses around **185 MiB of memory** and **under 2% of one CPU core**. Usage grows with the amount of telemetry it handles and the number of services it watches.
 
 On Kubernetes, usage is split across the per-node collector and a few cluster-wide components. See [Resource usage and sizing](../platform-notes/kubernetes/#resource-usage-and-sizing) for per-component figures and suggested CPU and memory requests and limits.
 

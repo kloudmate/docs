@@ -11,7 +11,7 @@ The agent reports on its own health so you can tell whether it is alive and whet
 
 ## Why they are reported separately
 
-If the collector stops, it cannot send anything, including a report that it stopped. To avoid that blind spot, the agent reports its `kmagent.*` metrics itself, on a separate path from the collector. They keep arriving even when the collector is down, which is how you find out the collector is down.
+If the collector stops, it cannot send anything, including a report that it stopped. To avoid that blind spot, the agent reports its `kmagent.*` metrics itself, on a separate path from the collector. They keep arriving even when the collector is down, which is how you notice the outage.
 
 ## The metric catalog
 
@@ -39,8 +39,8 @@ Resource attributes: `service.name` is `kmagent` (so you can target it directly 
 |---|---|
 | Healthy | `kmagent.collector.up=1`, `state=running` |
 | A bad configuration was pushed | `kmagent.collector.up=0`, `reason=config_invalid` |
-| The collector exited with an error | `kmagent.collector.up=0`, `reason=run_error`, restarts increases |
-| The collector panicked | `kmagent.collector.up=0`, `reason=panic`, restarts increases (then it auto-restarts) |
+| The collector exited with an error | `kmagent.collector.up=0`, `reason=run_error`, restart count increases |
+| The collector panicked | `kmagent.collector.up=0`, `reason=panic`, restart count increases (then it auto-restarts) |
 | A graceful shutdown | `reason=shutdown` |
 
 The agent recovers from a collector panic and restarts the collector with a backoff, so a transient crash heals itself, and the restart count records that it happened.

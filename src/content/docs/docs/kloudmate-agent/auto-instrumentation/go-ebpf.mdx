@@ -24,7 +24,7 @@ The result is close to what a language SDK would produce, without changing your 
 
 ## How Go traces connect to other services
 
-Because the eBPF baseline and the language agents both propagate W3C trace context (`traceparent`), a Go service joins the same distributed traces as its instrumented neighbors. When an instrumented service calls a Go service, the Go service's eBPF server span adopts the caller's trace, so you see one connected trace with a correct parent-child relationship, rather than two disjoint views. This has been validated end to end: an instrumented upstream and an eBPF-only Go downstream consistently land on a single trace.
+Because the eBPF baseline and the language agents both propagate W3C trace context (`traceparent`), a Go service joins the same distributed traces as its instrumented neighbors. When an instrumented service calls a Go service, the Go service's eBPF server span adopts the caller's trace, so you see one connected trace with a correct parent-child relationship, rather than two disjoint views. In practice, an instrumented upstream and an eBPF-only Go downstream consistently land on a single trace.
 
 :::note
 In the Discovered Services list, a Go service is marked as covered by eBPF rather than as instrumentable, and its Instrument toggle is disabled. This is expected: the eBPF baseline is already tracing it.

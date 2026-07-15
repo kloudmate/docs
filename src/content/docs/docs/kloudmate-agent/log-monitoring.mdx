@@ -74,7 +74,7 @@ For common log shapes, the wizard offers presets so you do not have to write the
 - **Nginx error** (carries a level)
 - **Apache access**
 
-Each app preset is a prefilled **Custom regex**: a ready-made regular expression, the timestamp and severity and message mapping, and the timestamp layout, all filled in for you. They are transparent, not black boxes. You can preview a preset against your own files and edit any part of it before you save. There is also a plain **JSON** preset that prefills the usual `ts`, `level`, and `msg` field names for you to adjust.
+Each app preset is a prefilled **Custom regex**: a ready-made regular expression, the timestamp, severity, and message mapping, and the timestamp layout, all filled in for you. They are transparent, not black boxes. You can preview a preset against your own files and edit any part of it before you save. There is also a plain **JSON** preset that prefills the usual `ts`, `level`, and `msg` field names for you to adjust.
 
 ## Combine multiline entries
 
@@ -92,7 +92,7 @@ When you enable it, you tell the agent how a new entry begins with a line-start 
 
 A layout with no year, such as the classic syslog timestamp, is stamped with the current year automatically. If no timestamp is mapped or a value does not match the layout, the record falls back to the time the agent read it.
 
-**Severity.** Standard level names (such as `trace`, `debug`, `info`, `warn`, `error`, and `fatal`) are recognized automatically. The presets also map the syslog and nginx names: `notice` becomes info; `crit` and `critical` become error; and `alert`, `emerg`, `emergency`, and `panic` become fatal. A value that maps to no known level is left unset.
+**Severity.** Standard level names (such as `trace`, `debug`, `info`, `warn`, `error`, and `fatal`) are recognized automatically. The presets also map the syslog and nginx names: `notice` becomes `info`; `crit` and `critical` become `error`; and `alert`, `emerg`, `emergency`, and `panic` become `fatal`. A value that maps to no known level is left unset.
 
 ## Preview before you save
 

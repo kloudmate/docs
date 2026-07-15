@@ -9,7 +9,7 @@ import { LinkCard, CardGrid } from '@astrojs/starlight/components';
 
 Extended Berkeley Packet Filter (eBPF) lets the KloudMate agent observe your applications directly from the Linux kernel. You get deep visibility into network traffic, database queries, and application performance **without changing a single line of code or installing SDKs**.
 
-eBPF is part of the agent's automatic baseline. On a managed-mode agent it turns on by default wherever the Linux kernel supports it, so you get Rate, Errors, and Duration (RED) metrics and a service map as soon as the agent is running. This page covers what it collects, the kernel requirements, how it degrades gracefully, and how to tune it. In the [layered model](../concepts/layered-instrumentation/), this is Layer 2.
+eBPF is part of the agent's automatic baseline. On a managed-mode agent, it turns on by default wherever the Linux kernel supports it, so you get Rate, Errors, and Duration (RED) metrics and a service map as soon as the agent is running. This page covers what it collects, the kernel requirements, how it degrades gracefully, and how to tune it. In the [layered model](../concepts/layered-instrumentation/), this is Layer 2.
 
 ## What eBPF collects
 
@@ -21,7 +21,7 @@ When the eBPF baseline is active, the agent collects:
 - **Distributed context propagation:** the agent reads and injects HTTP trace context (`traceparent`), so requests stay on one trace across services.
 - **Log-to-trace correlation:** trace identifiers are added to application logs so you can jump between a log line and its trace.
 
-Because eBPF observes traffic in the kernel, it covers services you have not instrumented, including Go services, which the agent does not inject. When a service is also instrumented at Layer 3, the eBPF spans and the application spans share the same trace, giving you end-to-end traces where un-instrumented hops still appear.
+Because eBPF observes traffic in the kernel, it covers services you have not instrumented, including Go services, which the agent does not inject. When a service is also instrumented at Layer 3, the eBPF spans and the application spans share the same trace, giving you end-to-end traces where uninstrumented hops still appear.
 
 ## Deployment modes and requirements
 
@@ -48,14 +48,14 @@ The agent reports its host capabilities (kernel version, BTF presence, available
 
 ## Tuning eBPF
 
-On a managed-mode agent you tune eBPF through its settings in the web interface. On a manual-mode agent you edit the collector YAML directly. See the [configuration model](../concepts/config-model/) for how the two modes differ.
+On a managed-mode agent, you tune eBPF through its settings in the web interface. On a manual-mode agent, you edit the collector YAML directly. See the [configuration model](../concepts/config-model/) for how the two modes differ.
 
 ### Context propagation
 
 The `context_propagation` setting controls how far the agent carries trace context. It accepts `disabled`, `headers`, `tcp`, or `all`:
 
 - `headers` propagates context through HTTP headers. This is the safe default for distributed tracing across services.
-- `tcp` and `all` extend propagation to non-HTTP paths and un-instrumented applications. They reach further, but validate them across proxies, load balancers, and network address translation (NAT) before relying on them.
+- `tcp` and `all` extend propagation to non-HTTP paths and uninstrumented applications. They reach further, but you should validate them across proxies, load balancers, and network address translation (NAT) before relying on them.
 
 Use `track_request_headers` to capture request headers such as `User-Agent`.
 
