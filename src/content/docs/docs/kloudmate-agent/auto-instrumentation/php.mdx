@@ -14,7 +14,7 @@ PHP is a special case. Zero-code OpenTelemetry (OTel) needs PHP 8, so PHP 7 has 
 When you instrument a PHP service, the agent inspects the service's own PHP build (version, thread safety, and processor architecture) and selects one of two paths:
 
 - **Native OpenTelemetry** for PHP 8.2 and newer, when a matching OpenTelemetry PHP extension and software development kit (SDK) are available. This is the preferred, fully native path.
-- **A dd-trace based tracer** for PHP 7.0 through 8.1. The agent installs the stock `dd-trace-php` Zend extension, which speaks the Datadog trace protocol, and the agent's collector converts that protocol to clean OpenTelemetry through its built-in Datadog receiver.
+- **A dd-trace-based tracer** for PHP 7.0 through 8.1. The agent installs the stock `dd-trace-php` Zend extension, which speaks the Datadog trace protocol, and the agent's collector converts that protocol to clean OpenTelemetry through its built-in Datadog receiver.
 
 If neither path is available for a build, the agent skips it and reports the reason.
 
@@ -25,12 +25,12 @@ Both paths attach with **no application code changes**. The agent installs the e
 | PHP version | Tracer |
 |---|---|
 | 8.2 and newer | Native OpenTelemetry (dd-trace fallback where a native build is not available) |
-| 8.0 and 8.1 | dd-trace based tracer |
-| 7.0 through 7.4 | dd-trace based tracer |
+| 8.0 and 8.1 | dd-trace-based tracer |
+| 7.0 through 7.4 | dd-trace-based tracer |
 
 ## What you get
 
-The PHP tracer produces route-level server spans, database spans (for example, PDO calls), and error spans. It continues W3C trace context (`traceparent`), so a PHP span shares its trace identifier with the eBPF baseline and with any upstream or downstream service. That means a PHP 7 application appears on the same connected trace as your other services, not as an isolated view.
+The PHP tracer produces route-level server spans, database spans (for example, PDO calls), and error spans. It propagates W3C trace context (`traceparent`), so a PHP span shares its trace identifier with the eBPF baseline and with any upstream or downstream service. That means a PHP 7 application appears on the same connected trace as your other services, not as an isolated view.
 
 The overhead is small: a fixed cost of roughly 1.6 milliseconds per request, which is a low single-digit percentage on realistic requests.
 

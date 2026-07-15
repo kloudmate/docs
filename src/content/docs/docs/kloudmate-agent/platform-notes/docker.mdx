@@ -25,11 +25,11 @@ Full application traces (Layer 3) need the language agent's startup environment 
 - **PHP** containers can be instrumented in place: the agent installs the tracer inside the running container and reloads the process manager, with no redeploy. See [PHP instrumentation](../../auto-instrumentation/php/).
 - **Java, Node.js, Python, and .NET** read their instrumentation from environment variables set at process start, and you cannot change a running container's startup environment without recreating it. The agent does not recreate your running containers. Instead, it computes the exact environment and read-only mounts to instrument the container and surfaces them for you to apply at your **next deploy** (for example, as a Compose override). eBPF continues to cover these containers in the meantime.
 
-Automatic per-image injection through a container startup hook, so an opted-in image is instrumented on its next start without a manual snippet, is planned. It targets **images** rather than individual containers, so a selection is stable across container churn.
+Automatic per-image injection through a container startup hook is planned, so an opted-in image is instrumented on its next start without a manual snippet. It targets **images** rather than individual containers, so a selection is stable across container churn.
 
 ## Deployment posture
 
-To configure container-level injection the agent needs host access:
+To configure container-level injection, the agent needs host access:
 
 - Run the agent **on the host** with Docker socket and daemon access, or
 - Run it as a **privileged container with host mounts**.

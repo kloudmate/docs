@@ -216,7 +216,7 @@ aws ssm list-command-invocations \
 | Risk           | Lower (clean slate)          | Slightly higher (in-place)   |
 | Use when       | You want clean rollout       | You need it NOW              |
 
-**Recommended approach:** Use **Option B** for the immediate install on all 50 instances today, and the **Launch Template user data** ensures every future instance is covered automatically.
+**Recommended approach:** Use **Option B** for the immediate install on all 50 instances today. The **Launch Template user data** ensures every future instance is covered automatically.
 
 ## Verification
 
@@ -242,7 +242,7 @@ curl -s http://localhost:13133   # health check endpoint
 | **Issue** | **Cause** | **Fix** |
 | ------------------------------ | -------------------------------------------------- | -------------------------------------------------------------------------------------- |
 | `unable to locate credentials` | IAM Instance Profile missing or no SSM permissions | Attach IAM role with `ssm:GetParameter` to your Launch Template                        |
-| `command not found: aws`       | AWS CLI not installed on instance                  | Add `yum install -y aws-cli or apt install -y awscli` before the SSM call in user data |
+| `command not found: aws`       | AWS CLI not installed on instance                  | Add `yum install -y aws-cli` or `apt install -y awscli` before the SSM call in user data |
 | `kmagent failed to start`      | Port conflict or config error                      | Check `journalctl -u kmagent -n 50` on the instance                                    |
 | SSM command stuck in `Pending` | SSM Agent not running                              | Ensure `amazon-ssm-agent` is installed and running                                     |
 | Instance refresh stuck         | Health check failing on new instances              | Check your ASG health check grace period and target group settings                     |

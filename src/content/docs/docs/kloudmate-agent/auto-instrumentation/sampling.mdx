@@ -12,7 +12,7 @@ Sampling controls how many traces an instrumented service keeps. Capturing every
 ## Global default and per-service overrides
 
 - **Global default:** a single sampling rate applies to every service you instrument, so you set the trade-off once.
-- **Per-service override:** you can raise or lower the rate for a specific service, for example keeping every trace on a low-traffic, high-value service while sampling a noisy one more aggressively.
+- **Per-service override:** you can raise or lower the rate for a specific service, for example, keeping every trace on a low-traffic, high-value service while sampling a noisy one more aggressively.
 
 The agent applies the rate to each instrumented service through the standard OpenTelemetry (OTel) sampler settings, so the behavior matches what the language agents document.
 

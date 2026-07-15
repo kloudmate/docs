@@ -11,7 +11,7 @@ This page is the deep reference for how the agent runs on Kubernetes. For instal
 
 ## One agent per cluster, two planes
 
-On Kubernetes the agent keeps its own control-plane and data-plane split:
+On Kubernetes, the agent keeps its own control-plane and data-plane split:
 
 - **Fleet manager (control plane):** a single pod that checks in with KloudMate, applies the generated configuration to the cluster, and reports status back. It is the on-cluster applier.
 - **Collector pods (data plane):** a **DaemonSet** (one collector per node) collects per-node metrics and pod logs and, where the kernel supports it, runs the eBPF baseline; a **Deployment** (a single replica) collects cluster metrics and events and acts as the OpenTelemetry (OTel) gateway.
@@ -42,7 +42,7 @@ The collectors read their configuration from ConfigMaps. To manage these safely:
 - Updates are applied carefully so they do not disturb parts of the configuration the fleet manager does not own, and a configuration change triggers a rollout so the collectors pick it up.
 
 :::danger
-Do not hand-edit the agent's ConfigMaps. In managed mode the fleet manager owns them and will overwrite manual edits. Change configuration through KloudMate instead. See the [configuration model](../../concepts/config-model/).
+Do not hand-edit the agent's ConfigMaps. In managed mode, the fleet manager owns them and will overwrite manual edits. Change configuration through KloudMate instead. See the [configuration model](../../concepts/config-model/).
 :::
 
 ## Resource usage and sizing

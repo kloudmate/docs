@@ -12,8 +12,8 @@ This page is organized by symptom. Two agent features are your diagnostic spine:
 ## The agent will not start or stay up
 
 - **Missing API key.** The agent needs its API key to check in. Confirm the key was provided at install. In the health metrics, a healthy agent emits `kmagent.up`.
-- **Invalid collector configuration.** If a pushed configuration is invalid, the collector will not start. Look for `kmagent.collector.up=0` with `reason=config_invalid`, and read the error text in the self-logs. In managed mode the agent validates generated configuration before applying it, and keeps running the last good configuration; in manual mode, fix the YAML.
-- **Insufficient privileges.** The agent needs elevated privileges for eBPF (on Linux) and for instrumentation. On Linux it runs with the privileges it needs by default; on Windows it runs as Local System. A permissions failure is reported in the self-logs.
+- **Invalid collector configuration.** If a pushed configuration is invalid, the collector will not start. Look for `kmagent.collector.up=0` with `reason=config_invalid`, and read the error text in the self-logs. In managed mode, the agent validates generated configuration before applying it, and keeps running the last good configuration; in manual mode, fix the YAML.
+- **Insufficient privileges.** The agent needs elevated privileges for eBPF (on Linux) and for instrumentation. On Linux, it runs with the privileges it needs by default; on Windows, it runs as Local System. A permissions failure is reported in the self-logs.
 
 ## Metrics are not flowing
 

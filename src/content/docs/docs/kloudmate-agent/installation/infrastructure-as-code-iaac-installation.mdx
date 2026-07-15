@@ -1,13 +1,13 @@
 ---
 title: "Infrastructure as Code (IaC)"
-description: "Documentation for Infrastructure as a Code (IaaC) Installation"
+description: "Documentation for Infrastructure as Code (IaC) Installation"
 sidebar:
   order: 8
 ---
 
 import { Tabs, TabItem } from '@astrojs/starlight/components';
 
-Deploy the KloudMate agent across any cloud provider or on-premises infrastructure using Infrastructure as a Code (IaaC) and automation tools.
+Deploy the KloudMate agent across any cloud provider or on-premises infrastructure using Infrastructure as Code (IaC) and automation tools.
 
 :::note
 However you provision it, each agent starts in managed mode and collects host metrics, logs, and the [eBPF baseline](../../ebpf-observability/) automatically once it checks in. See the [configuration model](../../concepts/config-model/).
@@ -28,11 +28,11 @@ If you are provisioning a new VM or Auto-scaling group, you should use **cloud-i
 
 If you are managing an existing fleet, use an **Ansible playbook**.
 
-If you are managing infrastructure with **Terraform** , use the **Terraform module**.
+If you are managing infrastructure with **Terraform**, use the **Terraform module**.
 
 ## 1. cloud-init (Universal)
 
-Works on every provider that supports cloud-init (AWS, GCP, Azure, DigitalOcean, Alibaba, Hetzner, Vultr, Linode, etc.)
+Works on every provider that supports cloud-init (AWS, GCP, Azure, DigitalOcean, Alibaba, Hetzner, Vultr, Linode, etc.).
 
 
 <Tabs>
