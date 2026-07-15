@@ -7,9 +7,9 @@ sidebar:
 
 import { LinkCard, CardGrid } from '@astrojs/starlight/components';
 
-Extended Berkeley Packet Filter (eBPF) lets the KloudMate agent observe your applications directly from the Linux kernel. You get deep visibility into network traffic, database queries, and application performance **without changing a single line of code or installing SDKs**.
+Extended Berkeley Packet Filter (eBPF) lets the KloudMate agent observe your applications directly from the Linux kernel. You get visibility into network traffic, database queries, and application performance **with no code changes and no SDKs**.
 
-eBPF is part of the agent's automatic baseline. On a managed-mode agent, it turns on by default wherever the Linux kernel supports it, so you get Rate, Errors, and Duration (RED) metrics and a service map as soon as the agent is running. This page covers what it collects, the kernel requirements, how it degrades gracefully, and how to tune it. In the [layered model](../concepts/layered-instrumentation/), this is Layer 2.
+eBPF is part of the agent's automatic baseline. On a managed-mode agent, it turns on by default wherever the Linux kernel supports it, so you get Rate, Errors, and Duration (RED) metrics and a service map as soon as the agent is running.
 
 ## What eBPF collects
 
@@ -21,7 +21,7 @@ When the eBPF baseline is active, the agent collects:
 - **Distributed context propagation:** the agent reads and injects HTTP trace context (`traceparent`), so requests stay on one trace across services.
 - **Log-to-trace correlation:** trace identifiers are added to application logs so you can jump between a log line and its trace.
 
-Because eBPF observes traffic in the kernel, it covers services you have not instrumented, including Go services, which the agent does not inject. When a service is also instrumented at Layer 3, the eBPF spans and the application spans share the same trace, giving you end-to-end traces where uninstrumented hops still appear.
+Because eBPF observes traffic in the kernel, it covers services you have not instrumented, including Go services, which the agent does not inject. When a service is also instrumented with application APM, the eBPF spans and the application spans share the same trace, so uninstrumented hops still appear in end-to-end traces.
 
 ## Deployment modes and requirements
 
@@ -37,14 +37,15 @@ On Linux, eBPF needs:
 
 The agent runs with the privileges it needs for eBPF by default on Linux. On Kubernetes, the collector pods run with the required host access.
 
-## Automatic enablement and graceful degradation
+## When eBPF turns on
 
-The agent reports its host capabilities (kernel version, BTF presence, available privileges, and whether `debugfs` is mounted) to KloudMate on every check-in. KloudMate uses those capabilities to decide whether to enable eBPF:
+Whether eBPF turns on, and how much of it, depends on the host's kernel version, privileges, and whether `debugfs` is mounted:
 
-- **Supported host:** eBPF is included in the generated configuration and turns on automatically.
-- **Kernel 4.14 to 5.8, or no BTF:** eBPF loads with reduced features, and the reason is recorded.
-- **Unsupported host (kernel older than 4.14, `debugfs` not mounted, or missing privileges):** eBPF is skipped, and KloudMate shows the reason (for example, "eBPF unavailable: kernel 4.9"). The host still gets host metrics and logs.
-- **Runtime load failure despite a supported host:** the agent fails soft. It never crashes the collector or affects other pipelines, reports a degraded status, and discovery falls back to scanning processes.
+- **Supported host:** eBPF turns on automatically.
+- **Kernel 4.14 to 5.8, or no BTF:** eBPF runs with reduced features.
+- **Unsupported host** (kernel older than 4.14, `debugfs` not mounted, or missing privileges): eBPF is skipped, and KloudMate shows the reason, for example "eBPF unavailable: kernel 4.9". The host still gets host metrics and logs.
+
+If eBPF cannot load on a host that should support it, the host keeps its metrics and logs and KloudMate reports why.
 
 ## Tuning eBPF
 
@@ -127,7 +128,7 @@ Once the agent is collecting eBPF telemetry, confirm it in these views:
 ## Related
 
 <CardGrid>
-  <LinkCard title="Layered instrumentation" href="../concepts/layered-instrumentation/" description="Where the eBPF baseline sits in the L0 to L5 model." />
+  <LinkCard title="Host metrics and logs" href="../baseline/host-metrics-and-logs/" description="The rest of the automatic baseline." />
   <LinkCard title="Application APM" href="../auto-instrumentation/overview/" description="Add application spans that share eBPF traces." />
   <LinkCard title="Configuration and management" href="../management/" description="Manage the agent and its configuration." />
 </CardGrid>

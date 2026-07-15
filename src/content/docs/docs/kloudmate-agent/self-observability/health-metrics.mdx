@@ -9,10 +9,6 @@ import { LinkCard, CardGrid } from '@astrojs/starlight/components';
 
 The agent reports on its own health so you can tell whether it is alive and whether its collector is running, without logging in to the host. These liveness metrics are reported **out-of-band**, on a path that does not go through the collector, so they keep arriving even when the collector is down.
 
-## Why they are reported separately
-
-If the collector stops, it cannot send anything, including a report that it stopped. To avoid that blind spot, the agent reports its `kmagent.*` metrics itself, on a separate path from the collector. They keep arriving even when the collector is down, which is how you notice the outage.
-
 ## The metric catalog
 
 The agent reports these metrics, all carrying the resource attributes below:
@@ -43,7 +39,7 @@ Resource attributes: `service.name` is `kmagent` (so you can target it directly 
 | The collector panicked | `kmagent.collector.up=0`, `reason=panic`, restart count increases (then it auto-restarts) |
 | A graceful shutdown | `reason=shutdown` |
 
-The agent recovers from a collector panic and restarts the collector with a backoff, so a transient crash heals itself, and the restart count records that it happened.
+The agent restarts the collector automatically after a crash, and the restart count records that it happened.
 
 ## Alerting on a silent agent
 

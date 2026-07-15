@@ -7,7 +7,7 @@ sidebar:
 
 import { Steps, Tabs, TabItem, LinkCard, CardGrid } from '@astrojs/starlight/components';
 
-Log monitoring is a wizard where you point the agent at log files on a host and choose how to parse them, instead of hand-writing collector configuration. You give the agent a folder and a file-name pattern, pick a parse format, and the agent turns your choices into an OpenTelemetry (OTel) `filelog` receiver on its embedded collector. It is the log sibling of [database monitoring](../database-monitoring/overview/): the same discovery-led, auto-wired style, but for log files instead of databases.
+Log monitoring is a wizard where you point the agent at log files on a host and choose how to parse them, instead of hand-writing collector configuration. You give the agent a folder and a file-name pattern, pick a parse format, and the agent turns your choices into an OpenTelemetry (OTel) `filelog` receiver. It is the log sibling of [database monitoring](../database-monitoring/overview/): the same discovery-led, auto-wired style, but for log files instead of databases.
 
 It applies to Linux and Windows virtual machine (VM) hosts and to Docker. It is **not available on Kubernetes**, where pod and container logs are already collected for you. See [Not available on Kubernetes](#not-available-on-kubernetes) below.
 
@@ -16,7 +16,7 @@ It applies to Linux and Windows virtual machine (VM) hosts and to Docker. It is 
 Log monitoring is a managed-mode feature. You configure sources from the agent's **Configuration** page, on the **Logs** tab, and KloudMate compiles them into the agent's collector configuration along with everything else you have toggled on. See the [configuration model](../concepts/config-model/) for how managed mode works.
 
 - **Managed mode only.** The Logs tab is available when the agent is in managed mode. If the agent is in manual mode, the tab prompts you to switch, because log sources fold into the generated configuration. You can still add a `filelog` receiver by hand in manual mode: see [Manual configuration](#manual-configuration).
-- **One receiver per source.** Each source you add compiles into its own `filelog` receiver and its own logs pipeline, so one badly configured source cannot affect the others or your host baseline logs.
+- **Independent sources.** Each source is isolated, so one badly configured source cannot affect the others or your host baseline logs.
 - **It builds on the baseline.** The host baseline already ships system logs (the systemd journal on Linux, the Windows Event Log, container output on Docker) with no configuration. Log monitoring is for the extra application log **files** that the baseline does not pick up. See [Host metrics and logs](../baseline/host-metrics-and-logs/).
 
 ## Add a log source

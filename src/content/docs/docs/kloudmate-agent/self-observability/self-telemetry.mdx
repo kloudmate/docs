@@ -19,14 +19,9 @@ When enabled, the collector emits its standard `otelcol_*` metrics, including:
 
 These are the same metrics any OpenTelemetry Collector can produce, so they are familiar and well documented.
 
-## Why it is opt-in and in-band
+## Not a liveness signal
 
-Two properties follow from where these metrics come from:
-
-- **It adds cost.** The collector produces a metric series per component, which increases the metric volume you ingest. For that reason it is off by default, and you turn it on when you want the detail.
-- **It dies with the collector.** Because these metrics flow through the collector, they stop when the collector stops. That is why they are not a liveness signal: liveness is the job of the out-of-band [health metrics](../health-metrics/).
-
-The two tiers complement each other. If the health metrics show `kmagent.collector.up=1` but the collector self-telemetry goes silent, that divergence itself points to a wedged pipeline.
+Because these metrics flow through the collector, they stop when the collector does, so they are not a liveness signal — that is the job of the out-of-band [health metrics](../health-metrics/). If the health metrics show `kmagent.collector.up=1` but self-telemetry goes silent, that gap points to a stuck pipeline.
 
 ## Enabling it
 

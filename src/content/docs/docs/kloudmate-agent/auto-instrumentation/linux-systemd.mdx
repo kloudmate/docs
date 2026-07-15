@@ -7,7 +7,7 @@ sidebar:
 
 import { LinkCard, CardGrid } from '@astrojs/starlight/components';
 
-On Linux, the agent instruments a service by attaching the matching language agent to it and restarting it. It changes only the service you chose, not the whole system. This page covers what that looks like per runtime. For the flow, consent, and rollback behavior, see the [Application APM overview](../overview/).
+On Linux, the agent instruments a service by attaching the matching language agent to it and restarting it. It changes only the service you chose, not the whole system. For the flow, consent, and rollback behavior, see the [Application APM overview](../overview/).
 
 ## How it works
 
@@ -25,7 +25,7 @@ The agent uses the standard tracing mechanism for each runtime, so the behavior 
 | .NET | The .NET (CLR) profiler (less common on Linux than on Windows) |
 
 :::note
-PHP and Go work differently. PHP uses a `php.ini` setting and a graceful reload instead of a restart; see [PHP instrumentation](../php/). Go is not attached at all; it is covered by the [eBPF baseline](../go-ebpf/).
+PHP and Go work differently. PHP is reloaded gracefully instead of restarted; see [PHP instrumentation](../php/). Go is not attached at all; it is covered by the [eBPF baseline](../go-ebpf/).
 :::
 
 ## Bundled with the agent

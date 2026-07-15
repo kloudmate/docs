@@ -8,28 +8,30 @@ sidebar:
 
 import { LinkCard, CardGrid } from '@astrojs/starlight/components';
 
-The **KloudMate Agent** is a single program that you install on your servers, containers, or clusters. Once it is running, it finds what you run, starts collecting host metrics and logs, and turns on kernel-level observability. From there, you can add deeper application tracing one service at a time, all from the KloudMate web interface.
+The **KloudMate Agent** is a single program you install on your servers, containers, or clusters. Once running, it finds what you run, collects host metrics and logs, and turns on kernel-level observability. You can then add deeper application tracing one service at a time, all from the KloudMate web interface.
 
-The agent is built on the **OpenTelemetry (OTel) Collector** and ships with a curated set of components, so you get simple deployment, remote configuration, and **extended Berkeley Packet Filter (eBPF)** observability without writing collector configuration.
+It is built on the **OpenTelemetry (OTel) Collector** with a curated set of components, so you get straightforward deployment, remote configuration, and **extended Berkeley Packet Filter (eBPF)** observability without writing collector configuration.
 
-It is built on the **OpenTelemetry (OTel) Collector**, with a curated set of components for simplified deployment, remote configuration, and **eBPF-powered kernel-level observability**.
-
-You install the agent once and manage it from the KloudMate web interface. When you change a setting, the agent picks it up and applies it for you, so you do not need Secure Shell (SSH) access or local file edits. Each agent is uniquely identifiable, so you can track its health and status from your dashboards.
+You manage the agent from the KloudMate web interface. When you change a setting, the agent applies it for you, so you do not need Secure Shell (SSH) access or local file edits. You can track each agent's health and status from your dashboards.
 
 To go deeper, read [Architecture](concepts/architecture/) and the [Configuration model](concepts/config-model/).
 
 ## What the agent collects
 
-The agent collects telemetry in layers. The lower layers are automatic. The upper layers need a process restart, so you turn them on per service when you are ready.
+Some of what the agent collects is automatic. The rest needs a process restart, so you turn it on per service when you are ready.
+
+Automatic, as soon as the agent is installed:
 
 - **Discovery:** a live inventory of the services, runtimes, and databases running on each host or cluster.
-- **Host metrics and logs:** CPU, memory, disk, and network metrics plus system and application logs, with no configuration.
+- **Host metrics and logs:** CPU, memory, disk, and network metrics plus system logs, with no configuration.
 - **eBPF baseline:** Rate, Errors, and Duration (RED) metrics, a network service map, Database Activity Monitoring (DAM), and trace-context propagation, with no code changes.
-- **Application performance monitoring (APM):** distributed traces for Java, Node.js, Python, .NET, and PHP applications, added per service.
-- **Database monitoring:** health metrics, query performance, and logs for your databases.
-- **Agent health:** the agent's own status and error logs, so you can see how it is doing.
 
-Read [The layered instrumentation model](concepts/layered-instrumentation/) for what each layer gives you.
+Opt in per service or database:
+
+- **Application performance monitoring (APM):** distributed traces for Java, Node.js, Python, .NET, and PHP applications.
+- **Database monitoring:** health metrics, query performance, and logs for your databases.
+
+The agent also reports its own status and error logs, so you can see how it is doing.
 
 ## Supported platforms
 
@@ -64,7 +66,6 @@ On Linux, the eBPF baseline needs kernel 4.14 or newer, and unlocks more on 5.8 
 
 <CardGrid>
   <LinkCard title="Architecture" href="concepts/architecture/" description="How the agent is managed across deployment modes." />
-  <LinkCard title="Layered instrumentation" href="concepts/layered-instrumentation/" description="The automatic baseline and the opt-in layers." />
   <LinkCard title="Discovery" href="concepts/discovery/" description="How the agent inventories your services." />
   <LinkCard title="Configuration model" href="concepts/config-model/" description="Managed and manual modes, and how the collector config is generated." />
 </CardGrid>

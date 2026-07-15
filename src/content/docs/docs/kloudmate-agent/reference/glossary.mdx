@@ -21,7 +21,7 @@ Definitions of the terms used across the agent documentation.
 
 **ETW (Event Tracing for Windows).** The Windows equivalent of the eBPF baseline. The agent taps ETW to produce request spans and RED metrics for IIS traffic. See [Windows platform notes](../../platform-notes/windows/).
 
-**Fleet manager.** On Kubernetes, the control-plane pod that applies the generated configuration to the cluster and reports status back. See [Kubernetes platform notes](../../platform-notes/kubernetes/).
+**Fleet manager.** On Kubernetes, the pod that applies the generated configuration to the cluster and reports each collector's status back. See [Kubernetes platform notes](../../platform-notes/kubernetes/).
 
 **Managed mode.** A configuration mode in which KloudMate generates the collector configuration from your enabled integrations, and the YAML editor is a read-only preview. Contrast manual mode. See the [configuration model](../../concepts/config-model/).
 
@@ -44,7 +44,7 @@ Definitions of the terms used across the agent documentation.
 ## Related
 
 <CardGrid>
-  <LinkCard title="Layered instrumentation" href="../../concepts/layered-instrumentation/" description="The L0 to L5 model." />
-  <LinkCard title="Design decisions" href="../design-decisions/" description="Why the agent works the way it does." />
   <LinkCard title="Metric catalogs" href="../metric-catalogs/" description="The metrics the agent produces." />
+  <LinkCard title="Telemetry identity" href="../telemetry-identity/" description="How database signals are identified." />
+  <LinkCard title="Configuration model" href="../../concepts/config-model/" description="Managed and manual configuration." />
 </CardGrid>

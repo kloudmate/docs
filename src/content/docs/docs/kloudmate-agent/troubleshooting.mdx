@@ -7,7 +7,7 @@ sidebar:
 
 import { LinkCard, CardGrid } from '@astrojs/starlight/components';
 
-This page is organized by symptom. Two agent features are your diagnostic spine: the [health metrics](../self-observability/health-metrics/) tell you whether the agent and collector are up and why the collector is down, and the [self-logs](../self-observability/self-logs/) bring the agent's own error messages into KloudMate so you can read them without logging in to the host. Check both first.
+Start with two agent features: the [health metrics](../self-observability/health-metrics/) tell you whether the agent and collector are up and why the collector is down, and the [self-logs](../self-observability/self-logs/) bring the agent's own error messages into KloudMate so you can read them without logging in to the host. Check both first.
 
 ## The agent will not start or stay up
 
@@ -42,7 +42,7 @@ This page is organized by symptom. Two agent features are your diagnostic spine:
 
 - **A collector pod is crashing.** Check the pod's status in the Kubernetes view, which reflects real per-node collector status, and read the fleet manager and collector self-logs. A crash is often an invalid configuration.
 - **APM annotations were not applied.** Confirm APM is enabled and the workload is in a monitored namespace. See [Application APM on Kubernetes](../auto-instrumentation/kubernetes/).
-- **Do not edit ConfigMaps by hand.** The fleet manager owns them in managed mode and will overwrite manual edits. See [Kubernetes platform notes](../platform-notes/kubernetes/).
+- **Do not edit ConfigMaps by hand.** The agent owns them in managed mode and will overwrite manual edits. See [Kubernetes platform notes](../platform-notes/kubernetes/).
 
 ## What to attach when contacting support
 

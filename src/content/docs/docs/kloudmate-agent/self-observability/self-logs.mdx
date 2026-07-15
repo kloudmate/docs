@@ -17,10 +17,6 @@ The agent forwards its own **ERROR-level logs** directly to KloudMate. It ships 
 - The **host or node** the agent runs on.
 - The **agent version**.
 
-## Why it matters
-
-Without self-logs, an error like an invalid configuration or a failed instrumentation is only visible in the agent's local output, which means logging in to the host to read it. With self-logs, that error text appears in KloudMate, so you can see, for example, why a configuration push was rejected or why an instrumentation attempt failed, from the same place you manage the agent.
-
 ## On Kubernetes
 
 On Kubernetes, self-logs are shipped per node, carried with per-node identity, so you can see errors from each node's collector and from the fleet manager without running `kubectl logs`. See [Kubernetes platform notes](../../platform-notes/kubernetes/).

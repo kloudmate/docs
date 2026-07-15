@@ -1,48 +1,35 @@
 ---
 title: "Kubernetes platform notes"
-description: "Deep reference for the KloudMate agent on Kubernetes: the fleet manager, collector pods, config-check protocol, per-node health, and ConfigMap management."
+description: "How the KloudMate agent runs on Kubernetes: one agent per cluster, the fleet manager and collector pods, per-node status, and resource sizing."
 sidebar:
   order: 1
 ---
 
 import { LinkCard, CardGrid } from '@astrojs/starlight/components';
 
-This page is the deep reference for how the agent runs on Kubernetes. For installation, see the [Kubernetes installation guide](../../installation/kubernetes-agent/); for the shared model, see [Architecture](../../concepts/architecture/).
+How the agent runs on Kubernetes. For installation, see the [Kubernetes installation guide](../../installation/kubernetes-agent/); for the shared model, see [Architecture](../../concepts/architecture/).
 
-## One agent per cluster, two planes
+## One agent per cluster
 
-On Kubernetes, the agent keeps its own control-plane and data-plane split:
+On Kubernetes, a whole cluster appears in KloudMate as **one agent**, not one per node. It runs as a few pods:
 
-- **Fleet manager (control plane):** a single pod that checks in with KloudMate, applies the generated configuration to the cluster, and reports status back. It is the on-cluster applier.
-- **Collector pods (data plane):** a **DaemonSet** (one collector per node) collects per-node metrics and pod logs and, where the kernel supports it, runs the eBPF baseline; a **Deployment** (a single replica) collects cluster metrics and events and acts as the OpenTelemetry (OTel) gateway.
+- **Fleet manager:** a single pod that applies your configuration to the cluster and reports each collector's status back to KloudMate.
+- **Collector pods:** a **DaemonSet** (one per node) collects per-node metrics and pod logs and, where the kernel supports it, runs the eBPF baseline. A **Deployment** (a single replica) collects cluster metrics and events and acts as the OpenTelemetry (OTel) gateway.
 
-A cluster appears in KloudMate as **one agent**, not one per node. Per-node detail is carried on resource attributes rather than as separate agent rows.
+## Per-node collector status
 
-## The config-check protocol
+The Kubernetes view shows real per-node collector health. If a collector pod goes down, its node's status reflects that, so you can see exactly which node is affected.
 
-The agent and KloudMate use a single check-in protocol across all deployment modes. On Kubernetes, the fleet manager reports the cluster's capabilities (such as whether nodes support eBPF) and receives the generated configuration for both collectors. New fields are additive, so older agents keep working against the unified protocol.
+## Self-logs per node
 
-## Real collector status
+Self-logs are shipped per node, from both the collector pods and the fleet manager, so you can see errors such as an invalid configuration without running `kubectl logs`. See [Agent self-logs](../../self-observability/self-logs/).
 
-The fleet manager reports the collectors' **actual** status, not a fixed value. It queries the Kubernetes API for DaemonSet and Deployment readiness and per-node pod status, and reports that back to KloudMate. If you kill a collector pod, its node's status reflects it, so the Kubernetes view shows real per-node collector health.
+## Do not hand-edit ConfigMaps
 
-## Per-node health and self-logs
-
-Because a collector pod exits together with its collector, the agent does not run a separate per-pod health reporter. Instead:
-
-- **Self-logs** are shipped per node, with per-node identity, from both the collector pods and the fleet manager. You see errors such as an invalid configuration without running `kubectl logs`. See [Agent self-logs](../../self-observability/self-logs/).
-- The collectors use their readiness probes for liveness and self-healing.
-
-## ConfigMap management
-
-The collectors read their configuration from ConfigMaps. To manage these safely:
-
-- The Helm chart **seeds** the ConfigMaps at install time.
-- The fleet manager then **owns** the configuration in managed mode, writing the generated configuration into the ConfigMaps.
-- Updates are applied carefully so they do not disturb parts of the configuration the fleet manager does not own, and a configuration change triggers a rollout so the collectors pick it up.
+The collectors read their configuration from ConfigMaps that the agent manages.
 
 :::danger
-Do not hand-edit the agent's ConfigMaps. In managed mode, the fleet manager owns them and will overwrite manual edits. Change configuration through KloudMate instead. See the [configuration model](../../concepts/config-model/).
+Do not hand-edit the agent's ConfigMaps. In managed mode, the agent owns them and will overwrite manual edits. Change configuration through KloudMate instead. See the [configuration model](../../concepts/config-model/).
 :::
 
 ## Resource usage and sizing

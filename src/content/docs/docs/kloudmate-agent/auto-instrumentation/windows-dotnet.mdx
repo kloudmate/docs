@@ -7,7 +7,7 @@ sidebar:
 
 import { Tabs, TabItem, LinkCard, CardGrid } from '@astrojs/starlight/components';
 
-Windows has no `LD_PRELOAD` and no production eBPF, but its dominant workload, .NET, has a mature zero-code tracing path through the Common Language Runtime (CLR) profiler. The agent uses that path for .NET, uses per-service environment for Java, Node.js, and Python, and provides a universal baseline through Event Tracing for Windows (ETW). The opt-in flow, consent, and rollback are the same as described in the [overview](../overview/).
+Windows has no `LD_PRELOAD` and no production eBPF, but its dominant workload, .NET, has a mature zero-code tracing path through the Common Language Runtime (CLR) profiler. The agent uses that path for .NET, uses per-service environment for Java, Node.js, and Python, and provides a baseline for all IIS traffic through Event Tracing for Windows (ETW). The opt-in flow, consent, and rollback are the same as described in the [overview](../overview/).
 
 ## .NET applications
 
@@ -55,7 +55,7 @@ These runtimes use the same language agents as Linux, injected through the per-s
 
 ## The ETW baseline
 
-Because Windows has no eBPF, the agent provides a universal, zero-code baseline through a custom ETW receiver. It taps the HTTP.sys provider to emit:
+Because Windows has no eBPF, the agent provides a zero-code baseline through a custom ETW receiver. It taps the HTTP.sys provider to emit:
 
 - **Server spans** for every request, at the request-path level.
 - **RED metrics** (Rate, Errors, and Duration) keyed by application pool.

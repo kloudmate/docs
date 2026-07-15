@@ -7,7 +7,7 @@ sidebar:
 
 import { LinkCard, CardGrid } from '@astrojs/starlight/components';
 
-This page is the deep reference for how the agent runs in Docker mode. For installation, see the [Docker installation guide](../../installation/docker-agent/).
+How the agent runs in Docker mode. For installation, see the [Docker installation guide](../../installation/docker-agent/).
 
 ## What works today, with no injection
 
@@ -20,7 +20,7 @@ So containerized applications get broad coverage as soon as the agent is running
 
 ## Application-level tracing in containers
 
-Full application traces (Layer 3) need the language agent's startup environment inside the container, and host mechanisms such as systemd drop-ins do not cross the container boundary. How the agent handles this depends on the runtime:
+Full application traces need the language agent's startup environment inside the container, and host mechanisms such as systemd drop-ins do not cross the container boundary. How the agent handles this depends on the runtime:
 
 - **PHP** containers can be instrumented in place: the agent installs the tracer inside the running container and reloads the process manager, with no redeploy. See [PHP instrumentation](../../auto-instrumentation/php/).
 - **Java, Node.js, Python, and .NET** read their instrumentation from environment variables set at process start, and you cannot change a running container's startup environment without recreating it. The agent does not recreate your running containers. Instead, it computes the exact environment and read-only mounts to instrument the container and surfaces them for you to apply at your **next deploy** (for example, as a Compose override). eBPF continues to cover these containers in the meantime.

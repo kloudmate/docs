@@ -62,7 +62,7 @@ After adding the annotation, restart the deployment so the Operator injects the 
 
 ## Parity with the Linux flow
 
-The mental model is identical to [Linux](../linux-systemd/): discover a workload, toggle Instrument, and let traces flow, correlated with the eBPF baseline that already covers the cluster. The difference is only in the mechanism: Kubernetes uses annotation-driven injection and a rolling pod restart, while Linux uses systemd drop-ins and a service restart.
+It works the same way as on [Linux](../linux-systemd/): discover a workload, toggle Instrument, and let traces flow, correlated with the eBPF baseline that already covers the cluster. Only the mechanism differs: Kubernetes uses annotation-driven injection and a rolling pod restart, while Linux uses systemd drop-ins and a service restart.
 
 ## Monitored namespaces
 

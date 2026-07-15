@@ -19,7 +19,7 @@ The agent finds databases running in your cluster and prefills the wizard with t
 
 ## Managed mode is required
 
-Database monitoring folds into the generated configuration, so it needs the agent in **managed mode**. On Kubernetes, database monitoring is a "Configure databases" action on the agent, and it prompts you to switch to managed mode if the agent is still in manual mode. See the [configuration model](../../concepts/config-model/).
+Database monitoring needs the agent in **managed mode**. On Kubernetes, it is a "Configure databases" action on the agent, and it prompts you to switch to managed mode if the agent is still in manual mode. See the [configuration model](../../concepts/config-model/).
 
 ## Available coverages
 
@@ -46,7 +46,7 @@ Credentials use an environment reference backed by a Kubernetes Secret that you 
      --set dbMonitoring.secretName=km-db-creds
    ```
 
-3. **Configure the database** in the wizard, referencing the key by name. The password value stays in the cluster: it never reaches KloudMate, the pushed configuration, or the ConfigMap.
+3. **Configure the database** in the wizard, referencing the key by name. The password stays in the cluster and never reaches KloudMate.
 </Steps>
 
 :::caution
@@ -75,7 +75,7 @@ Because the collector reads the Secret at pod startup, create the Secret and run
    ```
 </Steps>
 
-After you apply the configuration, the cluster collector compiles and starts scraping PostgreSQL, and its metrics carry the same database identity as the application spans that hit it.
+After you apply the configuration, the cluster collector starts collecting from PostgreSQL, and its metrics carry the same database identity as the application spans that hit it.
 
 ## Next steps
 

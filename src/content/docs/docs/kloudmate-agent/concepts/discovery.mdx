@@ -2,12 +2,12 @@
 title: "Discovery"
 description: "How the KloudMate agent inventories the services, runtimes, and databases on each host, and how that inventory powers instrumentation and monitoring."
 sidebar:
-  order: 3
+  order: 2
 ---
 
 import { LinkCard, CardGrid } from '@astrojs/starlight/components';
 
-Discovery is the foundation of every opt-in action in the agent. It builds a live inventory of what runs on each host or cluster, so the web interface can offer to instrument a service or monitor a database instead of asking you to configure it by hand. Discovery runs on all deployment modes.
+Discovery builds a live inventory of what runs on each host or cluster, so the web interface can offer to instrument a service or monitor a database instead of asking you to configure it by hand. It runs on all deployment modes.
 
 ## What discovery finds
 
@@ -37,33 +37,18 @@ TODO(screenshot): Discovered Services list on the host detail page, showing runt
 
 ## Stable service identity
 
-Each discovered service is assigned a **stable identity** that survives restarts and process-ID churn. This is what lets an "Instrument" choice keep applying after a service restarts or its process ID changes. The identity is chosen in this order of preference:
-
-1. The **systemd unit name** (for example, `checkout.service`) when the process belongs to a unit. This is the most stable key.
-2. The **container image or Compose service** when the service runs in a container, so a selection survives container restarts rather than tracking a throwaway container ID.
-3. A **fingerprint** of the executable path, normalized command line, and listen ports for a bare process.
-
-Because the identity is derived the same way on the agent and in the control plane, both sides agree on which service is which without extra coordination.
-
-## Where discovery gets its data
-
-Discovery combines several sources so it stays accurate on any kernel:
-
-- **eBPF service detection** is the primary source where the extended Berkeley Packet Filter (eBPF) baseline is enabled. It already detects services and languages and watches process lifecycle.
-- A **process scan** runs alongside for completeness, catching idle or just-started services that eBPF has not reported yet.
-- On kernels without eBPF, the process scan is the fallback, so discovery still works.
-- On **Windows**, discovery reads IIS sites and application pools, the Service Control Manager, and Windows Management Instrumentation (WMI) to enumerate services and their listen ports. See [Windows platform notes](../../platform-notes/windows/).
+Each discovered service gets a **stable identity** that survives restarts and process-ID changes. This is what lets an **Instrument** choice keep applying after a service restarts: you instrument `checkout`, not a process that will be gone after the next deploy.
 
 ## Privacy and safety
 
-Discovery is designed to keep sensitive data on the host:
+Discovery keeps sensitive data on the host:
 
-- It **never sends raw environment variables or full command lines** to the control plane, because these can contain secrets. It extracts only the signals it needs to classify a service (runtime, version, and listen ports) and discards the rest.
-- It respects a deny-list so it does not surface or try to instrument the agent itself or developer tools.
+- It **never sends raw environment variables or full command lines** to KloudMate, because these can contain secrets. It extracts only what it needs to classify a service (runtime, version, and listen ports) and discards the rest.
+- It skips the agent itself and developer tools, so they are not listed or instrumented.
 
 ## How discovery powers the rest of the agent
 
-The Discovered Services list is the entry point for the opt-in layers:
+The Discovered Services list is the entry point for the opt-in features:
 
 - **Application APM:** each instrumentable service carries an **Instrument** toggle that starts the per-service tracing flow. See [Application APM](../../auto-instrumentation/overview/).
 - **Database monitoring:** a discovered database starts the monitoring wizard, which prefills the engine and endpoint. See [Database monitoring](../../database-monitoring/overview/).
@@ -71,7 +56,7 @@ The Discovered Services list is the entry point for the opt-in layers:
 ## Next steps
 
 <CardGrid>
-  <LinkCard title="Layered instrumentation" href="../layered-instrumentation/" description="Where discovery sits in the L0 to L5 model." />
   <LinkCard title="Application APM" href="../../auto-instrumentation/overview/" description="Instrument a discovered service." />
   <LinkCard title="Database monitoring" href="../../database-monitoring/overview/" description="Monitor a discovered database." />
+  <LinkCard title="Configuration model" href="../config-model/" description="How managed configuration works." />
 </CardGrid>

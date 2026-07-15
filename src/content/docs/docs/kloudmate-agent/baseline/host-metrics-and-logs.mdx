@@ -7,7 +7,7 @@ sidebar:
 
 import { Tabs, TabItem, LinkCard, CardGrid } from '@astrojs/starlight/components';
 
-Host metrics and logs are the agent's zero-config baseline. As soon as the agent is installed and checks in, it starts collecting infrastructure telemetry from the host and shipping it to KloudMate. You do not enable anything or write any configuration for this layer. In the [layered instrumentation model](../../concepts/layered-instrumentation/), this is Layer 1, and it sits directly on top of discovery (Layer 0).
+Host metrics and logs are the agent's zero-config baseline. As soon as the agent is installed, it starts collecting infrastructure telemetry from the host and sending it to KloudMate. You do not enable anything or write any configuration.
 
 ## What flows automatically
 
@@ -45,7 +45,7 @@ What the agent collects depends on the deployment mode, because each platform ex
 </Tabs>
 
 :::note
-Host metrics and logs need no configuration. The other layers, such as the eBPF baseline and application tracing, build on top of this one.
+Host metrics and logs need no configuration. The eBPF baseline and application tracing add to it when you enable them.
 :::
 
 ## Where to view it
@@ -60,12 +60,12 @@ The host baseline feeds the infrastructure and log views in KloudMate:
 
 The baseline collects system logs, not arbitrary application log **files**. To add your own log files, use [log monitoring](../../log-monitoring/): you point the agent at a folder and file-name pattern and choose how to parse each line, then preview the result before you save. Multiline grouping, for stack traces or pretty-printed JSON, is a modifier you apply on top of any format. For a hand-written receiver in manual mode, see [Collect file logs](../../../logs/collect-file-logs/).
 
-## Relationship to the other layers
+## What else the agent collects automatically
 
-Host metrics and logs are Layer 1 of the [layered model](../../concepts/layered-instrumentation/). Two nearby layers build on them:
+Alongside host metrics and logs, two more capabilities turn on without configuration:
 
-- **Discovery (Layer 0)** inventories what runs on the host, so you can instrument it. See [Discovery](../../concepts/discovery/).
-- **The eBPF baseline (Layer 2)** adds Rate, Errors, and Duration (RED) metrics, a service map, and Database Activity Monitoring on top, with no code changes. See [eBPF observability](../../ebpf-observability/).
+- **Discovery** inventories what runs on the host, so you can instrument it. See [Discovery](../../concepts/discovery/).
+- **The eBPF baseline** adds Rate, Errors, and Duration (RED) metrics, a service map, and Database Activity Monitoring, with no code changes. See [eBPF observability](../../ebpf-observability/).
 
 ## Next steps
 

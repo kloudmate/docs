@@ -7,11 +7,11 @@ sidebar:
 
 import { LinkCard, CardGrid } from '@astrojs/starlight/components';
 
-Application performance monitoring (APM) is the opt-in depth of the agent. Where the eBPF baseline gives you Rate, Errors, and Duration (RED) metrics and a service map with no effort, application APM attaches OpenTelemetry (OTel) auto-instrumentation to a service to produce full distributed traces, with spans for your frameworks, database calls, and outbound requests. Because it requires a process restart, you enable it one service at a time. In the [layered model](../../concepts/layered-instrumentation/), this is Layers 3 to 5.
+Application performance monitoring (APM) is the opt-in half of the agent. Where the eBPF baseline gives you Rate, Errors, and Duration (RED) metrics and a service map automatically, application APM attaches OpenTelemetry (OTel) auto-instrumentation to a service to produce full distributed traces, with spans for your frameworks, database calls, and outbound requests. Because it requires a process restart, you enable it one service at a time.
 
 ## The per-service opt-in flow
 
-The flow is the same across every deployment mode, and it mirrors the Kubernetes experience you may already know:
+The flow is the same across every deployment mode:
 
 1. **Discover.** The agent inventories your services and lists them under **Discovered Services**. See [Discovery](../../concepts/discovery/).
 2. **Toggle Instrument.** You turn on the **Instrument** toggle for a service.
@@ -50,14 +50,14 @@ If an instrumented service fails to restart or falls into a crash loop, the agen
 | Node.js | OpenTelemetry Node.js instrumentation, attached per service |
 | Python | OpenTelemetry Python instrumentation, attached per service |
 | .NET | OpenTelemetry .NET auto-instrumentation (CLR profiler) |
-| PHP | Native OpenTelemetry (PHP 8.2 and newer) or a dd-trace-based tracer (PHP 7 and 8.0 to 8.1) |
+| PHP | Attached per service, covering both PHP 7 and PHP 8 |
 | Go | Covered by the eBPF baseline, not injected |
 
 The language agents ship inside the KloudMate agent package and are versioned with it, so there is no separate download to manage.
 
 ## Clean traces without duplicates
 
-When you instrument a service, the agent tells the eBPF baseline to stop tracing that service's own requests. You get the richer application spans from the language agent, while eBPF continues to trace the services around it. The two layers share a trace, so an instrumented service and its uninstrumented neighbors appear on one connected trace.
+When you instrument a service, the agent tells the eBPF baseline to stop tracing that service's own requests. You get the richer application spans from the language agent, while eBPF continues to trace the services around it. The two share one trace, so an instrumented service and its uninstrumented neighbors appear on one connected trace.
 
 ## Instrument everything (advanced)
 

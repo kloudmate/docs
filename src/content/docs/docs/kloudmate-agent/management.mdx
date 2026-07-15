@@ -68,7 +68,7 @@ You can switch an agent between modes. Switching from manual to managed replaces
 
 ### Rolling back a change
 
-Managed configuration is generated from your feature and integration toggles, so to undo a change you flip the toggle back and KloudMate regenerates the earlier configuration. There is no separate history list or rollback button, because a managed configuration is always reproducible from your selections. When you switch an agent from manual to managed mode, KloudMate snapshots the hand-edited configuration first, so switching never loses your manual edits. See the [configuration model](../concepts/config-model/).
+To undo a managed change, turn the toggle back. There is no separate history or rollback button. Switching an agent from manual to managed mode saves your hand-edited YAML first, so you never lose it. See the [configuration model](../concepts/config-model/).
 
 ### Common Configurations
 
@@ -129,9 +129,7 @@ ebpf:
 
 When an agent shows as **Unreachable** or **Degraded** in **Settings → Agents**, you'll usually want its logs. Each agent sends its own **ERROR-level logs** to your workspace, so you can read them in **Log Explorer** without SSHing into the host or running `docker logs` or `kubectl logs`.
 
-These logs are sent separately from the collector's normal telemetry pipeline, through a dedicated logs exporter. This matters because the collector is the component that normally forwards telemetry. If it fails to start on an invalid config, it can't report that failure through the usual path, but the separate exporter still delivers it.
-
-Both the agent process and its collector send logs this way, so a failure in either one appears in the same place.
+These logs are sent independently of the collector, so they still arrive even when the collector fails to start on an invalid config. Both the agent and its collector log this way, so a failure in either one appears in the same place.
 
 ### Find them in Log Explorer
 
