@@ -22,11 +22,37 @@ eBPF monitoring traces every container the same way, so RED metrics, the service
 
 | Runtime | Span-level tracing in Docker | What you do |
 |---|---|---|
-| PHP 7 and 8 | Injected directly. The agent installs the tracer inside the running container and reloads the process manager, with no redeploy. | Turn on [PHP container instrumentation](../../auto-instrumentation/php/). |
+| PHP 7 and 8 | Injected directly. The agent installs the tracer inside the running container and reloads the web server, with no redeploy. | Nothing, it is automatic. See [PHP container instrumentation](#instrument-php-containers). |
 | Java, Node.js, Python, .NET | eBPF monitoring only. The agent does not inject a language agent into a running container: these runtimes read their instrumentation from the process startup environment, which cannot change without recreating the container, and the agent does not recreate your containers. | [Add OpenTelemetry to the application](#send-full-opentelemetry-traces-from-your-containers) and point it at the agent, or run the service on a [Linux host](../../installation/linux-agent/) or [Amazon ECS](../../installation/ecs-agent/), where the agent instruments it for you. |
 | Go | eBPF monitoring only. Go compiles to a static binary with no runtime to attach to. | Nothing. See [Go and eBPF](../../auto-instrumentation/go-ebpf/). |
 
 Whichever runtime you run, eBPF monitoring keeps covering the container, so you have RED metrics and a place on the service map before you add span-level tracing.
+
+## Instrument PHP containers
+
+In Docker mode, the agent instruments your PHP containers automatically and reloads the web server.
+
+**Narrow or turn it off** with environment variables on the agent:
+
+```bash
+# Limit instrumentation to specific containers (default: every PHP container)
+KM_CONTAINER_INSTRUMENT_NAMES=app1,app2
+KM_CONTAINER_INSTRUMENT_IMAGES=wordpress,my-php-app
+
+# Turn PHP container instrumentation off entirely
+KM_CONTAINER_INSTRUMENT_ENABLED=false
+```
+
+### What is supported
+
+- **Web servers:** Apache with mod_php, and PHP-FPM. The agent reloads them in place, so tracing starts without a restart. WordPress and the official `php:8.x-apache` images work this way.
+- **PHP versions:** 7.0 through 8.x. The tracer is matched to the container's exact PHP build automatically.
+
+The agent cannot instrument a container that serves requests from the **PHP built-in server** (`php -S`), because that server does not reload configuration without a full restart. The official Adminer image is one example. Alpine (musl) images are also a rough edge, since the bundled tracer assets target glibc.
+
+### These containers are configured by environment, not the UI
+
+PHP container instrumentation is driven by the environment variables above, so instrumented containers do **not** appear in the agent's **Discovered Services** or APM settings screen. That list covers processes on a host and workloads on Kubernetes, not containers on a Docker host.
 
 ## Send full OpenTelemetry traces from your containers
 
@@ -40,7 +66,7 @@ For Java, Node.js, Python, and .NET, full traces come from OpenTelemetry running
 **2. Point it at the agent.** Set these environment variables on the application container:
 
 ```bash
-OTEL_EXPORTER_OTLP_ENDPOINT=http://AGENT_HOST:4317
+OTEL_EXPORTER_OTLP_ENDPOINT=http://AGENT_HOST:4318
 OTEL_SERVICE_NAME=your-service-name
 ```
 
@@ -58,12 +84,9 @@ The agent produces this same result automatically on a [Linux host](../../instal
 
 ## Deployment posture
 
-To instrument PHP containers and run eBPF monitoring, the agent needs host access:
+PHP container instrumentation reaches the containers through the Docker socket, so it works from a host-process agent or from the containerized collector, as long as the socket is mounted.
 
-- Run the agent **on the host** with Docker socket and daemon access, or
-- Run it as a **privileged container with host mounts**.
-
-eBPF monitoring likewise needs host kernel access. A plain, non-privileged agent container cannot reach the host runtime.
+eBPF monitoring is different: it needs host kernel access, so a plain, non-privileged agent container cannot produce the eBPF signals. Run the agent on the host, or as a privileged container with host mounts.
 
 ## PHP 7 in containers
 
