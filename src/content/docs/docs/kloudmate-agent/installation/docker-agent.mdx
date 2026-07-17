@@ -82,7 +82,7 @@ For a hand-written `filelog` receiver in manual mode, see [Collect File Logs wit
 
 ## Coverage and configuration
 
-In Docker mode, the agent collects host and container metrics, container and host logs, and, where the host kernel supports it, the [eBPF baseline](../../ebpf-observability/) (RED metrics, service map, and Database Activity Monitoring) across your containers with no code changes. Per-container application injection is being rolled out; see [Docker platform notes](../../platform-notes/docker/) for current coverage.
+In Docker mode, the agent collects host and container metrics, container and host logs, and, where the host kernel supports it, the [eBPF monitoring](../../ebpf-observability/) (RED metrics, service map, and Database Activity Monitoring) across your containers with no code changes. For span-level application traces, the agent instruments PHP containers without a redeploy; Java, Node.js, Python, and .NET are covered by eBPF monitoring. See [Docker platform notes](../../platform-notes/docker/) for the per-runtime detail.
 
 New agents start in managed mode, so KloudMate generates the collector configuration for you. See the [configuration model](../../concepts/config-model/).
 

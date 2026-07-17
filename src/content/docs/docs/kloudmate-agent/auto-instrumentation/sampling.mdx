@@ -7,7 +7,7 @@ sidebar:
 
 import { LinkCard, CardGrid } from '@astrojs/starlight/components';
 
-Sampling controls how many traces an instrumented service keeps. Capturing every request gives the highest fidelity but the highest ingestion cost, while sampling a fraction lowers cost at the expense of some detail. The agent lets you set a sensible global default and override it for individual services. Sampling applies to the opt-in application traces; the eBPF baseline metrics are collected separately.
+Sampling controls how many traces an instrumented service keeps. Capturing every request gives the highest fidelity but the highest ingestion cost, while sampling a fraction lowers cost at the expense of some detail. The agent lets you set a sensible global default and override it for individual services. Sampling applies to the opt-in application traces; eBPF monitoring metrics are collected separately.
 
 ## Global default and per-service overrides
 

@@ -36,7 +36,7 @@ The agent also stamps a per-instance **`service.name`** of the form `<db.system.
 
 The same database can appear under different addresses: your application might connect to `localhost` or a socket, while its metrics report a host name. Without a consistent address, the two would not line up.
 
-To fix this, the agent puts one **routable, non-loopback address** on database telemetry. On a virtual machine it uses the host's routable address; on Kubernetes it uses the in-cluster address, which is what applications connect to. The agent puts this same `server.address` on the database queries from your applications and the eBPF baseline, so they line up with the database's metrics.
+To fix this, the agent puts one **routable, non-loopback address** on database telemetry. On a virtual machine it uses the host's routable address; on Kubernetes it uses the in-cluster address, which is what applications connect to. The agent puts this same `server.address` on the database queries from your applications and eBPF monitoring, so they line up with the database's metrics.
 
 ## Building dashboards
 
@@ -49,7 +49,7 @@ Keying on `server.address` (with `server.port` and `db.system.name` where you ne
 
 ## Limits to know
 
-- A loopback connection that the eBPF baseline sees with no endpoint can only be bound to a monitored database when there is exactly one instance of that engine on the host; with several same-engine instances, the agent leaves it unstamped rather than guessing.
+- A loopback connection that eBPF monitoring sees with no endpoint can only be bound to a monitored database when there is exactly one instance of that engine on the host; with several same-engine instances, the agent leaves it unstamped rather than guessing.
 - If an application is instrumented by one agent and its database is monitored by a different agent, the two line up only when they already agree on `server.address`, which they usually do when both use the same DNS endpoint.
 
 ## Related

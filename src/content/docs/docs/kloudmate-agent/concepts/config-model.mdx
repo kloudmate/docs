@@ -7,9 +7,9 @@ sidebar:
 
 import { LinkCard, CardGrid } from '@astrojs/starlight/components';
 
-In **managed mode**, you turn features on and off from the KloudMate web interface and the agent is configured for you, with no hand-edited YAML. This is how new agents run by default, and it covers host metrics, the eBPF baseline, application performance monitoring (APM), database monitoring, and everything else you toggle in the interface.
+In **managed mode**, you turn features on and off from the KloudMate web interface and the agent is configured for you, with no hand-edited YAML. This is how new agents run by default, and it covers host metrics, eBPF monitoring, application performance monitoring (APM), database monitoring, and everything else you toggle in the interface.
 
-A feature only appears where it applies. For example, the eBPF baseline is offered only on hosts with a supported Linux kernel.
+A feature only appears where it applies. For example, eBPF monitoring is offered only on hosts with a supported Linux kernel.
 
 ## Managed and manual modes
 
@@ -17,13 +17,13 @@ Every agent runs in one of two configuration modes.
 
 | | Managed mode | Manual mode |
 |---|---|---|
-| Who owns the configuration | KloudMate, from the features you enable | You own the raw YAML |
+| Who owns the configuration | KloudMate, from the features you enable | The operator, in the raw YAML |
 | YAML editor | Read-only preview | Editable |
 | Feature toggles | Available | Disabled |
 | Default for | New agents | Existing agents after upgrade |
 
 - **Managed mode** is the default and the recommended way to run the agent. You enable features in the interface, and the YAML editor shows a read-only preview.
-- **Manual mode** is for advanced, hand-tuned setups. You own the raw YAML, and the feature toggles are off.
+- **Manual mode** is for advanced, hand-tuned setups. The raw YAML is edited directly, and the feature toggles are off.
 
 TODO(screenshot): the managed/manual mode toggle in Agent settings.
 
@@ -44,7 +44,7 @@ See [Database credentials](../../database-monitoring/credentials/).
 
 ## Migrating existing agents
 
-When an agent is upgraded, it stays in **manual** mode so nothing changes unexpectedly. To adopt managed mode, switch it in the interface; it starts from a sensible default of host metrics, logs, and the eBPF baseline, plus anything discovery found. New agents already start in managed mode.
+When an agent is upgraded, it stays in **manual** mode so nothing changes unexpectedly. To adopt managed mode, switch it in the interface; it starts from a sensible default of host metrics, logs, and eBPF monitoring, plus anything discovery found. New agents already start in managed mode.
 
 :::caution
 Switching an agent from manual to managed mode replaces its hand-edited YAML with generated configuration. KloudMate saves the previous manual configuration first, so it is not lost, but review the change before you switch a production agent.

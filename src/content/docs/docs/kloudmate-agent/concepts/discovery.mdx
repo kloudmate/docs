@@ -30,7 +30,7 @@ Discovery surfaces its inventory as a **Discovered Services** list on the host d
 - **Instrumentable** flag: whether the agent has a way to attach application tracing to that runtime.
 
 :::note
-The `instrumentable` flag reflects whether an injection path exists for the runtime. Java, .NET, Node.js, and Python are instrumentable. PHP is instrumentable when a tracer is available for the detected version. Go is not injected: it is covered by the eBPF baseline instead, so it appears as covered rather than instrumentable.
+The `instrumentable` flag reflects whether an injection path exists for the runtime. Java, .NET, Node.js, and Python are instrumentable. PHP is instrumentable when a tracer is available for the detected version. Go is not injected: it is covered by eBPF monitoring instead, so it appears as covered rather than instrumentable.
 :::
 
 TODO(screenshot): Discovered Services list on the host detail page, showing runtime, kind, listen ports, state, and the instrumentable flag.

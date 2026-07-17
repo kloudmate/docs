@@ -11,7 +11,7 @@ Most agents run well in managed mode with the defaults. This page collects the a
 
 ## Manual YAML and custom receivers
 
-Switching an agent to **manual mode** gives you the raw collector YAML through the editor, so you can hand-tune the configuration or add a component that the managed integrations do not cover. This is for non-standard setups. The trade-off is that you own the configuration and the feature toggles are disabled. On Kubernetes, the agent's configuration lives in the collectors' ConfigMaps; do not edit them directly, because the agent owns them in managed mode. See the [configuration model](../concepts/config-model/) and [Kubernetes platform notes](../platform-notes/kubernetes/).
+Switching an agent to **manual mode** gives you the raw collector YAML through the editor, so you can hand-tune the configuration or add a component that the managed integrations do not cover. This is for non-standard setups. The trade-off is that the configuration is edited by hand and the feature toggles are disabled. On Kubernetes, the agent's configuration lives in the collectors' ConfigMaps; do not edit them directly, because the agent owns them in managed mode. See the [configuration model](../concepts/config-model/) and [Kubernetes platform notes](../platform-notes/kubernetes/).
 
 The agent's own settings (such as the API key, host name override, and health reporting) are set through `agent.yaml`, environment variables, or command-line flags on the host, and through Helm values on Kubernetes.
 
@@ -21,7 +21,7 @@ Set a global trace sampling rate and override it per service to balance trace fi
 
 ## eBPF and overhead tuning
 
-The eBPF baseline runs within a CPU and memory budget and reduces its overhead automatically on small instances. You can tune context propagation, request-header capture, database detection, and buffer sizes further. See [eBPF observability](../ebpf-observability/).
+eBPF monitoring runs within a CPU and memory budget and reduces its overhead automatically on small instances. You can tune context propagation, request-header capture, database detection, and buffer sizes further. See [eBPF observability](../ebpf-observability/).
 
 ## Collector self-telemetry
 

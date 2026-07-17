@@ -7,7 +7,7 @@ sidebar:
 
 import { LinkCard, CardGrid } from '@astrojs/starlight/components';
 
-Go is the one runtime the agent does not inject. Go compiles to a static binary with no runtime to attach an agent to, so instead of code injection the agent covers Go services through the extended Berkeley Packet Filter (eBPF) baseline. There is no **Instrument** toggle to turn on for a Go service: it is covered automatically wherever the eBPF baseline is active. This applies on **Linux, Kubernetes, and Docker**, and not on **Windows**, which has no eBPF.
+Go is the one runtime the agent does not inject. Go compiles to a static binary with no runtime to attach an agent to, so instead of code injection the agent covers Go services through the extended Berkeley Packet Filter (eBPF) monitoring. There is no **Instrument** toggle to turn on for a Go service: it is covered automatically wherever eBPF monitoring is active. This applies on **Linux, Kubernetes, and Docker**, and not on **Windows**, which has no eBPF.
 
 ## Rich eBPF coverage for Go
 
@@ -24,16 +24,16 @@ The result is close to what a language SDK would produce, without changing your 
 
 ## How Go traces connect to other services
 
-The eBPF baseline and the language agents both propagate W3C trace context (`traceparent`). So when an instrumented service calls a Go service, the Go service's eBPF span adopts the caller's trace, and you see one connected trace with the correct parent-child relationship rather than two disjoint views.
+eBPF monitoring and the language agents both propagate W3C trace context (`traceparent`). So when an instrumented service calls a Go service, the Go service's eBPF span adopts the caller's trace, and you see one connected trace with the correct parent-child relationship rather than two disjoint views.
 
 :::note
-In the Discovered Services list, a Go service is marked as covered by eBPF rather than as instrumentable, and its Instrument toggle is disabled. This is expected: the eBPF baseline is already tracing it.
+In the Discovered Services list, a Go service is marked as covered by eBPF rather than as instrumentable, and its Instrument toggle is disabled. This is expected: eBPF monitoring is already tracing it.
 :::
 
 ## Next steps
 
 <CardGrid>
-  <LinkCard title="eBPF observability" href="../../ebpf-observability/" description="Configure the eBPF baseline that covers Go." />
+  <LinkCard title="eBPF observability" href="../../ebpf-observability/" description="Configure eBPF monitoring that covers Go." />
   <LinkCard title="Application APM overview" href="../overview/" description="How opt-in instrumentation works for other runtimes." />
   <LinkCard title="View traces" href="../../../apm-and-tracing/" description="See the distributed traces in KloudMate." />
 </CardGrid>

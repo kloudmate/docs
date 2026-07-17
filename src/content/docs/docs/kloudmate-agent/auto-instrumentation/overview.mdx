@@ -7,7 +7,7 @@ sidebar:
 
 import { LinkCard, CardGrid } from '@astrojs/starlight/components';
 
-Application performance monitoring (APM) is the opt-in half of the agent. Where the eBPF baseline gives you Rate, Errors, and Duration (RED) metrics and a service map automatically, application APM attaches OpenTelemetry (OTel) auto-instrumentation to a service to produce full distributed traces, with spans for your frameworks, database calls, and outbound requests. Because it requires a process restart, you enable it one service at a time.
+Application performance monitoring (APM) is the opt-in half of the agent. Where eBPF monitoring gives you Rate, Errors, and Duration (RED) metrics and a service map automatically, application APM attaches OpenTelemetry (OTel) auto-instrumentation to a service to produce full distributed traces, with spans for your frameworks, database calls, and outbound requests. Because it requires a process restart, you enable it one service at a time.
 
 ## The per-service opt-in flow
 
@@ -18,7 +18,7 @@ The flow is the same across every deployment mode:
 3. **Consent to the restart.** Instrumentation only takes effect when the process restarts, so the agent asks before restarting. You can restart now, or leave the change pending until the next restart.
 4. **Traces flow.** After the restart, the service emits application traces to the agent's local collector, correlated with its eBPF spans.
 
-Throughout this flow, the eBPF baseline keeps covering the service, so there is no visibility gap while you enable APM.
+Throughout this flow, eBPF monitoring keeps covering the service, so there is no visibility gap while you enable APM.
 
 ## Status chips
 
@@ -40,7 +40,7 @@ The agent never restarts your services silently. In this version:
 
 ## Automatic rollback
 
-If an instrumented service fails to restart or falls into a crash loop, the agent **rolls back automatically**: it removes the change, reloads, and restarts the service, returning it to its previous state, and reports the status as failed, rolled back. The eBPF baseline keeps covering it, and because you instrument one service at a time, a problem with one service never affects the others.
+If an instrumented service fails to restart or falls into a crash loop, the agent **rolls back automatically**: it removes the change, reloads, and restarts the service, returning it to its previous state, and reports the status as failed, rolled back. eBPF monitoring keeps covering it, and because you instrument one service at a time, a problem with one service never affects the others.
 
 ## Supported runtimes
 
@@ -51,13 +51,13 @@ If an instrumented service fails to restart or falls into a crash loop, the agen
 | Python | OpenTelemetry Python instrumentation, attached per service |
 | .NET | OpenTelemetry .NET auto-instrumentation (CLR profiler) |
 | PHP | Attached per service, covering both PHP 7 and PHP 8 |
-| Go | Covered by the eBPF baseline, not injected |
+| Go | Covered by eBPF monitoring, not injected |
 
 The language agents ship inside the KloudMate agent package and are versioned with it, so there is no separate download to manage.
 
 ## Clean traces without duplicates
 
-When you instrument a service, the agent tells the eBPF baseline to stop tracing that service's own requests. You get the richer application spans from the language agent, while eBPF keeps tracing the services around it, all on one connected trace.
+When you instrument a service, the agent tells eBPF monitoring to stop tracing that service's own requests. You get the richer application spans from the language agent, while eBPF keeps tracing the services around it, all on one connected trace.
 
 ## Instrument everything (advanced)
 

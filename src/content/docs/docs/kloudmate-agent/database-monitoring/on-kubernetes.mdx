@@ -27,7 +27,7 @@ On Kubernetes, the agent collects database metrics and query coverages: standard
 
 ## Provide credentials with a Kubernetes Secret
 
-Credentials use an environment reference backed by a Kubernetes Secret that you manage. Set it up before you configure any database, because the collector reads the Secret when its pod starts.
+Credentials use an environment reference backed by a Kubernetes Secret you provide. Set it up before you configure any database, because the collector reads the Secret when its pod starts.
 
 <Steps>
 1. **Create a Kubernetes Secret** with a key of the form `KM_SECRET_<name>` for each database credential. For example, a key `KM_SECRET_postgresql` holding the monitoring user's password.

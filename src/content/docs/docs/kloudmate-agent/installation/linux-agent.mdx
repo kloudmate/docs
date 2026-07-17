@@ -81,12 +81,12 @@ For a hand-written `filelog` receiver in manual mode, see [Collect File Logs wit
 
 ## Configuration and next checks
 
-New agents start in **managed mode**, with a default of host metrics, logs, and the eBPF baseline. You review and change what is collected from the web interface, without editing files on the host. See the [configuration model](../../concepts/config-model/).
+New agents start in **managed mode**, with a default of host metrics, logs, and eBPF monitoring. You review and change what is collected from the web interface, without editing files on the host. See the [configuration model](../../concepts/config-model/).
 
-After the agent is running, confirm the baseline and explore what it found:
+After the agent is running, confirm what it collects and explore what it found:
 
 - Host metrics and logs start flowing automatically. See [Host metrics and logs](../../baseline/host-metrics-and-logs/).
-- On a supported Linux kernel (4.14 or newer), the [eBPF baseline](../../ebpf-observability/) turns on automatically and adds RED metrics and a service map.
+- On a supported Linux kernel (4.14 or newer), the [eBPF monitoring](../../ebpf-observability/) turns on automatically and adds RED metrics and a service map.
 - Open the **Discovered Services** list for the host to see what the agent found and instrument a service. See [Discovery](../../concepts/discovery/).
 
 ## Next Steps

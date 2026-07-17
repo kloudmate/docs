@@ -3,7 +3,6 @@ title: "Amazon ECS"
 description: "Install the KloudMate agent on Amazon ECS to collect APM, logs, and metrics for EC2 and Fargate workloads with a single script."
 sidebar:
   order: 5
-draft: true
 ---
 
 This guide covers installing the **KloudMate agent** on Amazon ECS so your services report traces (APM), logs, and metrics, with no changes to your application code or container images. One install script covers both ECS launch types, EC2 and Fargate, and picks the right approach for each.
@@ -14,7 +13,7 @@ If you only want to ship container logs and don't want the agent, there's a manu
 
 How the agent runs depends on your launch type, because EC2 and Fargate give it very different access to the underlying host.
 
-**EC2 launch type.** You own the container instances, so the agent runs as an ECS **daemon service**: one agent task per instance. That daemon is the collector, the telemetry gateway, and the eBPF baseline for the whole instance. It collects:
+**EC2 launch type.** The EC2 container instances are self-managed, so the agent runs as an ECS **daemon service**: one agent task per instance. That daemon is the collector, the telemetry gateway, and eBPF monitoring for the whole instance. It collects:
 
 - **Host metrics:** CPU, memory, disk, and network for each container instance
 - **Container metrics:** per-container CPU, memory, network, and disk for every task on the instance
@@ -34,7 +33,7 @@ APM is **language-aware**, and the runtime decides how a service gets traced:
 | Runtime | EC2 | Fargate |
 |---|---|---|
 | Java, Node.js, Python, .NET | SDK auto-injection (richer traces) | SDK auto-injection (richer traces) |
-| Go, Rust, and others | eBPF baseline on the daemon | Logs and metrics only, no traces |
+| Go, Rust, and others | eBPF monitoring on the daemon | Logs and metrics only, no traces |
 
 For **Java, Node.js, Python, and .NET**, the installer injects the OpenTelemetry SDK, which produces richer traces (framework spans, database statements). On EC2 it rewrites those services' task definitions to export to the daemon on the instance; on Fargate it adds the SDK plus a collector sidecar to the task.
 
@@ -79,7 +78,7 @@ View all collected data in these KloudMate sections:
 
 ## Pre-requisites
 
-You run the install script once from any machine that has AWS credentials for your account (your laptop, a CI job, or AWS CloudShell). It drives the ECS API and does **not** run on your container hosts.
+Run the install script once from any machine that has AWS credentials for the account (a laptop, a CI job, or AWS CloudShell). It drives the ECS API and does **not** run on your container hosts.
 
 Before you start, make sure you have:
 
@@ -101,10 +100,6 @@ Instrumenting a service (every Fargate install, and any EC2 install that names s
 
 **Step 3:** Copy the command for your launch type and run it from a machine with AWS credentials.
 
-:::note
-  Screenshot placeholder: the in-product Amazon ECS install flow is still being built, so the real screenshots for Steps 1 to 3 aren't available yet. Add them under `installation/images/` once the flow ships.
-:::
-
 ### EC2 launch type
 
 This registers a daemon task definition and a daemon service, so one agent task runs on every container instance. List your Java/Node/Python/.NET services in `KM_ECS_SERVICES` to SDK-instrument them at the same time:
@@ -123,7 +118,7 @@ KM_ECS_SERVICES=web,orders \
 eBPF needs a privileged task with host PID and network access, which the daemon task definition already requests.
 
 :::caution
-  If your organization forbids privileged ECS tasks, the eBPF baseline won't run: set `KM_EBPF_ENABLED=false`. SDK-instrumented services (Java/Node/Python/.NET) still get full APM, but Go and other runtimes won't be traced. You still get host metrics, container metrics, and logs.
+  If your organization forbids privileged ECS tasks, eBPF monitoring won't run: set `KM_EBPF_ENABLED=false`. SDK-instrumented services (Java/Node/Python/.NET) still get full APM, but Go and other runtimes won't be traced. You still get host metrics, container metrics, and logs.
 :::
 
 The EC2 instances also need their instance role to allow pulling images and writing logs. The AWS-managed `AmazonEC2ContainerServiceforEC2Role` policy covers it; a missing role shows up as image-pull failures on the agent tasks.
@@ -174,7 +169,7 @@ Set these as environment variables on the command:
 | `KM_COLLECTOR_ENDPOINT` | No | `https://otel.kloudmate.com:4318` | Where telemetry is sent. |
 | `KM_REGION` | No | `aws configure get region` | Region for the agents' own CloudWatch logs. |
 | `KM_API_KEY_SECRET_ARN` | No | none | Reference the key from Secrets Manager instead of inlining it. |
-| `KM_EBPF_ENABLED` | No | `true` | EC2 daemon eBPF baseline (traces Go and other non-SDK services). |
+| `KM_EBPF_ENABLED` | No | `true` | EC2 daemon eBPF monitoring (traces Go and other non-SDK services). |
 | `KM_AGENT_BIN` | No | none | Path to a native `kmagent` binary for the injection step, so Docker isn't needed. |
 | `KM_DAEMON_FAMILY` | No | `km-agent-ec2` | EC2 daemon task-definition family. |
 | `KM_EC2_IMAGE` / `KM_ECS_IMAGE` / `KM_FIRELENS_IMAGE` | No | Pinned defaults | Override the agent or FireLens images. |

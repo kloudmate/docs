@@ -12,7 +12,7 @@ The **KloudMate Agent** is a single program you install on your servers, contain
 
 It is built on the **OpenTelemetry (OTel) Collector** with a curated set of components, so you get straightforward deployment, remote configuration, and **extended Berkeley Packet Filter (eBPF)** observability without writing collector configuration.
 
-You manage the agent from the KloudMate web interface. When you change a setting, the agent applies it for you, so you do not need Secure Shell (SSH) access or local file edits. You can track each agent's health and status from your dashboards.
+The agent is managed from the KloudMate web interface. When you change a setting, the agent applies it for you, so there is no need for Secure Shell (SSH) access or local file edits. Each agent's health and status appear in your dashboards.
 
 To go deeper, read [Architecture](concepts/architecture/) and the [Configuration model](concepts/config-model/).
 
@@ -24,7 +24,7 @@ Automatic, as soon as the agent is installed:
 
 - **Discovery:** a live inventory of the services, runtimes, and databases running on each host or cluster.
 - **Host metrics and logs:** CPU, memory, disk, and network metrics plus system logs, with no configuration.
-- **eBPF baseline:** Rate, Errors, and Duration (RED) metrics, a network service map, Database Activity Monitoring (DAM), and trace-context propagation, with no code changes.
+- **eBPF monitoring:** Rate, Errors, and Duration (RED) metrics, a network service map, Database Activity Monitoring (DAM), and trace-context propagation, with no code changes.
 
 Opt in per service or database:
 
@@ -35,22 +35,22 @@ The agent also reports its own status and error logs.
 
 ## Supported platforms
 
-The agent runs across four deployment modes. Not every capability applies to every mode: eBPF depends on the Linux kernel, so it does not apply on Windows, where an Event Tracing for Windows (ETW) baseline provides the equivalent view.
+The agent runs across four deployment modes. Not every capability applies to every mode: eBPF depends on the Linux kernel, so it does not apply on Windows, where an Event Tracing for Windows (ETW) monitoring provides the equivalent view.
 
 | Capability | Linux / VM | Windows | Kubernetes | Docker |
 |---|---|---|---|---|
 | Service discovery | Yes | Yes | Yes | Yes |
 | Host metrics and logs | Yes | Yes | Yes | Yes |
-| eBPF baseline (RED, service map, DAM) | Yes | Not applicable | Yes | Yes |
-| Application APM (Java, Node.js, Python, .NET) | Yes | Yes | Yes | Rolling out |
-| Application APM (PHP) | Yes | Not applicable | Not applicable | Rolling out |
+| eBPF monitoring (RED, service map, DAM) | Yes | Not applicable | Yes | Yes |
+| Application APM (Java, Node.js, Python, .NET) | Yes | Yes | Yes | Via eBPF |
+| Application APM (PHP) | Yes | Not applicable | Not applicable | Yes |
 | Database monitoring | Yes | Yes | Yes | Yes |
 | Web server monitoring (nginx, Apache) | Yes | Not applicable | Yes | Yes |
 | Log monitoring (custom log files) | Yes | Yes | Not applicable | Yes |
 | Agent health and self-logs | Yes | Yes | Yes | Yes |
 
 :::note
-On Linux, the eBPF baseline needs kernel 4.14 or newer, and unlocks more on 5.8 and above. On Docker, host metrics, logs, and the eBPF baseline work today; per-container application tracing is being rolled out. See [Docker platform notes](platform-notes/docker/).
+On Linux, eBPF monitoring needs kernel 4.14 or newer, and unlocks more on 5.8 and above. On Docker, host and container metrics, logs, and eBPF monitoring are automatic; PHP containers are traced without a redeploy, and Java, Node.js, Python, and .NET are covered by eBPF monitoring. See [Docker platform notes](platform-notes/docker/).
 :::
 
 ## Install the agent

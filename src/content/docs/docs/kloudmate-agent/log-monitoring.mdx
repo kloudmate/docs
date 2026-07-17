@@ -16,7 +16,7 @@ It applies to Linux and Windows virtual machine (VM) hosts and to Docker. It is 
 Log monitoring is a managed-mode feature. You configure sources from the agent's **Configuration** page, on the **Logs** tab. See the [configuration model](../concepts/config-model/) for how managed mode works.
 
 - **Managed mode only.** The Logs tab is available when the agent is in managed mode. If the agent is in manual mode, the tab prompts you to switch. You can still add a `filelog` receiver by hand in manual mode: see [Manual configuration](#manual-configuration).
-- **Independent sources.** Each source is isolated, so one badly configured source cannot affect the others or your host baseline logs.
+- **Independent sources.** Each source is isolated, so one badly configured source cannot affect the others or your host system logs.
 - **It builds on the baseline.** The host baseline already ships system logs (the systemd journal on Linux, the Windows Event Log, container output on Docker) with no configuration. Log monitoring is for the extra application log **files** that the baseline does not pick up. See [Host metrics and logs](../baseline/host-metrics-and-logs/).
 
 ## Add a log source

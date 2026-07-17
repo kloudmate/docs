@@ -25,7 +25,7 @@ Start with two agent features: the [health metrics](../self-observability/health
 
 - **The service was not discovered.** Only discovered services can be instrumented. Confirm the service appears in the Discovered Services list. See [Discovery](../concepts/discovery/).
 - **The toggle has not applied.** Instrumentation takes effect on restart. Check the service's status chip: `pending restart` means the change is written but the service has not restarted. See [Application APM overview](../auto-instrumentation/overview/).
-- **Injection failed and rolled back.** If the status shows failed and rolled back, the service crash-looped after instrumentation and the agent reverted the change. Read the reason in the self-logs, then retry. The eBPF baseline continues to cover the service throughout.
+- **Injection failed and rolled back.** If the status shows failed and rolled back, the service crash-looped after instrumentation and the agent reverted the change. Read the reason in the self-logs, then retry. eBPF monitoring continues to cover the service throughout.
 
 ## Database monitoring is not working
 
@@ -35,8 +35,8 @@ Start with two agent features: the [health metrics](../self-observability/health
 
 ## Windows-specific
 
-- **The .NET profiler did not attach.** Confirm the application pool runs a supported runtime (.NET Framework 4.6.2 or newer), that an ASP.NET Core pool is set to "No Managed Code," and that the pool was recycled. Legacy CLR 2.0 pools use the ETW baseline instead. See [Windows and .NET application APM](../auto-instrumentation/windows-dotnet/).
-- **No ETW spans.** The ETW baseline needs the Local System privileges the agent runs with. See [Windows platform notes](../platform-notes/windows/).
+- **The .NET profiler did not attach.** Confirm the application pool runs a supported runtime (.NET Framework 4.6.2 or newer), that an ASP.NET Core pool is set to "No Managed Code," and that the pool was recycled. Legacy CLR 2.0 pools use ETW monitoring instead. See [Windows and .NET application APM](../auto-instrumentation/windows-dotnet/).
+- **No ETW spans.** ETW monitoring needs the Local System privileges the agent runs with. See [Windows platform notes](../platform-notes/windows/).
 
 ## Kubernetes-specific
 

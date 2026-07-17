@@ -5,7 +5,7 @@ sidebar:
   order: 12
 ---
 
-You manage the KloudMate Agent centrally from the web UI, so you don't need to SSH into your servers or edit local YAML files. Changes you make in the dashboard are pushed to your agents automatically.
+The KloudMate Agent is managed centrally from the web UI, so there is no need to SSH into servers or edit local YAML files. Changes made in the dashboard are pushed to the agents automatically.
 
 ## Agents Overview
 
@@ -62,7 +62,7 @@ Deleting an agent decommissions it. Its instrumented applications are restarted 
 Each agent runs in one of two configuration modes:
 
 - **Managed mode** (the default for new agents): KloudMate generates the collector configuration from the features and integrations you toggle, and the YAML editor shows a read-only preview. This is the recommended way to configure an agent.
-- **Manual mode:** you own the raw YAML, and the feature toggles are disabled. This is for advanced, hand-tuned setups.
+- **Manual mode:** the raw YAML is edited directly, and the feature toggles are disabled. This is for advanced, hand-tuned setups.
 
 You can switch an agent between modes. Switching from manual to managed replaces the hand-edited YAML with generated configuration, so review the change first. For the full model, see the [configuration model](../concepts/config-model/).
 

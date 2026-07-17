@@ -19,13 +19,13 @@ Definitions of the terms used across the agent documentation.
 
 **eBPF (extended Berkeley Packet Filter).** A Linux kernel technology the agent uses to observe applications, network, and databases without code changes. See [eBPF observability](../../ebpf-observability/).
 
-**ETW (Event Tracing for Windows).** The Windows equivalent of the eBPF baseline. The agent taps ETW to produce request spans and RED metrics for IIS traffic. See [Windows platform notes](../../platform-notes/windows/).
+**ETW (Event Tracing for Windows).** The Windows equivalent of eBPF monitoring. The agent taps ETW to produce request spans and RED metrics for IIS traffic. See [Windows platform notes](../../platform-notes/windows/).
 
 **Fleet manager.** On Kubernetes, the pod that applies the generated configuration to the cluster and reports each collector's status back. See [Kubernetes platform notes](../../platform-notes/kubernetes/).
 
 **Managed mode.** A configuration mode in which KloudMate generates the collector configuration from your enabled integrations, and the YAML editor is a read-only preview. Contrast manual mode. See the [configuration model](../../concepts/config-model/).
 
-**Manual mode.** A configuration mode in which you own the raw collector YAML and the feature toggles are disabled. For advanced, hand-tuned setups. See the [configuration model](../../concepts/config-model/).
+**Manual mode.** A configuration mode in which the raw collector YAML is edited directly and the feature toggles are disabled. For advanced, hand-tuned setups. See the [configuration model](../../concepts/config-model/).
 
 **Pipeline.** A path through the collector for one signal (metrics, traces, or logs), made of receivers, processors, and exporters.
 
@@ -35,7 +35,7 @@ Definitions of the terms used across the agent documentation.
 
 **Receiver.** A collector component that collects telemetry from a source, such as `hostmetrics`, `filelog`, or a database receiver like `postgresql`.
 
-**RED metrics.** Rate, Errors, and Duration: the key metrics the eBPF baseline produces for each service, with no instrumentation.
+**RED metrics.** Rate, Errors, and Duration: the key metrics eBPF monitoring produces for each service, with no instrumentation.
 
 **Server address.** The canonical, routable address the agent stamps on database telemetry so metrics and traces for the same database join. See [Telemetry identity](../telemetry-identity/).
 
