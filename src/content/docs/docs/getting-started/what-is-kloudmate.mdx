@@ -4,26 +4,21 @@ description: "Learn what KloudMate is and how it brings logs, metrics, traces, a
 sidebar:
   order: 1
 ---
-[KloudMate](https://www.kloudmate.com) is a comprehensive **observability platform** that helps developers identify and troubleshoot issues and optimize application performance across distributed environments. 
 
-KloudMate offers **end-to-end visibility** into application infrastructures, distributed systems, and development environments. It includes **OpenTelemetry integration,** a real-time alerting system, powerful dashboards, and more — all designed to provide comprehensive observability and monitoring. **KloudMate offers a Single-Source-of-Truth approach** for observability by enabling developers to gather and consolidate telemetry data from multiple distributed systems using **OpenTelemetry.** With KloudMate, you can diagnose your application infrastructure, pinpoint and troubleshoot errors, and drill down to associated logs, metrics, or traces.
+[KloudMate](https://www.kloudmate.com) is an observability platform for finding and fixing problems across distributed systems. You collect logs, metrics, and traces from your applications and infrastructure in one place, then follow a single request across those signals to diagnose an issue instead of switching between tools.
 
-And to keep things neat and organized, KloudMate lets you create multiple **Workspaces**. You can use workspaces to group multiple teams, accounts, or orgs. For example, you can create separate workspaces for development, production, etc.
+It builds on [OpenTelemetry](https://opentelemetry.io/), so you instrument once with an open standard instead of a proprietary agent. On top of that data you get dashboards, real-time alerting, and correlation across signals, so a spike in one chart links to the logs and traces behind it.
 
-### Observability
+## Workspaces
 
-Observability is the practice of using tools to aggregate, correlate, and analyze streams of data from applications and the underlying infrastructure.
+A **workspace** groups related environments, teams, or accounts and keeps their data and access separate. A common setup is one workspace each for development, staging, and production. Add or rename workspaces later under **Settings → Workspaces**.
 
-Observability essentially depends upon the ability to log, monitor, and trace different servers, applications, systems, and data processes across the lifecycle of the environment.
+## What observability means here
 
-KloudMate's observability tools give you visibility into distributed application resources, faster insights, and automated problem identification and resolution.
+Observability is the ability to understand what a system is doing from the signals it emits, by collecting and correlating logs, metrics, and traces across every service and host. When something breaks, that correlated view is what lets you find the cause instead of guessing at it.
 
-The pages in this section will help you get started with KloudMate.
+## Next steps
 
-Related Resources
-
-- [Setting Up KloudMate](../setting-up-kloudmate/)
-- [Sending Data to KloudMate](../sending-data-to-kloudmate/)
-- [Get Help](../get-help/)
-
-#
+- [Setting up KloudMate](../setting-up-kloudmate/) — sign up and send your first event.
+- [Sending data to KloudMate](../sending-data-to-kloudmate/) — pick an ingestion path.
+- [Get help](../get-help/) — support and community.

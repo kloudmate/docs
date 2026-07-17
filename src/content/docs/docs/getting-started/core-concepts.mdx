@@ -5,7 +5,7 @@ sidebar:
   order: 2
 ---
 
-KloudMate relies on industry-standard observability frameworks to seamlessly collect and analyze data from your infrastructure and applications. Before integrating your systems, it helps to understand three fundamental concepts: **Signals** , **OpenTelemetry** , and **eBPF**.
+KloudMate collects and analyzes data from your infrastructure and applications through open observability standards. Before you integrate your systems, it helps to understand three concepts: **Signals**, **OpenTelemetry**, and **eBPF**.
 
 This 2-minute primer provides the essential context you need to get started.
 
@@ -23,7 +23,7 @@ Observability is built upon three primary pillars of data, often referred to as 
 
 KloudMate uses OTel as its primary data integration layer. This offers several advantages:
 - **No Vendor Lock-in:** You instrument your code once using OTel standards. You don't need proprietary KloudMate code in your applications.
-- **Standardized Data:** OTel ensures that the data sent to KloudMate is uniformly structured, making correlation and analysis much more powerful.
+- **Standardized Data:** OTel keeps the data sent to KloudMate uniformly structured, so correlation and analysis across sources stay consistent.
 - **The Collector:** OTel provides a "Collector" component that can receive, process, and export data. When you set up KloudMate integrations, you are often configuring an OTel Collector to forward data to the KloudMate platform.
 
 *For more details, see our dedicated [OpenTelemetry Guide](../../opentelemetry/).*
@@ -36,10 +36,10 @@ A **service-level objective (SLO)** turns the question *"is this service reliabl
 
 [eBPF](https://ebpf.io/) is a technology that allows programs to run directly within the operating system kernel safely and efficiently, without requiring kernel source code changes or loading kernel modules.
 
-In the context of observability and the KloudMate Agent (KloudMate Agent):
-- **Zero-Code Instrumentation:** eBPF allows the agent to observe network traffic, application performance, and system calls automatically. You do not need to modify your application code to get deep insights.
-- **Low Overhead:** Because eBPF runs in the kernel, it can collect high-fidelity data (like detailed network metrics or process executions) with extremely low performance overhead.
-- **Immediate Visibility:** By deploying the KloudMate Agent (which leverages eBPF), you gain instant visibility into your infrastructure without manual configuration.
+For the KloudMate Agent, eBPF provides:
+- **Zero-Code Instrumentation:** the agent observes network traffic, application performance, and system calls automatically, with no changes to your application code.
+- **Low Overhead:** because eBPF runs in the kernel, it collects high-fidelity data, such as detailed network metrics or process executions, with low performance overhead.
+- **Immediate Visibility:** deploying the KloudMate Agent, which uses eBPF, gives you visibility into your infrastructure without manual configuration.
 
 ## Next Steps
 

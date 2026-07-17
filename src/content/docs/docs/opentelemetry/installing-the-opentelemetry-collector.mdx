@@ -5,20 +5,20 @@ sidebar:
   label: "Install the Collector"
   order: 4
 ---
-The OpenTelemetry Collector is a vendor-neutral service that receives, processes, and exports telemetry data. It is often the easiest way to standardize telemetry flow before sending data to KloudMate.
+The OpenTelemetry Collector is a vendor-neutral service that receives, processes, and exports telemetry data. It is a common way to standardize telemetry flow before sending data to KloudMate.
 
 :::tip[Recommendation]
-For the easiest setup and best out-of-the-box experience, we strongly recommend using the **[KloudMate Agent](../../kloudmate-agent/)**. It is a pre-configured, optimized version of the OpenTelemetry Collector that seamlessly integrates with the KloudMate platform. You should only use the native OpenTelemetry Collector if you have specific infrastructure requirements that demand it.
+For most teams, the **[KloudMate Agent](../../kloudmate-agent/)** is the better choice. It is a pre-configured OpenTelemetry Collector that connects to KloudMate for you. Install the native OpenTelemetry Collector instead when you have a specific infrastructure requirement that calls for it, as described below.
 :::
 
 ## When to Use the Native Collector
 
-While the KloudMate Agent is the preferred method, using the native OpenTelemetry Collector is a great alternative when you need to:
+The KloudMate Agent is the default, but the native OpenTelemetry Collector fits when you need to:
 
 - Integrate with an existing OpenTelemetry infrastructure
 - Maintain a strict vendor-neutral observability pipeline
 - Route telemetry to multiple vendor destinations simultaneously
-- Utilize experimental or community-contributed components from the `otelcol-contrib` project
+- Use experimental or community-contributed components from the `otelcol-contrib` project
 
 ## Prerequisites
 
