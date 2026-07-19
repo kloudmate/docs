@@ -13,12 +13,13 @@ The single most important thing you can do here is **write documentation that so
 
 ## 2. Writing Style & Voice (READ THIS BEFORE WRITING CONTENT)
 
-Good documentation reads like a knowledgeable colleague explaining something at your desk — not like a manual, and definitely not like ad copy. Picture the reader as someone who is in the middle of a task, slightly frustrated, and scanning for the answer. Everything below serves that reader.
+Good documentation reads like a knowledgeable colleague explaining something at your desk — not like a manual, and definitely not like ad copy. Picture the reader as someone who is in the middle of a task, slightly frustrated, and scanning for the answer. Everything below serves that reader, and it follows the same playbook as the Stripe, Google developer docs: talk to the reader directly, lead with the task, and cut anything that isn't pulling weight.
 
 ### Write to the reader, about their task
 
-- Use second person ("you"). Address the reader directly: "You'll need an API key before you start," not "Users must first obtain an API key."
-- Make the reader the subject, not the product. Write "you land on the dashboard," not "KloudMate lands you on the dashboard." Naming the product once is fine and sometimes useful, but when it's the grammatical subject of sentence after sentence, the page reads like a feature announcement instead of a guide. The reader is the one doing the task — keep them at the center. When there's no natural "you," describe the system state instead ("the **Setup checklist** drawer opens automatically").
+- Use second person. Address the reader as "you," the way the Google, Stripe, and Datadog docs do: "you" for explanations, conditions, and outcomes ("you can group alerts by service," "if you're behind a proxy," "you'll land on the dashboard"), and the imperative for steps ("Open the **Add** menu," "Run the install script"). Prefer "you" over "the user" or "they."
+- Make the reader the subject, not the product. Write "you land on the dashboard," not "KloudMate lands you on the dashboard." Naming the product once is fine and sometimes useful, but when it's the grammatical subject of sentence after sentence, the page reads like a feature announcement instead of a guide. When there's no natural "you," describe the system state instead ("the **Setup checklist** drawer opens automatically").
+- Use the imperative for procedures ("Open **Settings**," "Run the migration"), the serial (Oxford) comma, and American English spelling. This matches the Google, Stripe, and Datadog docs.
 - Lead with the goal, then the steps. Open a page by saying what the reader will accomplish and when they'd use it — not with history or background they didn't ask for.
 - Prefer active voice and present tense. "The alert fires within seconds" beats "An alert will be sent."
 - Cut the throat-clearing. Phrases like "It's worth noting that…" or "In this section, we will discuss…" add nothing. Just say the thing.
@@ -27,9 +28,10 @@ Good documentation reads like a knowledgeable colleague explaining something at 
 
 - Vary your sentence length. A run of identical medium-length sentences is the clearest sign a machine wrote the page. Mix short, direct lines with longer explanatory ones.
 - Watch for repeated sentence openers, too. Three sentences in a row that start with the same word — especially the product name — turn into a drumbeat. Recast some of them so the reader, an action, or the result leads instead.
-- Contractions are good and usually better — "don't," "you'll," "it's." They match how people actually talk.
+- Contractions are good and usually better: "don't," "you'll," "it's." They match how people actually talk.
 - Be concrete. Show a real endpoint, a real value, a real error message. "Set `retention_days` to `30`" is more useful than "configure the retention setting appropriately."
 - Don't pad. If a sentence can be deleted without losing meaning, delete it.
+- Go easy on em dashes. A period, comma, or colon almost always reads cleaner, and a page peppered with them reads as machine-written.
 
 ### Words and phrases to avoid
 
@@ -40,6 +42,7 @@ These read as filler or AI boilerplate. Strike them on sight:
 - **Overused verbs:** *leverage* → use "use"; *utilize* → use "use"; *delve into* → use "cover" or "explain"; *facilitate* → use "let" or "help."
 - **Condescending qualifiers:** simply, just, easy, obviously, of course. If a step were genuinely simple, the reader wouldn't be on this page. Telling a stuck user that something is "easy" only makes them feel worse.
 - **Vague intensifiers:** very, really, quite, "a variety of," "a wide range of," "a number of."
+- **Padding and Latinate shortcuts:** drop "please" (just give the step); *e.g.* → "for example"; *i.e.* → "that is"; *via* → "through" or "with"; "in order to" → "to"; "once you" → "after you." (This mirrors the Datadog docs linter.)
 
 ### Be honest and helpful about the hard parts
 
@@ -65,7 +68,7 @@ These read as filler or AI boilerplate. Strike them on sight:
 > "KloudMate offers a powerful and seamless way to effortlessly leverage your observability data. In today's complex cloud environments, it's worth noting that users can simply configure a wide variety of robust alerting options to suit their needs."
 >
 > **Prefer:**
-> "Alerts tell you when something needs attention — an error-rate spike, a service going quiet, a budget threshold crossed. This page walks you through creating your first alert and routing it to Slack."
+> "Alerts tell you when something needs attention: an error-rate spike, a service going quiet, a budget threshold crossed. This page walks you through creating your first alert and routing it to Slack."
 
 The "prefer" version is shorter, says what the reader gets, names real scenarios, and keeps the reader (not the product) at the center. Aim for that on every page.
 
@@ -140,7 +143,7 @@ Run through this on any page you wrote or edited. It's the human-quality equival
 
 - [ ] Does the page open by telling the reader what they'll accomplish?
 - [ ] Did I read it out loud (or in my head)? Does it sound like a person, or like a template?
-- [ ] Is the reader ("you") the subject of most sentences, rather than the product? Does any product name appear as the subject several sentences in a row?
+- [ ] Is the reader ("you") the subject of the explanations, with steps in the imperative, rather than the product? Does any product name appear as the subject several sentences in a row?
 - [ ] Are there any banned words from Section 2 (powerful, seamless, leverage, simply, just…)?
 - [ ] Do the sentences vary in length, or do they all march at the same pace?
 - [ ] Will every code block actually run if pasted?

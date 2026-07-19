@@ -19,7 +19,7 @@ AGENTS.md already says to keep the reader (not the product) as the subject, and 
 - "You own the raw YAML" becomes "The raw YAML is edited directly."
 - "You manage the agent from the web interface" becomes "The agent is managed from the web interface."
 
-Keep genuine step instructions in second person: "you turn on the toggle," "when you change a setting," and imperative steps like "Run the install script." The objection is only to declarative claims about the reader's environment, not to instructional voice.
+Give step instructions in the imperative: "Turn on the toggle," "Run the install script." The objection is only to declarative claims about the reader's environment, not to instructional voice.
 
 ## Verify before you finish
 

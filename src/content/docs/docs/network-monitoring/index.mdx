@@ -1,0 +1,56 @@
+---
+title: "Network Monitoring"
+description: "Monitor SNMP devices, site reachability, and traffic flow across your network with the KloudMate Agent."
+sidebar:
+  label: "Overview"
+  order: 0
+---
+
+Network monitoring watches the routers, switches, firewalls, access points, and PDUs that carry your traffic, all from one **Network** page. You poll them over SNMP for health and interface metrics, check reachability for the sites that can't speak SNMP, and read the application traffic mix from NetFlow or sFlow.
+
+A Linux or Docker [KloudMate Agent](/kloudmate-agent/) does the collecting. It polls devices over the network, so one agent can watch an entire site, and nothing gets installed on the devices themselves.
+
+:::note
+Network monitoring runs on Linux and Docker agents only. Kubernetes agents can't poll SNMP, run reachability checks, or listen for flow data.
+:::
+
+## What you can monitor
+
+- **SNMP devices**: interface throughput and errors, CPU, memory, uptime, and vendor-specific health. Built-in profiles cover Cisco, Juniper, Arista, HPE, Aruba, Dell, Fortinet, Palo Alto, MikroTik, F5, APC, and many more.
+- **Sites without SNMP**: a gateway-and-internet ping pair that shows whether the local network is up and whether the ISP link is working.
+- **Traffic flow**: the per-application byte and packet mix on a link, from NetFlow, IPFIX, or sFlow exporters.
+- **Routing and links**: BGP peers, MPLS L3VPN VRFs, IP SLA probes, and LLDP/CDP topology, once you turn those capabilities on.
+
+## The Network page
+
+Open **Network** from the sidebar. It has five tabs:
+
+| Tab | What it shows |
+|---|---|
+| **Overview** | Network-wide health: problem tiles, a live problems feed, and a status board grouped by site, role, or vendor. |
+| **All devices** | The full, searchable table of SNMP devices with their current status and last-seen time. |
+| **Reachability** | Ping results for sites monitored without SNMP. |
+| **Traffic** | The application traffic mix from your flow listeners. |
+| **Topology** | A link map drawn from LLDP and CDP neighbour data. |
+
+You land on the Overview tab. For how to read each surface, see [Using the Network page](/network-monitoring/network-page/).
+
+![The Network Overview tab: problem tiles across the top, a Current problems feed, and a status board of site cards each showing a healthy-over-total count](./images/network-overview.png)
+
+## Set it up
+
+Everything is configured from the Network page. There are no collector files to hand-edit. Use the **Add** menu in the top-right:
+
+- [Add SNMP devices](/network-monitoring/monitoring-snmp/): poll known devices with the guided wizard.
+- [Discover devices](/network-monitoring/discover-devices/): scan IP ranges and monitor what answers.
+- [Monitor sites without SNMP](/network-monitoring/reachability-checks/): add gateway and internet ping checks.
+- [Flow monitoring](/network-monitoring/flow-monitoring/): listen for NetFlow, IPFIX, or sFlow.
+
+To change or remove anything later, open **Configure**. See [Manage and troubleshoot](/network-monitoring/manage-troubleshoot/).
+
+## Before you start
+
+- A KloudMate Agent running on a Linux host or in Docker, with network access to the devices or sites you want to watch. If you don't have one yet, install the [Linux agent](/kloudmate-agent/installation/linux-agent/) or [Docker agent](/kloudmate-agent/installation/docker-agent/).
+- SNMP enabled on each device (v1, v2c, or v3), and the agent host's IP address allowed in the device's SNMP access list.
+
+Once data starts flowing, use [Explore](/visualize-data/explore/) for ad hoc queries, [Dashboards](/visualize-data/dashboards/) for curated views, and [Alerts](/alerts/create-alerts/) to get notified when something goes down.
