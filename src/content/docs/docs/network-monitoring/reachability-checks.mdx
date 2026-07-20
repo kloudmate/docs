@@ -12,27 +12,31 @@ Not every site has a device you can poll. A branch office might sit behind a con
 
 A reachability check runs two probes from the agent:
 
-- **Gateway probe**: an ICMP ping to the site's LAN gateway. It answers "is the local network up?"
+- **Gateway probe**: an ICMP ping to the site's LAN gateway. It answers "is the local network up?" The agent pings **its own default gateway** — you don't enter an address — so the check only makes sense when the agent runs on the site's network.
 - **Internet probe**: a TCP connection to a public host. It answers "is the ISP link working?"
 
 Read together, the two probes tell you where a fault is. Gateway up and internet down points at the ISP or the WAN link, not the local network. Both down points at the site itself: power, the gateway, or the agent's own connectivity.
 
+:::caution[Single-link sites: an internet outage looks like "not reporting"]
+If the site has a single internet connection, the agent uses that same link to send data to KloudMate. When the link goes down, the internet probe can't report its own failure — so the check shows as **not reporting** rather than a failed internet probe. Alert on "not reporting" (no data) for these sites, the same way you'd catch an agent going offline. A site with a second, independent link is the only case where a failed internet probe (`km_ping_up = 0`) reliably arrives.
+:::
+
 ## Before you start
 
-- A Linux or Docker KloudMate Agent that can reach the site's gateway and the public internet.
+- A Linux or Docker KloudMate Agent **running at the site** — on the same local network as the gateway. The gateway probe pings the agent's own gateway, so a central or remote agent has no site gateway to check and skips that probe.
 - For the gateway probe, ICMP permission on the agent host. ICMP needs `CAP_NET_RAW` or root, so add `--cap-add=NET_RAW` when running the agent in Docker. The internet probe uses TCP and works without extra privileges.
 
 ## Add a reachability check
 
 On the **Network** page, open the **Add** menu and choose **Reachability check**:
 
+- **Agent**: pick the agent running **at this site**. The gateway probe uses this agent's own gateway.
 - **Site name**: a label such as `hotel-blr-01`. It applies to both probes so they group under one site.
-- **Gateway IP**: the LAN gateway address to ping, for example `192.168.1.1`.
 - **Public host:port**: a reliable public endpoint to connect to, for example `1.1.1.1:443`. A successful connection means the internet path is working.
 
-Saving adds both probes and briefly restarts data collection on the agent.
+The agent discovers and pings its own default gateway. Saving adds both probes and briefly restarts data collection on the agent.
 
-![The Add a reachability check form with a collector agent, a site name, a gateway probe IP, and an internet probe host and port](./images/add-reachability-check.png)
+![The Add a reachability check form with a collector agent, a site name, and an internet probe host and port](./images/add-reachability-check.png)
 
 ## Where results show up
 

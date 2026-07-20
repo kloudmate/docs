@@ -23,6 +23,8 @@ Selecting a tile filters the feed below to that category.
 
 The **Current problems** feed lists active issues, worst first, one row per affected device. A device with several faults collapses into a single row with its most severe problem as the headline. Each row links to the device drawer.
 
+[Reachability-check sites](/docs/network-monitoring/reachability-checks/) appear here too. A failed gateway probe shows as the gateway being unreachable; a failed internet probe as an uplink problem. A site that stops reporting entirely shows as **Site not reporting** — for a site with one internet link, that's how an outage surfaces, because the agent can't send a failure over the link that's down.
+
 The **status board** groups your devices into cards. Switch the grouping between **Site**, **Role**, and **Vendor**. Each card takes the worst status among its devices and shows a `healthy / total` count, so you see both the state and how much is affected at a glance. Problem groups float to the top, and healthy groups collapse.
 
 ![The Overview tab with the Devices down / Uplinks / BGP-VRF / Interfaces errored tiles, a Current problems row marked Critical, and status-board cards grouped by site](./images/network-overview.png)
