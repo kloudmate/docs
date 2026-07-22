@@ -1,0 +1,36 @@
+---
+title: "All Services"
+description: "See every service reporting a profile type at a glance, and jump into its flame graph from a service card."
+sidebar:
+  order: 2
+---
+
+**All Services** is the view you land on when you open Profiling. It's a grid of cards, one per service, showing you at a glance who's sending data and whether anything looks unusual before you drill into a single flame graph.
+
+:::note
+No cards here means no service has sent profiling data yet for the selected type and time range. Head to [Getting Started](../#getting-started) to configure the SDK.
+:::
+
+## Filter the grid
+
+A filter bar sits above the grid:
+
+- **Profile type** — a dropdown of every type reported by any service in the workspace: `cpu`, `alloc_objects`, `alloc_space`, `inuse_objects`, `goroutine`, and so on, depending on what your SDKs collect. The grid only shows services that reported the selected type.
+- **Search** — filters the grid by service name as you type. The result count shows next to the search box once you've typed something.
+
+Both the time range and timezone come from the picker in the page header, and apply to every view in the module, not only this one.
+
+## Reading a service card
+
+Each card shows:
+
+- The **service name**.
+- **Peak** — the highest value the service reported for the selected type over the selected time range, formatted for the type (a duration for CPU, a byte size for memory, a count for objects).
+- A **mini time-series chart** of that type over the time range, so you can spot a spike before you open the full flame graph.
+
+Click any card to jump straight to that service's [Flame Graph](../flame-graph/), pre-filtered to the profile type you had selected.
+
+## Related
+
+- [Profile Types](../profile-types/) — see every profile type for one service, instead of one type across every service.
+- [Flame Graph](../flame-graph/) — where a card takes you when you click it.

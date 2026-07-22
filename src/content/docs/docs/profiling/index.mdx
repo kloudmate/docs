@@ -1,7 +1,123 @@
 ---
 title: "Profiling"
-description: "Overview of Profiling"
+description: "Find CPU and memory hotspots in a running service with continuous profiling, and send your first profile with the Pyroscope SDK."
 sidebar:
-  label: "Introduction"
-draft: true
+  order: 1
+  label: "Overview"
 ---
+
+import { CardGrid, LinkCard, Tabs, TabItem } from '@astrojs/starlight/components';
+
+A flame graph answers a question logs and traces can't: which function is actually burning the CPU, or holding onto memory, right now. KloudMate's Profiling module samples your services continuously and turns those samples into an interactive flame graph, so you can go from "this service is slow" to a specific function and line number — without attaching a debugger or shipping a new build.
+
+This page introduces the five views in the Profiling module and shows you how to start sending profiles.
+
+## The five views
+
+Profiling has five views, reached from the segmented toggle at the top of the module:
+
+- **[All Services](./all-services/)** is your entry point — see every service reporting a given profile type, at a glance, over your selected time range.
+- **[Profile Types](./profile-types/)** is service-centric — once you pick a service, see every metric it profiles (CPU, heap, goroutines, and so on) side by side.
+- **[Labels](./labels/)** breaks a service's profiles down by the resource attributes your SDK attaches — region, pod, version — so you can filter down to the one that matters.
+- **[Flame Graph](./flame-graph/)** is where you find the hotspot: an interactive, zoomable flame graph plus a sortable function table for one service and profile type.
+- **[Diff](./diff/)** compares two time windows of the same service and profile type — the view you reach for right after a deploy, to answer "did that change make things worse?"
+
+Start on **All Services** to see what's reporting data, narrow to one service in **Profile Types** or **Labels**, then open **Flame Graph** to dig into a specific hotspot. Reach for **Diff** whenever you need a before/after comparison instead of a single snapshot.
+
+## Getting Started
+
+KloudMate doesn't ship its own profiling agent — it speaks the [Pyroscope](https://grafana.com/oss/pyroscope/) ingest protocol, so any Pyroscope-compatible SDK can send data straight to your workspace. That covers Go, Python, Java, Ruby, .NET, and Rust.
+
+### Get your ingest endpoint and API key
+
+You need two things before you touch any application code:
+
+1. **The ingest endpoint**: `https://otel.kloudmate.com:4040`
+2. **An API key** — go to **Settings → API Keys**, click **Add New**, and create an **Ingest Key – Backend**. Copy it immediately; KloudMate shows it only once. See [API Keys](../platform/settings/api-keys/) if you need the full walkthrough.
+
+### Authenticate with Basic auth
+
+Pyroscope SDKs authenticate with HTTP Basic auth, where the **password** carries the credential and the **username** is a placeholder label the SDK requires you to set — KloudMate ignores it. Use `KloudMate` as the username and your API key as the password:
+
+- **Username:** `KloudMate`
+- **Password:** the Ingest API key you just created
+
+Most SDK configs expose this as two separate fields (`BasicAuthUser` / `BasicAuthPassword`, or similar). Fill in both — an empty username is a common way to get a silent 401.
+
+### Configure the SDK
+
+<Tabs>
+<TabItem label="Go">
+
+```go
+package main
+
+import "github.com/grafana/pyroscope-go"
+
+func main() {
+	pyroscope.Start(pyroscope.Config{
+		ApplicationName:   "my-service",
+		ServerAddress:     "https://otel.kloudmate.com:4040",
+		BasicAuthUser:     "KloudMate",
+		BasicAuthPassword: "YOUR_API_KEY",
+		ProfileTypes: []pyroscope.ProfileType{
+			pyroscope.ProfileCPU,
+			pyroscope.ProfileAllocObjects,
+			pyroscope.ProfileAllocSpace,
+			pyroscope.ProfileInuseObjects,
+			pyroscope.ProfileInuseSpace,
+		},
+	})
+
+	// the rest of your application
+}
+```
+
+</TabItem>
+<TabItem label="Python">
+
+```python
+import pyroscope
+
+pyroscope.configure(
+    application_name="my-service",
+    server_address="https://otel.kloudmate.com:4040",
+    basic_auth_username="KloudMate",
+    basic_auth_password="YOUR_API_KEY",
+)
+```
+
+Call `pyroscope.configure()` once, as early as possible — before you import or initialize the rest of your app.
+
+</TabItem>
+<TabItem label="Java">
+
+The Java integration runs as a Java agent, configured through environment variables:
+
+```bash
+export PYROSCOPE_APPLICATION_NAME=my-service
+export PYROSCOPE_SERVER_ADDRESS=https://otel.kloudmate.com:4040
+export PYROSCOPE_BASIC_AUTH_USER=KloudMate
+export PYROSCOPE_BASIC_AUTH_PASSWORD=YOUR_API_KEY
+
+java -javaagent:pyroscope.jar -jar my-app.jar
+```
+
+KloudMate ingests pprof-format profiles from the Pyroscope Java agent. It doesn't yet support profiles submitted in Java Flight Recorder (JFR) format — if your setup lets you choose the output format, pick pprof.
+
+</TabItem>
+</Tabs>
+
+Swap `my-service` for a name that identifies this deployment, and `YOUR_API_KEY` for the key you copied above. For every other language the SDK supports, the pattern is the same: point `ServerAddress`/`server_address` at the endpoint above and pass your API key as the Basic auth password.
+
+### Confirm it's working
+
+Open **Profiling → All Services**, pick the profile type you configured (`cpu` is the default) from the dropdown, and give it a minute. Your service's card appears with a live chart as soon as the first samples land. If it doesn't show up, double-check the username/password pair — a missing username is the most common cause of a silent failure.
+
+## Related
+
+<CardGrid>
+  <LinkCard title="APM & Tracing" description="Correlate a hotspot you find here with the trace that triggered it." href="../apm-and-tracing/" />
+  <LinkCard title="KloudMate Assistant" description="Ask AI investigates a flame graph's top functions for you — see how it's wired." href="../kloudmate-assistant/" />
+  <LinkCard title="API Keys" description="Create and manage the ingest key your profiler uses." href="../platform/settings/api-keys/" />
+</CardGrid>
