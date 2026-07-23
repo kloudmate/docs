@@ -121,7 +121,7 @@ eBPF needs a privileged task with host PID and network access, which the daemon 
   If your organization forbids privileged ECS tasks, eBPF monitoring won't run: set `KM_EBPF_ENABLED=false`. SDK-instrumented services (Java/Node/Python/.NET) still get full APM, but Go and other runtimes won't be traced. You still get host metrics, container metrics, and logs.
 :::
 
-The EC2 instances also need their instance role to allow pulling images and writing logs. The AWS-managed `AmazonEC2ContainerServiceforEC2Role` policy covers it; a missing role shows up as image-pull failures on the agent tasks.
+The EC2 instances also need their container-instance role to allow pulling images. The AWS-managed `AmazonEC2ContainerServiceforEC2Role` policy covers it; a missing role shows up as image-pull failures on the agent tasks.
 
 ### Fargate launch type
 
@@ -167,7 +167,8 @@ Set these as environment variables on the command:
 | `KM_ECS_LAUNCH_TYPE` | Yes | none | `ec2` or `fargate`. |
 | `KM_ECS_SERVICES` | Fargate; optional on EC2 | none | Comma-separated services to SDK-instrument (Java/Node/Python/.NET). |
 | `KM_COLLECTOR_ENDPOINT` | No | `https://otel.kloudmate.com:4318` | Where telemetry is sent. |
-| `KM_REGION` | No | `aws configure get region` | Region for the agents' own CloudWatch logs. |
+| `KM_REGION` | No | `aws configure get region` | AWS region for the ECS API, and the `awslogs` region when `KM_ECS_LOG_GROUP` is set. |
+| `KM_ECS_LOG_GROUP` | No | none | CloudWatch log group for the agent's own sidecar and daemon logs, for example `/kmagent/ecs`. Off by default: nothing is written to CloudWatch (no `logs:*` IAM, no extra cost), and the collector self-ships its errors to KloudMate instead. Setting it needs the permissions in the note below. |
 | `KM_API_KEY_SECRET_ARN` | No | none | Reference the key from Secrets Manager instead of inlining it. |
 | `KM_EBPF_ENABLED` | No | `true` | EC2 daemon eBPF monitoring (traces Go and other non-SDK services). |
 | `KM_AGENT_BIN` | No | none | Path to a native `kmagent` binary for the injection step, so Docker isn't needed. |
@@ -175,6 +176,26 @@ Set these as environment variables on the command:
 | `KM_EC2_IMAGE` / `KM_ECS_IMAGE` / `KM_FIRELENS_IMAGE` | No | Pinned defaults | Override the agent or FireLens images. |
 
 Two flags are passed after `--` rather than as environment variables: `--yes` skips the Fargate confirmation prompt, and `--dry-run` prints the task definitions without registering them.
+
+#### Capture the agent's own logs in CloudWatch (optional)
+
+By default the agent's sidecars and EC2 daemon don't write their own container logs to CloudWatch, so no `logs:*` IAM is required and there's no extra CloudWatch cost. A running agent stays observable regardless: the collector ships its own error logs to KloudMate out-of-band, where you'll find them under `service.name=kmagent` in [Log Explorer](../../../logs/log-explorer/).
+
+Set `KM_ECS_LOG_GROUP` (for example `/kmagent/ecs`) to also send the sidecars' and daemon's own logs to CloudWatch. This mainly helps catch sidecar startup or staging failures on Fargate, where there's no `docker logs` to fall back on.
+
+:::caution
+  **Setting `KM_ECS_LOG_GROUP` adds an IAM requirement.** The role that runs the agent's containers, the **task execution role** on Fargate or the **container-instance role** on EC2, then needs CloudWatch Logs permissions for that group. The agent asks ECS to create the group on first run, and the stock `AmazonECSTaskExecutionRolePolicy` grants `logs:CreateLogStream` and `logs:PutLogEvents` but not `logs:CreateLogGroup`, so without it the task fails to start with `ResourceInitializationError: ... AccessDeniedException`.
+:::
+
+Attach an inline policy for the three actions on that group, or create the group yourself before you run the installer:
+
+```json
+{
+  "Effect": "Allow",
+  "Action": ["logs:CreateLogGroup", "logs:CreateLogStream", "logs:PutLogEvents"],
+  "Resource": "arn:aws:logs:*:*:log-group:/kmagent/ecs:*"
+}
+```
 
 ## Check What's Instrumented
 

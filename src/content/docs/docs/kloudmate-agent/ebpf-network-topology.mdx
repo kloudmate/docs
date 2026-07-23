@@ -1,6 +1,6 @@
 ---
 title: "eBPF network topology"
-description: "How the KloudMate agent builds host-to-host network topology from eBPF flows on VMs, and how to group peers into zones with KM_EBPF_NETWORK_CIDRS."
+description: "How the KloudMate agent builds a bounded host-to-host network map from eBPF flows on VMs, using host IP and CIDR zones instead of unbounded per-peer addresses."
 sidebar:
   label: "Network topology (eBPF)"
   order: 5.5
@@ -8,35 +8,42 @@ sidebar:
 
 import { LinkCard, CardGrid } from '@astrojs/starlight/components';
 
-On a VM host, the agent's [eBPF monitoring](../ebpf-observability/) reports Layer 4 network flows straight from the kernel. Each flow now carries the address of both ends, so KloudMate can draw the connections between your hosts automatically, with no configuration.
+On a VM host, the agent's [eBPF monitoring](../ebpf-observability/) reports Layer 4 network flows straight from the kernel. KloudMate turns those flows into a host-to-host map of what talks to what across your fleet.
 
 This is a metrics-only signal. It is separate from application tracing: a host can report network flows without any application spans, and enabling it does not instrument any process.
 
-## Host-to-host edges, with no configuration
+## Bounded by design
 
-Every flow the agent emits carries its **source and destination peer address** by default. KloudMate uses those addresses to match each end to the host behind it and to draw a topology edge between them. You get a host-to-host map of what talks to what as soon as the agent is running.
+The flow metric is deliberately kept low-cardinality. Each flow carries its **direction**, plus a source and destination **zone** label when you have zones configured (see below). It does **not** carry a label per peer address.
 
-This closes an earlier gap. VM flows used to carry no peer identity, so KloudMate could not connect one VM to another. Naming both ends of every flow is what gives the VM path the same topology that Kubernetes already had.
+This matters on any host that talks to the public internet. Emitting a raw address for every peer would let one internet-facing service produce an unbounded number of metric series. Keeping the flow to direction and coarse zones means its cardinality stays flat no matter how many external addresses a host reaches.
 
-Network flow monitoring is **on by default** wherever the kernel supports eBPF. It is capability-gated the same way as the rest of eBPF, so a host that cannot load it degrades to metrics and logs rather than failing. To turn it off, set `KM_EBPF_NETWORK_ENABLED=false`.
+## How KloudMate places a host on the map
+
+Each agent reports its **own host IP** as a resource attribute (`host.ip`), so it rides along on every signal the host sends, including these flow metrics. KloudMate uses it two ways:
+
+- **A fleet address book.** KloudMate learns which host owns which IP across every agent, so it can resolve the ends of a flow to real hosts.
+- **A "which end is me" anchor.** The `host.ip` on a flow is the host that observed it. The other end of the flow is the peer.
+
+Together these let KloudMate draw an edge between two of your hosts from a flow that itself only carries direction and zones.
 
 ## Group peers into zones with CIDRs
 
-Addresses give you an exact peer per flow. On top of that, you can add a coarser **zone** label so you can group traffic by network range, for example "app tier", "database subnet", or "everything external".
+Peers are grouped into zones by CIDR range, and KloudMate assembles that range set from your fleet automatically: each host it knows about becomes a `/32`, plus a `0.0.0.0/0` catch-all for everything else. A flow to another host in the fleet lands in that host's `/32` and resolves to a machine; all other traffic collapses into the catch-all, which is what keeps external peers from inflating the signal.
 
-Set `KM_EBPF_NETWORK_CIDRS` to a comma-separated list of CIDR ranges. The agent tags each flow with the source and destination zone that its addresses fall into, alongside the per-peer addresses it already carries:
+You can add your own ranges on top. Set `KM_EBPF_NETWORK_CIDRS` to a comma-separated list of CIDRs to label traffic by your own network segments, for example an app tier or a database subnet:
 
 ```bash
 KM_EBPF_NETWORK_CIDRS="10.0.1.0/24,10.0.2.0/24,10.0.0.0/8"
 ```
 
-Zones are optional. With no CIDRs set, flows still carry their peer addresses and still build the topology edges; you only lose the coarser grouping. A `0.0.0.0/0` entry acts as a catch-all that buckets any address not matched by a more specific range.
+## Turning it on and off
 
-## Cardinality of external peers
+Network flow monitoring is **on by default** wherever the kernel supports eBPF. It is capability-gated the same way as the rest of eBPF, so a host that cannot load it degrades to metrics and logs rather than failing. To turn it off, set `KM_EBPF_NETWORK_ENABLED=false`.
 
-Peer addresses are per-peer by design, and on an internal network that set is small and stable. A host that talks to many **external** addresses (a public-facing service, an outbound crawler) can produce a large number of distinct peers, which raises the metric cardinality of the flow signal.
+## Gotcha: a host can report more than one IP
 
-If you see this, the practical control today is to bucket external traffic into a single zone with a `0.0.0.0/0` catch-all in `KM_EBPF_NETWORK_CIDRS`, so many external addresses collapse to one zone label. A built-in bound on external-peer cardinality is a planned follow-up.
+`host.ip` reports every non-loopback address on the host, which can include a Docker bridge address such as `172.17.0.1` and IPv6 link-local addresses such as `fe80::…`. Only the routable address (your VPC or LAN IP) is meaningful. If a host resolves oddly, check that its routable IP is the one being matched.
 
 ## Related
 
