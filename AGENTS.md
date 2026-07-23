@@ -26,6 +26,7 @@ Good documentation reads like a knowledgeable colleague explaining something at 
 
 ### Sound like a person, not a model
 
+- Say it plainly, and don't dramatize. Don't set up a point with a rhetorical line before delivering it, and don't dress a plain fact in drama. Lines like "Autonomous mode is the answer," "That doesn't fit here," "Only the delivery vehicle differs," or a trailing tag like "which it is" read as AI voiceover. State the fact instead: "Autonomous mode removes the per-instance UI step." Cut figurative labels ("delivery vehicle," "zero-touch level") and tacked-on editorial asides ("the standard immutable-infrastructure model"). If a sentence sounds like a product pitch or a trailer voiceover, keep the fact and drop the performance.
 - Vary your sentence length. A run of identical medium-length sentences is the clearest sign a machine wrote the page. Mix short, direct lines with longer explanatory ones.
 - Watch for repeated sentence openers, too. Three sentences in a row that start with the same word — especially the product name — turn into a drumbeat. Recast some of them so the reader, an action, or the result leads instead.
 - Contractions are good and usually better: "don't," "you'll," "it's." They match how people actually talk.

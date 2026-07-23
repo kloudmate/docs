@@ -1,248 +1,169 @@
 ---
-title: "AWS Auto Scaling Group (ASG)"
-description: "Documentation for AWS ASG Deployment"
+title: "AWS Auto Scaling & Elastic Beanstalk"
+description: "Run the KloudMate agent in autonomous auto-instrument mode on Auto Scaling groups and Elastic Beanstalk, so each new instance instruments itself with no per-instance UI step."
 sidebar:
   order: 7
 ---
-Deploy `kmagent` across an Auto Scaling Group with zero manual per-instance work. Configure once in the Launch Template, every instance (existing + future scale-outs) gets the agent automatically.
 
-:::note
-Once an instance's agent checks in, it starts in managed mode and begins collecting host metrics, logs, and the [eBPF monitoring](../../ebpf-observability/) automatically. See the [configuration model](../../concepts/config-model/) and [host metrics and logs](../../baseline/host-metrics-and-logs/).
-:::
+Auto Scaling groups and Elastic Beanstalk environments create and replace instances automatically. The usual install flow assumes a stable host: you install the agent, then choose which apps to instrument in the KloudMate UI. That approach doesn't work when instances are transient, because there's no lasting host to configure and a setting made on one instance isn't carried to the next.
 
-## Prerequisites
+Autonomous auto-instrument mode removes the per-instance UI step. The agent discovers and instruments everything on the instance itself, without a backend round-trip, and you provide its configuration as files through the platform's provisioning step: user-data for an Auto Scaling group, or a `.platform` hook for Elastic Beanstalk. Telemetry is identified by your API key, so a new instance starts reporting as soon as it boots.
 
-- AWS CLI configured with appropriate permissions
-- An existing ASG with a Launch Template
-- IAM Instance Profile attached to your ASG instances
-- SSM Agent running on instances (default on Amazon Linux / Ubuntu AMIs)
+An Elastic Beanstalk environment runs on an Auto Scaling group underneath, so the agent configuration is the same for both; only the way you deliver it differs.
 
-### Step 1: Store API Key in SSM Parameter Store
+## What autonomous mode collects
 
-Never hardcode secrets in user data. Use SSM Parameter Store with encryption:
+With auto-instrument turned on, every instance gets the following, with no UI step:
 
-```bash
-aws ssm put-parameter \
-  --name "/kloudmate/api-key" \
-  --value "your-actual-km-api-key" \
-  --type SecureString \
-  --region ap-south-1
-```
+- **eBPF monitoring.** HTTP server spans, RED metrics, and the service map for every app, whatever the language, with no code change. It's also the only tracing path for runtimes with no SDK injector, such as Ruby and Go. See [eBPF observability](../../ebpf-observability/).
+- **SDK auto-instrumentation.** Deeper, in-process traces for Java, .NET, Node.js, Python, and PHP. The agent injects the SDK through a systemd drop-in and restarts each app once to pick it up.
+- **Host metrics and logs.** The metrics the agent always collects, plus any log files you point it at with the drop-ins below.
 
-### Step 2: IAM Permissions
+Because `service.name` comes from each app's stable identity rather than the instance, every instance of one app rolls up as a single service in KloudMate, with a per-instance breakdown still available. See [Telemetry identity](../../reference/telemetry-identity/).
 
-Ensure your ASG's IAM Instance Profile has permission to read the SSM parameter:
+## Before you start
 
-```bash
-{
-  "Version": "2012-10-17",
-  "Statement": [
-    {
-      "Effect": "Allow",
-      "Action": "ssm:GetParameter",
-      "Resource": "arn:aws:ssm:ap-south-1:YOUR_ACCOUNT_ID:parameter/kloudmate/*"
-    }
-  ]
-}
-```
+You need:
 
-If using **SSM Run Command** (Step 5, Option B), also add:
+- Your **KloudMate API key**.
+- The **collector endpoint**, `https://otel.kloudmate.com:4318`.
+- Instances on a supported Linux (Amazon Linux 2 or 2023, Ubuntu, Debian, or the RHEL family). eBPF monitoring needs a modern kernel, which the standard AWS AMIs have.
 
-```bash
-{
-  "Effect": "Allow",
-  "Action": [
-    "ssm:SendCommand",
-    "ssm:ListCommandInvocations"
-  ],
-  "Resource": "*"
-}
-```
+Both examples below put the API key directly into the provisioning step. To keep it out of the launch template, read it from SSM Parameter Store or Secrets Manager instead and set `KM_API_KEY` from there; that's the only line that changes.
 
-### Step 3: Create the User Data Script
+## Auto Scaling group
 
-Save this as `userdata.sh`:
+Put this in the launch template's **user-data**. It writes the agent configuration, installs the agent with autonomous mode on, and starts it. The script is idempotent, so it's safe to run on every instance launch.
 
 ```bash
 #!/bin/bash
 set -euo pipefail
 
-# -----------------------------------------------
-# Fetch API key from SSM (IMDSv2 compatible)
-# -----------------------------------------------
-REGION=$(curl -sf http://169.254.169.254/latest/meta-data/placement/region)
-TOKEN=$(curl -sf -X PUT "http://169.254.169.254/latest/api/token" \
-  -H "X-aws-ec2-metadata-token-ttl-seconds: 60")
+export KM_API_KEY="YOUR_API_KEY"
+export KM_COLLECTOR_ENDPOINT="https://otel.kloudmate.com:4318"
+export KM_AUTO_INSTRUMENT=true   # autonomous from the first start: no UI step, no per-instance registration
 
-KM_API_KEY=$(aws ssm get-parameter \
-  --name "/kloudmate/api-key" \
-  --with-decryption \
-  --query "Parameter.Value" \
-  --output text \
-  --region "$REGION")
+# 1) Optional log collection: one YAML list of sources per file, read when the agent starts (see below).
+install -d -m 755 /etc/kmagent/logs.d
+cat > /etc/kmagent/logs.d/app.yaml <<'EOF'
+- name: my-app
+  include: [ /var/log/my-app/*.log ]
+  format: json
+  parsing: { timestamp_field: ts, severity_field: level, message_field: msg }
+  attributes: { service.name: my-app }
+EOF
 
-# -----------------------------------------------
-# Install kmagent
-# -----------------------------------------------
-curl -fsSL https://raw.githubusercontent.com/kloudmate/km-agent/main/install.sh \
-  | bash -s -- \
-    --api-key "$KM_API_KEY" \
-    --colector-endpoint "https://otel.kloudmate.com"
+# 2) Install and start. The installer detects the OS, pulls the package, and sets up the systemd service.
+curl -fsSL https://cdn.kloudmate.com/scripts/install_linux.sh | bash
+```
 
-# -----------------------------------------------
-# Verify
-# -----------------------------------------------
-if systemctl is-active --quiet kmagent; then
-  echo "[kloudmate] Agent installed and running"
+## Elastic Beanstalk
+
+Elastic Beanstalk runs a provisioning hook on each instance. On the current Amazon Linux 2 and 2023 platforms, use a platform hook, because your environment properties are available there.
+
+**1. Set the environment properties** on the environment (Console → Configuration → Software → Environment properties, or `eb setenv`):
+
+```text
+KM_API_KEY = YOUR_API_KEY
+KM_COLLECTOR_ENDPOINT = https://otel.kloudmate.com:4318
+```
+
+**2. Add a predeploy hook** to your application source bundle at `.platform/hooks/predeploy/01-kmagent.sh`, and make it executable with `chmod +x`:
+
+```bash
+#!/bin/bash
+set -euo pipefail
+
+# Bring the Elastic Beanstalk environment properties into the shell.
+[ -f /opt/elasticbeanstalk/deployment/env ] && { set -a; . /opt/elasticbeanstalk/deployment/env; set +a; }
+: "${KM_API_KEY:?set KM_API_KEY as an Elastic Beanstalk environment property}"
+: "${KM_COLLECTOR_ENDPOINT:=https://otel.kloudmate.com:4318}"
+export KM_AUTO_INSTRUMENT=true
+
+# 1) Log collection. A Rails app on Elastic Beanstalk usually logs to
+#    /var/app/current/log/production.log, or its captured stdout at /var/log/web.stdout.log.
+install -d -m 755 /etc/kmagent/logs.d
+cat > /etc/kmagent/logs.d/rails.yaml <<'EOF'
+- name: rails
+  include: [ /var/app/current/log/production.log ]
+  format: plaintext
+  attributes: { service.name: my-rails-app }
+EOF
+
+# 2) Install once. On later deploys the agent is already there, so restart it to pick up any logs.d change.
+if ! command -v kmagent >/dev/null 2>&1; then
+  export KM_API_KEY KM_COLLECTOR_ENDPOINT
+  curl -fsSL https://cdn.kloudmate.com/scripts/install_linux.sh | bash
 else
-  echo "[kloudmate] ERROR: Agent failed to start"
-  journalctl -u kmagent --no-pager -n 20
-  exit 1
+  systemctl restart kmagent
 fi
 ```
 
-### Step 4: Apply User Data to Launch Template
+## Configure log collection
 
+Autonomous mode has no UI, so the agent reads its log sources from files: every `*.yaml` or `*.yml` file in **`/etc/kmagent/logs.d/`**, at startup. (Point it at a different directory with `KM_LOG_SOURCES_DIR`.) Each file is a YAML list of sources, and you can add as many files as you need; they merge in filename order. An empty directory means no log collection, so it's entirely opt-in.
 
-Via AWS CLI
+Each source takes these fields:
 
-  ```bash
-  # Create a new Launch Template version with user data
-  aws ec2 create-launch-template-version \
-    --launch-template-name your-template-name \
-    --source-version '$Latest' \
-    --launch-template-data '{
-      "UserData": "'$(base64 -w0 userdata.sh)'"
-    }'
+| Field | Required | Notes |
+|---|---|---|
+| `name` | Yes | Source name, also stamped on every record as `km.log.source`. |
+| `include` | Yes | List of file globs to tail. |
+| `exclude` | No | List of globs to skip. |
+| `format` | Yes | `plaintext`, `json`, or `regex`. |
+| `parsing` | For `json` and `regex` | Parsing rules: `timestamp_field`, `timestamp_layout` (`iso8601`, `rfc3339`, `unix`, `unix_ms`, or `custom` with `custom_layout`), `severity_field`, `message_field`, `regex`, `multiline_pattern`, `encoding`. |
+| `attributes` | No | Extra resource attributes. Set `service.name` to the app's name so its logs join its traces. |
+| `include_file_path` | No | Add the source file's path as an attribute. |
 
-  # Point ASG to use the latest version
-  aws autoscaling update-auto-scaling-group \
-    --auto-scaling-group-name your-asg-name \
-    --launch-template "LaunchTemplateName=your-template-name,Version=\$Latest"
-  ```
+A JSON application log:
 
-  Via AWS Console
-
-  ```none
-  Go to EC2 → Launch Templates → your-template
-  Click Actions → Modify template (Create new version)
-  Scroll to Advanced details → User data
-  Paste the contents of userdata.sh
-  Click Create template version
-  Go to Auto Scaling Groups → your-asg
-  Click Edit → Launch Template → Version → Latest
-  Save
-  ```
-
-
-### Step 5: Roll Out to Existing Instances
-
-The new user data only executes on **newly launched** instances. To deploy on your existing 50 instances, choose one of the following:
-
-***Option A: Instance Refresh***
-
-**Rolling Replace**
-
-Terminates and replaces instances in batches. Each new instance boots with the updated user data and gets kmagent automatically.
-
-```bash
-aws autoscaling start-instance-refresh \
-  --auto-scaling-group-name your-asg-name \
-  --preferences '{
-    "MinHealthyPercentage": 90,
-    "MaxHealthyPercentage": 110,
-    "InstanceWarmup": 120
-  }'
+```yaml
+# /etc/kmagent/logs.d/checkout.yaml
+- name: checkout
+  include: [ /var/log/checkout/*.log ]
+  format: json
+  parsing: { timestamp_field: ts, severity_field: level, message_field: msg }
+  attributes: { service.name: checkout }
 ```
 
-**How it works:**
-- Keeps **90% of instances healthy** at all times
-- Replaces \~5 instances at a time (for a fleet of 50)
-- Each batch waits for health checks to pass before proceeding
-- Total rollout time: \~20-30 minutes depending on health check config
+An nginx access log, parsed with a regex:
 
-**Monitor progress:**
-
-```bash
-aws autoscaling describe-instance-refreshes \
-  --auto-scaling-group-name your-asg-name
+```yaml
+# /etc/kmagent/logs.d/nginx.yaml
+- name: nginx
+  include: [ /var/log/nginx/access.log ]
+  format: regex
+  parsing:
+    regex: '^(?P<remote_addr>\S+) - (?P<remote_user>\S+) \[(?P<time>[^\]]+)\] "(?P<request>[^"]*)" (?P<status>\d+)'
+    timestamp_field: time
+    timestamp_layout: custom
+    custom_layout: '%d/%b/%Y:%H:%M:%S %z'
+    message_field: request
+  attributes: { service.name: nginx }
 ```
 
-***Option B: SSM Run Command***
+:::tip
+Set each log source's `service.name` to the same value as the app it belongs to, so its logs, traces, and metrics line up in KloudMate. Lines that don't match are kept as the raw record body, never dropped, and tailing starts at the end of each file, so there's no historical backfill on launch.
+:::
 
-**In-Place Install, No Downtime**
+For the managed-mode version, with the same parsing choices in a UI wizard, see [Log monitoring](../../log-monitoring/).
 
-Installs the agent on running instances without replacing them. Fastest path to full coverage.
+## Verify
 
-```bash
-aws ssm send-command \
-  --targets "Key=tag:aws:autoscaling:groupName,Values=your-asg-name" \
-  --document-name "AWS-RunShellScript" \
-  --parameters 'commands=[
-    "REGION=$(curl -sf http://169.254.169.254/latest/meta-data/placement/region)",
-    "TOKEN=$(curl -sf -X PUT http://169.254.169.254/latest/api/token -H X-aws-ec2-metadata-token-ttl-seconds:60)",
-    "KM_API_KEY=$(aws ssm get-parameter --name /kloudmate/api-key --with-decryption --query Parameter.Value --output text --region $REGION)",
-    "curl -fsSL https://raw.githubusercontent.com/kloudmate/km-agent/main/install.sh | bash -s -- --api-key $KM_API_KEY --collector-endpoint https://otel.kloudmate.com"
-  ]' \
-  --max-concurrency "10" \
-  --max-errors "5" \
-  --comment "Install kmagent on ASG fleet"
-```
-
-**How it works:**
-- Runs on **10 instances at a time** (--max-concurrency 10)
-- All 50 instances done in **5 batches**
-- Stops if more than 5 instances fail (--max-errors 5)
-- **Zero downtime**: no instance restarts required
-
-**Monitor progress:**
+On any instance:
 
 ```bash
-# Get command ID from send-command output, then
-aws ssm list-command-invocations \
-  --command-id "COMMAND_ID" \
-  --details \
-  --query "CommandInvocations[].{Instance:InstanceId,Status:Status}" \
-  --output table
-```
-
-**Which Option to Choose?**
-
-| Criteria       | Option A (Instance Refresh)  | Option B (SSM Run Command)   |
-| -------------- | ---------------------------- | ---------------------------- |
-| Downtime       | Brief per-instance (rolling) | None                         |
-| Speed          | \~20-30 min                  | \~5-10 min                   |
-| Instance state | Fresh instances              | Existing instances preserved |
-| Risk           | Lower (clean slate)          | Slightly higher (in-place)   |
-| Use when       | You want clean rollout       | You need it NOW              |
-
-**Recommended approach:** Use **Option B** for the immediate install on all 50 instances today. The **Launch Template user data** ensures every future instance is covered automatically.
-
-## Verification
-
-After deployment, verify the agent is running across your fleet:
-
-```bash
-# Check all instances via SSM
-aws ssm send-command \
-  --targets "Key=tag:aws:autoscaling:groupName,Values=your-asg-name" \
-  --document-name "AWS-RunShellScript" \
-  --parameters 'commands=["systemctl status kmagent | head -5"]' \
-  --max-concurrency "50" \
-  --output text
-
-# Or SSH into any instance and check
 systemctl status kmagent
-journalctl -u kmagent -f        # follow logs
-curl -s http://localhost:13133   # health check endpoint
+journalctl -u kmagent | grep -Ei "auto-instrument mode ON|log monitor"
 ```
 
-## Troubleshooting
+You should see auto-instrument mode enabled and, if you added drop-ins, the log sources being merged. In KloudMate, the host appears with its cloud attributes, your services show traces and RED metrics, and log sources appear under their `service.name`.
 
-| **Issue** | **Cause** | **Fix** |
-| ------------------------------ | -------------------------------------------------- | -------------------------------------------------------------------------------------- |
-| `unable to locate credentials` | IAM Instance Profile missing or no SSM permissions | Attach IAM role with `ssm:GetParameter` to your Launch Template                        |
-| `command not found: aws`       | AWS CLI not installed on instance                  | Add `yum install -y aws-cli` or `apt install -y awscli` before the SSM call in user data |
-| `kmagent failed to start`      | Port conflict or config error                      | Check `journalctl -u kmagent -n 50` on the instance                                    |
-| SSM command stuck in `Pending` | SSM Agent not running                              | Ensure `amazon-ssm-agent` is installed and running                                     |
-| Instance refresh stuck         | Health check failing on new instances              | Check your ASG health check grace period and target group settings                     |
+If an instance isn't reporting, check the agent's own error logs. It ships them out-of-band under `service.name=kmagent`. See [See the agent's own errors](../../management/#see-the-agents-own-errors).
+
+## Notes and limits
+
+- **One restart on first boot.** Auto-instrument restarts each app once to inject the SDK. That applies to the SDK languages, not to eBPF monitoring. To skip the restart at boot, bake the agent into your AMI so the drop-ins already exist when the instance starts.
+- **Configuration is fixed per instance.** In autonomous mode the agent doesn't take configuration from the KloudMate UI. You change what's instrumented, or your log sources, by updating the launch template or the `.platform` hook and redeploying. The agent still reports its health to KloudMate.
+- **Databases aren't auto-instrumented.** They need credentials, which can't be configured automatically, so monitor RDS or a separate database tier through [database monitoring](../../database-monitoring/overview/).
+- **Log sources are read at startup.** The agent reads `logs.d` once, when it starts. Instances that are replaced rather than reconfigured don't need it re-read.

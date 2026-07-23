@@ -15,7 +15,7 @@ Switching an agent to **manual mode** gives you the raw collector YAML through t
 
 If you only need to add one component on top of the managed configuration, the [custom config override](../custom-config-override/) is lighter: it layers your YAML on top of managed mode and keeps the feature toggles working, so you do not have to hand-edit the whole configuration.
 
-The agent's own settings (such as the API key, host name override, and health reporting) are set through `agent.yaml`, environment variables, or command-line flags on the host, and through Helm values on Kubernetes.
+The agent's own settings (such as the API key, host name override, and health reporting) are set through `agent.yaml`, environment variables, or command-line flags on the host, and through Helm values on Kubernetes. See the [configuration reference](../reference/agent-config/) for every setting, its environment variable, and its default.
 
 ## Sampling
 

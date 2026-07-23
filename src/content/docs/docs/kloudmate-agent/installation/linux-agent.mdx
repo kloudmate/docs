@@ -83,6 +83,8 @@ For a hand-written `filelog` receiver in manual mode, see [Collect File Logs wit
 
 New agents start in **managed mode**, with a default of host metrics, logs, and eBPF monitoring. You review and change what is collected from the web interface, without editing files on the host. See the [configuration model](../../concepts/config-model/).
 
+The agent's own settings, such as the API key, host name, and self-health reporting, live in `agent.yaml` on the host. See the [configuration reference](../../reference/agent-config/) for the full list of settings and their environment-variable equivalents.
+
 After the agent is running, confirm what it collects and explore what it found:
 
 - Host metrics and logs start flowing automatically. See [Host metrics and logs](../../baseline/host-metrics-and-logs/).

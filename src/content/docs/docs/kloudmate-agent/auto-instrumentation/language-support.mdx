@@ -22,6 +22,7 @@ For the per-service flow, restart consent, and rollback that apply to every path
 | .NET | Startup drop-in, then restart | Run under systemd | Run under systemd |
 | PHP | `php.ini` scan directory, graceful reload | `php.ini` scan directory, graceful reload | `php.ini` scan directory, graceful reload |
 | Go | eBPF monitoring, no injection | eBPF monitoring, no injection | eBPF monitoring, no injection |
+| Ruby | eBPF monitoring, no injection | eBPF monitoring, no injection | eBPF monitoring, no injection |
 
 Every path exports to the agent's local collector, so an instrumented service shares one trace with the [eBPF monitoring](../../ebpf-observability/) around it.
 
@@ -71,6 +72,35 @@ PHP is instrumented through the PHP configuration, not a process restart. The ag
 
 Go is not injected. It is covered by [eBPF monitoring](../go-ebpf/), which gives Go services RED metrics, the service map, and spans from the kernel with no attach step. This is the same on systemd, PM2, and bare processes.
 
+## Ruby
+
+Ruby is not injected either. The agent injects Java, Node.js, Python, .NET, and PHP; Ruby is not one of them, on any process manager. A Ruby app has two levels of coverage:
+
+- **eBPF monitoring, with no code change.** [eBPF](../../ebpf-observability/) gives a Ruby service HTTP server spans, RED metrics, and the service map from the kernel, with no gem and on any Ruby version. This is the same as Go.
+- **Deep Ruby tracing** (ActiveRecord queries, controller actions) needs the OpenTelemetry Ruby gems in the app's `Gemfile`, exporting to the agent's local collector. Bundler loads gems from inside the app's bundle, so the agent can't add them from outside; they have to be in the `Gemfile`.
+
+  ```ruby
+  # Gemfile
+  gem 'opentelemetry-sdk'
+  gem 'opentelemetry-instrumentation-all'
+  ```
+
+  ```ruby
+  # config/initializers/opentelemetry.rb
+  require 'opentelemetry/sdk'
+  require 'opentelemetry/instrumentation/all'
+  OpenTelemetry::SDK.configure { |c| c.use_all }
+  ```
+
+  Set the service name and export endpoint through the app's environment:
+
+  ```text
+  OTEL_SERVICE_NAME=my-rails-app
+  OTEL_EXPORTER_OTLP_ENDPOINT=http://localhost:4318
+  ```
+
+  The current OpenTelemetry Ruby gems need **Ruby 3.3 or newer**. On Ruby 3.0 to 3.2 you have to pin older gem versions, and on Ruby 2.x they won't install at all. On those versions, rely on eBPF monitoring, which doesn't depend on the Ruby version.
+
 ## How discovered services are named and filtered
 
 The agent keeps the Discovered Services list to real application workloads:
@@ -88,6 +118,7 @@ Keep these in mind, especially on the runtime-attach path:
 - **JDK 21 and newer print a dynamic-agent-loading warning.** Runtime attach triggers the JVM's `A future release of the JVM may disallow dynamic loading of agents by default` warning ([JEP 451](https://openjdk.org/jeps/451)). It is harmless today. A future JVM may require you to start the app with `-XX:+EnableDynamicAgentLoading` for runtime attach to keep working.
 - **Bare Node.js and Python need a supervisor.** Without systemd or PM2, there is no automatic attach path for these runtimes.
 - **Go is eBPF-only.** There is no code injection for Go; its coverage comes from eBPF monitoring.
+- **Ruby is eBPF-only for zero-code.** The agent does not inject Ruby. Deep Ruby tracing (ActiveRecord, controllers) needs the OpenTelemetry Ruby gems added to the app, which require Ruby 3.3 or newer.
 
 ## Related
 
