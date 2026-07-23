@@ -38,7 +38,7 @@ The agent restarts one service at a time, only with your consent, and can wait f
 
 ## Other process managers
 
-systemd is the primary path on Linux. Services that run under other process managers, such as supervisord or pm2, or that run on their own, do not have a per-service way to attach the agent. The agent reports them as not supported for automatic instrumentation and offers guidance instead.
+systemd is the primary path on Linux, but it is not the only one. Node.js and Python apps under **PM2** are instrumented by restarting them with the tracing environment applied. A **Java** process that is not a systemd service, whether it is a bare `java -jar` process or runs under another supervisor, is instrumented by runtime attach, with no restart. A bare Node.js or Python process still needs to run under systemd or PM2 first. See [Languages and process managers](../language-support/) for the full matrix and the limitations of each path.
 
 ## Next steps
 

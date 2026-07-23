@@ -17,6 +17,7 @@ When eBPF monitoring is active, the agent collects:
 
 - **RED metrics** (Rate, Errors, and Duration) for your services, with no instrumentation.
 - **Service dependencies**, used to build the visual service map, including peer-to-peer latency.
+- **Network topology:** host-to-host Layer 4 flow edges, built from the peer addresses on each flow. See [eBPF network topology](../ebpf-network-topology/).
 - **Database Activity Monitoring (DAM):** kernel-level capture of database queries on the wire, with no credentials.
 - **Distributed context propagation:** the agent reads and injects HTTP trace context (`traceparent`), so requests stay on one trace across services.
 - **Log-to-trace correlation:** trace identifiers are added to application logs so you can jump between a log line and its trace.
@@ -101,7 +102,7 @@ discovery:
 
 network:
   enable: true
-  source: tc
+  source: socket_filter   # avoids clashing with other tc-based eBPF, such as a Cilium CNI
   direction: both
 
 attributes:
@@ -130,5 +131,6 @@ Once the agent is collecting eBPF telemetry, confirm it in these views:
 <CardGrid>
   <LinkCard title="Host metrics and logs" href="../baseline/host-metrics-and-logs/" description="The rest of the automatic monitoring." />
   <LinkCard title="Application APM" href="../auto-instrumentation/overview/" description="Add application spans that share eBPF traces." />
+  <LinkCard title="Network topology (eBPF)" href="../ebpf-network-topology/" description="Host-to-host network edges built from eBPF flows." />
   <LinkCard title="Configuration and management" href="../management/" description="Manage the agent and its configuration." />
 </CardGrid>

@@ -1,0 +1,46 @@
+---
+title: "eBPF network topology"
+description: "How the KloudMate agent builds host-to-host network topology from eBPF flows on VMs, and how to group peers into zones with KM_EBPF_NETWORK_CIDRS."
+sidebar:
+  label: "Network topology (eBPF)"
+  order: 5.5
+---
+
+import { LinkCard, CardGrid } from '@astrojs/starlight/components';
+
+On a VM host, the agent's [eBPF monitoring](../ebpf-observability/) reports Layer 4 network flows straight from the kernel. Each flow now carries the address of both ends, so KloudMate can draw the connections between your hosts automatically, with no configuration.
+
+This is a metrics-only signal. It is separate from application tracing: a host can report network flows without any application spans, and enabling it does not instrument any process.
+
+## Host-to-host edges, with no configuration
+
+Every flow the agent emits carries its **source and destination peer address** by default. KloudMate uses those addresses to match each end to the host behind it and to draw a topology edge between them. You get a host-to-host map of what talks to what as soon as the agent is running.
+
+This closes an earlier gap. VM flows used to carry no peer identity, so KloudMate could not connect one VM to another. Naming both ends of every flow is what gives the VM path the same topology that Kubernetes already had.
+
+Network flow monitoring is **on by default** wherever the kernel supports eBPF. It is capability-gated the same way as the rest of eBPF, so a host that cannot load it degrades to metrics and logs rather than failing. To turn it off, set `KM_EBPF_NETWORK_ENABLED=false`.
+
+## Group peers into zones with CIDRs
+
+Addresses give you an exact peer per flow. On top of that, you can add a coarser **zone** label so you can group traffic by network range, for example "app tier", "database subnet", or "everything external".
+
+Set `KM_EBPF_NETWORK_CIDRS` to a comma-separated list of CIDR ranges. The agent tags each flow with the source and destination zone that its addresses fall into, alongside the per-peer addresses it already carries:
+
+```bash
+KM_EBPF_NETWORK_CIDRS="10.0.1.0/24,10.0.2.0/24,10.0.0.0/8"
+```
+
+Zones are optional. With no CIDRs set, flows still carry their peer addresses and still build the topology edges; you only lose the coarser grouping. A `0.0.0.0/0` entry acts as a catch-all that buckets any address not matched by a more specific range.
+
+## Cardinality of external peers
+
+Peer addresses are per-peer by design, and on an internal network that set is small and stable. A host that talks to many **external** addresses (a public-facing service, an outbound crawler) can produce a large number of distinct peers, which raises the metric cardinality of the flow signal.
+
+If you see this, the practical control today is to bucket external traffic into a single zone with a `0.0.0.0/0` catch-all in `KM_EBPF_NETWORK_CIDRS`, so many external addresses collapse to one zone label. A built-in bound on external-peer cardinality is a planned follow-up.
+
+## Related
+
+<CardGrid>
+  <LinkCard title="eBPF observability" href="../ebpf-observability/" description="RED metrics, the service map, and database activity from the kernel." />
+  <LinkCard title="Advanced configuration" href="../advanced-configuration/" description="Agent environment variables and manual tuning." />
+</CardGrid>
