@@ -1,6 +1,6 @@
 ---
 title: "Host metrics and logs"
-description: "What the KloudMate agent collects automatically after install: host metrics and system logs across Linux, Windows, Kubernetes, and Docker, with no configuration."
+description: "What the KloudMate agent collects automatically after install: host metrics on Linux, Windows, Kubernetes, and Docker, plus the system, container, or pod logs each platform exposes — with no configuration."
 sidebar:
   order: 1
 ---
@@ -17,8 +17,7 @@ What the agent collects depends on the deployment mode, because each platform ex
 <TabItem label="Linux">
 
 - **Host metrics:** CPU, memory, disk, network, and process metrics.
-- **System logs:** the systemd journal.
-- **File logs:** application log files you point the agent at with [log monitoring](../../log-monitoring/).
+- **Logs:** none are collected from the host automatically. Add application log files with [log monitoring](../../log-monitoring/), or the systemd journal with a [custom config override](../../custom-config-override/).
 
 </TabItem>
 <TabItem label="Windows">
@@ -45,7 +44,7 @@ What the agent collects depends on the deployment mode, because each platform ex
 </Tabs>
 
 :::note
-Host metrics and logs need no configuration. eBPF monitoring and application tracing add to it when you enable them.
+Host telemetry needs no configuration. eBPF monitoring and application tracing add to it when you enable them.
 :::
 
 ## Where to view it
@@ -58,7 +57,7 @@ Host metrics and logs feed the infrastructure and log views in KloudMate:
 
 ## Collecting custom application logs
 
-The agent collects system logs automatically, not your application log **files**. To add your own log files, use [log monitoring](../../log-monitoring/). You point the agent at a folder and file-name pattern, choose how to parse each line, then preview the result before you save. Multiline grouping, for stack traces or pretty-printed JSON, is a modifier you apply on top of any format. For a hand-written receiver in manual mode, see [Collect file logs](../../../logs/collect-file-logs/).
+The agent does not collect your application log **files** automatically. To add them, use [log monitoring](../../log-monitoring/). You point the agent at a folder and file-name pattern, choose how to parse each line, then preview the result before you save. Multiline grouping, for stack traces or pretty-printed JSON, is a modifier you apply on top of any format. For a hand-written receiver in manual mode, see [Collect file logs](../../../logs/collect-file-logs/).
 
 ## What else the agent collects automatically
 

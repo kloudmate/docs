@@ -53,6 +53,42 @@ The agent runs across four deployment modes. Not every capability applies to eve
 On Linux, eBPF monitoring needs kernel 4.14 or newer, and does more on 5.8 and above. On Docker, host and container metrics, logs, and eBPF monitoring are automatic. PHP containers are traced without a redeploy, and Java, Node.js, Python, and .NET are covered by eBPF monitoring. See [Docker platform notes](platform-notes/docker/).
 :::
 
+## Prerequisites: access and permissions
+
+In many enterprises, network egress rules and host privileges are what block an install or stop data from reaching KloudMate. Check both before you start.
+
+### Network access
+
+The agent only makes **outbound** connections to KloudMate. It needs no inbound access from the internet. Allow outbound HTTPS from each host, pod, or ECS task to:
+
+| Purpose | Destination (default) | Port |
+|---|---|---|
+| Send telemetry | `otel.kloudmate.com` (your workspace's collector endpoint) | `4318` |
+| Fetch configuration | `api.kloudmate.com` | `443` |
+| Download the install script | `cdn.kloudmate.com` | `443` |
+
+External Endpoints
+
+| Host(s) | Used for |
+|---|---|
+| `api.github.com`, `github.com`, `release-assets.githubusercontent.com` | Linux `.deb` / `.rpm` package and the Kubernetes Helm chart, both from GitHub Releases (the download redirects from `github.com` to `release-assets.githubusercontent.com`) |
+| `ghcr.io`, `pkg-containers.githubusercontent.com` | Agent and OpenTelemetry container images, from GitHub Container Registry (layers come from `pkg-containers.githubusercontent.com`) |
+| `charts.kloudmate.com` | Helm repo index (Kubernetes) and the Linux RPM signing key. Served from GitHub Pages. |
+| `quay.io` | cert-manager images (Kubernetes) |
+| `public.ecr.aws` | Log-router image (ECS Fargate) |
+
+### Permissions by environment
+
+| Environment | To install | To run and send data |
+|---|---|---|
+| **Linux (VM or host)** | root, through `sudo` | Runs as root. eBPF monitoring needs kernel **4.14+**, the `CAP_SYS_ADMIN` or `CAP_BPF` capability, and `debugfs` mounted. Without these, the host still gets metrics and logs. Instrumenting a service writes a systemd config file and restarts that one service. |
+| **Windows** | Administrator (Server 2016 or newer) | Runs as the **Local System** account, which it needs to read IIS and WMI. |
+| **Docker** | Permission to run a container with host mounts | Mount the Docker socket (`/var/run/docker.sock`) for container discovery and PHP tracing. eBPF needs a **privileged** container with host access; a plain container gets container metrics and logs only. |
+| **Kubernetes** | Kubernetes **1.24+**, Helm **3+**, and cert-manager; permission to create the namespace, cluster RBAC, and CRDs | The node DaemonSet runs **privileged** (`runAsUser: 0`, `CAP_SYS_ADMIN`, `hostPID`, and `hostNetwork` for network flows) with host-path mounts. On clusters with Pod Security restrictions, allow this in the agent's namespace. The chart installs the RBAC. |
+| **Amazon ECS** | AWS permission to register task-definition revisions and update the services you instrument | Reading task definitions uses `ecs:DescribeTaskDefinition`. A Secrets Manager API key needs `secretsmanager:GetSecretValue` on the task execution role; a custom log group needs `logs:CreateLogGroup`. eBPF needs privileged tasks, or set `KM_EBPF_ENABLED=false`. |
+
+For kernel and privilege detail, see [eBPF observability](ebpf-observability/). For per-platform specifics, see the platform notes for [Kubernetes](platform-notes/kubernetes/), [Docker](platform-notes/docker/), and [Windows](platform-notes/windows/), and the [Amazon ECS install guide](installation/ecs-agent/).
+
 ## Install the agent
 
 <CardGrid>

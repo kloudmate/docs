@@ -73,7 +73,7 @@ View all data in these KloudMate sections:
 
 ## **Log Integration**
 
-By default, the KloudMate Agent collects basic system logs (the systemd journal).
+By default, the KloudMate Agent collects host metrics. It does not collect system logs on Linux — to collect the systemd journal, add it with a [custom config override](../../custom-config-override/).
 
 To collect your own application log **files**, use log monitoring. In the agent's **Logs** tab, point the agent at a folder and file-name pattern, then choose how to parse each line: plain text, JSON, or a regular expression. Multiline grouping, for stack traces or pretty-printed JSON, works on top of any format. You can preview the parsed records before you save. See [Log monitoring](../../log-monitoring/).
 
@@ -81,7 +81,7 @@ For a hand-written `filelog` receiver in manual mode, see [Collect File Logs wit
 
 ## Configuration and next checks
 
-New agents start in **managed mode**, with a default of host metrics, logs, and eBPF monitoring. You review and change what is collected from the web interface, without editing files on the host. See the [configuration model](../../concepts/config-model/).
+New agents start in **managed mode**, with a default of host metrics and eBPF monitoring. You review and change what is collected from the web interface, without editing files on the host. See the [configuration model](../../concepts/config-model/).
 
 The agent's own settings, such as the API key, host name, and self-health reporting, live in `agent.yaml` on the host. See the [configuration reference](../../reference/agent-config/) for the full list of settings and their environment-variable equivalents.
 

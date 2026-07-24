@@ -17,7 +17,7 @@ Log monitoring is a managed-mode feature. You configure sources from the agent's
 
 - **Managed mode only.** The Logs tab is available when the agent is in managed mode. If the agent is in manual mode, the tab prompts you to switch. You can still add a `filelog` receiver by hand in manual mode: see [Manual configuration](#manual-configuration).
 - **Independent sources.** Each source is isolated, so one badly configured source cannot affect the others or your host system logs.
-- **It builds on what the agent already collects.** The agent already ships system logs with no configuration: the systemd journal on Linux, the Windows Event Log, and container output on Docker. Log monitoring is for the extra application log **files** those do not pick up. See [Host metrics and logs](../baseline/host-metrics-and-logs/).
+- **It adds application log files.** On Windows the agent already collects the Event Log, and on Docker it collects container output; on a Linux host it collects no log files on its own. Log monitoring is how you collect application log **files** on any platform. See [Host metrics and logs](../baseline/host-metrics-and-logs/).
 
 ## Add a log source
 
@@ -154,7 +154,7 @@ Collected logs land in the **Log Explorer**, where you can search and filter the
 ## Next steps
 
 <CardGrid>
-  <LinkCard title="Host metrics and logs" href="../baseline/host-metrics-and-logs/" description="The system logs the agent collects automatically." />
+  <LinkCard title="Host metrics and logs" href="../baseline/host-metrics-and-logs/" description="What the agent collects automatically, per platform." />
   <LinkCard title="Database monitoring" href="../database-monitoring/overview/" description="The same auto-wired model for databases." />
   <LinkCard title="Configuration model" href="../concepts/config-model/" description="How managed mode generates the collector configuration." />
   <LinkCard title="Collect file logs" href="../../logs/collect-file-logs/" description="Add a filelog receiver by hand in manual mode." />
