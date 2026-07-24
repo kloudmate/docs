@@ -7,13 +7,13 @@ sidebar:
 
 import { LinkCard, CardGrid } from '@astrojs/starlight/components';
 
-Start with two agent features: the [health metrics](../self-observability/health-metrics/) tell you whether the agent and collector are up and why the collector is down, and the [self-logs](../self-observability/self-logs/) bring the agent's own error messages into KloudMate so you can read them without logging in to the host. Check both first.
+Start with two agent features. The [health metrics](../self-observability/health-metrics/) tell you whether the agent and collector are up, and why the collector is down. The [self-logs](../self-observability/self-logs/) bring the agent's own error messages into KloudMate, so you can read them without logging in to the host. Check both first.
 
 ## The agent will not start or stay up
 
 - **Missing API key.** The agent needs its API key to check in. Confirm the key was provided at install. In the health metrics, a healthy agent emits `kmagent.up`.
-- **Invalid collector configuration.** If a pushed configuration is invalid, the collector will not start. Look for `kmagent.collector.up=0` with `reason=config_invalid`, and read the error text in the self-logs. In managed mode, the agent validates generated configuration before applying it, and keeps running the last good configuration; in manual mode, fix the YAML.
-- **Insufficient privileges.** The agent needs elevated privileges for eBPF (on Linux) and for instrumentation. On Linux, it runs with the privileges it needs by default; on Windows, it runs as Local System. A permissions failure is reported in the self-logs.
+- **Invalid collector configuration.** If a pushed configuration is invalid, the collector will not start. Look for `kmagent.collector.up=0` with `reason=config_invalid`, and read the error text in the self-logs. In managed mode, the agent checks generated configuration before applying it and keeps running the last good one. In manual mode, fix the YAML.
+- **Insufficient privileges.** The agent needs elevated privileges for eBPF (on Linux) and for instrumentation. On Linux, it runs with the privileges it needs by default. On Windows, it runs as Local System. A permissions failure shows up in the self-logs.
 
 ## Metrics are not flowing
 
@@ -30,7 +30,7 @@ Start with two agent features: the [health metrics](../self-observability/health
 ## Database monitoring is not working
 
 - **Credentials rejected.** Confirm the monitoring user and secret are correct and that the environment reference resolves. On Kubernetes, confirm the Kubernetes Secret exists and the pod was started after it. See [Database credentials](../database-monitoring/credentials/).
-- **A missing grant or prerequisite.** A coverage may need a grant or extension (for example, `GRANT pg_monitor`, or the `pg_stat_statements` extension for PostgreSQL query performance). The wizard lists the exact setup steps. See [Engines and coverages](../database-monitoring/engines-and-coverages/).
+- **A missing grant or prerequisite.** Some coverages need a grant or extension (for example, `GRANT pg_monitor`, or the `pg_stat_statements` extension for PostgreSQL query performance). The wizard lists the exact setup steps. See [Engines and coverages](../database-monitoring/engines-and-coverages/).
 - **Endpoints do not join.** If database metrics and traces do not line up, confirm the configured endpoint matches what your applications connect to. On Kubernetes, use the Service DNS endpoint. See [Telemetry identity](../reference/telemetry-identity/).
 
 ## Windows-specific
@@ -40,7 +40,7 @@ Start with two agent features: the [health metrics](../self-observability/health
 
 ## Kubernetes-specific
 
-- **A collector pod is crashing.** Check the pod's status in the Kubernetes view, which reflects real per-node collector status, and read the fleet manager and collector self-logs. A crash is often an invalid configuration.
+- **A collector pod is crashing.** Check the pod's status in the Kubernetes view, which shows the real per-node collector status, and read the fleet manager and collector self-logs. A crash is often an invalid configuration.
 - **APM annotations were not applied.** Confirm APM is enabled and the workload is in a monitored namespace. See [Application APM on Kubernetes](../auto-instrumentation/kubernetes/).
 - **Do not edit ConfigMaps by hand.** The agent owns them in managed mode and will overwrite manual edits. See [Kubernetes platform notes](../platform-notes/kubernetes/).
 

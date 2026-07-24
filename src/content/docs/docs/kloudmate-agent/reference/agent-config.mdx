@@ -10,7 +10,7 @@ import { LinkCard, CardGrid } from '@astrojs/starlight/components';
 
 The KloudMate agent reads its own settings from a YAML file on the host: `/etc/kmagent/agent.yaml` on Linux, or `C:\ProgramData\kmagent\agent.yaml` on Windows. This page lists every setting in that file, with its environment-variable equivalent and default.
 
-You give a setting one of three ways: as a key in `agent.yaml`, as an environment variable, or as a command-line flag. If you set the same one more than one way, a command-line flag wins over an environment variable, which wins over `agent.yaml`.
+You can set an option three ways: as a key in `agent.yaml`, as an environment variable, or as a command-line flag. If you set the same one more than one way, the command-line flag wins, then the environment variable, then `agent.yaml`.
 
 You rarely edit this file by hand. The install command writes the required settings on a fresh install, and in managed mode you control what the agent collects from the web interface, not from YAML. Use these settings when you need to override the host name, run the agent autonomously, or turn a piece of monitoring off on one host. On Kubernetes, set the same options through Helm values instead of `agent.yaml`. See the [configuration model](../../concepts/config-model/) for how managed and manual modes differ.
 
@@ -18,7 +18,7 @@ After you change `agent.yaml`, restart the agent for the change to take effect.
 
 ## Example
 
-A minimal `agent.yaml`, the two settings the install command always writes, looks like this:
+A minimal `agent.yaml` has the two settings the install command always writes:
 
 ```yaml
 api-key: "YOUR_API_KEY"
@@ -48,15 +48,15 @@ Add any of the settings below on their own line to change the agent's behavior, 
 
 | Setting | Environment variable | Default | Description |
 |---|---|---|---|
-| `health-enabled` | `KM_HEALTH_ENABLED` | `false` | Emit the agent's own health metrics (`kmagent.*`) straight to your workspace, on a path that does not go through the collector. Off by default, and turned on automatically in autonomous mode. See [Agent health metrics](../../self-observability/health-metrics/). |
+| `health-enabled` | `KM_HEALTH_ENABLED` | `false` | Send the agent's own health metrics (`kmagent.*`) directly to your workspace, without going through the collector. Off by default, and turned on automatically in autonomous mode. See [Agent health metrics](../../self-observability/health-metrics/). |
 | `health-interval` | `KM_HEALTH_INTERVAL` | `60s` | How often the agent exports those health metrics. A Go duration such as `60s`. |
-| `agent-error-logs` | `KM_AGENT_ERROR_LOGS` | `true` | Ship the agent's own `ERROR` logs to your workspace out-of-band, so agent and collector startup failures surface without opening a shell on the host. On by default. Set `false` to turn it off. See [Agent self-logs](../../self-observability/self-logs/). |
+| `agent-error-logs` | `KM_AGENT_ERROR_LOGS` | `true` | Send the agent's own `ERROR` logs to your workspace, so agent and collector startup failures show up without opening a shell on the host. On by default. Set `false` to turn it off. See [Agent self-logs](../../self-observability/self-logs/). |
 
 ## Deployment modes
 
 | Setting | Environment variable | Default | Description |
 |---|---|---|---|
-| `auto-instrument` | `KM_AUTO_INSTRUMENT` | `false` | Autonomous mode. The agent discovers and instruments everything on the host, eBPF plus applications and containers, restarting them as needed, and stops polling the backend for configuration. Use it for immutable or autoscaled fleets you cannot manage one host at a time. See [Autonomous instrumentation](../../advanced-configuration/#autonomous-instrumentation) and [Auto-scaling group deployment](../../installation/aws-asg-deployment/). |
+| `auto-instrument` | `KM_AUTO_INSTRUMENT` | `false` | Autonomous mode. The agent discovers and instruments everything on the host: eBPF, applications, and containers. It restarts them as needed and stops polling the backend for configuration. Use it for immutable or autoscaled fleets you cannot manage one host at a time. See [Autonomous instrumentation](../../advanced-configuration/#autonomous-instrumentation) and [Auto-scaling group deployment](../../installation/aws-asg-deployment/). |
 | `docker-mode` | `KM_DOCKER_MODE` | `false` | Run the agent against a mounted host filesystem from inside a container. The [Docker install](../../installation/docker-agent/) sets this; you do not set it by hand for a host install. |
 | `docker-endpoint` | `KM_DOCKER_ENDPOINT` | Docker default socket | The Docker API endpoint the agent uses in Docker mode. |
 | `fargate-mode` | `KM_FARGATE_MODE` | `false` | Runs the agent as a slim ECS Fargate collector sidecar, with no host receivers, eBPF, or discovery. The [ECS tooling](../../installation/ecs-agent/) sets this; do not set it by hand. |
@@ -74,7 +74,7 @@ Both toggles are ignored on a `noebpf` agent build, which has no eBPF receiver c
 
 ### eBPF application tracing is on by default
 
-`ebpf-apm` defaults to on, so a plain install emits eBPF application traces out of the box. Earlier agents treated it as opt-in (you had to set `KM_EBPF_ENABLED=true`), so a host upgrading from one of those starts sending eBPF application traces once it moves to the new default. To keep a host on logs, metrics, or network monitoring only, set `ebpf-apm: false`.
+`ebpf-apm` defaults to on, so a plain install sends eBPF application traces from the start. Earlier agents treated it as opt-in, so you had to set `KM_EBPF_ENABLED=true`. A host upgrading from one of those starts sending eBPF application traces once it takes the new default. To keep a host on logs, metrics, or network monitoring only, set `ebpf-apm: false`.
 
 ### Collect logs without application tracing
 
@@ -85,6 +85,12 @@ For a host that should only collect logs, set `ebpf-apm: false` to drop the appl
 ebpf-apm: false
 ebpf-network: false
 ```
+
+### Databases are not traced as APM services by default
+
+| Environment variable | Default | Description |
+|---|---|---|
+| `KM_EBPF_INSTRUMENT_DATABASES` | `false` | Set to `true` to also trace databases as eBPF APM services. |
 
 ## Related
 

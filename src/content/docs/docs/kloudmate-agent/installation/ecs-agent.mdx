@@ -20,7 +20,7 @@ How the agent runs depends on your launch type, because EC2 and Fargate give it 
 - **Container and host logs:** stdout/stderr from containers plus system logs
 - **APM traces:** SDK auto-injection for Java, Node.js, Python, and .NET services; eBPF for Go, Rust, and everything else (see [How APM works](#how-apm-works) below)
 
-**Fargate launch type.** There's no host to run a daemon on, so the installer instruments each service you name. It rewrites the task definition to add a collector sidecar, and, for SDK runtimes, stages the OpenTelemetry SDKs and routes the application's logs. Each instrumented task reports:
+**Fargate launch type.** There's no host to run a daemon on, so the installer instruments each service you name. It rewrites the task definition to add a collector sidecar. For SDK runtimes, it also stages the OpenTelemetry SDKs and routes the application's logs. Each instrumented task reports:
 
 - **APM traces:** OpenTelemetry SDK injection for Java, Node.js, Python, and .NET
 - **Task metrics:** CPU, memory, network, and disk for the task's containers
@@ -35,7 +35,7 @@ APM is **language-aware**, and the runtime decides how a service gets traced:
 | Java, Node.js, Python, .NET | SDK auto-injection (richer traces) | SDK auto-injection (richer traces) |
 | Go, Rust, and others | eBPF monitoring on the daemon | Logs and metrics only, no traces |
 
-For **Java, Node.js, Python, and .NET**, the installer injects the OpenTelemetry SDK, which produces richer traces (framework spans, database statements). On EC2 it rewrites those services' task definitions to export to the daemon on the instance; on Fargate it adds the SDK plus a collector sidecar to the task.
+For **Java, Node.js, Python, and .NET**, the installer injects the OpenTelemetry SDK. This produces richer traces, such as framework spans and database statements. On EC2, it rewrites those services' task definitions to export to the daemon on the instance. On Fargate, it adds the SDK plus a collector sidecar to the task.
 
 For **Go, Rust, and other runtimes**, there's no SDK to inject. On EC2 the daemon's eBPF picks them up automatically, with no task-definition change. On Fargate, which can't run eBPF, those services still get logs and metrics, but no traces.
 
@@ -86,7 +86,7 @@ Before you start, make sure you have:
 - The **AWS CLI** and **jq** on the machine you run the script from
 - An **ECS cluster** already running your workloads
 
-Instrumenting a service (every Fargate install, and any EC2 install that names services) runs a task-definition injection step. That step needs either **Docker**, which runs the agent's ECS image, or a native `kmagent` binary set through `KM_AGENT_BIN`. A daemon-only EC2 install needs neither.
+Instrumenting a service runs a task-definition injection step. This happens on every Fargate install, and on any EC2 install that names services. That step needs either **Docker**, which runs the agent's ECS image, or a native `kmagent` binary set through `KM_AGENT_BIN`. A daemon-only EC2 install needs neither.
 
 :::note
   The commands below are for reference. Log in to KloudMate and copy your account-specific command, which already has your API key filled in.
@@ -113,15 +113,15 @@ KM_ECS_SERVICES=web,orders \
   bash -c "$(curl -fsSL https://cdn.kloudmate.com/scripts/install_ecs.sh)"
 ```
 
-`KM_ECS_SERVICES` is optional on EC2. Omit it to deploy just the daemon: Go and other non-SDK services are picked up by eBPF automatically, and only Java/Node/Python/.NET services need the per-service task-definition rewrite for SDK traces. The daemon's eBPF stands down for any service you SDK-instrument, so you never get duplicate traces.
+`KM_ECS_SERVICES` is optional on EC2. Omit it to deploy just the daemon. eBPF picks up Go and other non-SDK services automatically. Only Java/Node/Python/.NET services need the per-service task-definition rewrite for SDK traces. For any service you SDK-instrument, the daemon's eBPF stands down, so you never get duplicate traces.
 
 eBPF needs a privileged task with host PID and network access, which the daemon task definition already requests.
 
 :::caution
-  If your organization forbids privileged ECS tasks, eBPF monitoring won't run: set `KM_EBPF_ENABLED=false`. SDK-instrumented services (Java/Node/Python/.NET) still get full APM, but Go and other runtimes won't be traced. You still get host metrics, container metrics, and logs.
+  If your organization forbids privileged ECS tasks, set `KM_EBPF_ENABLED=false` to turn eBPF monitoring off. SDK-instrumented services (Java/Node/Python/.NET) still get full APM, but Go and other runtimes won't be traced. You still get host metrics, container metrics, and logs.
 :::
 
-The EC2 instances also need their container-instance role to allow pulling images. The AWS-managed `AmazonEC2ContainerServiceforEC2Role` policy covers it; a missing role shows up as image-pull failures on the agent tasks.
+The EC2 instances also need their container-instance role to allow pulling images. The AWS-managed `AmazonEC2ContainerServiceforEC2Role` policy covers this. A missing role shows up as image-pull failures on the agent tasks.
 
 ### Fargate launch type
 
@@ -136,7 +136,7 @@ KM_ECS_SERVICES=web,orders \
   bash -c "$(curl -fsSL https://cdn.kloudmate.com/scripts/install_ecs.sh)" -- --yes
 ```
 
-`KM_ECS_SERVICES` is required on Fargate. The `-- --yes` at the end skips the per-service confirmation prompt; drop it if you'd rather approve each service before it's rolled onto the new revision. Because all containers in a Fargate `awsvpc` task share `localhost`, the injected SDK sends telemetry to `localhost:4318`, where the collector sidecar receives it.
+`KM_ECS_SERVICES` is required on Fargate. The `-- --yes` at the end skips the per-service confirmation prompt. Drop it if you'd rather approve each service before it's rolled onto the new revision. All containers in a Fargate `awsvpc` task share `localhost`, so the injected SDK sends telemetry to `localhost:4318`, where the collector sidecar receives it.
 
 :::tip
   Add `-- --dry-run` to print the rewritten task definition without registering it or touching your services. Use it to review what the injector changes before you apply it.
@@ -150,10 +150,10 @@ The bundled **.NET and Python** instrumentation is glibc-only. On an Alpine or o
 
 ### Keep your API key out of the task definition
 
-By default the script writes `KM_API_KEY` inline into the task definition. That key is a workspace-wide ingest credential, and once it's inline it's readable by anyone with `ecs:DescribeTaskDefinition` and visible in the console and CloudTrail.
+By default, the script writes `KM_API_KEY` inline into the task definition. That key is a workspace-wide ingest credential. Once it's inline, anyone with `ecs:DescribeTaskDefinition` can read it, and it's visible in the console and CloudTrail.
 
 :::caution
-  For tighter setups, store the key in AWS Secrets Manager and pass its ARN with `KM_API_KEY_SECRET_ARN`. The script then references the secret instead of inlining the key, and prints the `secretsmanager:GetSecretValue` policy you need to attach to the task **execution** role. It never edits IAM for you, so you attach that policy yourself.
+  For tighter setups, store the key in AWS Secrets Manager and pass its ARN with `KM_API_KEY_SECRET_ARN`. The script then references the secret instead of inlining the key. It also prints the `secretsmanager:GetSecretValue` policy you need to attach to the task **execution** role. It never edits IAM for you, so you attach that policy yourself.
 :::
 
 ### Install options
@@ -179,12 +179,12 @@ Two flags are passed after `--` rather than as environment variables: `--yes` sk
 
 #### Capture the agent's own logs in CloudWatch (optional)
 
-By default the agent's sidecars and EC2 daemon don't write their own container logs to CloudWatch, so no `logs:*` IAM is required and there's no extra CloudWatch cost. A running agent stays observable regardless: the collector ships its own error logs to KloudMate out-of-band, where you'll find them under `service.name=kmagent` in [Log Explorer](../../../logs/log-explorer/).
+By default, the agent's sidecars and EC2 daemon don't write their own container logs to CloudWatch. That means no `logs:*` IAM is required, and there's no extra CloudWatch cost. You can still see a running agent: the collector ships its own error logs to KloudMate, where you'll find them under `service.name=kmagent` in [Log Explorer](../../../logs/log-explorer/).
 
 Set `KM_ECS_LOG_GROUP` (for example `/kmagent/ecs`) to also send the sidecars' and daemon's own logs to CloudWatch. This mainly helps catch sidecar startup or staging failures on Fargate, where there's no `docker logs` to fall back on.
 
 :::caution
-  **Setting `KM_ECS_LOG_GROUP` adds an IAM requirement.** The role that runs the agent's containers, the **task execution role** on Fargate or the **container-instance role** on EC2, then needs CloudWatch Logs permissions for that group. The agent asks ECS to create the group on first run, and the stock `AmazonECSTaskExecutionRolePolicy` grants `logs:CreateLogStream` and `logs:PutLogEvents` but not `logs:CreateLogGroup`, so without it the task fails to start with `ResourceInitializationError: ... AccessDeniedException`.
+  **Setting `KM_ECS_LOG_GROUP` adds an IAM requirement.** The role that runs the agent's containers then needs CloudWatch Logs permissions for that group. That's the **task execution role** on Fargate, or the **container-instance role** on EC2. The agent asks ECS to create the group on first run. The stock `AmazonECSTaskExecutionRolePolicy` grants `logs:CreateLogStream` and `logs:PutLogEvents` but not `logs:CreateLogGroup`. Without `logs:CreateLogGroup`, the task fails to start with `ResourceInitializationError: ... AccessDeniedException`.
 :::
 
 Attach an inline policy for the three actions on that group, or create the group yourself before you run the installer:
@@ -199,7 +199,7 @@ Attach an inline policy for the three actions on that group, or create the group
 
 ## Check What's Instrumented
 
-The one-line script is the bulk path. For a per-service view, and to instrument a single service without Docker, the `kmagent` binary has an `ecs` subcommand set. Use it to check whether a service is instrumented, especially for Fargate tasks, which never register in the agents list.
+The one-line script handles services in bulk. For a per-service view, or to instrument a single service without Docker, the `kmagent` binary has an `ecs` subcommand set. Use it to check whether a service is instrumented. This is useful for Fargate tasks, which never register in the agents list.
 
 Summarize every task-definition family in a region and its instrumentation state (which components are attached, the detected language):
 
@@ -228,7 +228,7 @@ kmagent ecs instrument \
 
 The two launch types appear differently in KloudMate:
 
-- **EC2 daemon:** each container instance appears in **Settings → Agents** as **Amazon ECS**, one row per instance. Its **APM** tab has no per-service toggle; it points you to the `kmagent ecs discover` and `instrument` commands and explains the language-aware split (SDK for Java/Node/Python/.NET, eBPF for the rest).
+- **EC2 daemon:** each container instance appears in **Settings → Agents** as **Amazon ECS**, one row per instance. Its **APM** tab has no per-service toggle. Instead, it points you to the `kmagent ecs discover` and `instrument` commands and explains the language-aware split (SDK for Java/Node/Python/.NET, eBPF for the rest).
 - **Fargate tasks are autonomous:** each collector sidecar ships telemetry on its own and **does not appear as an agent row**. Find that data in **APM**, **Log Explorer**, and **Infrastructure** keyed by service name. The install flow's verify step accounts for this, so it won't wait for a Fargate check-in that never comes.
 
 ## Log Integration
@@ -251,7 +251,7 @@ To collect additional application log files with the agent, see [Collect File Lo
 
 ## Re-running the Install
 
-The injector is idempotent. Re-running the script strips its previous additions and re-injects with your current settings, so changing the collector endpoint or upgrading the agent image applies cleanly instead of stacking duplicate sidecars. Turning logs off on a later run also reverts the FireLens driver it added, leaving no dangling configuration.
+The injector is idempotent. Re-running the script strips its previous additions and re-injects with your current settings. Changing the collector endpoint or upgrading the agent image then applies cleanly, instead of stacking duplicate sidecars. Turning logs off on a later run also reverts the FireLens driver it added, leaving no leftover configuration.
 
 ## Uninstall Agent
 
@@ -272,4 +272,4 @@ aws ecs update-service \
   --task-definition web:PREVIOUS_REVISION
 ```
 
-Replace `PREVIOUS_REVISION` with the revision number from before you ran the installer. After that, the service no longer runs the collector sidecar or SDK injection. Services that were only traced by eBPF have no task-definition changes to revert; they stop being traced once the daemon service is gone.
+Replace `PREVIOUS_REVISION` with the revision number from before you ran the installer. After that, the service no longer runs the collector sidecar or SDK injection. Services that were only traced by eBPF have no task-definition changes to revert. They stop being traced once the daemon service is gone.

@@ -1,6 +1,6 @@
 ---
 title: "Glossary"
-description: "Definitions of the key terms used across the KloudMate agent documentation, from service identity and drop-ins to receivers, profiles, and coverages."
+description: "Definitions of the key terms used across the KloudMate agent documentation, from service identity to receivers, profiles, and coverages."
 sidebar:
   order: 4
 ---
@@ -9,27 +9,25 @@ import { LinkCard, CardGrid } from '@astrojs/starlight/components';
 
 Definitions of the terms used across the agent documentation.
 
-**Collector.** The OpenTelemetry (OTel) Collector that the agent embeds and manages. It runs the receivers, processors, and exporters that collect and ship telemetry.
+**Collector.** The OpenTelemetry (OTel) Collector built into the agent. It runs the receivers, processors, and exporters that collect and send telemetry.
 
-**Coverage.** A unit of database collection for one engine, such as standard metrics, query performance, locks, or query logs. You select coverages, and the agent compiles them into receiver configuration. See [Engines and coverages](../../database-monitoring/engines-and-coverages/).
+**Coverage.** One set of data the agent can collect for a database engine, such as standard metrics, query performance, locks, or query logs. You pick the coverages you want, and the agent sets up the receiver to collect them. See [Engines and coverages](../../database-monitoring/engines-and-coverages/).
 
 **Database Activity Monitoring (DAM).** The eBPF view of the database queries your applications run, captured automatically with no credentials. See [eBPF observability](../../ebpf-observability/).
 
-**Drop-in.** A small systemd configuration file the agent writes under a unit's directory to set the instrumentation environment for that one service on Linux. See [Linux (systemd)](../../auto-instrumentation/linux-systemd/).
-
 **eBPF (extended Berkeley Packet Filter).** A Linux kernel technology the agent uses to observe applications, network, and databases without code changes. See [eBPF observability](../../ebpf-observability/).
 
-**ETW (Event Tracing for Windows).** The Windows equivalent of eBPF monitoring. The agent taps ETW to produce request spans and RED metrics for IIS traffic. See [Windows platform notes](../../platform-notes/windows/).
+**ETW (Event Tracing for Windows).** The Windows equivalent of eBPF monitoring. The agent uses ETW to produce request spans and RED metrics for IIS traffic. See [Windows platform notes](../../platform-notes/windows/).
 
 **Fleet manager.** On Kubernetes, the pod that applies the generated configuration to the cluster and reports each collector's status back. See [Kubernetes platform notes](../../platform-notes/kubernetes/).
 
-**Managed mode.** A configuration mode in which KloudMate generates the collector configuration from your enabled integrations, and the YAML editor is a read-only preview. Contrast manual mode. See the [configuration model](../../concepts/config-model/).
+**Managed mode.** The mode where KloudMate builds the collector configuration from the features you turn on, and the YAML editor is a read-only preview. Contrast manual mode. See the [configuration model](../../concepts/config-model/).
 
-**Manual mode.** A configuration mode in which the raw collector YAML is edited directly and the feature toggles are disabled. For advanced, hand-tuned setups. See the [configuration model](../../concepts/config-model/).
+**Manual mode.** The mode where you edit the raw collector YAML yourself and the feature toggles are turned off. For advanced, hand-tuned setups. See the [configuration model](../../concepts/config-model/).
 
 **Pipeline.** A path through the collector for one signal (metrics, traces, or logs), made of receivers, processors, and exporters.
 
-**Profile.** A bundled template that provides one coverage for one database engine. The agent compiles a selected profile into the right receiver configuration. See [Database monitoring overview](../../database-monitoring/overview/).
+**Profile.** A template that provides one coverage for one database engine. When you select a profile, the agent turns it into the right receiver configuration. See [Database monitoring overview](../../database-monitoring/overview/).
 
 **Profiler (CLR profiler).** The Common Language Runtime profiler used to instrument .NET applications on Windows without code changes. See [Windows and .NET application APM](../../auto-instrumentation/windows-dotnet/).
 
@@ -37,9 +35,9 @@ Definitions of the terms used across the agent documentation.
 
 **RED metrics.** Rate, Errors, and Duration: the key metrics eBPF monitoring produces for each service, with no instrumentation.
 
-**Server address.** The canonical, routable address the agent stamps on database telemetry so metrics and traces for the same database join. See [Telemetry identity](../telemetry-identity/).
+**Server address.** The single routable address the agent stamps on database telemetry so metrics and traces for the same database join. See [Telemetry identity](../telemetry-identity/).
 
-**Service identity.** A stable identifier the agent assigns to a discovered service so an instrumentation choice keeps applying across restarts. See [Discovery](../../concepts/discovery/).
+**Service identity.** A stable ID the agent gives a discovered service, so the instrumentation you choose keeps applying after the service restarts. See [Discovery](../../concepts/discovery/).
 
 ## Related
 

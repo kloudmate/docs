@@ -1,6 +1,6 @@
 ---
 title: "Infrastructure as Code (IaC)"
-description: "Documentation for Infrastructure as Code (IaC) Installation"
+description: "Deploy the KloudMate agent with cloud-init, Ansible, Terraform, or Packer across any cloud provider or on-premises."
 sidebar:
   order: 8
 ---
@@ -10,7 +10,7 @@ import { Tabs, TabItem } from '@astrojs/starlight/components';
 Deploy the KloudMate agent across any cloud provider or on-premises infrastructure using Infrastructure as Code (IaC) and automation tools.
 
 :::note
-However you provision it, each agent starts in managed mode and collects host metrics, logs, and the [eBPF monitoring](../../ebpf-observability/) automatically once it checks in. See the [configuration model](../../concepts/config-model/).
+However you install it, each agent starts in managed mode. Once it checks in, it automatically collects host metrics, logs, and [eBPF monitoring](../../ebpf-observability/) data. See the [configuration model](../../concepts/config-model/).
 :::
 
 ## Deployment Approaches
@@ -24,11 +24,11 @@ However you provision it, each agent starts in managed mode and collects host me
 
 ### Decision Matrix
 
-If you are provisioning a new VM or Auto-scaling group, you should use **cloud-init** via User Data/Custom Data. If you want faster boot times, use **Packer** to pre-bake the image and cloud-init for config only.
+To provision a new VM or Auto-scaling group, use **cloud-init** through User Data or Custom Data. For faster boot times, use **Packer** to pre-bake the image and cloud-init for config only.
 
-If you are managing an existing fleet, use an **Ansible playbook**.
+For an existing fleet, use an **Ansible playbook**.
 
-If you are managing infrastructure with **Terraform**, use the **Terraform module**.
+If you already use **Terraform**, use the **Terraform module**.
 
 ## 1. cloud-init (Universal)
 
@@ -268,7 +268,7 @@ resource "digitalocean_droplet" "app" {
 
 ## 4. Packer (Pre-baked Images)
 
-Best when you want zero install-time latency. The agent binary is baked into the image; only the config (API key) is injected at boot.
+Best when boot speed matters. The agent binary is baked into the image, so there's no install step at boot. Only the config (the API key) is injected.
 
 **Navigate to the Packer directory**
 

@@ -7,13 +7,13 @@ sidebar:
 
 import { LinkCard, CardGrid } from '@astrojs/starlight/components';
 
-Database monitoring gives you a full picture of your databases. The agent sets up the collection for you through a wizard, instead of hand-written configuration, and it works alongside the automatic eBPF view of your queries.
+Database monitoring gives you a full picture of your databases. You set it up through a wizard, not hand-written configuration. It works alongside the automatic eBPF view of your queries.
 
 ## Two views of your databases
 
 The agent shows your databases in two ways that work together:
 
-- **From eBPF, automatically and with no credentials.** Database Activity Monitoring (DAM) shows the queries your applications run against the database, with their timing, as part of your distributed traces and the service map. This turns on by default. See [eBPF observability](../../ebpf-observability/).
+- **From eBPF, automatically and with no credentials.** Database Activity Monitoring (DAM) shows the queries your applications run against the database, with their timing. These appear as part of your distributed traces and the service map. This turns on by default. See [eBPF observability](../../ebpf-observability/).
 - **From the database, when you opt in.** Database monitoring reads the database's own health metrics (connections, cache hit ratio, replication lag, and more), query performance, and logs. This needs a monitoring user's credentials.
 
 The two views line up on a shared database identity, so a slow query you see in a trace matches the server's health metrics for the same database. See [Telemetry identity](../../reference/telemetry-identity/).
@@ -36,7 +36,7 @@ TODO(screenshot): the database monitoring wizard showing engine selection, cover
 
 ## Safe to apply
 
-The agent validates the setup before applying it, and handles each database on its own, so one bad database setting cannot affect the others or your other telemetry.
+The agent validates the setup before applying it. It handles each database on its own, so one bad database setting cannot affect the others or your other telemetry.
 
 ## Where to run it
 

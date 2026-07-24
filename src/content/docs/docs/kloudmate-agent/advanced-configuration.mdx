@@ -11,9 +11,9 @@ Most agents run well in managed mode with the defaults. This page collects the a
 
 ## Manual YAML and custom receivers
 
-Switching an agent to **manual mode** gives you the raw collector YAML through the editor, so you can hand-tune the configuration or add a component that the managed integrations do not cover. This is for non-standard setups. The trade-off is that the configuration is edited by hand and the feature toggles are disabled. On Kubernetes, the agent's configuration lives in the collectors' ConfigMaps; do not edit them directly, because the agent owns them in managed mode. See the [configuration model](../concepts/config-model/) and [Kubernetes platform notes](../platform-notes/kubernetes/).
+Switching an agent to **manual mode** gives you the raw collector YAML in the editor. Use it to hand-tune the configuration or add a component the managed integrations do not cover. This is for non-standard setups. The trade-off: you edit the YAML by hand, and the feature toggles are disabled. On Kubernetes, the agent's configuration lives in the collectors' ConfigMaps. Do not edit those directly, because the agent controls them in managed mode. See the [configuration model](../concepts/config-model/) and [Kubernetes platform notes](../platform-notes/kubernetes/).
 
-If you only need to add one component on top of the managed configuration, the [custom config override](../custom-config-override/) is lighter: it layers your YAML on top of managed mode and keeps the feature toggles working, so you do not have to hand-edit the whole configuration.
+If you only need to add one component on top of the managed configuration, the [custom config override](../custom-config-override/) is lighter. It layers your YAML on top of managed mode and keeps the feature toggles working, so you do not have to hand-edit the whole configuration.
 
 The agent's own settings (such as the API key, host name override, and health reporting) are set through `agent.yaml`, environment variables, or command-line flags on the host, and through Helm values on Kubernetes. See the [configuration reference](../reference/agent-config/) for every setting, its environment variable, and its default.
 
@@ -35,7 +35,7 @@ The default model is to instrument per service. For automated rollouts, the agen
 
 ## Credential rotation
 
-Because the default credential mode stores only an environment reference, you rotate a database password by updating the environment variable or Kubernetes Secret, without changing the agent's configuration. See [Database credentials](../database-monitoring/credentials/).
+By default, the agent stores only a reference to the environment variable, not the password itself. To rotate a database password, update the environment variable or Kubernetes Secret. You do not need to change the agent's configuration. See [Database credentials](../database-monitoring/credentials/).
 
 ## Related
 

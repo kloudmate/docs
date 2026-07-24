@@ -7,7 +7,7 @@ sidebar:
 
 import { Tabs, TabItem, LinkCard, CardGrid } from '@astrojs/starlight/components';
 
-Host metrics and logs are the agent's zero-config baseline. As soon as the agent is installed, it starts collecting infrastructure telemetry from the host and sending it to KloudMate. You do not enable anything or write any configuration.
+Host metrics and logs are what the agent collects automatically, with no setup. As soon as the agent is installed, it starts collecting infrastructure telemetry from the host and sending it to KloudMate. You do not enable anything or write any configuration.
 
 ## What flows automatically
 
@@ -50,7 +50,7 @@ Host metrics and logs need no configuration. eBPF monitoring and application tra
 
 ## Where to view it
 
-The host baseline feeds the infrastructure and log views in KloudMate:
+Host metrics and logs feed the infrastructure and log views in KloudMate:
 
 - **Infrastructure monitoring** shows host and container metrics, availability, and trends. See [Infrastructure](../../../infrastructure/).
 - **Kubernetes monitoring** shows cluster, node, namespace, pod, and workload metrics. See [Kubernetes](../../../infrastructure/kubernetes/).
@@ -58,13 +58,13 @@ The host baseline feeds the infrastructure and log views in KloudMate:
 
 ## Collecting custom application logs
 
-The baseline collects system logs, not arbitrary application log **files**. To add your own log files, use [log monitoring](../../log-monitoring/): you point the agent at a folder and file-name pattern and choose how to parse each line, then preview the result before you save. Multiline grouping, for stack traces or pretty-printed JSON, is a modifier you apply on top of any format. For a hand-written receiver in manual mode, see [Collect file logs](../../../logs/collect-file-logs/).
+The agent collects system logs automatically, not your application log **files**. To add your own log files, use [log monitoring](../../log-monitoring/). You point the agent at a folder and file-name pattern, choose how to parse each line, then preview the result before you save. Multiline grouping, for stack traces or pretty-printed JSON, is a modifier you apply on top of any format. For a hand-written receiver in manual mode, see [Collect file logs](../../../logs/collect-file-logs/).
 
 ## What else the agent collects automatically
 
 Alongside host metrics and logs, two more capabilities turn on without configuration:
 
-- **Discovery** inventories what runs on the host, so you can instrument it. See [Discovery](../../concepts/discovery/).
+- **Discovery** lists what runs on the host, so you can instrument it. See [Discovery](../../concepts/discovery/).
 - **eBPF monitoring** adds Rate, Errors, and Duration (RED) metrics, a service map, and Database Activity Monitoring, with no code changes. See [eBPF observability](../../ebpf-observability/).
 
 ## Next steps

@@ -7,16 +7,16 @@ sidebar:
 
 import { LinkCard, CardGrid } from '@astrojs/starlight/components';
 
-Application performance monitoring (APM) is the opt-in half of the agent. Where eBPF monitoring gives you Rate, Errors, and Duration (RED) metrics and a service map automatically, application APM attaches OpenTelemetry (OTel) auto-instrumentation to a service to produce full distributed traces, with spans for your frameworks, database calls, and outbound requests. Because it requires a process restart, you enable it one service at a time.
+Application performance monitoring (APM) is the opt-in half of the agent. eBPF monitoring gives you Rate, Errors, and Duration (RED) metrics and a service map automatically. Application APM goes further: it attaches OpenTelemetry (OTel) auto-instrumentation to a service and produces full distributed traces, with spans for your frameworks, database calls, and outbound requests. It needs a process restart, so you turn it on one service at a time.
 
 ## The per-service opt-in flow
 
 The flow is the same across every deployment mode:
 
-1. **Discover.** The agent inventories your services and lists them under **Discovered Services**. See [Discovery](../../concepts/discovery/).
+1. **Discover.** The agent finds your services and lists them under **Discovered Services**. See [Discovery](../../concepts/discovery/).
 2. **Toggle Instrument.** You turn on the **Instrument** toggle for a service.
 3. **Consent to the restart.** Instrumentation only takes effect when the process restarts, so the agent asks before restarting. You can restart now, or leave the change pending until the next restart.
-4. **Traces flow.** After the restart, the service emits application traces to the agent's local collector, correlated with its eBPF spans.
+4. **Traces flow.** After the restart, the service sends application traces to the agent's local collector, correlated with its eBPF spans.
 
 Throughout this flow, eBPF monitoring keeps covering the service, so there is no visibility gap while you enable APM.
 
@@ -40,7 +40,7 @@ The agent never restarts your services silently. In this version:
 
 ## Automatic rollback
 
-If an instrumented service fails to restart or falls into a crash loop, the agent **rolls back automatically**: it removes the change, reloads, and restarts the service, returning it to its previous state, and reports the status as failed, rolled back. eBPF monitoring keeps covering it, and because you instrument one service at a time, a problem with one service never affects the others.
+If an instrumented service fails to restart or falls into a crash loop, the agent **rolls back automatically**. It removes the change, reloads, and restarts the service, so the service returns to its previous state, and reports the status as failed, rolled back. eBPF monitoring keeps covering the service. Because you instrument one service at a time, a problem with one never affects the others.
 
 ## Supported runtimes
 
@@ -61,7 +61,7 @@ When you instrument a service, the agent tells eBPF monitoring to stop tracing t
 
 ## Instrument everything (advanced)
 
-The default and recommended model is to instrument per service. For automated rollouts, the agent also supports an autonomous mode that instruments every eligible service without per-service toggles. This is an advanced option; see [Advanced configuration](../../advanced-configuration/).
+Instrumenting per service is the default and the recommended approach. For automated rollouts, the agent also has an autonomous mode that instruments every eligible service without per-service toggles. This is an advanced option. See [Advanced configuration](../../advanced-configuration/).
 
 ## Per-mode guides
 

@@ -7,7 +7,7 @@ sidebar:
 
 import { LinkCard, CardGrid } from '@astrojs/starlight/components';
 
-The agent reports on its own health so you can tell whether it is alive and whether its collector is running, without logging in to the host. These liveness metrics are reported **out-of-band**, on a path that does not go through the collector, so they keep arriving even when the collector is down.
+The agent reports on its own health, so you can tell whether it is alive and whether its collector is running without logging in to the host. These liveness metrics are reported **out-of-band**, on a path that does not go through the collector. So they keep arriving even when the collector is down.
 
 ## The metric catalog
 
@@ -29,7 +29,7 @@ Resource attributes: `service.name` is `kmagent` (so you can target it directly 
 
 ## What the collector status tells you
 
-`kmagent.collector.up` carries a `reason` attribute that classifies why the collector is down, so you can tell failure modes apart:
+`kmagent.collector.up` carries a `reason` attribute that says why the collector is down, so you can tell the failure modes apart:
 
 | Situation | Signal |
 |---|---|
@@ -43,11 +43,11 @@ The agent restarts the collector automatically after a crash, and the restart co
 
 ## Alerting on a silent agent
 
-The one failure the agent cannot report is total silence: if the agent, host, or network goes down, nothing is emitted. Detect this with a dead-man's-switch alert in KloudMate that fires when `kmagent.up` stops arriving for a host.
+The one failure the agent cannot report is total silence. If the agent, host, or network goes down, nothing is emitted. Detect this with a dead-man's-switch alert in KloudMate that fires when `kmagent.up` stops arriving for a host.
 
 ## Enabling and tuning
 
-Health reporting is controlled by the agent's settings. You can enable or disable it and set its interval through the agent configuration (the `health-enabled` and `health-interval` settings, which map to the `KM_HEALTH_ENABLED` and `KM_HEALTH_INTERVAL` environment variables). The default interval matches the agent's check-in interval.
+Health reporting is controlled by the agent's settings. You can turn it on or off and set its interval through the agent configuration. These are the `health-enabled` and `health-interval` settings, which map to the `KM_HEALTH_ENABLED` and `KM_HEALTH_INTERVAL` environment variables. The default interval matches the agent's check-in interval.
 
 ## Next steps
 

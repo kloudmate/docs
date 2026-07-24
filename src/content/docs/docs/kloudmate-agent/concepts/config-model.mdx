@@ -44,10 +44,10 @@ See [Database credentials](../../database-monitoring/credentials/).
 
 ## Migrating existing agents
 
-When an agent is upgraded, it stays in **manual** mode so nothing changes unexpectedly. To adopt managed mode, switch it in the interface; it starts from a sensible default of host metrics, logs, and eBPF monitoring, plus anything discovery found. New agents already start in managed mode.
+When an agent is upgraded, it stays in **manual** mode so nothing changes unexpectedly. To adopt managed mode, switch it in the interface. It starts from a sensible default: host metrics, logs, and eBPF monitoring, plus anything discovery found. New agents already start in managed mode.
 
 :::caution
-Switching an agent from manual to managed mode replaces its hand-edited YAML with generated configuration. KloudMate saves the previous manual configuration first, so it is not lost, but review the change before you switch a production agent.
+Switching an agent from manual to managed mode replaces its hand-edited YAML with generated configuration. KloudMate saves the previous manual configuration first, so it is not lost. Still, review the change before you switch a production agent.
 :::
 
 ## Next steps

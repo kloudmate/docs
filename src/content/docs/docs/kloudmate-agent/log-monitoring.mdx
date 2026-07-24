@@ -7,7 +7,7 @@ sidebar:
 
 import { Steps, Tabs, TabItem, LinkCard, CardGrid } from '@astrojs/starlight/components';
 
-Log monitoring is a wizard where you point the agent at log files on a host and choose how to parse them — no hand-written collector configuration. You give the agent a folder and a file-name pattern, pick a parse format, and the agent collects those files. It is the log counterpart of [database monitoring](../database-monitoring/overview/): the same wizard-driven approach, but for log files.
+Log monitoring is a wizard where you point the agent at log files on a host and choose how to parse them, with no hand-written collector configuration. You give the agent a folder and a file-name pattern, pick a parse format, and the agent collects those files. It is the log counterpart of [database monitoring](../database-monitoring/overview/): the same wizard-driven approach, but for log files.
 
 It applies to Linux and Windows virtual machine (VM) hosts and to Docker. It is **not available on Kubernetes**, where pod and container logs are already collected for you. See [Not available on Kubernetes](#not-available-on-kubernetes) below.
 
@@ -17,7 +17,7 @@ Log monitoring is a managed-mode feature. You configure sources from the agent's
 
 - **Managed mode only.** The Logs tab is available when the agent is in managed mode. If the agent is in manual mode, the tab prompts you to switch. You can still add a `filelog` receiver by hand in manual mode: see [Manual configuration](#manual-configuration).
 - **Independent sources.** Each source is isolated, so one badly configured source cannot affect the others or your host system logs.
-- **It builds on the baseline.** The host baseline already ships system logs (the systemd journal on Linux, the Windows Event Log, container output on Docker) with no configuration. Log monitoring is for the extra application log **files** that the baseline does not pick up. See [Host metrics and logs](../baseline/host-metrics-and-logs/).
+- **It builds on what the agent already collects.** The agent already ships system logs with no configuration: the systemd journal on Linux, the Windows Event Log, and container output on Docker. Log monitoring is for the extra application log **files** those do not pick up. See [Host metrics and logs](../baseline/host-metrics-and-logs/).
 
 ## Add a log source
 
@@ -55,12 +55,12 @@ Each line is stored as-is, as the record body, with no field parsing. Use this w
 </TabItem>
 <TabItem label="JSON">
 
-Each line is parsed as one JSON object. You then map which fields are the **timestamp**, the **severity**, and the **message**. The timestamp and severity are lifted onto the record, the message becomes the record body, and every other field is kept as a searchable attribute.
+Each line is parsed as one JSON object. You then map which fields are the **timestamp**, the **severity**, and the **message**. The timestamp and severity are set on the record, the message becomes the record body, and every other field is kept as a searchable attribute.
 
 </TabItem>
 <TabItem label="Custom regex">
 
-You supply a regular expression with **named capture groups**, then map which groups are the timestamp, the severity, and the message. As with JSON, those three are lifted onto the record and the remaining named groups are kept as attributes. This is the most flexible format, and it is what the app presets are built on.
+You supply a regular expression with **named capture groups**, then map which groups are the timestamp, the severity, and the message. As with JSON, those three are set on the record and the remaining named groups are kept as attributes. This is the most flexible format, and it is what the app presets are built on.
 
 </TabItem>
 </Tabs>
@@ -74,13 +74,13 @@ For common log shapes, the wizard offers presets so you do not have to write the
 - **Nginx error** (carries a level)
 - **Apache access**
 
-Each app preset is a prefilled **Custom regex**: a ready-made regular expression, the timestamp, severity, and message mapping, and the timestamp layout, all filled in for you. They are transparent, not black boxes. You can preview a preset against your own files and edit any part of it before you save. There is also a plain **JSON** preset that prefills the usual `ts`, `level`, and `msg` field names for you to adjust.
+Each app preset is a prefilled **Custom regex**: a ready-made regular expression, the timestamp, severity, and message mapping, and the timestamp layout, all filled in for you. You can preview a preset against your own files and edit any part of it before you save. There is also a plain **JSON** preset that prefills the usual `ts`, `level`, and `msg` field names for you to adjust.
 
 ## Combine multiline entries
 
-Some log entries span several lines: a stack trace, or a pretty-printed JSON object. Multiline grouping is a **modifier**, not a separate format: it is a toggle that applies on top of plain text, JSON, or regex.
+Some log entries span several lines, such as a stack trace or a pretty-printed JSON object. Multiline grouping is a toggle, not a separate format. It works on top of plain text, JSON, or regex.
 
-When you enable it, you tell the agent how a new entry begins with a line-start pattern ("a new entry starts with ..."), and the agent joins every following line into that entry until the next start. The wizard seeds a sensible pattern for you (a leading timestamp for text logs, an opening brace for JSON), which you can adjust.
+When you turn it on, you give the agent a line-start pattern that marks where a new entry begins ("a new entry starts with ..."). The agent then joins every following line into that entry until the next start. The wizard fills in a sensible pattern for you (a leading timestamp for text logs, an opening brace for JSON), which you can adjust.
 
 ## Timestamps and severity
 
@@ -117,7 +117,31 @@ TODO(screenshot): the Preview results panel, showing matched files and a parsed 
 Log monitoring runs on Linux and Windows VM hosts and on Docker. It is **not available on Kubernetes**:
 
 - The Logs tab is hidden for Kubernetes agents, and the backend rejects log sources for them.
-- On Kubernetes, pod and container logs (`stdout` and `stderr`) are already collected for you by the agent's DaemonSet as part of the [host baseline](../baseline/host-metrics-and-logs/), so a file-pointing wizard is not needed. See [Kubernetes platform notes](../platform-notes/kubernetes/).
+- On Kubernetes, the agent's DaemonSet already collects pod and container logs (`stdout` and `stderr`) as part of [host metrics and logs](../baseline/host-metrics-and-logs/), so a file-pointing wizard is not needed. See [Kubernetes platform notes](../platform-notes/kubernetes/).
+
+## Local file sources
+
+Besides the wizard, the agent reads log sources from files on the host. At startup it loads every `*.yaml` or `*.yml` file from a directory on the host:
+
+- **Linux:** `/etc/kmagent/logs.d`
+- **Windows:** `%ProgramData%\kmagent\logs.d` (by default `C:\ProgramData\kmagent\logs.d`)
+
+Override the directory with the `KM_LOG_SOURCES_DIR` environment variable. Each file is a YAML list of sources with the same fields the wizard sets. Use this where there is no web interface to configure, such as an autoscaling group or a baked machine image. See [Auto-scaling group deployment](../installation/aws-asg-deployment/#configure-log-collection) for the fields and examples.
+
+These local sources merge with the sources you configure in the web interface. If both define the same source name, the pushed source wins.
+
+## Windows Event Log channels
+
+On Windows, a log source can collect **Windows Event Log channels** instead of files. Set the source `type` to `eventlog` and list the channel names in `include`:
+
+```yaml
+# %ProgramData%\kmagent\logs.d\powershell-events.yaml
+- name: powershell-events
+  type: eventlog
+  include: [ "Microsoft-Windows-PowerShell/Operational" ]
+```
+
+Only new events are collected, with no historical backfill. The System, Application, and Security logs are already collected by default (see [Host metrics and logs](../baseline/host-metrics-and-logs/)), so use `eventlog` sources for other channels. Event Log sources are Windows-only.
 
 ## Manual configuration
 

@@ -1,6 +1,6 @@
 ---
 title: "Windows"
-description: "Documentation for Windows Agent"
+description: "Install the KloudMate agent on Windows Server to collect host metrics, Windows Event Logs, and application logs."
 sidebar:
   order: 6
 ---
@@ -69,20 +69,36 @@ View all collected data in these KloudMate sections:
 
 ![image](./images/windows-agent-3.png)
 
+## Silent install
+
+To install without prompts (for Intune, Group Policy, or a configuration-management tool), pass the API key and endpoint as parameters alongside the silent flags. Run it from an elevated (Administrator) prompt.
+
+```powershell
+.\kmagent-setup.exe /VERYSILENT /SUPPRESSMSGBOXES /NORESTART /APIKEY=YOUR_API_KEY /ENDPOINT=https://otel.kloudmate.com:4318
+```
+
+- `/APIKEY=` sets your workspace API key. Required.
+- `/ENDPOINT=` sets the collector endpoint. Optional; defaults to `https://otel.kloudmate.com:4318`. Use your workspace's endpoint from **Settings → Agents**.
+- `/VERYSILENT /SUPPRESSMSGBOXES /NORESTART` suppress the wizard, dialog prompts, and reboot.
+
+The service installs and starts the same as the interactive install. Replace `kmagent-setup.exe` with the file you downloaded.
+
 ## **Log Integration**
 
 By default, the KloudMate Agent collects basic system logs (the Windows Event Log).
 
-To collect your own application log **files**, use log monitoring: from the agent's **Logs** tab you point the agent at a folder and file-name pattern and choose how to parse each line (plain text, JSON, or a regular expression). Multiline grouping, for stack traces or pretty-printed JSON, is a modifier you apply on top of any format, and you can preview the parsed records before you save. See [Log monitoring](../../log-monitoring/).
+To collect your own application log **files**, use log monitoring. In the agent's **Logs** tab, point the agent at a folder and file-name pattern, then choose how to parse each line: plain text, JSON, or a regular expression. Multiline grouping, for stack traces or pretty-printed JSON, works on top of any format. You can preview the parsed records before you save. See [Log monitoring](../../log-monitoring/).
+
+Log monitoring can also collect **additional Windows Event Log channels** and read log-source files placed in `C:\ProgramData\kmagent\logs.d`. See [Windows Event Log channels](../../log-monitoring/#windows-event-log-channels) and [Local file sources](../../log-monitoring/#local-file-sources).
 
 For a hand-written `filelog` receiver in manual mode, see [Collect File Logs with KloudMate Agent](../../../logs/collect-file-logs/).
 
 ## Configuration and next checks
 
-The agent installs as a Windows service running as Local System, which is the privilege level it needs to read Internet Information Services (IIS) configuration and Windows Management Instrumentation (WMI). New agents start in managed mode; see the [configuration model](../../concepts/config-model/).
+The agent installs as a Windows service running as Local System. It needs that privilege level to read Internet Information Services (IIS) configuration and Windows Management Instrumentation (WMI). New agents start in managed mode. See the [configuration model](../../concepts/config-model/).
 
 - Host metrics and the Windows Event Log start flowing automatically. See [Host metrics and logs](../../baseline/host-metrics-and-logs/).
-- eBPF does not apply on Windows. The agent provides an equivalent monitoring through Event Tracing for Windows (ETW). See [Windows platform notes](../../platform-notes/windows/).
+- eBPF does not apply on Windows. The agent gives you equivalent monitoring through Event Tracing for Windows (ETW). See [Windows platform notes](../../platform-notes/windows/).
 - To add distributed tracing to .NET applications, see [Windows and .NET application APM](../../auto-instrumentation/windows-dotnet/).
 
 ## **Next Steps**

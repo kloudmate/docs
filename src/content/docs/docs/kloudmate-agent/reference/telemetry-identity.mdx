@@ -1,13 +1,13 @@
 ---
 title: "Telemetry identity"
-description: "How the KloudMate agent identifies databases across metrics and traces so signals join, and how to build dashboards keyed on server address."
+description: "How the KloudMate agent gives each database one identity so its metrics and traces line up, and how to build dashboards keyed on the server address."
 sidebar:
   order: 2
 ---
 
 import { LinkCard, CardGrid } from '@astrojs/starlight/components';
 
-For a database's server-side metrics to line up with the traces that hit it, every signal has to agree on how the database is identified. The agent puts a single, consistent identity on metrics and traces so they join, and you can build dashboards on it.
+For a database's server-side metrics to line up with the traces that hit it, every signal has to identify the database the same way. The agent puts one consistent identity on metrics and traces so they join. You can build dashboards on it.
 
 ## The identity keys
 
@@ -36,7 +36,7 @@ The agent also stamps a per-instance **`service.name`** of the form `<db.system.
 
 The same database can appear under different addresses: your application might connect to `localhost` or a socket, while its metrics report a host name. Without a consistent address, the two would not line up.
 
-To fix this, the agent puts one **routable, non-loopback address** on database telemetry. On a virtual machine it uses the host's routable address; on Kubernetes it uses the in-cluster address, which is what applications connect to. The agent puts this same `server.address` on the database queries from your applications and eBPF monitoring, so they line up with the database's metrics.
+To fix this, the agent puts one **routable, non-loopback address** on database telemetry. On a virtual machine it uses the host's routable address; on Kubernetes it uses the in-cluster address, which is what applications connect to. The agent puts this same `server.address` on the database queries from your applications and from eBPF monitoring. That way they line up with the database's metrics.
 
 ## Building dashboards
 
@@ -45,12 +45,12 @@ When you build a dashboard variable to select a database "server," key it on **`
 - `server.address` is the database's own identity, consistent across metrics and traces.
 - `host.name` is the host the telemetry came from, which on a client span is the calling application's host, and on Kubernetes is the cluster, not the individual database.
 
-Keying on `server.address` (with `server.port` and `db.system.name` where you need to disambiguate) gives you a database selector that works the same way across deployment modes and joins metrics with traces.
+Keying on `server.address` (add `server.port` and `db.system.name` where you need to tell instances apart) gives you a database selector that works the same across deployment modes and joins metrics with traces.
 
 ## Limits to know
 
-- A loopback connection that eBPF monitoring sees with no endpoint can only be bound to a monitored database when there is exactly one instance of that engine on the host; with several same-engine instances, the agent leaves it unstamped rather than guessing.
-- If an application is instrumented by one agent and its database is monitored by a different agent, the two line up only when they already agree on `server.address`, which they usually do when both use the same DNS endpoint.
+- When eBPF monitoring sees a loopback connection with no endpoint, it can match it to a monitored database only if that engine has exactly one instance on the host. With several instances of the same engine, the agent leaves it unstamped rather than guessing.
+- If an application is instrumented by one agent and its database is monitored by a different agent, the two line up only when they already agree on `server.address`. They usually do when both use the same DNS endpoint.
 
 ## Related
 

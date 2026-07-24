@@ -11,7 +11,7 @@ The agent traces PHP **7.0 through 8.x** applications on **Linux** (host PHP-FPM
 
 ## How it works
 
-When you instrument a PHP service, the agent attaches tracing to it automatically, with **no application code changes**. It reloads the PHP process manager gracefully, so requests keep being served, and if tracing fails to load it rolls back. If a PHP build is not supported, the agent skips it and tells you why.
+When you instrument a PHP service, the agent attaches tracing to it automatically, with **no application code changes**. It reloads the PHP process manager gracefully, so requests keep being served. If tracing fails to load, it rolls back. If a PHP build is not supported, the agent skips it and tells you why.
 
 ## What you get
 
@@ -21,7 +21,7 @@ The overhead is small: a fixed cost of roughly 1.6 milliseconds per request, whi
 
 ## PHP in containers
 
-In Docker, the agent instruments PHP containers without a redeploy, matching the container's PHP build automatically. The instrumented application ships its traces to the agent through the container's host gateway. See [Docker platform notes](../../platform-notes/docker/) for the container details.
+In Docker, the agent instruments PHP containers without a redeploy, and matches the container's PHP build automatically. The instrumented application sends its traces to the agent through the container's host gateway. See [Docker platform notes](../../platform-notes/docker/) for the container details.
 
 ## Next steps
 

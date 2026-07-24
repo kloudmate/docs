@@ -39,7 +39,7 @@ Database log coverages are available on a virtual machine. On Kubernetes, the ag
 
 ## Setup steps
 
-Some coverages need a one-time setup step on the database, which the wizard shows you when you select the coverage. For example:
+Some coverages need a one-time setup step on the database. The wizard shows you the step when you select that coverage. For example:
 
 - PostgreSQL query performance needs the `pg_stat_statements` extension enabled, which needs a PostgreSQL restart.
 - Query performance and query-log coverages need the monitoring user to have the right grants, such as `GRANT pg_monitor` on PostgreSQL or the equivalent view permissions on SQL Server and Oracle.

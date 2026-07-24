@@ -7,15 +7,15 @@ sidebar:
 
 import { LinkCard, CardGrid } from '@astrojs/starlight/components';
 
-How the agent runs on Windows. For installation, see the [Windows installation guide](../../installation/windows-agent/); for how .NET and other runtimes are instrumented, see [Windows and .NET application APM](../../auto-instrumentation/windows-dotnet/).
+How the agent runs on Windows. For installation, see the [Windows installation guide](../../installation/windows-agent/). For how .NET and other runtimes are instrumented, see [Windows and .NET application APM](../../auto-instrumentation/windows-dotnet/).
 
 ## A different mechanism, the same model
 
-Windows has no `LD_PRELOAD` and no production eBPF, so the agent uses Windows-native mechanisms while keeping the same discover, instrument, and report model as the other platforms. Instead of systemd drop-ins, the agent uses the Windows registry, Windows Management Instrumentation (WMI), and Internet Information Services (IIS) configuration.
+Windows has no `LD_PRELOAD` and no production eBPF, so the agent uses Windows-native mechanisms. It keeps the same discover, instrument, and report model as the other platforms. Instead of systemd config files, the agent uses the Windows registry, Windows Management Instrumentation (WMI), and Internet Information Services (IIS) configuration.
 
 ## Discovery
 
-To build the Discovered Services list, the agent enumerates:
+To build the Discovered Services list, the agent looks at:
 
 - **IIS** sites and application pools, including each pool's managed runtime version and state.
 - **Windows services**, through the Service Control Manager.
@@ -25,11 +25,11 @@ Discovered services appear with a kind of `iis` or `windows_service`. See [Disco
 
 ## ETW monitoring
 
-Because Windows has no eBPF, the agent provides an equivalent zero-code monitoring through a custom Event Tracing for Windows (ETW) receiver. It taps the HTTP.sys provider to emit server spans (at the request-path level) and Rate, Errors, and Duration (RED) metrics for all IIS traffic, without injection. This covers workloads that cannot use the .NET profiler, including legacy .NET Framework 3.5 pools and non-.NET applications on IIS. The receiver reads events only and makes no changes to your applications. See [Windows and .NET application APM](../../auto-instrumentation/windows-dotnet/) for how ETW monitoring and the CLR profiler work together.
+Because Windows has no eBPF, the agent gives you equivalent zero-code monitoring through a custom Event Tracing for Windows (ETW) receiver. The receiver taps the HTTP.sys provider to emit server spans (at the request-path level) and Rate, Errors, and Duration (RED) metrics for all IIS traffic, with no injection. This covers workloads that cannot use the .NET profiler, including legacy .NET Framework 3.5 pools and non-.NET applications on IIS. The receiver reads events only and makes no changes to your applications. See [Windows and .NET application APM](../../auto-instrumentation/windows-dotnet/) for how ETW monitoring and the CLR profiler work together.
 
 ## Injection mechanisms
 
-- **.NET** is instrumented with the Common Language Runtime (CLR) profiler, whose environment the agent writes directly to the registry or to the IIS `applicationHost.config`, at per-application-pool granularity on IIS 10 and newer.
+- **.NET** is instrumented with the Common Language Runtime (CLR) profiler. The agent writes the profiler's environment directly to the registry or to the IIS `applicationHost.config`. On IIS 10 and newer, it can do this per application pool.
 - **Java, Node.js, and Python** are instrumented through the per-service registry environment.
 
 See [Windows and .NET application APM](../../auto-instrumentation/windows-dotnet/) for the details.
@@ -44,7 +44,7 @@ The agent runs as a Windows service under the **Local System** account, which gi
 
 ## Automatic collection
 
-Alongside application instrumentation, the agent collects the Windows host baseline: performance counters, the Windows Event Log, IIS metrics, and Windows service status. See [Host metrics and logs](../../baseline/host-metrics-and-logs/).
+Alongside application instrumentation, the agent automatically collects Windows host metrics and logs: performance counters, the Windows Event Log, IIS metrics, and Windows service status. See [Host metrics and logs](../../baseline/host-metrics-and-logs/).
 
 ## Next steps
 

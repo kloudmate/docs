@@ -10,7 +10,7 @@ import { LinkCard, CardGrid } from '@astrojs/starlight/components';
 
 The **KloudMate Agent** is a single program you install on your servers, containers, or clusters. Once running, it finds what you run, collects host metrics and logs, and turns on kernel-level observability. You can then add deeper application tracing one service at a time, all from the KloudMate web interface.
 
-It is built on the **OpenTelemetry (OTel) Collector** with a curated set of components, so you get straightforward deployment, remote configuration, and **extended Berkeley Packet Filter (eBPF)** observability without writing collector configuration.
+It is built on the **OpenTelemetry (OTel) Collector** with a curated set of components. You get simple deployment, remote configuration, and **extended Berkeley Packet Filter (eBPF)** observability without writing any collector configuration.
 
 The agent is managed from the KloudMate web interface. When you change a setting, the agent applies it for you, so there is no need for Secure Shell (SSH) access or local file edits. Each agent's health and status appear in your dashboards.
 
@@ -35,7 +35,7 @@ The agent also reports its own status and error logs.
 
 ## Supported platforms
 
-The agent runs across four deployment modes. Not every capability applies to every mode: eBPF depends on the Linux kernel, so it does not apply on Windows, where an Event Tracing for Windows (ETW) monitoring provides the equivalent view.
+The agent runs across four deployment modes. Not every capability applies to every mode. eBPF depends on the Linux kernel, so it does not apply on Windows. There, Event Tracing for Windows (ETW) monitoring provides the equivalent view.
 
 | Capability | Linux / VM | Windows | Kubernetes | Docker |
 |---|---|---|---|---|
@@ -50,7 +50,7 @@ The agent runs across four deployment modes. Not every capability applies to eve
 | Agent health and self-logs | Yes | Yes | Yes | Yes |
 
 :::note
-On Linux, eBPF monitoring needs kernel 4.14 or newer, and unlocks more on 5.8 and above. On Docker, host and container metrics, logs, and eBPF monitoring are automatic; PHP containers are traced without a redeploy, and Java, Node.js, Python, and .NET are covered by eBPF monitoring. See [Docker platform notes](platform-notes/docker/).
+On Linux, eBPF monitoring needs kernel 4.14 or newer, and does more on 5.8 and above. On Docker, host and container metrics, logs, and eBPF monitoring are automatic. PHP containers are traced without a redeploy, and Java, Node.js, Python, and .NET are covered by eBPF monitoring. See [Docker platform notes](platform-notes/docker/).
 :::
 
 ## Install the agent

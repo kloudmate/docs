@@ -70,7 +70,7 @@ exporters:
 
 ## Safety
 
-Before it applies a new configuration, the agent validates it. If your override makes the configuration invalid, most often a wrong top-level key, the agent **rejects it and keeps the last working configuration** rather than restarting the collector into a broken state. The reason is reported back to the workspace, so you can see why an override was not applied without logging in to the host.
+Before it applies a new configuration, the agent validates it. If your override makes the configuration invalid (most often from a wrong top-level key), the agent **rejects it and keeps the last working configuration** instead of restarting the collector into a broken state. The reason is reported back to your workspace, so you can see why an override was not applied without logging in to the host.
 
 ## Related
 

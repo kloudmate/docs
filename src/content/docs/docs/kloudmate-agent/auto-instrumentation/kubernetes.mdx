@@ -7,7 +7,7 @@ sidebar:
 
 import { Tabs, TabItem, LinkCard, CardGrid } from '@astrojs/starlight/components';
 
-On Kubernetes, application performance monitoring (APM) follows the same per-workload opt-in model as the rest of the agent, but the injection mechanism is the OpenTelemetry (OTel) Operator rather than systemd drop-ins. When you instrument a workload, the agent adds an injection annotation, the Operator injects the matching language agent into the pods, and the pods restart with tracing enabled. For the general flow, consent, and status behavior, see the [Application APM overview](../overview/).
+On Kubernetes, application performance monitoring (APM) works the same opt-in way as on other platforms. The difference is the injection method: it uses the OpenTelemetry (OTel) Operator instead of systemd configuration. When you instrument a workload, the agent adds an annotation, the Operator injects the matching language agent into the pods, and the pods restart with tracing on. For the general flow, consent, and status behavior, see the [Application APM overview](../overview/).
 
 ## Prerequisites
 
@@ -62,11 +62,11 @@ After adding the annotation, restart the deployment so the Operator injects the 
 
 ## Parity with the Linux flow
 
-It works the same way as on [Linux](../linux-systemd/): discover a workload, toggle Instrument, and let traces flow, correlated with eBPF monitoring that already covers the cluster. Only the mechanism differs: Kubernetes uses annotation-driven injection and a rolling pod restart, while Linux uses systemd drop-ins and a service restart.
+It works the same way as on [Linux](../linux-systemd/): discover a workload, toggle Instrument, and let traces flow. Those traces are correlated with eBPF monitoring that already covers the cluster. Only the mechanism differs. Kubernetes uses annotation-driven injection and a rolling pod restart. Linux uses systemd config files and a service restart.
 
 ## Monitored namespaces
 
-APM applies to the namespaces you monitor. You set these at install time, and leaving the list empty monitors all namespaces except the system namespaces. See the [Kubernetes installation guide](../../installation/kubernetes-agent/).
+APM applies to the namespaces you monitor. You set these at install time. If you leave the list empty, the agent monitors all namespaces except the system ones. See the [Kubernetes installation guide](../../installation/kubernetes-agent/).
 
 ## Next steps
 

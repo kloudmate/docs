@@ -1,6 +1,6 @@
 ---
 title: "Docker"
-description: "Documentation for Docker Agent"
+description: "Run the KloudMate agent as a Docker container to collect host and container metrics and logs."
 sidebar:
   order: 4
 ---
@@ -76,13 +76,13 @@ View all collected data in these KloudMate sections:
 
 By default, the KloudMate Agent collects host and container logs.
 
-To collect application log **files** on the Docker host, use log monitoring: from the agent's **Logs** tab you point the agent at a folder and file-name pattern and choose how to parse each line (plain text, JSON, or a regular expression). Multiline grouping, for stack traces or pretty-printed JSON, is a modifier you apply on top of any format, and you can preview the parsed records before you save. See [Log monitoring](../../log-monitoring/).
+To collect application log **files** on the Docker host, use log monitoring. In the agent's **Logs** tab, point the agent at a folder and file-name pattern, then choose how to parse each line: plain text, JSON, or a regular expression. Multiline grouping, for stack traces or pretty-printed JSON, works on top of any format. You can preview the parsed records before you save. See [Log monitoring](../../log-monitoring/).
 
 For a hand-written `filelog` receiver in manual mode, see [Collect File Logs with KloudMate Agent](../../../logs/collect-file-logs/).
 
 ## Coverage and configuration
 
-In Docker mode, the agent collects host and container metrics, container and host logs, and, where the host kernel supports it, the [eBPF monitoring](../../ebpf-observability/) (RED metrics, service map, and Database Activity Monitoring) across your containers with no code changes. For span-level application traces, the agent instruments PHP containers without a redeploy; Java, Node.js, Python, and .NET are covered by eBPF monitoring. See [Docker platform notes](../../platform-notes/docker/) for the per-runtime detail.
+In Docker mode, the agent collects host and container metrics, container and host logs, and, where the host kernel supports it, [eBPF monitoring](../../ebpf-observability/) across your containers with no code changes. eBPF monitoring gives you RED metrics, the service map, and Database Activity Monitoring. For span-level application traces, the agent instruments PHP containers without a redeploy. Java, Node.js, Python, and .NET are covered by eBPF monitoring. See [Docker platform notes](../../platform-notes/docker/) for the per-runtime detail.
 
 New agents start in managed mode, so KloudMate generates the collector configuration for you. See the [configuration model](../../concepts/config-model/).
 

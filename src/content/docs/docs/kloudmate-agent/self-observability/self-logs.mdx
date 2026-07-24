@@ -7,7 +7,7 @@ sidebar:
 
 import { LinkCard, CardGrid } from '@astrojs/starlight/components';
 
-Self-logs bring the agent's own error output into KloudMate, so you can diagnose a failing agent without opening a shell on the host. Like the [health metrics](../health-metrics/), they are shipped out-of-band, on a path independent of the collector, so an error survives even when the collector cannot run. Self-logs apply on all deployment modes.
+Self-logs bring the agent's own error output into KloudMate, so you can diagnose a failing agent without opening a shell on the host. Like the [health metrics](../health-metrics/), they are shipped out-of-band, on a path independent of the collector. So an error survives even when the collector cannot run. Self-logs apply on all deployment modes.
 
 ## What it ships
 
@@ -19,7 +19,7 @@ The agent forwards its own **ERROR-level logs** directly to KloudMate. It ships 
 
 ## On Kubernetes
 
-On Kubernetes, self-logs are shipped per node, carried with per-node identity, so you can see errors from each node's collector and from the fleet manager without running `kubectl logs`. See [Kubernetes platform notes](../../platform-notes/kubernetes/).
+On Kubernetes, self-logs are shipped per node, each tagged with its node identity. So you can see errors from each node's collector and from the fleet manager without running `kubectl logs`. See [Kubernetes platform notes](../../platform-notes/kubernetes/).
 
 ## Enabling it
 

@@ -22,7 +22,7 @@ When eBPF monitoring is active, the agent collects:
 - **Distributed context propagation:** the agent reads and injects HTTP trace context (`traceparent`), so requests stay on one trace across services.
 - **Log-to-trace correlation:** trace identifiers are added to application logs so you can jump between a log line and its trace.
 
-Because eBPF observes traffic in the kernel, it covers services you have not instrumented, including Go services, which the agent does not inject. When a service is also instrumented with application APM, the eBPF spans and the application spans share the same trace, so uninstrumented hops still appear in end-to-end traces.
+Because eBPF observes traffic in the kernel, it covers services you have not instrumented. That includes Go services, which the agent does not inject. When a service is also instrumented with application APM, the eBPF spans and the application spans share the same trace, so uninstrumented hops still appear in end-to-end traces.
 
 ## Deployment modes and requirements
 

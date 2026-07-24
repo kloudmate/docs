@@ -1,6 +1,6 @@
 ---
 title: "Configuration & Management"
-description: "Learn how to manage, configure, and monitor your KloudMate Agents centrally from the web interface."
+description: "Manage, configure, and monitor your KloudMate agents centrally from the web interface."
 sidebar:
   order: 12
 ---
@@ -9,7 +9,7 @@ The KloudMate Agent is managed centrally from the web UI, so there is no need to
 
 ## Agents Overview
 
-The KloudMate agent's landing page allows you to view, add, and manage your agents. Once an agent is integrated, you can view its details:
+The KloudMate agent's landing page lets you view, add, and manage agents. After an agent is integrated, you can view its details:
 
 ![image](./images/managing-kloudmate-agents-3.png)
 
@@ -37,24 +37,24 @@ The KloudMate agent's landing page allows you to view, add, and manage your agen
 
 ## Remote Configuration Editor
 
-The agent watches for remote configuration changes via a secure connection and updates itself automatically. 
+The agent watches for remote configuration changes over a secure connection and updates itself automatically. 
 
 :::danger
   **Do not hand-edit local files in managed mode.**
   In managed mode, KloudMate regenerates the collector configuration from your toggles, so manual edits to ConfigMaps or local configuration files will be overwritten. Always use the **KloudMate Agent Config Editor** in the web UI.
 :::
 
-From the KloudMate platform, you can update the collector configuration associated with any agent:
+From the KloudMate platform, you can update the collector configuration for any agent:
 
 ![image](./images/managing-kloudmate-agents-4.png)
 
-- **Collector Configuration:** Open the web-based YAML editor to make changes to the collector settings and apply updates automatically where the agent is installed.
+- **Collector Configuration:** Open the web-based YAML editor to change the collector settings. Updates apply automatically wherever the agent is installed.
 - **APM Configuration:** Configure the applications running on your Kubernetes cluster (applicable only for Kubernetes agents).
 - **Restart Collector:** Restart the collector service when needed.
 - **Delete:** Remove the agent from the KloudMate Agent landing page and clear all of its configuration.
 
 :::caution
-Deleting an agent decommissions it. Its instrumented applications are restarted to remove their instrumentation, and its database monitoring and log monitoring stop. If the agent is still running on the host, it checks back in and reappears as a new, unconfigured agent, so to remove it for good you must also uninstall it from the host. See the [installation guides](../installation/linux-agent/) for the uninstall command.
+Deleting an agent decommissions it. Its instrumented applications restart so their instrumentation is removed, and its database and log monitoring stop. If the agent is still running on the host, it checks back in and reappears as a new, unconfigured agent. To remove it for good, also uninstall it from the host. See the [installation guides](../installation/linux-agent/) for the uninstall command.
 :::
 
 ### Managed and manual mode

@@ -7,19 +7,19 @@ sidebar:
 
 import { Steps, LinkCard, CardGrid } from '@astrojs/starlight/components';
 
-On Kubernetes, the agent monitors the databases running in your cluster. The flow is the same as on a virtual machine, with a few Kubernetes specifics: how credentials are supplied through a Kubernetes Secret, and that database monitoring requires managed mode. For the general model, see the [Database monitoring overview](../overview/).
+On Kubernetes, the agent monitors the databases running in your cluster. The flow is the same as on a virtual machine, with two Kubernetes differences. Credentials come from a Kubernetes Secret, and database monitoring needs managed mode. For the general model, see the [Database monitoring overview](../overview/).
 
 ## One monitor per cluster
 
-On Kubernetes, one collector in the cluster monitors your databases, so each database is monitored once for the whole cluster rather than once per node.
+On Kubernetes, one collector in the cluster monitors your databases. Each database is monitored once for the whole cluster, not once per node.
 
 ## Discovery prefills the endpoint
 
-The agent finds databases running in your cluster and prefills the wizard with their in-cluster address, `<service>.<namespace>.svc.cluster.local:<port>`. Use this address: it is the name your applications connect to, so the database's metrics and traces line up. Databases outside the cluster are not discovered and are added manually.
+The agent finds databases running in your cluster. It prefills the wizard with their in-cluster address, `<service>.<namespace>.svc.cluster.local:<port>`. Use this address. It is the name your applications connect to, so the database's metrics and traces line up. Databases outside the cluster are not discovered, so add them manually.
 
 ## Managed mode is required
 
-Database monitoring needs the agent in **managed mode**. On Kubernetes, it is a "Configure databases" action on the agent, and it prompts you to switch to managed mode if the agent is still in manual mode. See the [configuration model](../../concepts/config-model/).
+Database monitoring needs the agent in **managed mode**. On Kubernetes, use the "Configure databases" action on the agent. If the agent is still in manual mode, it prompts you to switch. See the [configuration model](../../concepts/config-model/).
 
 ## Available coverages
 
@@ -75,7 +75,7 @@ Because the collector reads the Secret at pod startup, create the Secret and run
    ```
 </Steps>
 
-After you apply the configuration, the cluster collector starts collecting from PostgreSQL, and its metrics carry the same database identity as the application spans that hit it.
+After you apply the configuration, the cluster collector starts collecting from PostgreSQL. Its metrics carry the same database identity as the application spans that hit it.
 
 ## Next steps
 

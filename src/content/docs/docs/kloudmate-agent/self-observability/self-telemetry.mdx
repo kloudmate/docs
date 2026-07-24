@@ -7,7 +7,7 @@ sidebar:
 
 import { LinkCard, CardGrid } from '@astrojs/starlight/components';
 
-Collector self-telemetry is the deeper, performance-oriented view of the agent's embedded OpenTelemetry (OTel) Collector. Where the [health metrics](../health-metrics/) tell you whether the collector is up, self-telemetry tells you how well it is keeping up while it runs. It is **opt-in**, because it adds metric volume, and it is emitted **in-band** through the collector itself.
+Collector self-telemetry shows how well the agent's embedded OpenTelemetry (OTel) Collector is performing. The [health metrics](../health-metrics/) tell you whether the collector is up. Self-telemetry tells you how well it is keeping up while it runs. It is **opt-in**, because it adds metric volume, and it is emitted **in-band** through the collector itself.
 
 ## What it reports
 
@@ -21,11 +21,11 @@ These are the standard metrics any OpenTelemetry Collector produces.
 
 ## Not a liveness signal
 
-Because these metrics flow through the collector, they stop when the collector does, so they are not a liveness signal — that is the job of the out-of-band [health metrics](../health-metrics/). If the health metrics show `kmagent.collector.up=1` but self-telemetry goes silent, that gap points to a stuck pipeline.
+These metrics flow through the collector, so they stop when the collector does. That means they are not a liveness signal. That is the job of the out-of-band [health metrics](../health-metrics/). If the health metrics show `kmagent.collector.up=1` but self-telemetry goes silent, that gap points to a stuck pipeline.
 
 ## Enabling it
 
-Collector self-telemetry is turned on through the agent's settings. Once enabled, the `otelcol_*` metrics arrive in KloudMate alongside your other telemetry, and you can build dashboards and alerts on exporter queue depth and send failures.
+Collector self-telemetry is turned on through the agent's settings. After you turn it on, the `otelcol_*` metrics arrive in KloudMate alongside your other telemetry. You can then build dashboards and alerts on exporter queue depth and send failures.
 
 ## Next steps
 

@@ -16,20 +16,20 @@ This is a metrics-only signal. It is separate from application tracing: a host c
 
 The flow metric is deliberately kept low-cardinality. Each flow carries its **direction**, plus a source and destination **zone** label when you have zones configured (see below). It does **not** carry a label per peer address.
 
-This matters on any host that talks to the public internet. Emitting a raw address for every peer would let one internet-facing service produce an unbounded number of metric series. Keeping the flow to direction and coarse zones means its cardinality stays flat no matter how many external addresses a host reaches.
+This matters on any host that talks to the public internet. If every peer got its own address label, one internet-facing service could produce an unbounded number of metric series. By keeping the flow to direction and coarse zones, the number of series stays flat no matter how many external addresses a host reaches.
 
 ## How KloudMate places a host on the map
 
-Each agent reports its **own host IP** as a resource attribute (`host.ip`), so it rides along on every signal the host sends, including these flow metrics. KloudMate uses it two ways:
+Each agent reports its **own host IP** as a resource attribute (`host.ip`). This attribute is attached to every signal the host sends, including these flow metrics. KloudMate uses it two ways:
 
-- **A fleet address book.** KloudMate learns which host owns which IP across every agent, so it can resolve the ends of a flow to real hosts.
-- **A "which end is me" anchor.** The `host.ip` on a flow is the host that observed it. The other end of the flow is the peer.
+- **Matching IPs to hosts.** KloudMate learns which host has which IP across every agent, so it can map both ends of a flow to real hosts.
+- **Finding which end is which.** The `host.ip` on a flow is the host that observed it. The other end of the flow is the peer.
 
 Together these let KloudMate draw an edge between two of your hosts from a flow that itself only carries direction and zones.
 
 ## Group peers into zones with CIDRs
 
-Peers are grouped into zones by CIDR range, and KloudMate assembles that range set from your fleet automatically: each host it knows about becomes a `/32`, plus a `0.0.0.0/0` catch-all for everything else. A flow to another host in the fleet lands in that host's `/32` and resolves to a machine; all other traffic collapses into the catch-all, which is what keeps external peers from inflating the signal.
+Peers are grouped into zones by CIDR range. KloudMate builds that set of ranges from your fleet automatically: each host it knows about becomes a `/32`, plus a `0.0.0.0/0` catch-all for everything else. A flow to another host in the fleet lands in that host's `/32` and resolves to a machine. All other traffic falls into the catch-all, which keeps external peers from inflating the signal.
 
 You can add your own ranges on top. Set `KM_EBPF_NETWORK_CIDRS` to a comma-separated list of CIDRs to label traffic by your own network segments, for example an app tier or a database subnet:
 
@@ -39,7 +39,7 @@ KM_EBPF_NETWORK_CIDRS="10.0.1.0/24,10.0.2.0/24,10.0.0.0/8"
 
 ## Turning it on and off
 
-Network flow monitoring is **on by default** wherever the kernel supports eBPF. It is capability-gated the same way as the rest of eBPF, so a host that cannot load it degrades to metrics and logs rather than failing. To turn it off, set `KM_EBPF_NETWORK_ENABLED=false`.
+Network flow monitoring is **on by default** wherever the kernel supports eBPF. Like the rest of eBPF, it only turns on where the kernel can load it. A host that cannot load it still sends metrics and logs instead of failing. To turn it off, set `KM_EBPF_NETWORK_ENABLED=false`.
 
 ## Gotcha: a host can report more than one IP
 
