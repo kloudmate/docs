@@ -17,6 +17,7 @@ Before you install the agent on a network with restricted outbound access, allow
 | `api.kloudmate.com` | The KloudMate API the agent uses to check in, fetch configuration, and report status. |
 | `ghcr.io` | GitHub Container Registry, where the agent and collector container images are hosted (Docker and Kubernetes installs). |
 | `pkg-containers.githubusercontent.com` | Backing storage for `ghcr.io` image layers. |
+| `charts.kloudmate.com` | Home of the agent's Helm chart. Relevant when installing the Kubernetes agent from a VM, since `helm repo add`/`helm install` fetches the chart from here. |
 | `github.com` | Used by the install script to download the agent. |
 | `api.github.com` | Used for agent update checks. |
 
