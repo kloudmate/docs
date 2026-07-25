@@ -50,7 +50,7 @@ The agent runs across four deployment modes. Not every capability applies to eve
 | Agent health and self-logs | Yes | Yes | Yes | Yes |
 
 :::note
-On Linux, eBPF monitoring needs kernel 4.14 or newer, and does more on 5.8 and above. On Docker, host and container metrics, logs, and eBPF monitoring are automatic. PHP containers are traced without a redeploy, and Java, Node.js, Python, and .NET are covered by eBPF monitoring. See [Docker platform notes](platform-notes/docker/).
+On Linux, eBPF monitoring needs kernel 4.14 or newer, and does more on 5.8 and above. On Docker, host and container metrics and logs are automatic; application tracing is opt-in per service (Off / eBPF). PHP containers are traced in place without a redeploy, and Java, Node.js, Python, and .NET use eBPF (no SDK injection on Docker). See [Docker platform notes](platform-notes/docker/).
 :::
 
 ## Prerequisites: access and permissions
