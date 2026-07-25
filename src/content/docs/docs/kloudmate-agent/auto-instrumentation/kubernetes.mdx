@@ -21,8 +21,6 @@ There are two ways to instrument workloads.
 
 After the agent is installed, open the APM configuration for the cluster and use the toggle to enable APM. The agent then detects your running workloads and their languages, and you instrument them from the **Discovered Services** view, the same as on other platforms.
 
-TODO(screenshot): the Kubernetes APM toggle and the per-workload instrument list.
-
 ### With deployment annotations
 
 If a workload is not detected automatically, add the OpenTelemetry Operator annotation for its language and restart the workload. This is the underlying mechanism the toggle uses.

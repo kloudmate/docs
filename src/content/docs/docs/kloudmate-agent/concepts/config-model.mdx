@@ -22,10 +22,13 @@ Every agent runs in one of two configuration modes.
 | Feature toggles | Available | Disabled |
 | Default for | New agents | Existing agents after upgrade |
 
-- **Managed mode** is the default and the recommended way to run the agent. You enable features in the interface, and the YAML editor shows a read-only preview.
-- **Manual mode** is for advanced, hand-tuned setups. The raw YAML is edited directly, and the feature toggles are off.
+- In **managed mode**, the configuration is generated from your enabled integrations every time. The YAML editor shows a read-only preview of what was generated. Toggling a feature regenerates the configuration.
 
-TODO(screenshot): the managed/manual mode toggle in Agent settings.
+![Managed mode: the Config mode toggle set to Managed, with a read-only preview of the generated collector configuration.](./images/config-model-managed-mode.png)
+
+- In **manual mode**, you own the YAML blob. The integration toggles are disabled, and the YAML editor is writable. This is for advanced setups that need hand-tuned configuration.
+
+![Manual mode: the Config mode toggle set to Manual, with an editable collector configuration and a warning that KloudMate no longer manages it.](./images/config-model-manual-mode.png)
 
 ## Undo a change
 

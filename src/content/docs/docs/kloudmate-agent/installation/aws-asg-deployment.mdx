@@ -28,6 +28,7 @@ You need:
 - Your **KloudMate API key**.
 - The **collector endpoint**, `https://otel.kloudmate.com:4318`.
 - Instances on a supported Linux (Amazon Linux 2 or 2023, Ubuntu, Debian, or the RHEL family). eBPF monitoring needs a modern kernel, which the standard AWS AMIs have.
+- Network access to the [required URLs](../../reference/network-requirements/) if your outbound traffic is restricted.
 
 Both examples below put the API key directly into the provisioning step. To keep it out of the launch template, read it from SSM Parameter Store or Secrets Manager instead and set `KM_API_KEY` from there. That is the only line that changes.
 
