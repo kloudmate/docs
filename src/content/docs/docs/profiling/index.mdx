@@ -20,19 +20,19 @@ Profiling has five views, reached from the segmented toggle at the top of the mo
 - **[Profile Types](./profile-types/)** is service-centric — once you pick a service, see every metric it profiles (CPU, heap, goroutines, and so on) side by side.
 - **[Labels](./labels/)** breaks a service's profiles down by the resource attributes your SDK attaches — region, pod, version — so you can filter down to the one that matters.
 - **[Flame Graph](./flame-graph/)** is where you find the hotspot: an interactive, zoomable flame graph plus a sortable function table for one service and profile type.
-- **[Diff](./diff/)** compares two time windows of the same service and profile type — the view you reach for right after a deploy, to answer "did that change make things worse?"
+- **[Difference View](./difference-view/)** compares two time windows of the same service and profile type — the view you reach for right after a deploy, to answer "did that change make things worse?"
 
-Start on **All Services** to see what's reporting data, narrow to one service in **Profile Types** or **Labels**, then open **Flame Graph** to dig into a specific hotspot. Reach for **Diff** whenever you need a before/after comparison instead of a single snapshot.
+Start on **All Services** to see what's reporting data, narrow to one service in **Profile Types** or **Labels**, then open **Flame Graph** to dig into a specific hotspot. Reach for **Difference View** whenever you need a before/after comparison instead of a single snapshot.
 
 ## Getting Started
 
-KloudMate doesn't ship its own profiling agent — it speaks the [Pyroscope](https://grafana.com/oss/pyroscope/) ingest protocol, so any Pyroscope-compatible SDK can send data straight to your workspace. That covers Go, Python, Java, Ruby, .NET, and Rust.
+KloudMate accepts profiling data in either Opentelemetry Profiles signal format or the Pyroscope format — data can be sent via KM Agent or directly via the ingest endpoint. But it would be beneficial if data is sent via KM Agent since agent attaches additional attributes that are helpful for RCA. Since [Pyroscope](https://grafana.com/oss/pyroscope/) ingestion is supported, any Pyroscope-compatible SDK can send data straight to your workspace. That covers Go, Python, Java, Ruby, .NET, and Rust.
 
 ### Get your ingest endpoint and API key
 
 You need two things before you touch any application code:
 
-1. **The ingest endpoint**: `https://otel.kloudmate.com:4040`
+1. **The ingest endpoint**: `https://otel.kloudmate.com/v1/profiles/pyroscope`
 2. **An API key** — go to **Settings → API Keys**, click **Add New**, and create an **Ingest Key – Backend**. Copy it immediately; KloudMate shows it only once. See [API Keys](../platform/settings/api-keys/) if you need the full walkthrough.
 
 ### Authenticate with Basic auth
@@ -44,75 +44,19 @@ Pyroscope SDKs authenticate with HTTP Basic auth, where the **password** carries
 
 Most SDK configs expose this as two separate fields (`BasicAuthUser` / `BasicAuthPassword`, or similar). Fill in both — an empty username is a common way to get a silent 401.
 
-### Configure the SDK
+## Supported languages
 
-<Tabs>
-<TabItem label="Go">
+KloudMate speaks the Pyroscope ingest protocol, so any Pyroscope-compatible SDK works. Each of these has its own dedicated setup guide with install, config, and verification steps:
 
-```go
-package main
-
-import "github.com/grafana/pyroscope-go"
-
-func main() {
-	pyroscope.Start(pyroscope.Config{
-		ApplicationName:   "my-service",
-		ServerAddress:     "https://otel.kloudmate.com:4040",
-		BasicAuthUser:     "KloudMate",
-		BasicAuthPassword: "YOUR_API_KEY",
-		ProfileTypes: []pyroscope.ProfileType{
-			pyroscope.ProfileCPU,
-			pyroscope.ProfileAllocObjects,
-			pyroscope.ProfileAllocSpace,
-			pyroscope.ProfileInuseObjects,
-			pyroscope.ProfileInuseSpace,
-		},
-	})
-
-	// the rest of your application
-}
-```
-
-</TabItem>
-<TabItem label="Python">
-
-```python
-import pyroscope
-
-pyroscope.configure(
-    application_name="my-service",
-    server_address="https://otel.kloudmate.com:4040",
-    basic_auth_username="KloudMate",
-    basic_auth_password="YOUR_API_KEY",
-)
-```
-
-Call `pyroscope.configure()` once, as early as possible — before you import or initialize the rest of your app.
-
-</TabItem>
-<TabItem label="Java">
-
-The Java integration runs as a Java agent, configured through environment variables:
-
-```bash
-export PYROSCOPE_APPLICATION_NAME=my-service
-export PYROSCOPE_SERVER_ADDRESS=https://otel.kloudmate.com:4040
-export PYROSCOPE_BASIC_AUTH_USER=KloudMate
-export PYROSCOPE_BASIC_AUTH_PASSWORD=YOUR_API_KEY
-
-java -javaagent:pyroscope.jar -jar my-app.jar
-```
-
-KloudMate ingests pprof-format profiles from the Pyroscope Java agent. It doesn't yet support profiles submitted in Java Flight Recorder (JFR) format — if your setup lets you choose the output format, pick pprof.
-
-</TabItem>
-</Tabs>
-
-Swap `my-service` for a name that identifies this deployment, and `YOUR_API_KEY` for the key you copied above. For every other language the SDK supports, the pattern is the same: point `ServerAddress`/`server_address` at the endpoint above and pass your API key as the Basic auth password.
-
-### Confirm it's working
-
-Open **Profiling → All Services**, pick the profile type you configured (`cpu` is the default) from the dropdown, and give it a minute. Your service's card appears with a live chart as soon as the first samples land. If it doesn't show up, double-check the username/password pair — a missing username is the most common cause of a silent failure.
+<CardGrid>
+  <LinkCard title="Go" description="pyroscope-go" href="/guides/profiling/go/" />
+  <LinkCard title="Java" description="Pyroscope Java agent" href="/guides/profiling/java/" />
+  <LinkCard title="Python" description="pyroscope-io" href="/guides/profiling/python/" />
+  <LinkCard title="Node.js" description="@pyroscope/nodejs" href="/guides/profiling/nodejs/" />
+  <LinkCard title="Ruby" description="pyroscope gem" href="/guides/profiling/ruby/" />
+  <LinkCard title=".NET" description="Pyroscope .NET profiler" href="/guides/profiling/dotnet/" />
+  <LinkCard title="Rust" description="pyroscope + pprof-rs" href="/guides/profiling/rust/" />
+</CardGrid>
 
 ## Related
 

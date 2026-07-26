@@ -1,0 +1,47 @@
+---
+title: "Supported Languages"
+description: "Every language and runtime KloudMate's Profiling module can ingest profiles from, and where to find the exact SDK setup for each one."
+sidebar:
+  order: 1
+  label: "Overview"
+---
+
+import { CardGrid, LinkCard } from '@astrojs/starlight/components';
+
+KloudMate doesn't ship its own profiling agent — it speaks the [Pyroscope](https://grafana.com/oss/pyroscope/) ingest protocol at `https://otel.kloudmate.com/v1/profiles/pyroscope`, authenticated with Basic auth (`KloudMate` as the username, your Ingest API key as the password). Any Pyroscope-compatible SDK works out of the box; pick your language below for the exact install and config steps.
+
+<CardGrid>
+  <LinkCard title="Go" description="pyroscope-go — CPU and heap profiling for Go services." href="./go/" />
+  <LinkCard title="Java" description="The Pyroscope Java agent, attached at JVM startup." href="./java/" />
+  <LinkCard title="Python" description="pyroscope-io — configure once, before the rest of your app." href="./python/" />
+  <LinkCard title="Node.js" description="@pyroscope/nodejs — CPU and wall-clock profiling for Node services." href="./nodejs/" />
+  <LinkCard title="Ruby" description="The pyroscope gem, configured with a block at boot." href="./ruby/" />
+  <LinkCard title=".NET" description="The Pyroscope .NET profiler, loaded via CLR environment variables." href="./dotnet/" />
+  <LinkCard title="Rust" description="The pyroscope crate with a pprof-rs backend." href="./rust/" />
+  <LinkCard title="eBPF Profiler" description="Whole-host profiling with no code changes, for anything not listed above." href="./ebpf/" />
+</CardGrid>
+
+## Which profile types you get
+
+Every SDK reports CPU (wall or on-CPU time, depending on the runtime); several also report memory. The exact set shows up in [Profile Types](/profiling/profile-types/) once your service has sent its first batch:
+
+| Language | CPU | Memory |
+|---|---|---|
+| Go | ✅ | ✅ (heap) |
+| Java | ✅ | ✅ (alloc, via async-profiler) |
+| Python | ✅ | ✅ (if built with tracemalloc support) |
+| Node.js | ✅ | ✅ (heap) |
+| Ruby | ✅ | — |
+| .NET | ✅ | ✅ (alloc) |
+| Rust | ✅ | — |
+
+## Not on this list?
+
+If your language isn't here, check whether it has its own community Pyroscope SDK, or run the [eBPF profiler](./ebpf/) instead — it samples any process on the host without touching application code, at the cost of function-level (not line-level) detail.
+
+## Related
+
+<CardGrid>
+  <LinkCard title="Profiling Overview" description="The five views this data feeds into once it's flowing." href="/profiling/" />
+  <LinkCard title="API Keys" description="Create the ingest key every SDK below needs." href="/platform/settings/api-keys/" />
+</CardGrid>
