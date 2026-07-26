@@ -12,9 +12,11 @@ Reports are created from the Reports Overview page. The Create Report page is di
 
 ![image](./images/create-report-2.png)
 
-- **Report Type:** Select the type of report to generate — [Alert Report](../alert-report/), [Incident Report](../incident-report/), [Dashboard Report](../dashboard-report/), or [SLO Compliance](../../reliability/slo-compliance-report/). When generating an Alert Report, you can also filter alerts by labels or select specific alerts using the dropdown.
+- **Source:** Select what the report pulls data from — [Availability](../availability-report/), [Incident Report](../incident-report/), [Dashboard Report](../dashboard-report/), or [SLO Compliance](../../reliability/slo-compliance-report/). When generating an Availability report, you can also filter alerts by labels or select specific alerts using the dropdown.
 - **Time Range:** Select the duration for which the report should be generated.
 - **Report Format:** Choose the output format — PDF or XLSX.
+- **Report type:** For an Incidents report, choose **Services**, **Responders**, or **Services & Responders** to set what the report covers.
+- **Services (Optional):** When **Report type** includes Services, optionally filter to specific services using the dropdown. Leave it empty to include all services.
 
 ### 2. Configure Schedule
 
