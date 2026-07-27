@@ -25,7 +25,7 @@ There are two ways to instrument workloads.
 
 After the agent is installed, open the cluster's APM configuration. The agent lists the workloads it discovered, grouped by namespace, with each workload's detected language. For each one, choose **Off**, **eBPF**, or **SDK**, then apply. In a large cluster, use the namespace filter or the search box to find a workload.
 
-TODO(screenshot): the Kubernetes APM list grouped by namespace with per-workload Off / eBPF / SDK controls.
+![The Kubernetes APM list grouped by namespace, with per-workload Off / eBPF / SDK controls. SDK-capable workloads show all three modes; Go and unrecognized runtimes such as Hasura show only Off and eBPF.](./images/kubernetes-apm-list.png)
 
 ### With deployment annotations
 
