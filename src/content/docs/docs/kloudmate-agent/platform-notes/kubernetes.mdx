@@ -14,7 +14,7 @@ How the agent runs on Kubernetes. For installation, see the [Kubernetes installa
 On Kubernetes, a whole cluster appears in KloudMate as **one agent**, not one per node. It runs as a few pods:
 
 - **Fleet manager:** a single pod that applies your configuration to the cluster and reports each collector's status back to KloudMate.
-- **Collector pods:** a **DaemonSet** (one per node) collects per-node metrics and pod logs and, where the kernel supports it, runs eBPF monitoring. A **Deployment** (a single replica) collects cluster metrics and events and acts as the OpenTelemetry (OTel) gateway.
+- **Collector pods:** a **DaemonSet** (one per node) collects per-node metrics and pod logs and, where the kernel supports it, runs eBPF monitoring — the [network topology map](../../ebpf-network-topology/) and metrics, plus application traces for any workload you set to eBPF mode (see [Application APM on Kubernetes](../../auto-instrumentation/kubernetes/)). A **Deployment** (a single replica) collects cluster metrics and events and acts as the OpenTelemetry (OTel) gateway.
 
 ## Per-node collector status
 

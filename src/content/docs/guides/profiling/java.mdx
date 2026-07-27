@@ -1,0 +1,48 @@
+---
+title: "Java"
+description: "Send CPU and allocation profiles from a JVM service to KloudMate with the Pyroscope Java agent."
+sidebar:
+  order: 3
+---
+
+The Pyroscope Java integration runs as a [Java agent](https://github.com/grafana/pyroscope-java) built on [async-profiler](https://github.com/async-profiler/async-profiler), attached at JVM startup and configured entirely through environment variables — no code changes.
+
+## Prerequisites
+
+- **The ingest endpoint**: `https://otel.kloudmate.com/v1/profiles/pyroscope`
+- **An API key** — go to **Settings → API Keys**, click **Add New**, and create an **Ingest Key – Backend**. Copy it immediately; KloudMate shows it only once.
+
+## Install
+
+Download the agent jar from the [pyroscope-java releases page](https://github.com/grafana/pyroscope-java/releases) and place it alongside your application, or bake it into your container image.
+
+## Configure
+
+Set the following environment variables, then launch your JVM with the `-javaagent` flag:
+
+```bash
+export PYROSCOPE_APPLICATION_NAME=my-service
+export PYROSCOPE_SERVER_ADDRESS=https://otel.kloudmate.com/v1/profiles/pyroscope
+export PYROSCOPE_BASIC_AUTH_USER=KloudMate
+export PYROSCOPE_BASIC_AUTH_PASSWORD=YOUR_API_KEY
+export PYROSCOPE_FORMAT=collapsed
+
+java -javaagent:pyroscope.jar -jar my-app.jar
+```
+
+Swap `my-service` for a name that identifies this deployment, and `YOUR_API_KEY` for the key you copied above.
+
+:::note
+The Pyroscope Java agent defaults to Java Flight Recorder (JFR) output, which KloudMate doesn't ingest yet. Set `PYROSCOPE_FORMAT=collapsed` explicitly, as shown above, so the agent submits collapsed-stack profiles instead.
+:::
+
+## Verify it's working
+
+Open **Profiling → All Services**, select `cpu` from the profile type dropdown, and give it a minute. Your service's card appears with a live chart as soon as the first samples land.
+
+If nothing shows up, double-check `PYROSCOPE_BASIC_AUTH_USER` is set — a missing username is the most common cause of a silent 401.
+
+## Related
+
+- [Supported Languages](../) — every other SDK KloudMate accepts.
+- [Flame Graph](/profiling/flame-graph/) — where this data ends up once it's flowing.

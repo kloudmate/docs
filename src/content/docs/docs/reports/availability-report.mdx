@@ -1,0 +1,40 @@
+---
+title: "Availability Report"
+description: "Generate detailed availability statistics for a group of alert rules, including triggers, down duration, and per-alert breakdowns, over a selected time range."
+sidebar:
+  order: 3
+---
+An Availability Report provides detailed availability statistics for a group of alert rules, helping you track outages and downtime over a selected time range.
+
+![Availability Report](./images/alarm-report-1.png)
+
+## Report header
+
+Each report shows its **Source**, **Schedule**, **Format**, and whether it is **Active**, plus buttons to **Send Report now**, **View Generated Reports**, or **Edit** the report. Use the time range control (for example, **Last 1 Day**) to change the window the statistics below cover.
+
+## Summary
+
+Above the alert table, the report shows overall figures for the selected time range:
+
+- **Overall availability** — the aggregate availability percentage across all included alert rules.
+- **Alert rules** — the number of alert rules included in the report.
+- **Triggers** — the total number of times those alert rules fired.
+- **Down duration** — the cumulative time spent in an alerting state, across all rules.
+- **Instances** — the total number of affected instances.
+
+## Alert rules and Instances tabs
+
+The report has two tabs. **Alert rules** lists one row per alert rule, with:
+
+- **Alert** — the name of the alert rule.
+- **Availability** — the percentage of the time range the rule was not in an alerting state.
+- **Triggered** — the number of times the rule fired.
+- **Down duration** — the cumulative time the rule was in an alerting state.
+- **Instances** — the number of instances the rule affected.
+- **Labels** — the labels attached to the rule, if any.
+
+**Instances** shows the same data broken down per instance instead of per alert rule.
+
+:::tip
+Reliability tracking has moved to SLOs. The SLA Target, SLA Achieved, and SLA Status columns are no longer part of the Availability Report — see [Reliability](../../reliability/) to set up service-level objectives, or the [SLO Compliance report](../../reliability/slo-compliance-report/) for a scheduled rollup.
+:::

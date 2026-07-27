@@ -91,11 +91,11 @@ Provide a name for your Kubernetes cluster. This name identifies the cluster ins
 Configure how KloudMate should collect data from this cluster:
 
 - **Collect container logs:** Turn this on to collect container logs from the cluster.
-- **Enable auto instrumentation for APM:** Turn this on to automatically instrument supported application runtimes (Python, Node.js, Java, .NET, Go) for APM.
-- **Monitored namespaces:** Enter a comma‑separated list of namespaces to monitor for events and APM (for example, `redis, kafka, prod-app`).
+- **Enable auto instrumentation for APM:** Turn this on to install the APM components, including the OpenTelemetry Operator. After install, you choose per workload whether to trace it, and how — nothing is traced until you do. Supported SDK runtimes are Python, Node.js, Java, and .NET; Go and other runtimes are traced with eBPF.
+- **Monitored namespaces:** Enter a comma‑separated list of namespaces to discover workloads in for APM (for example, `redis, kafka, prod-app`).
 
 :::note
-  Leave this field empty to monitor all namespaces (system namespaces are excluded by default).
+Leave this field empty to discover workloads in every namespace except the system ones — `kube-system`, `kube-public`, `kube-node-lease`, `cert-manager`, and any `kube-*` namespace are excluded by default. To also skip your own cluster-infrastructure namespaces (ingress controllers, `vpa`, `external-secrets`, and the like), set the `excludedNamespaces` Helm value to a comma-separated list.
 :::
 
 ### Step 5: Run the installation command
@@ -149,16 +149,16 @@ There are two ways to enable **Application Performance Monitoring (APM)** in you
 ### 1.  Enable APM via Dashboard
 
 - After installing the agent, open the APM configuration tab in the dashboard.
-- Use the toggle button to enable or disable APM.
-- Once enabled, the agent automatically detects all running microservices and identifies their programming languages.
+- The agent lists the workloads it discovered, grouped by namespace, with each workload's detected language. Use the namespace filter or the search box to find one in a large cluster.
+- For each workload, choose **Off**, **eBPF**, or **SDK**, then apply. eBPF starts tracing on the next check-in with no restart; SDK rolls that workload's pods. Workloads with no SDK injector — Go, Ruby, or an unrecognized runtime — offer **Off** or **eBPF** only.
 
 ![image](./images/kubernetes-agent-1.png)
 
-- After turning on APM, wait a few minutes for metrics to start, then verify them on the dashboard.
+- After you turn a workload on, wait a few minutes for its traces to start, then verify them on the dashboard.
 
-### 2. Enable APM via the Patch Method
+### 2. Enable SDK tracing via the Patch Method
 
-Sometimes the agent doesn't detect certain applications. When that happens, use deployment annotations to enable APM for them.
+Sometimes the agent doesn't detect certain applications. When that happens, use deployment annotations to turn on SDK tracing for them. (This is the SDK path only; eBPF tracing is driven by the DaemonSet and has no annotation.)
 
 **Steps:**
 

@@ -81,18 +81,20 @@ Go does not use code injection. It is covered by [eBPF monitoring](../go-ebpf/),
 A Ruby app has two levels of coverage:
 
 - **eBPF monitoring, with no code change.** [eBPF](../../ebpf-observability/) gives a Ruby service HTTP server traces, RED metrics (request rate, errors, and duration), and the service map from the kernel, with no gem and on any Ruby version. This is the same as Go.
-- **Deep Ruby tracing** (such as ActiveRecord queries and controller actions) needs the OpenTelemetry Ruby gems added to the app's `Gemfile`. The agent cannot add them from outside, because Ruby only loads gems listed in the app's `Gemfile`.
+- **Deep Ruby tracing** needs the OpenTelemetry Ruby gems added to the app's `Gemfile`. The agent cannot add them from outside, because Ruby only loads gems listed in the app's `Gemfile`. With them, `use_all` traces the whole request path — HTTP handling, database queries, view rendering, background jobs, and outbound HTTP calls.
 
   ```ruby
   # Gemfile
   gem 'opentelemetry-sdk'
   gem 'opentelemetry-instrumentation-all'
+  gem 'opentelemetry-exporter-otlp'
   ```
 
   ```ruby
   # config/initializers/opentelemetry.rb
   require 'opentelemetry/sdk'
   require 'opentelemetry/instrumentation/all'
+  require 'opentelemetry/exporter/otlp'
   OpenTelemetry::SDK.configure { |c| c.use_all }
   ```
 
@@ -102,6 +104,8 @@ A Ruby app has two levels of coverage:
   OTEL_SERVICE_NAME=my-rails-app
   OTEL_EXPORTER_OTLP_ENDPOINT=http://localhost:4318
   ```
+
+  The SQL query text on a database span comes from the driver instrumentation (`pg`, `mysql2`), not from ActiveRecord. A database with no OpenTelemetry driver — SQLite — shows the model operation (`User#save`) but no SQL. For the full breakdown of what these gems capture, see [Ruby auto-instrumentation](../../../apm-and-tracing/auto-instrumentation/ruby/).
 
   The current OpenTelemetry Ruby gems need **Ruby 3.3 or newer**. On Ruby 3.0 to 3.2 you have to pin older gem versions, and on Ruby 2.x they will not install at all. On those versions, use eBPF monitoring, which does not depend on the Ruby version.
 
@@ -123,7 +127,7 @@ Keep these in mind, especially for Java runtime attach:
 - **Standalone Node.js and Python need systemd or PM2.** Without one of them, there is no automatic way to instrument these apps.
 - **Python SDK injection covers Python 3.10 through 3.13.** Other versions, such as 3.14, are covered by eBPF monitoring.
 - **Go has no code injection.** Its coverage comes from eBPF monitoring.
-- **Ruby has no code injection.** For no-code coverage it uses eBPF. Deep Ruby tracing (ActiveRecord, controllers) needs the OpenTelemetry Ruby gems added to the app, which require Ruby 3.3 or newer.
+- **Ruby has no code injection.** For no-code coverage it uses eBPF. Deep Ruby tracing (database queries, view rendering, background jobs, outbound HTTP) needs the OpenTelemetry Ruby gems added to the app, which require Ruby 3.3 or newer.
 
 ## Related
 

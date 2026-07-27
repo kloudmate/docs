@@ -81,14 +81,20 @@ set -euo pipefail
 : "${KM_COLLECTOR_ENDPOINT:=https://otel.kloudmate.com:4318}"
 export KM_AUTO_INSTRUMENT=true
 
-# 1) Log collection. A Rails app on Elastic Beanstalk usually logs to
-#    /var/app/current/log/production.log, or its captured stdout at /var/log/web.stdout.log.
+# 1) Log collection. nginx logs every request to /var/log/nginx/access.log — the standard, app-agnostic
+#    source on the web tier. Add more sources under /etc/kmagent/logs.d/.
 install -d -m 755 /etc/kmagent/logs.d
-cat > /etc/kmagent/logs.d/rails.yaml <<'EOF'
-- name: rails
-  include: [ /var/app/current/log/production.log ]
-  format: plaintext
-  attributes: { service.name: my-rails-app }
+cat > /etc/kmagent/logs.d/beanstalk.yaml <<'EOF'
+- name: nginx-access
+  include: [ /var/log/nginx/access.log ]
+  format: regex
+  parsing:
+    regex: '^(?P<remote_addr>\S+) - (?P<remote_user>\S+) \[(?P<time>[^\]]+)\] "(?P<request>[^"]*)" (?P<status>\d+)'
+    timestamp_field: time
+    timestamp_layout: custom
+    custom_layout: '%d/%b/%Y:%H:%M:%S %z'
+    message_field: request
+  attributes: { service.name: my-app }
 EOF
 
 # 2) Install once. On later deploys the agent is already there, so restart it to pick up any logs.d change.
@@ -148,6 +154,30 @@ Set each log source's `service.name` to the same value as the app it belongs to,
 :::
 
 For the managed-mode version, with the same parsing choices in a UI wizard, see [Log monitoring](../../log-monitoring/).
+
+## Name your services and tune eBPF
+
+eBPF names a service after the process it instruments. On the Beanstalk web tier that's nginx — your app runs behind it on a unix socket — so Ruby, Go, and other eBPF-traced apps show up as `nginx`. Name and scope the service with two environment properties, written to the agent's environment file in the hook:
+
+```bash
+# in the predeploy hook:
+{ echo "KM_EBPF_OPEN_PORTS=${KM_EBPF_OPEN_PORTS:-80}"
+  echo "KM_EBPF_SERVICE_NAME=${KM_EBPF_SERVICE_NAME}"; } > /etc/kmagent/kmagent.env
+```
+
+`KM_EBPF_OPEN_PORTS=80` scopes tracing to your app's port, so background processes — the SSM agent, cfn-hup, the health app — stay out. `KM_EBPF_SERVICE_NAME=checkout` names the traces `checkout`. SDK runtimes (Java, Node.js, Python, .NET) read `OTEL_SERVICE_NAME` from the app process itself, so for those you set that property and nothing else.
+
+| Environment property | Effect |
+|---|---|
+| `KM_EBPF_SERVICE_NAME` | Name for the eBPF-traced service. Use with `KM_EBPF_OPEN_PORTS`. |
+| `KM_EBPF_OPEN_PORTS` | Ports eBPF instruments. Default: all listening ports. |
+| `KM_EBPF_ENABLED` | `false` turns off eBPF traces, keeps metrics and logs. |
+| `KM_EBPF_NETWORK_ENABLED` | `false` turns off the network topology map. |
+| `KM_LOG_SOURCES_DIR` | Log-source directory. Default: `/etc/kmagent/logs.d`. |
+
+:::caution[Using the SDK on the web tier]
+If you add the OpenTelemetry SDK to an app on the web tier, set `KM_EBPF_ENABLED=false` for it. The SDK traces the app, and eBPF traces the nginx front end — two different processes — so without this the app is traced twice. (The agent drops eBPF automatically when it finds an SDK on the *same* process, which doesn't happen behind a reverse proxy.)
+:::
 
 ## Verify
 

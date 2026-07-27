@@ -7,38 +7,45 @@ sidebar:
 
 import { LinkCard, CardGrid } from '@astrojs/starlight/components';
 
-Application performance monitoring (APM) is the opt-in half of the agent. eBPF monitoring gives you Rate, Errors, and Duration (RED) metrics and a service map automatically. Application APM goes further: it attaches OpenTelemetry (OTel) auto-instrumentation to a service and produces full distributed traces, with spans for your frameworks, database calls, and outbound requests. It needs a process restart, so you turn it on one service at a time.
+Application performance monitoring (APM) is opt-in and per service. For each service the agent discovers, you choose how it is traced:
 
-## The per-service opt-in flow
+- **Off** — not traced. This is the default, so nothing is traced (and nothing costs) until you turn it on.
+- **eBPF** — Rate, Errors, and Duration (RED) metrics and trace spans, captured out of process with no code change and no restart.
+- **SDK** — OpenTelemetry (OTel) auto-instrumentation attached in-process for full distributed traces, with spans for your frameworks, database calls, and outbound requests. It needs a one-time process restart, so you turn it on one service at a time.
+
+## The per-service flow
 
 The flow is the same across every deployment mode:
 
 1. **Discover.** The agent finds your services and lists them under **Discovered Services**. See [Discovery](../../concepts/discovery/).
-2. **Toggle Instrument.** You turn on the **Instrument** toggle for a service.
-3. **Consent to the restart.** Instrumentation only takes effect when the process restarts, so the agent asks before restarting. You can restart now, or leave the change pending until the next restart.
-4. **Traces flow.** After the restart, the service sends application traces to the agent's local collector, correlated with its eBPF spans.
-
-Throughout this flow, eBPF monitoring keeps covering the service, so there is no visibility gap while you enable APM.
+2. **Choose a mode.** For each service, pick Off, eBPF, or SDK, then apply. eBPF takes effect on the next agent check-in with no restart.
+3. **Confirm the restart (SDK only).** SDK instrumentation takes effect when the process restarts, so the agent asks before applying. After you confirm, the service shows **Pending** while the agent applies the change and restarts the app.
+4. **Traces flow.** The service's chip flips to **Instrumented** and it sends application traces to the agent's local collector, correlated with its eBPF spans.
 
 ## Status chips
 
-Each service in the list shows a status chip so you always know where it stands:
+Each service selected for SDK instrumentation shows a status chip so you always know where it stands:
 
-- **Instrumented:** instrumentation is applied and the service restarted cleanly.
-- **Pending restart:** the change is written but the service has not restarted yet.
-- **Failed, rolled back:** the restart failed, so the agent reverted the change (see rollback below).
+- **Pending:** the service is selected for SDK and the agent is wiring it up — applying the change and restarting the app. It clears to **Instrumented** once the agent confirms, usually within a minute.
+- **Instrumented:** the SDK is applied and the service is sending application traces.
+- **Failed:** the restart failed, so the agent rolled back the change (see rollback below) and the service reverts to its previous mode.
+- **Unsupported:** the runtime version has no bundled instrumentation — for example a Python minor release with no bundled cell. The service stays covered by eBPF; move to a supported version to add SDK traces.
+
+Services covered by eBPF (Go, Ruby, or anything without an SDK injector) don't restart and carry no chip — eBPF traces them as soon as you turn them on. A separate **Restart pending** marker on the *agents list* is unrelated: it means the agent's own collector configuration is queued for a restart, not a per-service instrumentation change.
+
+TODO(screenshot): the Discovered Services list with per-service Off / eBPF / SDK controls and status chips.
 
 ## Restart consent and health gating
 
-The agent never restarts your services silently. In this version:
+The agent never restarts your services silently.
 
-- Every restart requires **explicit, per-service confirmation**. There is no batched or automatic restart.
+- Turning SDK instrumentation on or off needs a restart, so the agent asks for **explicit confirmation** first, and the prompt lists exactly which apps restart. eBPF and Off changes apply with no restart and no prompt.
 - The agent restarts **one service at a time**.
 - It can apply an optional **health gate**. After the restart, the agent waits for the service to become active. Where the listen port is known, it also waits for the service to accept connections before reporting success.
 
 ## Automatic rollback
 
-If an instrumented service fails to restart or falls into a crash loop, the agent **rolls back automatically**. It removes the change, reloads, and restarts the service, so the service returns to its previous state, and reports the status as failed, rolled back. eBPF monitoring keeps covering the service. Because you instrument one service at a time, a problem with one never affects the others.
+If an instrumented service fails to restart or falls into a crash loop, the agent **rolls back automatically**. It removes the change, reloads, and restarts the service, so the service returns to its previous mode, and its chip shows **Failed**. Because you instrument one service at a time, a problem with one never affects the others.
 
 ## Supported runtimes
 
