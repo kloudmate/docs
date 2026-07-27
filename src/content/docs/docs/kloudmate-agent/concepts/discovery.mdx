@@ -33,7 +33,7 @@ Discovery shows its inventory as a **Discovered Services** list on the host deta
 The `instrumentable` flag shows whether the agent can inject tracing into that runtime. Java, .NET, Node.js, and Python are instrumentable. PHP is instrumentable when a tracer is available for the detected version. Go is not injected: it is covered by eBPF monitoring instead, so it appears as covered rather than instrumentable.
 :::
 
-TODO(screenshot): Discovered Services list on the host detail page, showing runtime, kind, listen ports, state, and the instrumentable flag.
+![The Application instrumentation panel on a host, showing the instrumentable difference: .NET, Java, Node.js, Python, and PHP services offer Off / eBPF / SDK, while Go services and other system services offer only Off / eBPF.](./images/discovery-services-list.png)
 
 ## Stable service identity
 

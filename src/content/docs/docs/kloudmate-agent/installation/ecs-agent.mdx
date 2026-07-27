@@ -85,6 +85,7 @@ Before you start, make sure you have:
 - **AWS credentials** for the account and region that hold your cluster, with permission to register task definitions and update services
 - The **AWS CLI** and **jq** on the machine you run the script from
 - An **ECS cluster** already running your workloads
+- Network access and permissions from [Before you start](../before-you-start/) if your outbound traffic is restricted
 
 Instrumenting a service runs a task-definition injection step. This happens on every Fargate install, and on any EC2 install that names services. That step needs either **Docker**, which runs the agent's ECS image, or a native `kmagent` binary set through `KM_AGENT_BIN`. A daemon-only EC2 install needs neither.
 
