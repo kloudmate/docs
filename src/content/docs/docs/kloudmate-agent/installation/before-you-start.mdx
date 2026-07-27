@@ -23,11 +23,12 @@ The agent only makes **outbound** connections to KloudMate. It needs no inbound 
 
 | Host(s) | Used for |
 |---|---|
-| `api.github.com`, `github.com`, `release-assets.githubusercontent.com` | Linux `.deb` / `.rpm` package and the Kubernetes Helm chart, both from GitHub Releases (the download redirects from `github.com` to `release-assets.githubusercontent.com`) |
-| `ghcr.io`, `pkg-containers.githubusercontent.com` | Agent and OpenTelemetry container images, from GitHub Container Registry (layers come from `pkg-containers.githubusercontent.com`) |
-| `charts.kloudmate.com` | Helm repo index (Kubernetes) and the Linux RPM signing key, served from GitHub Pages. Also where `helm repo add` / `helm install` fetches the agent's Helm chart from when installing the Kubernetes agent from a VM. |
-| `quay.io` | cert-manager images (Kubernetes) |
-| `public.ecr.aws` | Log-router image (ECS Fargate) |
+| `github.com` | Used by the install script to download the agent. |
+| `api.github.com` | Used for agent update checks. |
+| `ghcr.io` | GitHub Container Registry, where the agent and collector container images are hosted (Docker and Kubernetes installs). |
+| `pkg-containers.githubusercontent.com` | Backing storage for `ghcr.io` image layers. |
+| `charts.kloudmate.com` | Home of the agent's Helm chart. Relevant when installing the Kubernetes agent from a VM, since `helm repo add` / `helm install` fetches the chart from here. |
+| `quay.io` | cert-manager images, a prerequisite for the Kubernetes agent. |
 
 ## Permissions by environment
 
