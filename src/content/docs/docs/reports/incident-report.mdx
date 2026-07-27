@@ -6,6 +6,8 @@ sidebar:
 ---
 An Incident Report provides detailed statistics about incidents associated with services and responders in the Incident Management module, offering insights into performance and resolution efficiency over a selected time range.
 
+Each report shows its **Source**, **Schedule**, **Format**, and whether it is **Active**, plus buttons to **Send Report now**, **View Generated Reports**, or **Edit** the report. Use the time range control (for example, **Last 1 Day**) to change the window the statistics below cover.
+
 The report is split into two tabs; Services and Responders.
 
 ### Services
@@ -24,21 +26,14 @@ It displays the following details:
 - **Repeated Incidents:** The number of recurring incidents for the service within the time range.
 - **MTTA (Mean Time to Acknowledge):** The average time taken to acknowledge incidents after they are triggered.
 - **MTTR (Mean Time to Resolve):** The average time taken to resolve incidents after they are triggered.
-- **SLA Target:** The SLA percentage target defined by the user.
-- **SLA Achieved:** The percentage of time the service had no incidents during the selected time range.
-- **SLA Status:** Shows Success if SLA achieved meets or exceeds the target, or Failed if it falls below.
 
-:::info
-SLA targets for a service can be configured on the Service Settings page under the Incident Management section.
+:::tip
+Reliability tracking has moved to SLOs. The SLA Target, SLA Achieved, and SLA Status columns are no longer part of the Incident Report — see [Reliability](../../reliability/) to set up service-level objectives, or the [SLO Compliance report](../../reliability/slo-compliance-report/) for a scheduled rollup.
 :::
 
 ### Responders
 
-The **Responders** tab evaluates the performance of responders assigned to incidents. 
-
-![image](./images/incident-report-2.png)
-
-It displays the following details:
+The **Responders** tab evaluates the performance of responders assigned to incidents. It displays the following details:
 
 - **Name:** The name of the responder.
 - **Assigned Incidents:** The number of incidents assigned to the responder during the selected time range.

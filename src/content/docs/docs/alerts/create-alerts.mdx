@@ -16,10 +16,10 @@ The **Alerts** screen displays a list of all existing alert rules along with the
 
 From the **more options (⋯)** icon on any rule, you can:
 
-- **View** the rule details
-- **View State History** for the rule
 - **Edit** the rule configuration
 - **Duplicate** the rule
+- **Move to folder** to move the rule into a different [folder](../folders/)
+- **View state history** for the rule
 - **Pause Evaluation** or **Pause Notifications**
 - **Delete** the rule
 
@@ -37,7 +37,7 @@ Click the **Create Alert** button at the top-right corner of the **Alerts** scre
 
 - **From Template** — Start with a pre-configured alert for a common monitoring scenario.
 - **From Scratch** — Create a custom alert from an empty configuration.
-- **Using AI** — Describe the alert you want in plain English and let KloudMate build it for you.
+- **Using AI** — Open **KloudMate Builder** and describe the alert you want in plain English.
 
 ### From Template
 
@@ -59,6 +59,9 @@ KloudMate's assistant can automatically generate queries and thresholds based on
 
 1. In the **Create Alert** dialog, select **Using AI**.
 2. A text box appears. Describe the alert you want to create.
+
+![Using AI prompt](./images/using-ai-prompt.png)
+
 3. Click **Create Alert**. KloudMate generates the alert configuration based on your description.
 4. To review or adjust the settings, click the menu next to the alert and select **Edit**.
 
@@ -176,7 +179,7 @@ Two top-level fields and one section:
 
 The Notifications step covers how this alert flows into the grouping engine. KloudMate replaced free-form notification tags with **labels** that routing rules match on:
 
-- **Labels** are auto-derived from query dimensions, the alert rule's folder, and a small set of system keys. You don't enter them by hand.
+- **Labels** — Key/value pairs attached to every signal this alert emits. Add them with **Add label**; the list can also be left empty. Routing rules match on these labels, plus the reserved `alarm_id`, `alarm_rule_folder_id`, and per-instance query labels, to decide which channels notify and how signals are grouped.
 - **Routing** is decided by [Routing Rules](../routing-rules/) in **Alerts → Routing rules**, which match alerts by label and send them to one or more notification channels.
 - **Severity** flows through the reserved `severity` annotation from the previous step — downstream tools use it to prioritize.
 
