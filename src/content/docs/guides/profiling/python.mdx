@@ -1,0 +1,47 @@
+---
+title: "Python"
+description: "Send CPU profiles from a Python service to KloudMate with pyroscope-io."
+sidebar:
+  order: 4
+---
+
+[pyroscope-io](https://github.com/grafana/pyroscope-python) is Grafana's official Python SDK for continuous profiling. It samples on-CPU time and pushes profiles straight to KloudMate's ingest endpoint.
+
+## Prerequisites
+
+- **The ingest endpoint**: `https://otel.kloudmate.com/v1/profiles/pyroscope`
+- **An API key** — go to **Settings → API Keys**, click **Add New**, and create an **Ingest Key – Backend**. Copy it immediately; KloudMate shows it only once.
+
+## Install
+
+```bash
+pip install pyroscope-io
+```
+
+## Configure
+
+Call `pyroscope.configure()` once, as early as possible — before you import or initialize the rest of your app:
+
+```python
+import pyroscope
+
+pyroscope.configure(
+    application_name="my-service",
+    server_address="https://otel.kloudmate.com/v1/profiles/pyroscope",
+    basic_auth_username="KloudMate",
+    basic_auth_password="YOUR_API_KEY",
+)
+```
+
+Swap `my-service` for a name that identifies this deployment, and `YOUR_API_KEY` for the key you copied above.
+
+## Verify it's working
+
+Open **Profiling → All Services**, select `cpu` from the profile type dropdown, and give it a minute. Your service's card appears with a live chart as soon as the first samples land.
+
+If nothing shows up, check that `basic_auth_username` is set to the literal string `KloudMate` — a missing username is the most common cause of a silent 401.
+
+## Related
+
+- [Supported Languages](../) — every other SDK KloudMate accepts.
+- [Flame Graph](/profiling/flame-graph/) — where this data ends up once it's flowing.

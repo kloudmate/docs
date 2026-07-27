@@ -1,7 +1,67 @@
 ---
 title: "Profiling"
-description: "Overview of Profiling"
+description: "Find CPU and memory hotspots in a running service with continuous profiling, and send your first profile with the Pyroscope SDK."
 sidebar:
-  label: "Introduction"
-draft: true
+  order: 1
+  label: "Overview"
 ---
+
+import { CardGrid, LinkCard, Tabs, TabItem } from '@astrojs/starlight/components';
+
+A flame graph answers a question logs and traces can't: which function is actually burning the CPU, or holding onto memory, right now. KloudMate's Profiling module samples your services continuously and turns those samples into an interactive flame graph, so you can go from "this service is slow" to a specific function and line number — without attaching a debugger or shipping a new build.
+
+This page introduces the five views in the Profiling module and shows you how to start sending profiles.
+
+## The five views
+
+Profiling has five views, reached from the segmented toggle at the top of the module:
+
+- **[All Services](./all-services/)** is your entry point — see every service reporting a given profile type, at a glance, over your selected time range.
+- **[Profile Types](./profile-types/)** is service-centric — once you pick a service, see every metric it profiles (CPU, heap, goroutines, and so on) side by side.
+- **[Labels](./labels/)** breaks a service's profiles down by the resource attributes your SDK attaches — region, pod, version — so you can filter down to the one that matters.
+- **[Flame Graph](./flame-graph/)** is where you find the hotspot: an interactive, zoomable flame graph plus a sortable function table for one service and profile type.
+- **[Difference View](./difference-view/)** compares two time windows of the same service and profile type — the view you reach for right after a deploy, to answer "did that change make things worse?"
+
+Start on **All Services** to see what's reporting data, narrow to one service in **Profile Types** or **Labels**, then open **Flame Graph** to dig into a specific hotspot. Reach for **Difference View** whenever you need a before/after comparison instead of a single snapshot.
+
+## Getting Started
+
+KloudMate accepts profiling data in either Opentelemetry Profiles signal format or the Pyroscope format — data can be sent via KM Agent or directly via the ingest endpoint. But it would be beneficial if data is sent via KM Agent since agent attaches additional attributes that are helpful for RCA. Since [Pyroscope](https://grafana.com/oss/pyroscope/) ingestion is supported, any Pyroscope-compatible SDK can send data straight to your workspace. That covers Go, Python, Java, Ruby, .NET, and Rust.
+
+### Get your ingest endpoint and API key
+
+You need two things before you touch any application code:
+
+1. **The ingest endpoint**: `https://otel.kloudmate.com/v1/profiles/pyroscope`
+2. **An API key** — go to **Settings → API Keys**, click **Add New**, and create an **Ingest Key – Backend**. Copy it immediately; KloudMate shows it only once. See [API Keys](../platform/settings/api-keys/) if you need the full walkthrough.
+
+### Authenticate with Basic auth
+
+Pyroscope SDKs authenticate with HTTP Basic auth, where the **password** carries the credential and the **username** is a placeholder label the SDK requires you to set — KloudMate ignores it. Use `KloudMate` as the username and your API key as the password:
+
+- **Username:** `KloudMate`
+- **Password:** the Ingest API key you just created
+
+Most SDK configs expose this as two separate fields (`BasicAuthUser` / `BasicAuthPassword`, or similar). Fill in both — an empty username is a common way to get a silent 401.
+
+## Supported languages
+
+KloudMate speaks the Pyroscope ingest protocol, so any Pyroscope-compatible SDK works. Each of these has its own dedicated setup guide with install, config, and verification steps:
+
+<CardGrid>
+  <LinkCard title="Go" description="pyroscope-go" href="/guides/profiling/go/" />
+  <LinkCard title="Java" description="Pyroscope Java agent" href="/guides/profiling/java/" />
+  <LinkCard title="Python" description="pyroscope-io" href="/guides/profiling/python/" />
+  <LinkCard title="Node.js" description="@pyroscope/nodejs" href="/guides/profiling/nodejs/" />
+  <LinkCard title="Ruby" description="pyroscope gem" href="/guides/profiling/ruby/" />
+  <LinkCard title=".NET" description="Pyroscope .NET profiler" href="/guides/profiling/dotnet/" />
+  <LinkCard title="Rust" description="pyroscope + pprof-rs" href="/guides/profiling/rust/" />
+</CardGrid>
+
+## Related
+
+<CardGrid>
+  <LinkCard title="APM & Tracing" description="Correlate a hotspot you find here with the trace that triggered it." href="../apm-and-tracing/" />
+  <LinkCard title="KloudMate Assistant" description="Ask AI investigates a flame graph's top functions for you — see how it's wired." href="../kloudmate-assistant/" />
+  <LinkCard title="API Keys" description="Create and manage the ingest key your profiler uses." href="../platform/settings/api-keys/" />
+</CardGrid>
