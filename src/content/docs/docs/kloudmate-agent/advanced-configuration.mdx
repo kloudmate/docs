@@ -1,0 +1,46 @@
+---
+title: "Advanced configuration"
+description: "Manual YAML, custom receivers, sampling, overhead tuning, autonomous instrumentation, self-telemetry, and credential rotation for the KloudMate agent."
+sidebar:
+  order: 13
+---
+
+import { LinkCard, CardGrid } from '@astrojs/starlight/components';
+
+Most agents run well in managed mode with the defaults. This page collects the advanced controls for cases that need hand-tuning. For the everyday model, see the [configuration model](../concepts/config-model/).
+
+## Manual YAML and custom receivers
+
+Switching an agent to **manual mode** gives you the raw collector YAML in the editor. Use it to hand-tune the configuration or add a component the managed integrations do not cover. This is for non-standard setups. The trade-off: you edit the YAML by hand, and the feature toggles are disabled. On Kubernetes, the agent's configuration lives in the collectors' ConfigMaps. Do not edit those directly, because the agent controls them in managed mode. See the [configuration model](../concepts/config-model/) and [Kubernetes platform notes](../platform-notes/kubernetes/).
+
+If you only need to add one component on top of the managed configuration, the [custom config override](../custom-config-override/) is lighter. It layers your YAML on top of managed mode and keeps the feature toggles working, so you do not have to hand-edit the whole configuration.
+
+The agent's own settings (such as the API key, host name override, and health reporting) are set through `agent.yaml`, environment variables, or command-line flags on the host, and through Helm values on Kubernetes. See the [configuration reference](../reference/agent-config/) for every setting, its environment variable, and its default.
+
+## Sampling
+
+Set a global trace sampling rate and override it per service to balance trace fidelity against ingestion cost. See [Sampling](../auto-instrumentation/sampling/).
+
+## eBPF and overhead tuning
+
+eBPF monitoring runs within a CPU and memory budget and reduces its overhead automatically on small instances. You can tune context propagation, request-header capture, database detection, and buffer sizes further. See [eBPF observability](../ebpf-observability/).
+
+## Collector self-telemetry
+
+Turn on the collector's in-band `otelcol_*` self-telemetry when you want detail on exporter queues and send failures. It is off by default because it adds metric volume. See [Collector self-telemetry](../self-observability/self-telemetry/).
+
+## Autonomous instrumentation
+
+The default model is to instrument per service. For automated rollouts, the agent supports an **autonomous mode** (`auto-instrument: true`) that instruments every eligible service on a host without per-service toggles, and auto-wires reachable web servers. Use it when you want blanket coverage and are willing to give up the per-service opt-in. See [Application APM overview](../auto-instrumentation/overview/).
+
+## Credential rotation
+
+By default, the agent stores only a reference to the environment variable, not the password itself. To rotate a database password, update the environment variable or Kubernetes Secret. You do not need to change the agent's configuration. See [Database credentials](../database-monitoring/credentials/).
+
+## Related
+
+<CardGrid>
+  <LinkCard title="Configuration model" href="../concepts/config-model/" description="Managed and manual modes." />
+  <LinkCard title="Management" href="../management/" description="Manage agents and configuration." />
+  <LinkCard title="Troubleshooting" href="../troubleshooting/" description="Diagnose problems." />
+</CardGrid>

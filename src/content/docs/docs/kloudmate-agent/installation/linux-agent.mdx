@@ -1,13 +1,15 @@
 ---
 title: "Linux"
-description: "Documentation for Linux Agent"
+description: "Install the KloudMate agent on a Linux host to collect metrics, logs, and traces."
 sidebar:
   order: 3
 ---
 
-This document provides clear instructions for installing the **KloudMate Agent** on a Linux machine. 
+Install the **KloudMate Agent** on a Linux machine.
 
 **Supported Platforms:** Debian/Ubuntu, RHEL/CentOS.
+
+If your outbound traffic is restricted, see [Before you start](../before-you-start/) for the URLs and permissions to allow first.
 
 :::note
   The commands below are for reference only. Log in to KloudMate and copy your account-specific command to install the Agent.
@@ -15,7 +17,7 @@ This document provides clear instructions for installing the **KloudMate Agent**
 
 ## What the Linux Agent Monitors
 
-After installation, the agent sends telemetry data to KloudMate, enabling unified monitoring of system health and issue investigation.
+After installation, the agent sends telemetry to KloudMate. From there you can monitor system health and investigate issues.
 
 Key capabilities:
 
@@ -73,25 +75,30 @@ View all data in these KloudMate sections:
 
 ## **Log Integration**
 
-By default, the KloudMate Agent collects basic system logs.
+By default, the KloudMate Agent collects host metrics. It does not collect system logs on Linux — to collect the systemd journal, add it with a [custom config override](../../custom-config-override/).
 
-To configure custom application logs and enable file-based log monitoring, refer to:
+To collect your own application log **files**, use log monitoring. In the agent's **Logs** tab, point the agent at a folder and file-name pattern, then choose how to parse each line: plain text, JSON, or a regular expression. Multiline grouping, for stack traces or pretty-printed JSON, works on top of any format. You can preview the parsed records before you save. See [Log monitoring](../../log-monitoring/).
 
-[Collect File Logs with KloudMate Agent](../../../logs/collect-file-logs/) documentation
+For a hand-written `filelog` receiver in manual mode, see [Collect File Logs with KloudMate Agent](../../../logs/collect-file-logs/).
 
-This guide explains how to:
+## Configuration and next checks
 
-- Configure the file log receiver
-- Add custom log file paths
-- Enable multiline log parsing
-- Validate logs in Log Explorer
+New agents start in **managed mode**, with a default of host metrics and eBPF monitoring. You review and change what is collected from the web interface, without editing files on the host. See the [configuration model](../../concepts/config-model/).
+
+The agent's own settings, such as the API key, host name, and self-health reporting, live in `agent.yaml` on the host. See the [configuration reference](../../reference/agent-config/) for the full list of settings and their environment-variable equivalents.
+
+After the agent is running, confirm what it collects and explore what it found:
+
+- Host metrics and logs start flowing automatically. See [Host metrics and logs](../../baseline/host-metrics-and-logs/).
+- On a supported Linux kernel (4.14 or newer), [eBPF monitoring](../../ebpf-observability/) turns on automatically and adds RED metrics and a service map.
+- Open the **Discovered Services** list for the host to see what the agent found and instrument a service. See [Discovery](../../concepts/discovery/).
 
 ## Next Steps
 
 - Open **Infrastructure Monitoring** to confirm your Linux hosts are visible
 - Go to **Dashboards** to review system performance
 - Use **Log Explorer** to start investigating logs
-- Set up **alerts & notifications** for critical events
+- Set up **alerts and notifications** for critical events
 
 ## Uninstall Agent
 

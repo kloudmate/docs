@@ -1,0 +1,60 @@
+---
+title: "Engines and coverages"
+description: "The database engines the KloudMate agent monitors and the metrics, query performance, locks, and logs available for each engine."
+sidebar:
+  order: 2
+---
+
+import { LinkCard, CardGrid } from '@astrojs/starlight/components';
+
+You choose what to monitor for a database as a set of **coverages**. This page lists the engines the agent monitors and the coverages available for each.
+
+## Coverage types
+
+- **Standard metrics:** the database's health and capacity metrics, such as connections, cache hit ratio, replication lag, buffers, and table and index statistics. You can collect a basic set or a full set.
+- **Query performance:** statistics for the most expensive queries across all clients, so you can find slow and heavy queries.
+- **Locks:** lock and blocking information.
+- **Query logs:** query activity captured as log records.
+- **Server and slow logs:** the database's own log entries, including slow queries.
+
+## Engine and coverage matrix
+
+| Engine | Standard metrics | Query performance | Locks | Query logs | Logs |
+|---|---|---|---|---|---|
+| PostgreSQL | Yes | Yes | Yes | No | Server logs |
+| MySQL | Yes | Yes | No | No | Slow log |
+| SQL Server | Yes | Yes | No | Yes | No |
+| Oracle | Yes | Yes | No | Yes | No |
+| MongoDB | Yes | No | No | No | No |
+| MongoDB Atlas | Yes | No | No | No | No |
+| Redis | Yes | No | No | No | No |
+| Elasticsearch | Yes | No | No | No | No |
+| ClickHouse | Yes | No | No | No | No |
+| SAP HANA | Yes | No | No | No | No |
+| Snowflake | Yes | Yes | No | No | No |
+
+:::note
+Database log coverages are available on a virtual machine. On Kubernetes, the agent collects database metrics and query coverages. See [Database monitoring on Kubernetes](../on-kubernetes/).
+:::
+
+## Setup steps
+
+Some coverages need a one-time setup step on the database. The wizard shows you the step when you select that coverage. For example:
+
+- PostgreSQL query performance needs the `pg_stat_statements` extension enabled, which needs a PostgreSQL restart.
+- Query performance and query-log coverages need the monitoring user to have the right grants, such as `GRANT pg_monitor` on PostgreSQL or the equivalent view permissions on SQL Server and Oracle.
+- Log coverages may need a log setting turned on, such as the MySQL slow query log.
+
+If a prerequisite is missing, the agent reports it and the other coverages keep working.
+
+## Filtering database logs
+
+Database logs carry a `km.db.coverage` attribute set to the coverage they came from, such as `query-performance`, `server-logs`, or `slow-log`. You can filter database logs by this attribute in Log Explorer.
+
+## Next steps
+
+<CardGrid>
+  <LinkCard title="On a VM" href="../on-vm/" description="Set up monitoring on a Linux or Windows host." />
+  <LinkCard title="On Kubernetes" href="../on-kubernetes/" description="Set up monitoring for in-cluster databases." />
+  <LinkCard title="Credentials" href="../credentials/" description="Provide the monitoring user's credentials." />
+</CardGrid>

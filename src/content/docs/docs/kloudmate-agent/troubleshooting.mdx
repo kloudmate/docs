@@ -1,0 +1,61 @@
+---
+title: "Troubleshooting"
+description: "Symptom-first troubleshooting for the KloudMate agent using self-health and self-logs, across install, metrics, traces, databases, Windows, and Kubernetes."
+sidebar:
+  order: 14
+---
+
+import { LinkCard, CardGrid } from '@astrojs/starlight/components';
+
+Start with two agent features. The [health metrics](../self-observability/health-metrics/) tell you whether the agent and collector are up, and why the collector is down. The [self-logs](../self-observability/self-logs/) bring the agent's own error messages into KloudMate, so you can read them without logging in to the host. Check both first.
+
+## The agent will not start or stay up
+
+- **Missing API key.** The agent needs its API key to check in. Confirm the key was provided at install. In the health metrics, a healthy agent emits `kmagent.up`.
+- **Invalid collector configuration.** If a pushed configuration is invalid, the collector will not start. Look for `kmagent.collector.up=0` with `reason=config_invalid`, and read the error text in the self-logs. In managed mode, the agent checks generated configuration before applying it and keeps running the last good one. In manual mode, fix the YAML.
+- **Insufficient privileges.** The agent needs elevated privileges for eBPF (on Linux) and for instrumentation. On Linux, it runs with the privileges it needs by default. On Windows, it runs as Local System. A permissions failure shows up in the self-logs.
+
+## Metrics are not flowing
+
+- **eBPF is unavailable.** If RED metrics and the service map are missing, the host may not support eBPF. Check the host detail for an "eBPF unavailable" reason (kernel older than 4.14, `debugfs` not mounted, or missing privileges). Host metrics and logs are unaffected. See [eBPF observability](../ebpf-observability/).
+- **The integration is not enabled.** In managed mode, confirm the feature or integration is toggled on. In manual mode, confirm the receiver is in the YAML.
+- **A collection error.** A receiver that cannot reach its target or authenticate logs a scrape error rather than crashing the collector. Check the self-logs for the specific receiver.
+
+## Traces are not flowing
+
+- **The service was not discovered.** Only discovered services can be instrumented. Confirm the service appears in the Discovered Services list. See [Discovery](../concepts/discovery/).
+- **The toggle has not applied.** Instrumentation takes effect on restart. Check the service's status chip: `pending restart` means the change is written but the service has not restarted. See [Application APM overview](../auto-instrumentation/overview/).
+- **Injection failed and rolled back.** If the status shows failed and rolled back, the service crash-looped after instrumentation and the agent reverted the change. Read the reason in the self-logs, then retry. eBPF monitoring continues to cover the service throughout.
+
+## Database monitoring is not working
+
+- **Credentials rejected.** Confirm the monitoring user and secret are correct and that the environment reference resolves. On Kubernetes, confirm the Kubernetes Secret exists and the pod was started after it. See [Database credentials](../database-monitoring/credentials/).
+- **A missing grant or prerequisite.** Some coverages need a grant or extension (for example, `GRANT pg_monitor`, or the `pg_stat_statements` extension for PostgreSQL query performance). The wizard lists the exact setup steps. See [Engines and coverages](../database-monitoring/engines-and-coverages/).
+- **Endpoints do not join.** If database metrics and traces do not line up, confirm the configured endpoint matches what your applications connect to. On Kubernetes, use the Service DNS endpoint. See [Telemetry identity](../reference/telemetry-identity/).
+
+## Windows-specific
+
+- **The .NET profiler did not attach.** Confirm the application pool runs a supported runtime (.NET Framework 4.6.2 or newer), that an ASP.NET Core pool is set to "No Managed Code," and that the pool was recycled. Legacy CLR 2.0 pools use ETW monitoring instead. See [Windows and .NET application APM](../auto-instrumentation/windows-dotnet/).
+- **No ETW spans.** ETW monitoring needs the Local System privileges the agent runs with. See [Windows platform notes](../platform-notes/windows/).
+
+## Kubernetes-specific
+
+- **A collector pod is crashing.** Check the pod's status in the Kubernetes view, which shows the real per-node collector status, and read the fleet manager and collector self-logs. A crash is often an invalid configuration.
+- **APM annotations were not applied.** Confirm APM is enabled and the workload is in a monitored namespace. See [Application APM on Kubernetes](../auto-instrumentation/kubernetes/).
+- **Do not edit ConfigMaps by hand.** The agent owns them in managed mode and will overwrite manual edits. See [Kubernetes platform notes](../platform-notes/kubernetes/).
+
+## What to attach when contacting support
+
+To help KloudMate diagnose an issue quickly, include:
+
+- The **agent version** and deployment mode.
+- The relevant **self-logs** and the collector status (`kmagent.collector.up` state and reason).
+- A description of what you changed and the status chip or error you saw.
+
+## Related
+
+<CardGrid>
+  <LinkCard title="Agent health metrics" href="../self-observability/health-metrics/" description="Liveness and collector status." />
+  <LinkCard title="Agent self-logs" href="../self-observability/self-logs/" description="The agent's own error logs." />
+  <LinkCard title="Management" href="../management/" description="Manage agents and configuration." />
+</CardGrid>

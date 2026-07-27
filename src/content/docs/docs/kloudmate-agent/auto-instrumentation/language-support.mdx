@@ -1,0 +1,139 @@
+---
+title: "Languages and process managers"
+description: "Which languages the KloudMate agent auto-instruments on Linux, how the method changes with systemd, PM2, or a standalone process, and the known limitations."
+sidebar:
+  label: "Languages & process managers"
+  order: 2.5
+---
+
+import { LinkCard, CardGrid } from '@astrojs/starlight/components';
+
+On a Linux host, how the agent adds tracing to a service depends on two things: the language it is written in, and how it is started (as a systemd service, under PM2, or on its own). The agent picks the right method for each combination. This page lists what is supported and what to watch out for.
+
+Every method follows the same steps to turn tracing on, ask before it restarts anything, and roll back if needed. See the [Application APM overview](../overview/).
+
+## Support matrix
+
+| Language | systemd service | PM2 app | Standalone process |
+|---|---|---|---|
+| Java | Startup config, then restart | Attaches live, no restart | Attaches live, no restart |
+| Node.js | Startup config, then restart | Restart with tracing on | Run under systemd or PM2 |
+| Python | Startup config, then restart | Restart with tracing on | Run under systemd or PM2 |
+| .NET | Startup config, then restart | Run under systemd | Run under systemd |
+| PHP | PHP config + graceful reload | PHP config + graceful reload | PHP config + graceful reload |
+| Go | eBPF, no code change | eBPF, no code change | eBPF, no code change |
+| Ruby | eBPF, no code change | eBPF, no code change | eBPF, no code change |
+
+With any method, the traces go to the agent's local collector, so an instrumented service shares a single trace with the [eBPF monitoring](../../ebpf-observability/) around it.
+
+## systemd services
+
+This is the main method on Linux. When you instrument a systemd service, the agent adds a small startup config file for it and, after you confirm, restarts the service so the change takes effect:
+
+- **Java** loads the OpenTelemetry Java agent through `JAVA_TOOL_OPTIONS`.
+- **Node.js** loads the instrumentation through `NODE_OPTIONS`.
+- **Python** loads it through `PYTHONPATH`.
+- **.NET** loads the CLR profiler through the `CORECLR_*` and `DOTNET_STARTUP_HOOKS` variables.
+
+Because the service restarts, the agent can set everything up front: a fixed `service.name` (the name shown in the Discovered Services list), the sampling rate, and where to send the traces. Turning instrumentation off removes the config file and restarts the service, so it goes back to how it was. Running the same action twice changes nothing, so it is safe to repeat.
+
+## PM2 apps
+
+PM2 apps are not systemd services, so the agent uses a different method. For **Node.js and Python** apps under PM2, it restarts each selected app with tracing switched on (`pm2 restart <app> --update-env`). Each app keeps its PM2 process name as its `service.name`, so apps under the same PM2 manager stay separate.
+
+The agent covers PM2 for every user on the host, not just root. If an app does not come back up after the change, the agent undoes it and restarts the app, so a failed attempt never leaves your app down.
+
+Java under PM2 uses the runtime attach method described below. .NET under PM2 is uncommon and is not handled automatically; run a .NET service under systemd to instrument it.
+
+## Java without systemd (runtime attach)
+
+A Java process that is not a systemd service can still be instrumented, whether it runs as a plain `java -jar` process, under PM2, or from a script. The agent attaches the OpenTelemetry Java agent to the **already-running** process, with no restart needed. This is tested against common frameworks, including Spring Boot and Tomcat.
+
+The agent sets `service.name` automatically, trying these in order:
+
+1. The jar name for a `java -jar app.jar` launch (so `app.jar` reports as `app`).
+2. `spring.application.name`, when the app sets it.
+3. Otherwise `unknown_service:java`.
+
+Attaching to a running process has two consequences:
+
+- **You cannot force a specific `service.name`.** If you need a fixed name, set `spring.application.name` in the app, or run it as a systemd service.
+- **It cannot be undone while the app runs.** Once attached, the agent stays until the process restarts. Turning instrumentation off does not remove it from a running process; it takes effect the next time the process restarts.
+
+## Standalone Node.js and Python
+
+The agent can instrument Node.js and Python only when they run under systemd or PM2. A process started on its own, under neither, cannot be instrumented automatically. Run it under systemd or PM2 first. The Discovered Services list flags these processes and tells you to do this.
+
+## Python versions
+
+SDK injection supports **Python 3.10 through 3.13**. Other versions, such as 3.14, are covered by [eBPF monitoring](../../ebpf-observability/) instead.
+
+## PHP
+
+PHP is instrumented through its own configuration, not a restart. The agent adds a config file for the target's PHP build, then reloads PHP gracefully (a php-fpm or Apache reload) so no requests are dropped. It uses the native OpenTelemetry extension on **PHP 8**, and falls back to a tracer that also covers **PHP 7**. See [PHP instrumentation](../php/).
+
+## Go
+
+Go does not use code injection. It is covered by [eBPF monitoring](../go-ebpf/), which gives Go services RED metrics (request rate, errors, and duration), the service map, and traces from the kernel, with no change to the app.
+
+## Ruby
+
+A Ruby app has two levels of coverage:
+
+- **eBPF monitoring, with no code change.** [eBPF](../../ebpf-observability/) gives a Ruby service HTTP server traces, RED metrics (request rate, errors, and duration), and the service map from the kernel, with no gem and on any Ruby version. This is the same as Go.
+- **Deep Ruby tracing** needs the OpenTelemetry Ruby gems added to the app's `Gemfile`. The agent cannot add them from outside, because Ruby only loads gems listed in the app's `Gemfile`. With them, `use_all` traces the whole request path — HTTP handling, database queries, view rendering, background jobs, and outbound HTTP calls.
+
+  ```ruby
+  # Gemfile
+  gem 'opentelemetry-sdk'
+  gem 'opentelemetry-instrumentation-all'
+  gem 'opentelemetry-exporter-otlp'
+  ```
+
+  ```ruby
+  # config/initializers/opentelemetry.rb
+  require 'opentelemetry/sdk'
+  require 'opentelemetry/instrumentation/all'
+  require 'opentelemetry/exporter/otlp'
+  OpenTelemetry::SDK.configure { |c| c.use_all }
+  ```
+
+  Set the service name and where to send traces through the app's environment:
+
+  ```text
+  OTEL_SERVICE_NAME=my-rails-app
+  OTEL_EXPORTER_OTLP_ENDPOINT=http://localhost:4318
+  ```
+
+  The SQL query text on a database span comes from the driver instrumentation (`pg`, `mysql2`), not from ActiveRecord. A database with no OpenTelemetry driver — SQLite — shows the model operation (`User#save`) but no SQL. For the full breakdown of what these gems capture, see [Ruby auto-instrumentation](../../../apm-and-tracing/auto-instrumentation/ruby/).
+
+  The current OpenTelemetry Ruby gems need **Ruby 3.3 or newer**. On Ruby 3.0 to 3.2 you have to pin older gem versions, and on Ruby 2.x they will not install at all. On those versions, use eBPF monitoring, which does not depend on the Ruby version.
+
+## How discovered services are named and filtered
+
+The agent keeps the Discovered Services list focused on real applications:
+
+- **Infrastructure and the agent's own processes are left out.** The agent never lists or instruments itself, cloud-provider agents (such as the AWS SSM agent, the Google guest agent, or the Azure agent), or container runtimes (such as `containerd`, `dockerd`, and `kubelet`). Left in, these would clutter the list and could be traced as if they were your services.
+- **A plain Java process is listed by its jar name.** A `java -jar app.jar` process shows as `app` (matching its `service.name`), not the generic `java`.
+
+For the full discovery model, see [Discovery](../../concepts/discovery/).
+
+## Limitations
+
+Keep these in mind, especially for Java runtime attach:
+
+- **Java runtime attach does not cover the JDK's built-in `com.sun.net.httpserver`.** That server sets up its handler before the agent attaches, and it cannot be changed afterward. Common frameworks like Spring Boot and Tomcat are fully covered; only apps that serve directly from the JDK's built-in server are affected.
+- **JDK 21 and newer print a warning about dynamic agent loading.** Runtime attach triggers the JVM warning `A future release of the JVM may disallow dynamic loading of agents by default` ([JEP 451](https://openjdk.org/jeps/451)). It is harmless today. A future JVM may need you to start the app with `-XX:+EnableDynamicAgentLoading` for runtime attach to keep working.
+- **Standalone Node.js and Python need systemd or PM2.** Without one of them, there is no automatic way to instrument these apps.
+- **Python SDK injection covers Python 3.10 through 3.13.** Other versions, such as 3.14, are covered by eBPF monitoring.
+- **Go has no code injection.** Its coverage comes from eBPF monitoring.
+- **Ruby has no code injection.** For no-code coverage it uses eBPF. Deep Ruby tracing (database queries, view rendering, background jobs, outbound HTTP) needs the OpenTelemetry Ruby gems added to the app, which require Ruby 3.3 or newer.
+
+## Related
+
+<CardGrid>
+  <LinkCard title="Application APM overview" href="../overview/" description="How to turn APM on per service, restarts, and rollback." />
+  <LinkCard title="Linux (systemd)" href="../linux-systemd/" description="The systemd method in detail." />
+  <LinkCard title="Sampling" href="../sampling/" description="Set the trace sampling rate." />
+  <LinkCard title="Discovery" href="../../concepts/discovery/" description="How services are found and named." />
+</CardGrid>

@@ -1,11 +1,9 @@
 ---
 title: "OracleDB"
-description: "Documentation for OracleDB Monitoring"
+description: "Monitor Oracle Database sessions, performance, tablespaces, and logs with the KloudMate Agent and OpenTelemetry."
 ---
 
-Oracle Database (OracleDB) is foundational for many enterprise applications, and robust monitoring is essential for maintaining performance and reliability. KloudMate provides comprehensive visibility into OracleDB by delivering real-time insights through logs and metrics using the KloudMate Agent powered by OpenTelemetry.
-
-OracleDB Monitoring in KloudMate enables centralized monitoring of Oracle Database instances running on AWS EC2, Azure Virtual Machines, or on-premise servers.
+This guide sets up Oracle Database (OracleDB) monitoring with the KloudMate Agent and OpenTelemetry. It collects logs and metrics so you can watch sessions, system statistics, tablespace usage, and performance across OracleDB instances running on AWS EC2, Azure Virtual Machines, or on-premise servers.
 
 # OracleDB Integration using KloudMate Agents
 
@@ -63,7 +61,7 @@ Two named receiver instances are used to logically separate SQL performance quer
 
 - Log in to the KloudMate platform
 - Go to **Settings → Agents**
-- Select the agent running on the PostgreSQL host
+- Select the agent running on the OracleDB host
 - Click **Actions → Collector Configuration**
 - YAML editor opens for configuration
 

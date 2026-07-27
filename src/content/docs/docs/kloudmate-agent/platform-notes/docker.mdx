@@ -1,0 +1,105 @@
+---
+title: "Docker platform notes"
+description: "How the KloudMate agent runs in Docker mode: infrastructure and eBPF coverage across containers, and how application tracing works."
+sidebar:
+  order: 3
+---
+
+import { LinkCard, CardGrid } from '@astrojs/starlight/components';
+
+How the agent runs in Docker mode. For installation, see the [Docker installation guide](../../installation/docker-agent/).
+
+## What's automatic
+
+Running in Docker mode, the agent covers your host and containers without touching them:
+
+- **Infrastructure, metrics, and logs:** host and container metrics and container logs, from the containerized collector. See [Host metrics and logs](../../baseline/host-metrics-and-logs/).
+
+## Application traces
+
+Application tracing — Rate, Errors, and Duration (RED) metrics and trace spans — is **not** automatic. The agent lists every host process and container it finds under **Discovered Services**, and for each one you choose how it is traced:
+
+- **Off** — not traced. This is the default, so nothing is traced (and nothing costs) until you turn it on — which matters on a host running many containers.
+- **eBPF** — RED metrics and trace spans, captured in the host kernel with no code change and no restart.
+
+**SDK injection is not offered on Docker.** The in-process OpenTelemetry SDK — the deep-span option on a Linux host — reads its configuration from the process's start-time environment, which can't change without recreating the container, too invasive for the agent to do automatically. So a container's choice is **Off or eBPF**, the same as Go on a Linux host. For full SDK depth, add OpenTelemetry to the app yourself (below), or run it on a [Linux host](../../installation/linux-agent/) or [Amazon ECS](../../installation/ecs-agent/), where the agent injects it for you.
+
+| Runtime | In Discovered Services | Full SDK depth |
+|---|---|---|
+| Java, Node.js, Python, .NET | **Off / eBPF** — RED + spans, opt-in, no restart | Not injectable on Docker; [add OpenTelemetry yourself](#send-full-opentelemetry-traces-from-your-containers), or run on Linux / ECS |
+| Go | **Off / eBPF** | eBPF only — Go is a static binary with no runtime to attach |
+| PHP 7 and 8 | Auto-injected in place — see below | Automatic, no redeploy |
+
+PHP is the exception: the agent can reload the SAPI without a restart, so it instruments PHP containers in place. That is controlled by environment variables, not the per-service toggle.
+
+## Instrument PHP containers
+
+In Docker mode, the agent instruments your PHP containers automatically and reloads the web server.
+
+**Narrow or turn it off** with environment variables on the agent:
+
+```bash
+# Limit instrumentation to specific containers (default: every PHP container)
+KM_CONTAINER_INSTRUMENT_NAMES=app1,app2
+KM_CONTAINER_INSTRUMENT_IMAGES=wordpress,my-php-app
+
+# Turn PHP container instrumentation off entirely
+KM_CONTAINER_INSTRUMENT_ENABLED=false
+```
+
+### What is supported
+
+- **Web servers:** Apache with mod_php, and PHP-FPM. The agent reloads them gracefully, so tracing starts without a restart. WordPress and the official `php:8.x-apache` images work this way.
+- **PHP versions:** 7.0 through 8.x. The tracer is matched to the container's exact PHP build automatically.
+
+The agent cannot instrument a container that serves requests from the **PHP built-in server** (`php -S`), because that server does not reload configuration without a full restart. The official Adminer image is one example. Alpine (musl) images are also a problem, because the bundled tracer assets target glibc.
+
+### PHP containers are configured by environment, not the per-service toggle
+
+PHP container instrumentation is controlled by the environment variables above, not the **Off / eBPF** toggle in **Discovered Services**. A PHP container can still appear in that list, but its in-place tracer — not the toggle — is what gives it full traces. Narrow or disable it with the variables above.
+
+## Send full OpenTelemetry traces from your containers
+
+For Java, Node.js, Python, and .NET, **eBPF** (the per-service toggle above) already gives you RED metrics and spans with no code change. For full SDK depth — client spans, database and library instrumentation, custom spans — run OpenTelemetry inside the application. Add it once, at build or deploy time, and point it at the agent. The agent already listens for OpenTelemetry (OTLP) data:
+
+- gRPC on port `4317`
+- HTTP on port `4318`
+
+**1. Instrument the application.** Add OpenTelemetry to the service, with either the language's zero-code auto-instrumentation (the Java agent jar, the Node.js `--require` loader, and so on) or the OpenTelemetry SDK. These are the same language agents the agent adds automatically on a host, listed in the [application APM overview](../../auto-instrumentation/overview/).
+
+**2. Point it at the agent.** Set these environment variables on the application container:
+
+```bash
+OTEL_EXPORTER_OTLP_ENDPOINT=http://AGENT_HOST:4318
+OTEL_SERVICE_NAME=your-service-name
+```
+
+Replace `AGENT_HOST` with an address that reaches the agent from inside the container:
+
+- **Docker Desktop (Mac or Windows):** `host.docker.internal`.
+- **Linux:** the Docker bridge gateway, commonly `172.17.0.1`. Or add `--add-host=host.docker.internal:host-gateway` to the application container and use `host.docker.internal`.
+- **Same Docker network:** if the agent runs as a service on the same user-defined network as the application, use its service name, for example `http://kmagent:4317`.
+
+To send over HTTP instead of gRPC, use port `4318` and add `OTEL_EXPORTER_OTLP_PROTOCOL=http/protobuf`.
+
+**3. Restart the service** so the instrumentation loads. Its traces then appear in KloudMate, joined to the service's eBPF spans on one trace.
+
+The agent produces this same result automatically on a [Linux host](../../installation/linux-agent/) or on [Amazon ECS](../../installation/ecs-agent/). In plain Docker you add the instrumentation yourself, because the agent cannot change a running container's startup environment without recreating it.
+
+## Deployment posture
+
+PHP container instrumentation reaches the containers through the Docker socket, so it works from a host-process agent or from the containerized collector, as long as the socket is mounted.
+
+eBPF monitoring is different: it needs host kernel access, so a plain, non-privileged agent container cannot produce the eBPF signals. Run the agent on the host, or as a privileged container with host mounts.
+
+## PHP 7 in containers
+
+A tracer built on the host must match the container's exact PHP build, so PHP 7 in a container is the hardest case. The reliable path is to add the tracer at image build time. See [PHP instrumentation](../../auto-instrumentation/php/).
+
+## Next steps
+
+<CardGrid>
+  <LinkCard title="Install with Docker" href="../../installation/docker-agent/" description="Run the agent as a container." />
+  <LinkCard title="eBPF observability" href="../../ebpf-observability/" description="Kernel-level monitoring that covers your containers." />
+  <LinkCard title="Application APM overview" href="../../auto-instrumentation/overview/" description="How opt-in tracing works." />
+</CardGrid>

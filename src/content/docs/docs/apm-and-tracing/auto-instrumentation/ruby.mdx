@@ -1,17 +1,15 @@
 ---
 title: "Ruby Auto Instrumentation"
-description: "Send auto-instrumented Ruby traces to KloudMate."
+description: "Auto-instrument a Ruby or Rails app with OpenTelemetry and send the traces to KloudMate — what gets captured out of the box, and where the SQL comes from."
 sidebar:
   label: "Ruby"
 ---
 
-KloudMate natively supports OpenTelemetry (OTel) for auto-instrumenting Ruby applications. Because OpenTelemetry actively maintains robust auto-instrumentation agents for Ruby, we rely on their standard process to ensure you always have the most up-to-date and compatible tracing capabilities.
+KloudMate uses OpenTelemetry to auto-instrument Ruby applications. The instrumentation gems are maintained by the OpenTelemetry project; KloudMate ingests whatever they emit over OTLP, so your coverage tracks the upstream gems.
 
-## Routing Data to KloudMate
+## Route data to KloudMate
 
-To send auto-instrumented data to KloudMate, you only need to configure the OpenTelemetry agent with KloudMate's OTLP endpoint and your API key using environment variables.
-
-When running your Ruby application, provide the following environment variables:
+Point the OpenTelemetry exporter at KloudMate's OTLP endpoint and your API key through environment variables. When you run your app, set:
 
 ```bash
 export OTEL_EXPORTER_OTLP_ENDPOINT="https://otel.kloudmate.com:4318"
@@ -19,10 +17,53 @@ export OTEL_EXPORTER_OTLP_HEADERS="Authorization=YOUR_API_KEY"
 export OTEL_SERVICE_NAME="your-ruby-service-name"
 ```
 
-*Replace `YOUR_API_KEY` with your actual KloudMate API key.*
+Replace `YOUR_API_KEY` with your KloudMate API key.
 
-## Setup Instructions
+## Install the gems
 
-For the actual installation and usage instructions of the OpenTelemetry Ruby auto-instrumentation gems, please refer to the official OpenTelemetry documentation.
+Add the SDK, the all-in-one instrumentation bundle, and the OTLP exporter to your `Gemfile`:
 
-[**View Official OpenTelemetry Ruby Zero-code Instrumentation Docs &rarr;**](https://opentelemetry.io/docs/zero-code/ruby/)
+```ruby
+gem 'opentelemetry-sdk'
+gem 'opentelemetry-instrumentation-all'
+gem 'opentelemetry-exporter-otlp'
+```
+
+Enable them once at boot. For Rails, use an initializer:
+
+```ruby
+# config/initializers/opentelemetry.rb
+require 'opentelemetry/sdk'
+require 'opentelemetry/instrumentation/all'
+require 'opentelemetry/exporter/otlp'
+
+OpenTelemetry::SDK.configure do |c|
+  c.use_all   # turn on every instrumentation whose library is loaded
+end
+```
+
+The `opentelemetry-exporter-otlp` gem is required. Without it the SDK has no exporter, logs `otlp exporter cannot be configured` at startup, and drops every span.
+
+## What gets instrumented automatically
+
+`use_all` turns on each instrumentation whose underlying library is loaded. For a Rails app it covers the whole request path with no extra code:
+
+| Layer | Gem | What you get |
+|---|---|---|
+| HTTP server | `rack`, `action_pack` | One span per request — the root of the trace. `action_pack` adds the matched route, controller, and action, and names the span `GET /users/:id` (Rails 7.1+). |
+| Database (SQL) | `pg`, `mysql2`, `trilogy` | One span per query, carrying the SQL as `db.statement`. This is the span that shows the query text. |
+| Database (ORM) | `active_record` | Timing spans for model operations — `User#save`, `User.create`, `User query`. They show the Rails call, not the SQL. |
+| View rendering | `action_view` | Spans for template, partial, collection, and layout renders, tagged with the template path. |
+| Background jobs | `active_job`, plus `sidekiq`, `delayed_job`, `resque`, `que` | An enqueue span and a perform span per job, linked across the two processes. |
+| Outbound HTTP | `net_http`, `faraday`, `http`, `httpx`, `excon` | A client span for each call your app makes to another service. |
+| Caches and stores | `redis`, `dalli`, `mongo` | A span per cache or store operation. |
+
+The bundle also covers GraphQL, gRPC, Sinatra, Grape, the AWS SDK, and Kafka and RabbitMQ clients when your app uses them.
+
+:::note
+The SQL query text (`db.statement`) comes from the database driver instrumentation (`pg`, `mysql2`), not from `active_record`. SQLite has no such instrumentation, so a SQLite app shows the model operation but no SQL — PostgreSQL and MySQL show the query.
+:::
+
+## Reference
+
+For setup, configuration options, and the full list of instrumentations, see the [OpenTelemetry Ruby zero-code instrumentation docs](https://opentelemetry.io/docs/zero-code/ruby/).

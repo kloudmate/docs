@@ -1,15 +1,15 @@
 ---
 title: "Configuration & Management"
-description: "Learn how to manage, configure, and monitor your KloudMate Agents centrally from the web interface."
+description: "Manage, configure, and monitor your KloudMate agents centrally from the web interface."
 sidebar:
-  order: 2
+  order: 12
 ---
 
-The KloudMate Agent is designed to be managed centrally from the KloudMate web UI. This means you don't need to SSH into your servers or manually edit local YAML files to update settings—changes made in the dashboard are automatically pushed to your agents across your infrastructure.
+The KloudMate Agent is managed centrally from the web UI, so there is no need to SSH into servers or edit local YAML files. Changes made in the dashboard are pushed to the agents automatically.
 
 ## Agents Overview
 
-The KloudMate agent's landing page allows you to view, add, and manage your agents. Once an agent is integrated, you can view its details:
+The KloudMate agent's landing page lets you view, add, and manage agents. After an agent is integrated, you can view its details:
 
 ![image](./images/managing-kloudmate-agents-3.png)
 
@@ -21,7 +21,7 @@ The KloudMate agent's landing page allows you to view, add, and manage your agen
 
 ## Adding a New Agent
 
-1. Click the **Add Agent** button located at the top right corner of the page.
+1. Click the **Add Agent** button located at the top-right corner of the page.
 
 ![image](./images/managing-kloudmate-agents-1.png)
 
@@ -37,23 +37,44 @@ The KloudMate agent's landing page allows you to view, add, and manage your agen
 
 ## Remote Configuration Editor
 
-The agent watches for remote configuration changes via a secure connection and updates itself automatically. 
+The agent watches for remote configuration changes over a secure connection and updates itself automatically. 
 
 :::danger
-  **Do not edit local files manually.**
-  Manually updating ConfigMaps or local configuration files is not recommended, as these configurations may be overwritten by the central KloudMate APIs. Always use the **KloudMate Agent Config Editor** in the web UI.
+  **Do not hand-edit local files in managed mode.**
+  In managed mode, KloudMate regenerates the collector configuration from your toggles, so manual edits to ConfigMaps or local configuration files will be overwritten. Always use the **KloudMate Agent Config Editor** in the web UI.
 :::
 
-From the KloudMate platform, you can update the collector configuration associated with any agent:
+From the KloudMate platform, you can update the collector configuration for any agent:
 
 ![image](./images/managing-kloudmate-agents-4.png)
 
-- **Collector Configuration:** Open the web-based YAML editor to make changes to the collector settings and apply updates automatically where the agent is installed.
+- **Collector Configuration:** Open the web-based YAML editor to change the collector settings. Updates apply automatically wherever the agent is installed.
 - **APM Configuration:** Configure the applications running on your Kubernetes cluster (applicable only for Kubernetes agents).
 - **Restart Collector:** Restart the collector service when needed.
-- **Delete:** Removes the agent from the list on the KloudMate Agent landing page. To completely remove the agent, you must also uninstall it from the source environment.
+- **Delete:** Remove the agent from the KloudMate Agent landing page and clear all of its configuration.
+
+:::caution
+Deleting an agent decommissions it. Its instrumented applications restart so their instrumentation is removed, and its database and log monitoring stop. If the agent is still running on the host, it checks back in and reappears as a new, unconfigured agent. To remove it for good, also uninstall it from the host. See the [installation guides](../installation/linux-agent/) for the uninstall command.
+:::
+
+### Managed and manual mode
+
+Each agent runs in one of two configuration modes:
+
+- **Managed mode** (the default for new agents): KloudMate generates the collector configuration from the features and integrations you toggle, and the YAML editor shows a read-only preview. This is the recommended way to configure an agent.
+- **Manual mode:** the raw YAML is edited directly, and the feature toggles are disabled. This is for advanced, hand-tuned setups.
+
+You can switch an agent between modes. Switching from manual to managed replaces the hand-edited YAML with generated configuration, so review the change first. For the full model, see the [configuration model](../concepts/config-model/).
+
+### Rolling back a change
+
+To undo a managed change, turn the toggle back. There is no separate history or rollback button. Switching an agent from manual to managed mode saves your hand-edited YAML first, so you never lose it. See the [configuration model](../concepts/config-model/).
 
 ### Common Configurations
+
+:::note
+The snippets below are for manual mode. In managed mode, you set these through the feature and integration toggles instead. See [eBPF observability](../ebpf-observability/) and [Database monitoring](../database-monitoring/overview/).
+:::
 
 #### Feature Flags
 
@@ -68,7 +89,7 @@ You can control which telemetry signals the agent collects by updating the featu
 
 #### eBPF Configuration
 
-To enable deep kernel-level visibility, you can configure the eBPF Receiver in your `config.yaml`. Below is a standard configuration snippet:
+To configure the eBPF receiver in your `config.yaml`, use a snippet like this:
 
 ```yaml
 metrics:
@@ -104,8 +125,54 @@ ebpf:
   postgres_prepared_statements_cache_size: 1024
 ```
 
+## See the agent's own errors
+
+When an agent shows as **Unreachable** or **Degraded** in **Settings → Agents**, you'll usually want its logs. Each agent sends its own **ERROR-level logs** to your workspace, so you can read them in **Log Explorer** without SSHing into the host or running `docker logs` or `kubectl logs`.
+
+These logs are sent independently of the collector, so they still arrive even when the collector fails to start on an invalid config. Both the agent and its collector log this way, so a failure in either one appears in the same place.
+
+### Find them in Log Explorer
+
+Open **Log Explorer** and filter on the agent's service name:
+
+- `service.name = kmagent`: the agent's logs are a distinct service, separate from your application telemetry
+- Add a `host.name` filter to narrow to a single agent
+
+Every entry includes a few attributes for context:
+
+- **`host.name`**: links the agent's errors to the rest of that host's data
+- **`agent.version`** and **`collector.version`**: which build reported the error
+- On Kubernetes, also **`k8s.cluster.name`**, **`k8s.node.name`**, **`k8s.pod.name`**, and **`kmagent.role`**
+
+### Turn it off
+
+Error-log shipping is on by default. It reuses the same `KM_API_KEY` and `KM_COLLECTOR_ENDPOINT` as the rest of the agent, so there's nothing extra to set up. To disable it, set `KM_AGENT_ERROR_LOGS=false` (every agent reads this), or pass `--agent-error-logs=false` to the Linux/host agent.
+
+:::note
+  Only the agent's **own** operational logs are sent this way, and only at ERROR level and above. Your application logs and other telemetry always flow through the normal pipeline. These logs go to your own workspace using your own key.
+:::
+
+## Agent health and status
+
+Beyond the status shown on the landing page, each agent reports on its own health so you can confirm it is running and see when something goes wrong:
+
+- **Health metrics** tell you whether the agent and its collector are up, and classify why the collector is down if it is. See [Agent health metrics](../self-observability/health-metrics/).
+- **Self-logs** bring the agent's own error messages into KloudMate, so you can diagnose a failure without logging in to the host. See [Agent self-logs](../self-observability/self-logs/).
+
+After a configuration change, confirm it applied by checking that telemetry is still flowing and that the agent's health metrics report a clean apply.
+
+## Resource usage
+
+The agent is light. On a virtual machine or host, it runs as a single process and typically uses around **185 MiB of memory** and **under 2% of one CPU core**. Usage grows with the amount of telemetry it handles and the number of services it watches.
+
+On Kubernetes, usage is split across the per-node collector and a few cluster-wide components. See [Resource usage and sizing](../platform-notes/kubernetes/#resource-usage-and-sizing) for per-component figures and suggested CPU and memory requests and limits.
+
+## Updating the agent
+
+Update the agent by upgrading its package on the host or the Helm release on Kubernetes, the same way you installed it. The bundled instrumentation agents are versioned with the KloudMate agent, so they update together. See the [installation guides](../installation/linux-agent/).
+
 ## Best Practices
 
-- Use filters and search on the Agents landing page to quickly locate agents by **host** , **platform** , or **status**.
+- Use filters and search on the Agents landing page to quickly locate agents by **host**, **platform**, or **status**.
 - For clusters with multiple agents, consider **bulk restarting** or **updating collectors** where supported.
 - Always confirm that agent configurations have applied successfully by checking your dashboards.

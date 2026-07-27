@@ -1,0 +1,46 @@
+---
+title: "Architecture"
+description: "How the KloudMate agent is managed from the web interface, and how the same model works across Linux, Windows, Kubernetes, and Docker."
+sidebar:
+  order: 1
+---
+
+import { LinkCard, CardGrid } from '@astrojs/starlight/components';
+
+With the KloudMate agent, you decide what to collect in the KloudMate web interface, and the agent on your host does the collecting. The two sides work the same way across every deployment mode.
+
+## Two sides
+
+- **KloudMate (the web interface):** where you choose what each agent collects, and where you see the discovered inventory and the telemetry.
+- **The agent (on your host):** finds your services, collects host metrics and logs, applies instrumentation when you ask for it, and sends the telemetry to KloudMate.
+
+The agent checks in with KloudMate regularly to report what it found and pick up its settings. When you change a setting in the web interface, the agent applies it on its next check-in. You never edit files on the host or use Secure Shell (SSH).
+
+## Principles
+
+A few principles shape how the agent behaves:
+
+- **Standard monitoring is automatic; depth is opt-in.** Anything safe and low-risk (host metrics, logs, and eBPF monitoring) turns on by itself. Anything that needs a process restart is something you turn on per service.
+- **You do not write configuration.** You turn features on and off in the web interface, and KloudMate produces the settings for you. A manual editor is available for advanced setups.
+- **The experience is the same everywhere.** You find a service, turn on what you want, and the agent applies it, whether you run on a virtual machine, Windows, Kubernetes, or Docker.
+
+## How the model maps onto each deployment mode
+
+The two-sided model is the same in every mode. What changes is how the agent is packaged and how it applies instrumentation.
+
+| Mode | How the agent runs | How it applies instrumentation |
+|---|---|---|
+| Linux / VM | A single agent as a systemd service. | Per service, using systemd. |
+| Windows | A single agent as a Windows service. | Per service or application pool, using the registry and Internet Information Services (IIS). |
+| Kubernetes | A fleet-manager pod plus collector pods. One agent represents one cluster. | Per workload, using the OpenTelemetry (OTel) Operator. |
+| Docker | A containerized collector. | PHP containers without a redeploy; Java, Node.js, Python, and .NET through eBPF monitoring. |
+
+On Kubernetes, one cluster appears as one agent rather than one per node. See [Kubernetes platform notes](../../platform-notes/kubernetes/).
+
+## Next steps
+
+<CardGrid>
+  <LinkCard title="Discovery" href="../discovery/" description="How the agent inventories your services." />
+  <LinkCard title="Configuration model" href="../config-model/" description="How managed configuration works." />
+  <LinkCard title="Host metrics and logs" href="../../baseline/host-metrics-and-logs/" description="What the agent collects automatically." />
+</CardGrid>

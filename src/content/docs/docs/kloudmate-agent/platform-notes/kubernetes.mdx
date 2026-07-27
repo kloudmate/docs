@@ -1,0 +1,72 @@
+---
+title: "Kubernetes platform notes"
+description: "How the KloudMate agent runs on Kubernetes: one agent per cluster, the fleet manager and collector pods, per-node status, and resource sizing."
+sidebar:
+  order: 1
+---
+
+import { LinkCard, CardGrid } from '@astrojs/starlight/components';
+
+How the agent runs on Kubernetes. For installation, see the [Kubernetes installation guide](../../installation/kubernetes-agent/). For the shared model, see [Architecture](../../concepts/architecture/).
+
+## One agent per cluster
+
+On Kubernetes, a whole cluster appears in KloudMate as **one agent**, not one per node. It runs as a few pods:
+
+- **Fleet manager:** a single pod that applies your configuration to the cluster and reports each collector's status back to KloudMate.
+- **Collector pods:** a **DaemonSet** (one per node) collects per-node metrics and pod logs and, where the kernel supports it, runs eBPF monitoring — the [network topology map](../../ebpf-network-topology/) and metrics, plus application traces for any workload you set to eBPF mode (see [Application APM on Kubernetes](../../auto-instrumentation/kubernetes/)). A **Deployment** (a single replica) collects cluster metrics and events and acts as the OpenTelemetry (OTel) gateway.
+
+## Per-node collector status
+
+The Kubernetes view shows real per-node collector health. If a collector pod goes down, its node's status reflects that, so you can see exactly which node is affected.
+
+## Self-logs per node
+
+Self-logs are shipped per node, from both the collector pods and the fleet manager, so you can see errors such as an invalid configuration without running `kubectl logs`. See [Agent self-logs](../../self-observability/self-logs/).
+
+## Do not hand-edit ConfigMaps
+
+The collectors read their configuration from ConfigMaps that the agent manages.
+
+:::danger
+Do not hand-edit the agent's ConfigMaps. In managed mode, the agent owns them and will overwrite manual edits. Change configuration through KloudMate instead. See the [configuration model](../../concepts/config-model/).
+:::
+
+## Resource usage and sizing
+
+Typical usage per component (CPU in millicores, where 1000m is one core):
+
+| Component | Runs | CPU | Memory |
+|---|---|---|---|
+| Collector (DaemonSet) | one per node | 3 to 10m | 165 to 210 MiB |
+| Collector (Deployment) | one per cluster | 12 to 16m | about 256 MiB |
+| Fleet manager | one per cluster | 1 to 2m | about 11 MiB |
+| Operator | one per cluster | about 2m | about 30 MiB |
+
+Memory grows with the volume of metrics, traces, and logs the collectors handle. CPU stays low.
+
+### Requests and limits
+
+The Helm chart ships these defaults, set above typical usage so there is headroom for real load:
+
+| Component | Request | Limit |
+|---|---|---|
+| Collector (DaemonSet) | 100m / 256Mi | 2 CPU / 1Gi |
+| Collector (Deployment) | 150m / 384Mi | 2 CPU / 1Gi |
+| Fleet manager | 100m / 128Mi | 500m / 512Mi |
+
+Raise them for very large or high-traffic clusters.
+
+## Related features on Kubernetes
+
+- **Application APM** uses the OpenTelemetry Operator. See [Application APM on Kubernetes](../../auto-instrumentation/kubernetes/).
+- **Database monitoring** runs in the Deployment collector and uses a Kubernetes Secret for credentials. See [Database monitoring on Kubernetes](../../database-monitoring/on-kubernetes/).
+- **Log monitoring** (pointing the agent at custom log files) is **not available on Kubernetes**. The DaemonSet already collects pod and container logs for you, as part of [host metrics and logs](../../baseline/host-metrics-and-logs/). The Logs tab is not offered for Kubernetes agents. See [Log monitoring](../../log-monitoring/).
+
+## Next steps
+
+<CardGrid>
+  <LinkCard title="Install on Kubernetes" href="../../installation/kubernetes-agent/" description="Helm installation and values." />
+  <LinkCard title="Application APM on Kubernetes" href="../../auto-instrumentation/kubernetes/" description="Instrument workloads." />
+  <LinkCard title="Database monitoring on Kubernetes" href="../../database-monitoring/on-kubernetes/" description="Monitor in-cluster databases." />
+</CardGrid>

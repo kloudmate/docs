@@ -1,0 +1,62 @@
+---
+title: "Discovery"
+description: "How the KloudMate agent inventories the services, runtimes, and databases on each host, and how that inventory powers instrumentation and monitoring."
+sidebar:
+  order: 2
+---
+
+import { LinkCard, CardGrid } from '@astrojs/starlight/components';
+
+Discovery builds a live inventory of what runs on each host or cluster. The web interface uses it to offer to instrument a service or monitor a database, instead of asking you to configure it by hand. It runs on all deployment modes.
+
+## What discovery finds
+
+The agent finds two kinds of things:
+
+- **Application services**, classified by runtime (Java, .NET, Node.js, Python, PHP, Go, and Ruby), with framework and web-server hints (nginx, Apache, and php-fpm) where they apply.
+- **Databases and middleware** running locally, such as PostgreSQL, MySQL, Redis, and MongoDB.
+
+For each service, discovery records how it is managed and which ports it listens on.
+
+## The Discovered Services list
+
+Discovery shows its inventory as a **Discovered Services** list on the host detail page in the web interface. Each entry shows:
+
+- **Name** and **runtime** (for example, `checkout` running Java).
+- **Runtime version**, where it affects a decision (for example, the PHP major and minor version, or whether a .NET app runs on .NET Framework or .NET Core).
+- **Kind**: how the service is managed, such as a systemd unit, a bare process, a container, a Windows service, or an Internet Information Services (IIS) application pool.
+- **Listen ports**.
+- **State**: `running` or `idle`. Discovery also reports installed-but-not-running services as `idle`, so you can choose to instrument one on its next start.
+- **Instrumentable** flag: whether the agent has a way to attach application tracing to that runtime.
+
+:::note
+The `instrumentable` flag shows whether the agent can inject tracing into that runtime. Java, .NET, Node.js, and Python are instrumentable. PHP is instrumentable when a tracer is available for the detected version. Go is not injected: it is covered by eBPF monitoring instead, so it appears as covered rather than instrumentable.
+:::
+
+![The Application instrumentation panel on a host, showing the instrumentable difference: .NET, Java, Node.js, Python, and PHP services offer Off / eBPF / SDK, while Go services and other system services offer only Off / eBPF.](./images/discovery-services-list.png)
+
+## Stable service identity
+
+Each discovered service gets a **stable identity** that survives restarts and process-ID changes. This is what lets an **Instrument** choice keep applying after a service restarts: you instrument `checkout`, not a process that will be gone after the next deploy.
+
+## Privacy and safety
+
+Discovery keeps sensitive data on the host:
+
+- It **never sends raw environment variables or full command lines** to KloudMate, because these can contain secrets. It extracts only what it needs to classify a service (runtime, version, and listen ports) and discards the rest.
+- It skips the agent itself and developer tools, so they are not listed or instrumented.
+
+## How discovery powers the rest of the agent
+
+The Discovered Services list is the entry point for the opt-in features:
+
+- **Application APM:** each instrumentable service has an **Instrument** toggle that starts tracing for that service. See [Application APM](../../auto-instrumentation/overview/).
+- **Database monitoring:** a discovered database starts the monitoring wizard, which prefills the engine and endpoint. See [Database monitoring](../../database-monitoring/overview/).
+
+## Next steps
+
+<CardGrid>
+  <LinkCard title="Application APM" href="../../auto-instrumentation/overview/" description="Instrument a discovered service." />
+  <LinkCard title="Database monitoring" href="../../database-monitoring/overview/" description="Monitor a discovered database." />
+  <LinkCard title="Configuration model" href="../config-model/" description="How managed configuration works." />
+</CardGrid>

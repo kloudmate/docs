@@ -5,13 +5,13 @@ sidebar:
   label: "Data Sampling"
   order: 6
 ---
-When managing high-volume telemetry environments, you may not need or want to send 100% of your traces and logs to KloudMate. Data sampling allows you to selectively retain a representative subset of your telemetry, helping you manage storage costs and network bandwidth without losing visibility into your system's overall health and performance.
+In a high-volume environment, you may not want to send every trace and log to KloudMate. Sampling keeps a representative subset of your telemetry, which lowers storage and network costs while preserving visibility into overall health and performance.
 
 The OpenTelemetry Collector provides several processors for sampling data. The two most common approaches are **Head Sampling** (making a sampling decision at the beginning of a trace) and **Tail Sampling** (making a decision after all spans for a trace have been collected).
 
 ## Probabilistic Sampling (Head Sampling)
 
-The easiest way to reduce volume is to apply a uniform probabilistic sampling rate. The `probabilistic_sampler` processor randomly drops a specified percentage of your data.
+To reduce volume with a uniform rate, use the `probabilistic_sampler` processor, which randomly drops a set percentage of your data.
 
 This processor can be used for both **traces** and **logs**.
 
@@ -39,7 +39,7 @@ service:
 
 ## Tail Sampling
 
-Tail sampling gives you much more control by allowing you to evaluate the *entire* trace before deciding whether to keep it or drop it. This is highly recommended because it allows you to configure policies like "keep 100% of errors, but only keep 10% of successful traces."
+Tail sampling evaluates the *entire* trace before deciding whether to keep it, so you can write policies like "keep 100% of errors, but only 10% of successful traces."
 
 The `tail_sampling` processor works specifically with **traces**.
 

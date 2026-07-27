@@ -1,6 +1,6 @@
 ---
 title: "OpenTelemetry Database Monitoring"
-description: "Documentation for OpenTelemetry Database Monitoring"
+description: "Capture database query spans with OpenTelemetry SDK auto-instrumentation and send them to KloudMate."
 sidebar:
   order: 3
 ---
@@ -43,7 +43,7 @@ OTEL_EXPORTER_OTLP_ENDPOINT="http://localhost:4318"
 OTEL_SERVICE_NAME="your-service-name"
 ```
 
-Database spans will automatically be captured when using supported auto-instrumentation libraries.
+Database spans are captured automatically when you use supported auto-instrumentation libraries.
 
 :::note
   For zero-configuration kernel-level profiling, see [Database Access Monitoring (DAM)](../database-activity-monitoring-dam/). For deep query analytics with execution plans and schema discovery, see [Direct Database Monitoring](../direct-database-monitoring/).

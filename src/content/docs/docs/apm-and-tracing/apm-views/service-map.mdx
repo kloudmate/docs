@@ -4,9 +4,18 @@ description: "Use the Service Map to understand service dependencies, traffic fl
 sidebar:
   order: 3
 ---
-The **Service Map** is a visual representation of the relationships and interdependencies between services in your workspace. It is generated from tracing data and gives you a topology-level view of your architecture.
+The **Service Map** is a visual representation of the relationships and interdependencies between services in your workspace. It is built from your services' distributed traces and gives you a topology-level view of your architecture.
 
 You can use it to understand service dependencies, traffic flow, and operational health at a glance.
+
+## How the map is built
+
+The map is built from distributed traces, so both sources of tracing feed it:
+
+- **[eBPF monitoring](../../../kloudmate-agent/ebpf-observability/)** captures traces at the kernel level with no code change, so an eBPF-covered service appears on the map on its own — on VMs, hosts, and containers. (On [Kubernetes](../../../kloudmate-agent/auto-instrumentation/kubernetes/), eBPF provides the network topology instead, and traces come from the SDK.)
+- **[Auto-instrumentation](../../../kloudmate-agent/auto-instrumentation/overview/)** and the OpenTelemetry SDK produce traces from inside the application.
+
+Each service becomes a node under its `service.name`, and an edge is drawn wherever one service's trace calls another. A service needs a distinct `service.name` to appear as its own node — the agent gives an eBPF-monitored service the same name it carries once auto-instrumented, so it keeps one identity whether eBPF or the SDK is tracing it.
 
 ## Overview
 

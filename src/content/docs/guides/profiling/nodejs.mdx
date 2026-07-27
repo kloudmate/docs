@@ -1,0 +1,49 @@
+---
+title: "Node.js"
+description: "Send CPU and heap profiles from a Node.js service to KloudMate with @pyroscope/nodejs."
+sidebar:
+  order: 5
+---
+
+[@pyroscope/nodejs](https://github.com/grafana/pyroscope-nodejs) is Grafana's official Node.js SDK for continuous profiling. It wraps V8's own profiler and pushes samples straight to KloudMate's ingest endpoint.
+
+## Prerequisites
+
+- **The ingest endpoint**: `https://otel.kloudmate.com/v1/profiles/pyroscope`
+- **An API key** — go to **Settings → API Keys**, click **Add New**, and create an **Ingest Key – Backend**. Copy it immediately; KloudMate shows it only once.
+
+## Install
+
+```bash
+npm install @pyroscope/nodejs
+```
+
+## Configure
+
+Call `Pyroscope.init()` and `Pyroscope.start()` once, as early as possible in your entrypoint:
+
+```js
+const Pyroscope = require('@pyroscope/nodejs');
+
+Pyroscope.init({
+  appName: 'my-service',
+  serverAddress: 'https://otel.kloudmate.com/v1/profiles/pyroscope',
+  basicAuthUser: 'KloudMate',
+  basicAuthPassword: 'YOUR_API_KEY',
+});
+
+Pyroscope.start();
+```
+
+Swap `my-service` for a name that identifies this deployment, and `YOUR_API_KEY` for the key you copied above.
+
+## Verify it's working
+
+Open **Profiling → All Services**, select `wall` (or `cpu`, depending on your version) from the profile type dropdown, and give it a minute. Your service's card appears with a live chart as soon as the first samples land.
+
+If nothing shows up, check that `basicAuthUser` is set to the literal string `KloudMate` — a missing username is the most common cause of a silent 401.
+
+## Related
+
+- [Supported Languages](../) — every other SDK KloudMate accepts.
+- [Flame Graph](/profiling/flame-graph/) — where this data ends up once it's flowing.

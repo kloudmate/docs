@@ -1,0 +1,81 @@
+---
+title: "Custom config override"
+description: "Layer your own collector receivers, processors, or pipelines on top of a managed KloudMate agent without switching to manual mode."
+sidebar:
+  label: "Custom config override"
+  order: 13.5
+---
+
+import { LinkCard, CardGrid } from '@astrojs/starlight/components';
+
+The **custom config override** lets you add your own collector configuration on top of a managed agent, without giving up managed mode. Use it when the managed integrations cover almost everything you need and you want to add one processor, adjust an exporter, or wire in an extra pipeline.
+
+This is the lighter alternative to [manual mode](../advanced-configuration/). Manual mode hands you the whole collector YAML and turns the feature toggles off. The override keeps you in managed mode, keeps every toggle working, and applies only the small piece of YAML you add.
+
+## Where the override sits
+
+Your override is the **final layer** of the agent's configuration. The agent merges it on top of everything else, in this order:
+
+1. The base configuration.
+2. Whatever your managed integrations generate.
+3. Every receiver and processor the agent adds automatically (eBPF, PHP, PM2, database monitoring, and so on).
+4. **Your override, last.**
+
+Because it merges last, the override wins any conflict. It is also kept when your integrations change, so you do not have to reapply it after toggling a feature.
+
+## Set an override
+
+1. Open the agent's **Configuration** page.
+2. Find the **Custom config override** section.
+3. Enter your collector YAML in the editor. It is validated as you type.
+4. Choose **Save override**.
+
+The agent picks up the change on its next check-in.
+
+## How the merge works
+
+The override is deep-merged with the configuration underneath it:
+
+- **Maps merge.** Adding a new processor under `processors:` leaves the existing processors untouched.
+- **Scalars and lists are replaced, not combined.** If your override sets a key that already has a value, or a list such as a pipeline's `receivers:`, your value replaces what was there. A list is never appended to, so include every element you want when you override one.
+
+## Example: stamp an attribute on all metrics
+
+This adds a `resource` processor and wires it into the metrics pipeline, so every metric carries a `team` attribute:
+
+```yaml
+processors:
+  resource/team:
+    attributes:
+      - key: team
+        value: platform
+        action: upsert
+service:
+  pipelines:
+    metrics:
+      processors: [resource/team]
+```
+
+Because a list is replaced rather than merged, the `processors:` list you set here becomes the metrics pipeline's processor list. Include the other processors that pipeline needs alongside `resource/team`.
+
+## Example: raise exporter verbosity while debugging
+
+To make the debug exporter log full telemetry while you diagnose a pipeline:
+
+```yaml
+exporters:
+  debug:
+    verbosity: detailed
+```
+
+## Safety
+
+Before it applies a new configuration, the agent validates it. If your override makes the configuration invalid (most often from a wrong top-level key), the agent **rejects it and keeps the last working configuration** instead of restarting the collector into a broken state. The reason is reported back to your workspace, so you can see why an override was not applied without logging in to the host.
+
+## Related
+
+<CardGrid>
+  <LinkCard title="Advanced configuration" href="../advanced-configuration/" description="Manual mode, sampling, and other advanced controls." />
+  <LinkCard title="Configuration model" href="../concepts/config-model/" description="How managed and manual modes differ." />
+  <LinkCard title="Troubleshooting" href="../troubleshooting/" description="Diagnose agent and collector problems." />
+</CardGrid>

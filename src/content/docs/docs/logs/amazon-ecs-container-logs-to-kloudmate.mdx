@@ -8,6 +8,10 @@ sidebar:
 
 This guide explains how to send Amazon ECS container logs from Fargate workloads to KloudMate using Fluent Bit, FireLens, and the OpenTelemetry output plugin.
 
+:::tip
+  Want traces and metrics alongside your logs? The [KloudMate agent for Amazon ECS](../../kloudmate-agent/installation/ecs-agent/) installs all three with one script and no application changes, and automates the Fluent Bit and FireLens wiring described below. Stay on this manual guide when you only want to ship container logs and would rather not run the agent.
+:::
+
 In this setup:
 
 - Fluent Bit forwards log records

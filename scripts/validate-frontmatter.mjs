@@ -8,8 +8,9 @@
 
 import { readFileSync, readdirSync, statSync } from 'fs';
 import { join, relative } from 'path';
+import { fileURLToPath } from 'url';
 
-const DOCS_DIR = new URL('../src/content/docs', import.meta.url).pathname;
+const DOCS_DIR = fileURLToPath(new URL('../src/content/docs', import.meta.url));
 const REQUIRED_FIELDS = ['title', 'description'];
 
 const FRONTMATTER_RE = /^---\r?\n([\s\S]*?)\r?\n---/;

@@ -1,0 +1,102 @@
+---
+title: "Agent configuration reference"
+description: "The settings the KloudMate agent reads from agent.yaml, each with its environment variable and default."
+sidebar:
+  label: "Configuration reference"
+  order: 3
+---
+
+import { LinkCard, CardGrid } from '@astrojs/starlight/components';
+
+The KloudMate agent reads its own settings from a YAML file on the host: `/etc/kmagent/agent.yaml` on Linux, or `C:\ProgramData\kmagent\agent.yaml` on Windows. This page lists every setting in that file, with its environment-variable equivalent and default.
+
+You can set an option three ways: as a key in `agent.yaml`, as an environment variable, or as a command-line flag. If you set the same one more than one way, the command-line flag wins, then the environment variable, then `agent.yaml`.
+
+You rarely edit this file by hand. The install command writes the required settings on a fresh install, and in managed mode you control what the agent collects from the web interface, not from YAML. Use these settings when you need to override the host name, run the agent autonomously, or turn a piece of monitoring off on one host. On Kubernetes, set the same options through Helm values instead of `agent.yaml`. See the [configuration model](../../concepts/config-model/) for how managed and manual modes differ.
+
+After you change `agent.yaml`, restart the agent for the change to take effect.
+
+## Example
+
+A minimal `agent.yaml` has the two settings the install command always writes:
+
+```yaml
+api-key: "YOUR_API_KEY"
+collector-endpoint: "https://otel.kloudmate.com:4318"
+```
+
+Add any of the settings below on their own line to change the agent's behavior, then restart the agent.
+
+## Connection and identity
+
+| Setting | Environment variable | Default | Description |
+|---|---|---|---|
+| `api-key` | `KM_API_KEY` | Required | Your KloudMate workspace API key. The install command writes it for you. |
+| `collector-endpoint` | `KM_COLLECTOR_ENDPOINT` | `https://otel.kloudmate.com:4318` | The OTLP endpoint the agent exports telemetry to. The install command sets this to your workspace's regional endpoint. |
+| `host-name` | `KM_HOST_NAME` | OS hostname | Overrides the reported host name, which is how KloudMate tells hosts apart. Set a unique value per host when several machines share an OS hostname, so they do not collapse into one. |
+
+## Configuration and updates
+
+| Setting | Environment variable | Default | Description |
+|---|---|---|---|
+| `config-check-interval` | `KM_CONFIG_CHECK_INTERVAL` | `60s` | How often the agent checks the backend for a configuration change you made in the web interface. Accepts a Go duration such as `30s` or `1m`, or a bare integer read as seconds. Quote the value so YAML reads it as a string. |
+| `update-endpoint` | `KM_UPDATE_ENDPOINT` | Derived from `collector-endpoint` | The endpoint the agent polls for configuration updates. It is worked out from `collector-endpoint`, so you rarely set it. |
+| `config` | `KM_COLLECTOR_CONFIG` | Packaged default | Path to the OpenTelemetry collector configuration file. The agent ships and manages this in managed mode, so setting it is unusual. |
+| `agent-config` | `KM_AGENT_CONFIG` | Set by the installer | Path to the agent configuration file this page describes: `/etc/kmagent/agent.yaml` on Linux, `C:\ProgramData\kmagent\agent.yaml` on Windows. The service starts with this path already set; change it only to load settings from a non-default location. |
+
+## Agent self-monitoring
+
+| Setting | Environment variable | Default | Description |
+|---|---|---|---|
+| `health-enabled` | `KM_HEALTH_ENABLED` | `false` | Send the agent's own health metrics (`kmagent.*`) directly to your workspace, without going through the collector. Off by default, and turned on automatically in autonomous mode. See [Agent health metrics](../../self-observability/health-metrics/). |
+| `health-interval` | `KM_HEALTH_INTERVAL` | `60s` | How often the agent exports those health metrics. A Go duration such as `60s`. |
+| `agent-error-logs` | `KM_AGENT_ERROR_LOGS` | `true` | Send the agent's own `ERROR` logs to your workspace, so agent and collector startup failures show up without opening a shell on the host. On by default. Set `false` to turn it off. See [Agent self-logs](../../self-observability/self-logs/). |
+
+## Deployment modes
+
+| Setting | Environment variable | Default | Description |
+|---|---|---|---|
+| `auto-instrument` | `KM_AUTO_INSTRUMENT` | `false` | Autonomous mode. The agent discovers and instruments everything on the host: eBPF, applications, and containers. It restarts them as needed and stops polling the backend for configuration. Use it for immutable or autoscaled fleets you cannot manage one host at a time. See [Autonomous instrumentation](../../advanced-configuration/#autonomous-instrumentation) and [Auto-scaling group deployment](../../installation/aws-asg-deployment/). |
+| `docker-mode` | `KM_DOCKER_MODE` | `false` | Run the agent against a mounted host filesystem from inside a container. The [Docker install](../../installation/docker-agent/) sets this; you do not set it by hand for a host install. |
+| `docker-endpoint` | `KM_DOCKER_ENDPOINT` | Docker default socket | The Docker API endpoint the agent uses in Docker mode. |
+| `fargate-mode` | `KM_FARGATE_MODE` | `false` | Runs the agent as a slim ECS Fargate collector sidecar, with no host receivers, eBPF, or discovery. The [ECS tooling](../../installation/ecs-agent/) sets this; do not set it by hand. |
+
+## eBPF opt-out toggles
+
+eBPF monitoring has two independent parts, and each has its own opt-out toggle. Both are on by default. They are separate switches: turning one off leaves the other running, and there is no single eBPF on/off setting.
+
+| Setting | Environment variable | Default | Description |
+|---|---|---|---|
+| `ebpf-apm` | `KM_EBPF_ENABLED` | `true` | eBPF application tracing: zero-code APM (traces, RED metrics, and the service map) with no OpenTelemetry SDK. Set `false` on a host where you want logs, metrics, or network monitoring only, without application spans. |
+| `ebpf-network` | `KM_EBPF_NETWORK_ENABLED` | `true` | eBPF network topology: the Layer 4 flows and host-to-host service map. Set `false` to turn it off. See [eBPF network topology](../../ebpf-network-topology/). |
+
+Both toggles are ignored on a `noebpf` agent build, which has no eBPF receiver compiled in. They stay off there whatever you set.
+
+### eBPF application tracing is on by default
+
+`ebpf-apm` defaults to on, so a plain install sends eBPF application traces from the start. Earlier agents treated it as opt-in, so you had to set `KM_EBPF_ENABLED=true`. A host upgrading from one of those starts sending eBPF application traces once it takes the new default. To keep a host on logs, metrics, or network monitoring only, set `ebpf-apm: false`.
+
+### Collect logs without application tracing
+
+For a host that should only collect logs, set `ebpf-apm: false` to drop the application spans, which are the heavy part of eBPF. You can leave `ebpf-network` on for the network map, or set it to `false` as well. Point the agent at the log files you want from the Logs tab in the web interface. See [Log monitoring](../../log-monitoring/).
+
+```yaml
+# Logs-only agent.yaml: no eBPF tracing and no network map
+ebpf-apm: false
+ebpf-network: false
+```
+
+### Databases are not traced as APM services by default
+
+| Environment variable | Default | Description |
+|---|---|---|
+| `KM_EBPF_INSTRUMENT_DATABASES` | `false` | Set to `true` to also trace databases as eBPF APM services. |
+
+## Related
+
+<CardGrid>
+  <LinkCard title="Configuration model" href="../../concepts/config-model/" description="How managed and manual modes differ." />
+  <LinkCard title="Advanced configuration" href="../../advanced-configuration/" description="Manual YAML, sampling, and autonomous mode." />
+  <LinkCard title="eBPF observability" href="../../ebpf-observability/" description="What eBPF monitoring collects and how to tune it." />
+  <LinkCard title="Management" href="../../management/" description="Manage agents and their configuration." />
+</CardGrid>

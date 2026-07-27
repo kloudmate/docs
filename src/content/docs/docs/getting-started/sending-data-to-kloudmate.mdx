@@ -6,9 +6,9 @@ sidebar:
 ---
 import { LinkCard } from 'starlight-theme-nova/components'
 
-KloudMate provides multiple, flexible methods for ingesting your observability data. Because KloudMate is built natively on OpenTelemetry standards, you are never locked into a proprietary collection method. 
+KloudMate can ingest your telemetry several ways. Because it is built on OpenTelemetry, you are not locked into a proprietary collection method.
 
-Choose the ingestion path below that best matches your existing architecture, your environment (cloud vs. on-premise), and how much control you want over the telemetry collection process.
+Choose the ingestion path below that best matches your architecture, your environment (cloud or on-premise), and how much control you want over telemetry collection.
 
 ## Recommended Starting Points
 
@@ -63,9 +63,9 @@ If you are unsure where to begin, use this table to map your immediate goal to t
 
 ## Common Rollout Pattern
 
-For teams starting from scratch, the following phased approach is recommended:
+For a team starting from scratch, a phased rollout works well:
 
-1. **Infrastructure First:** Start with the [KloudMate Agent](../../kloudmate-agent/) to get baseline telemetry, host metrics, and zero-code visibility.
+1. **Infrastructure First:** Start with the [KloudMate Agent](../../kloudmate-agent/) to get host metrics, logs, and zero-code visibility.
 2. **Application Tracing:** Add [OpenTelemetry](../../opentelemetry/) instrumentation to your applications where you need richer distributed tracing or custom metrics.
 3. **Cloud Integrations:** Layer in cloud-specific integrations for [AWS](../../aws-integration/), [Azure](../../azure-integration/), or [Prometheus](../../infrastructure/integrations/prometheus-integration/) to centralize your remaining data sources.
 

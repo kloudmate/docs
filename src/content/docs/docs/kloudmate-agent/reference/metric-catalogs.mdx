@@ -1,0 +1,56 @@
+---
+title: "Metric catalogs"
+description: "Reference catalogs for the KloudMate agent: host metrics, eBPF monitoring, per-engine database metrics, and the agent's own self-metrics."
+sidebar:
+  order: 1
+---
+
+import { LinkCard, CardGrid } from '@astrojs/starlight/components';
+
+This page lists the kinds of metrics the agent produces. Metric names follow OpenTelemetry (OTel) conventions, so where the agent uses a standard receiver, its metrics match that receiver's documented set.
+
+## Host metrics
+
+Host metrics are the system-level metrics the agent collects: CPU, memory, disk, filesystem, and network usage, under the `system.*` namespace. On Windows, they come from performance counters. See [Host metrics and logs](../../baseline/host-metrics-and-logs/) and the [Infrastructure](../../../infrastructure/) documentation for the views built on them.
+
+## eBPF monitoring metrics
+
+eBPF monitoring produces Rate, Errors, and Duration (RED) metrics for your services and the data behind the service map: request rate, error rate, request duration, and the connections between services that draw the map. It also captures the database queries your applications run, for Database Activity Monitoring. These power the service map and the prebuilt RED views, which is where you read them. See [eBPF observability](../../ebpf-observability/).
+
+## Database metrics
+
+Each database engine's native receiver produces that engine's standard metrics. Some examples:
+
+| Engine | Example metrics |
+|---|---|
+| PostgreSQL | `postgresql.backends`, `postgresql.connection.max`, `postgresql.commits`, `postgresql.deadlocks`, `postgresql.db_size`, `postgresql.blks_hit`, `postgresql.bgwriter.buffers.writes` |
+| MySQL | `mysql.commands`, `mysql.connection.count`, `mysql.connection.errors`, `mysql.buffer_pool.usage`, `mysql.handlers` |
+| Redis | `redis.commands`, and key and memory statistics |
+
+Query-performance coverages add per-query metrics (for example, `postgresql.query.total_exec_time` and `postgresql.query.mean_exec_time`). All database telemetry carries the identity attributes described in [Telemetry identity](../telemetry-identity/). For the full metric list of an engine, see that engine's OpenTelemetry receiver documentation and the [database monitoring](../../database-monitoring/overview/) pages.
+
+## Agent self-metrics
+
+The agent reports these `kmagent.*` metrics about itself, separately from the collector:
+
+| Metric | Meaning |
+|---|---|
+| `kmagent.up` | Heartbeat |
+| `kmagent.uptime` | Process uptime |
+| `kmagent.goroutines` | Internal thread count |
+| `kmagent.memory.rss` | Process memory |
+| `kmagent.cpu.utilization` | Process CPU |
+| `kmagent.collector.up` | Collector liveness, with `state` and `reason` |
+| `kmagent.collector.restarts` | Collector restart count |
+| `kmagent.config.apply.success` | Last configuration apply succeeded |
+| `kmagent.config.apply.errors` | Cumulative configuration-apply failures |
+
+See [Agent health metrics](../../self-observability/health-metrics/) for how to use them. When collector self-telemetry is enabled, the agent also produces the standard `otelcol_*` metrics. See [Collector self-telemetry](../../self-observability/self-telemetry/).
+
+## Related
+
+<CardGrid>
+  <LinkCard title="Telemetry identity" href="../telemetry-identity/" description="How database signals are identified." />
+  <LinkCard title="Agent health metrics" href="../../self-observability/health-metrics/" description="The kmagent.* self-metrics in depth." />
+  <LinkCard title="Glossary" href="../glossary/" description="Definitions of the key terms." />
+</CardGrid>

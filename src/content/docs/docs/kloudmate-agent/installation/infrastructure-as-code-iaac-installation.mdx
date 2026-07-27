@@ -1,13 +1,19 @@
 ---
 title: "Infrastructure as Code (IaC)"
-description: "Documentation for Infrastructure as a Code (IaaC) Installation"
+description: "Deploy the KloudMate agent with cloud-init, Ansible, Terraform, or Packer across any cloud provider or on-premises."
 sidebar:
-  order: 7
+  order: 8
 ---
 
 import { Tabs, TabItem } from '@astrojs/starlight/components';
 
-Deploy the KloudMate agent across any cloud provider or on-premises infrastructure using Infrastructure as a Code (IaaC) and automation tools.
+Deploy the KloudMate agent across any cloud provider or on-premises infrastructure using Infrastructure as Code (IaC) and automation tools.
+
+:::note
+However you install it, each agent starts in managed mode. Once it checks in, it automatically collects host metrics, logs, and [eBPF monitoring](../../ebpf-observability/) data. See the [configuration model](../../concepts/config-model/).
+:::
+
+If your outbound traffic is restricted, see [Before you start](../before-you-start/) for the URLs and permissions to allow first.
 
 ## Deployment Approaches
 
@@ -20,15 +26,15 @@ Deploy the KloudMate agent across any cloud provider or on-premises infrastructu
 
 ### Decision Matrix
 
-If you are provisioning a new VM or Auto-scaling group, you should use **cloud-init** via User Data/Custom Data. If you want faster boot times, use **Packer** to pre-bake the image and cloud-init for config only.
+To provision a new VM or Auto-scaling group, use **cloud-init** through User Data or Custom Data. For faster boot times, use **Packer** to pre-bake the image and cloud-init for config only.
 
-If you are managing an existing fleet, use an **Ansible playbook**.
+For an existing fleet, use an **Ansible playbook**.
 
-If you are managing infrastructure with **Terraform** , use the **Terraform module**.
+If you already use **Terraform**, use the **Terraform module**.
 
 ## 1. cloud-init (Universal)
 
-Works on every provider that supports cloud-init (AWS, GCP, Azure, DigitalOcean, Alibaba, Hetzner, Vultr, Linode, etc.)
+Works on every provider that supports cloud-init (AWS, GCP, Azure, DigitalOcean, Alibaba, Hetzner, Vultr, Linode, etc.).
 
 
 <Tabs>
@@ -80,7 +86,7 @@ Paste cloud-init.yaml content into: ECS Console → Instance → Advanced Option
 
 ## 2. Ansible
 
-Ansible is perfect for deploying the KloudMate agent to existing VM fleets.
+Use Ansible to deploy the KloudMate agent to existing VM fleets.
 
 **Navigate to the Ansible directory**
 
@@ -202,7 +208,7 @@ ansible all -i inventories/production.ini -m shell \
 
 ## 3. Terraform Module
 
-You can easily embed kmagent into your Terraform deployments across any provider using our user-data module.
+Embed kmagent into your Terraform deployments across any provider using the user-data module.
 
 
 <Tabs>
@@ -264,7 +270,7 @@ resource "digitalocean_droplet" "app" {
 
 ## 4. Packer (Pre-baked Images)
 
-Best when you want zero install-time latency. The agent binary is baked into the image; only the config (API key) is injected at boot.
+Best when boot speed matters. The agent binary is baked into the image, so there's no install step at boot. Only the config (the API key) is injected.
 
 **Navigate to the Packer directory**
 

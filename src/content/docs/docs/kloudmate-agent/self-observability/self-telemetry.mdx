@@ -1,0 +1,36 @@
+---
+title: "Collector self-telemetry"
+description: "The opt-in in-band collector telemetry the KloudMate agent can emit, covering exporter queues, send failures, and receiver metrics."
+sidebar:
+  order: 2
+---
+
+import { LinkCard, CardGrid } from '@astrojs/starlight/components';
+
+Collector self-telemetry shows how well the agent's embedded OpenTelemetry (OTel) Collector is performing. The [health metrics](../health-metrics/) tell you whether the collector is up. Self-telemetry tells you how well it is keeping up while it runs. It is **opt-in**, because it adds metric volume, and it is emitted **in-band** through the collector itself.
+
+## What it reports
+
+When enabled, the collector emits its standard `otelcol_*` metrics, including:
+
+- **Exporter health:** queue size and capacity, send failures, and successfully sent items, so you can see whether the collector is falling behind on shipping data.
+- **Receiver activity:** accepted and refused items, so you can see whether data is being dropped at intake.
+- **Processor and process metrics:** internal pipeline and process counters.
+
+These are the standard metrics any OpenTelemetry Collector produces.
+
+## Not a liveness signal
+
+These metrics flow through the collector, so they stop when the collector does. That means they are not a liveness signal. That is the job of the out-of-band [health metrics](../health-metrics/). If the health metrics show `kmagent.collector.up=1` but self-telemetry goes silent, that gap points to a stuck pipeline.
+
+## Enabling it
+
+Collector self-telemetry is turned on through the agent's settings. After you turn it on, the `otelcol_*` metrics arrive in KloudMate alongside your other telemetry. You can then build dashboards and alerts on exporter queue depth and send failures.
+
+## Next steps
+
+<CardGrid>
+  <LinkCard title="Agent health metrics" href="../health-metrics/" description="The out-of-band liveness tier." />
+  <LinkCard title="Agent self-logs" href="../self-logs/" description="The agent's own error logs." />
+  <LinkCard title="Advanced configuration" href="../../advanced-configuration/" description="Other advanced agent settings." />
+</CardGrid>

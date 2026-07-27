@@ -1,11 +1,11 @@
 ---
 title: "Docker"
-description: "Documentation for Docker Agent"
+description: "Run the KloudMate agent as a Docker container to collect host and container metrics and logs."
 sidebar:
   order: 4
 ---
 
-This document guides you through installing the **KloudMate Agent** on your host using Docker for **host metrics** and **log collection**.
+Run the **KloudMate Agent** as a Docker container to collect host and container metrics and logs.
 
 ## **What the Docker Agent Monitors**
 
@@ -14,7 +14,7 @@ Once installed, the Docker Agent collects:
 - **Container metrics:** CPU, memory, network, and disk usage for each running container
 - **Container lifecycle events:** start, stop, restart
 - **Host metrics:** CPU, memory, disk, and network usage of the Docker host
-- **Container and host logs:** stdout/stderr from containers and system logs from host
+- **Container and host logs:** stdout/stderr from containers and system logs from the host
 - **Alerts:** Configure thresholds for containers or the host to notify on performance issues
 - **Dashboards:** Pre-built views for container-level and host-level performance
 
@@ -49,6 +49,7 @@ View all collected data in these KloudMate sections:
 ## Pre-requisites
 
 - Docker must be installed on the system.
+- Network access and permissions from [Before you start](../before-you-start/) if your outbound traffic is restricted.
 
 :::note
   The Docker agent requires `docker.sock` to be mounted to the agent container.
@@ -74,18 +75,17 @@ View all collected data in these KloudMate sections:
 
 ## **Log Integration**
 
-By default, the KloudMate Agent collects basic system logs.
+By default, the KloudMate Agent collects host and container logs.
 
-To configure custom application logs and enable file-based log monitoring, refer to:
+To collect application log **files** on the Docker host, use log monitoring. In the agent's **Logs** tab, point the agent at a folder and file-name pattern, then choose how to parse each line: plain text, JSON, or a regular expression. Multiline grouping, for stack traces or pretty-printed JSON, works on top of any format. You can preview the parsed records before you save. See [Log monitoring](../../log-monitoring/).
 
-[Collect File Logs with KloudMate Agent](../../../logs/collect-file-logs/) documentation
+For a hand-written `filelog` receiver in manual mode, see [Collect File Logs with KloudMate Agent](../../../logs/collect-file-logs/).
 
-This guide explains how to:
+## Coverage and configuration
 
-- Configure the file log receiver
-- Add custom log file paths
-- Enable multiline log parsing
-- Validate logs in Log Explorer
+In Docker mode, the agent collects host and container metrics and container and host logs, and, where the host kernel supports it, places your containers on the service map from [eBPF](../../ebpf-observability/) network flows — with no code changes. Application tracing is opt-in per service: set a container to **eBPF** for RED metrics and spans (no restart), or leave it **Off**. PHP containers are the exception — the agent instruments them in place, no redeploy. Java, Node.js, Python, and .NET use eBPF; SDK injection isn't available on Docker. See [Docker platform notes](../../platform-notes/docker/) for the per-runtime detail.
+
+New agents start in managed mode, so KloudMate generates the collector configuration for you. See the [configuration model](../../concepts/config-model/).
 
 ## **Next Steps**
 

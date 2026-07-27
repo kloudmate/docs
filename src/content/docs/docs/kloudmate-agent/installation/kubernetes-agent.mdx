@@ -1,11 +1,11 @@
 ---
 title: "Kubernetes"
-description: "Documentation for Kubernetes Agent"
+description: "Install the KloudMate agent on Kubernetes with Helm to collect cluster, node, pod, and workload metrics, logs, events, and APM."
 sidebar:
   order: 2
 ---
 
-This document will guide you to instrument Kubernetes using the **KloudMate Agent** via **DaemonSet** & **Deployment**.
+Deploy the **KloudMate Agent** to Kubernetes with a **DaemonSet** and **Deployment**.
 
 **What the Kubernetes Agent Monitors**
 
@@ -68,6 +68,7 @@ Use the KloudMate Kubernetes Agent to monitor your Kubernetes infrastructure and
 - Kubernetes version 1.24 or above
 - Helm version 3.0 or above
 - Cert Manager version v1.18.2 or above
+- Network access and permissions from [Before you start](../before-you-start/) if your outbound traffic is restricted
 
 ### Step 2: Install Cert Manager
 
@@ -83,23 +84,23 @@ helm install \
 
 ### Step 3: Enter cluster details
 
-Provide a name for your Kubernetes cluster. This name will be used to identify the cluster inside KloudMate.
+Provide a name for your Kubernetes cluster. This name identifies the cluster inside KloudMate.
 
 ### Step 4: Set preferences
 
 Configure how KloudMate should collect data from this cluster:
 
-- **Collect container logs:** Toggle on/off based on whether you want to ingest container logs from the cluster.
-- **Enable auto instrumentation for APM:** Turn this on to automatically instrument supported application runtimes (Python, Node.js, Java, .NET, Go) for APM.
-- **Monitored namespaces:** Enter a comma‑separated list of namespaces to monitor for events and APM (for example, `redis, kafka, prod-app`).
+- **Collect container logs:** Turn this on to collect container logs from the cluster.
+- **Enable auto instrumentation for APM:** Turn this on to install the APM components, including the OpenTelemetry Operator. After install, you choose per workload whether to trace it, and how — nothing is traced until you do. Supported SDK runtimes are Python, Node.js, Java, and .NET; Go and other runtimes are traced with eBPF.
+- **Monitored namespaces:** Enter a comma‑separated list of namespaces to discover workloads in for APM (for example, `redis, kafka, prod-app`).
 
 :::note
-  Leave this field empty to monitor all namespaces (system namespaces are excluded by default).
+Leave this field empty to discover workloads in every namespace except the system ones — `kube-system`, `kube-public`, `kube-node-lease`, `cert-manager`, and any `kube-*` namespace are excluded by default. To also skip your own cluster-infrastructure namespaces (ingress controllers, `vpa`, `external-secrets`, and the like), set the `excludedNamespaces` Helm value to a comma-separated list.
 :::
 
 ### Step 5: Run the installation command
 
-The UI will generate a Helm command based on your inputs. Run this command in your terminal to install the KloudMate Agent in your Kubernetes cluster.
+The UI generates a Helm command from your inputs. Run it in your terminal to install the KloudMate Agent in your Kubernetes cluster.
 
 ```bash
 helm repo add kloudmate https://charts.kloudmate.com
@@ -107,7 +108,7 @@ helm repo update
 helm install kloudmate-release kloudmate/km-kube-agent \
   --namespace km-agent --create-namespace \
   --set API_KEY="" \
-  --set COLLECTOR_ENDPOINT="https://otel.kloudmate.dev:4318" \
+  --set COLLECTOR_ENDPOINT="https://otel.kloudmate.com:4318" \
   --set clusterName="test" \
   --set monitoredNamespaces="default, prod, dev" \
   --set featuresEnabled.logs="true" \
@@ -116,7 +117,11 @@ helm install kloudmate-release kloudmate/km-kube-agent \
 
 ## Installing the Agent on Tainted Nodes
 
-If your Kubernetes cluster has nodes with taints, the agent pods must be assigned matching tolerations to be scheduled successfully. By default, the agent does not include any tolerations, but you can configure them during installation by using Helm parameters.
+If your Kubernetes cluster has nodes with taints, the agent pods need matching tolerations to be scheduled. By default, the agent includes no tolerations. You can add them during installation with Helm parameters.
+
+:::tip
+The install wizard can build these flags for you. On the **Preferences** step, turn on **My nodes have taints**, then either choose **Run on every node** to tolerate every taint, or choose **Match specific taints** and add a row per taint. The wizard appends the matching `--set tolerations[...]` flags to your install command, so you don't have to write the syntax below by hand.
+:::
 
 Example Helm installation command with tolerations:
 
@@ -129,12 +134,12 @@ helm install kloudmate-release kloudmate/km-kube-agent --namespace km-agent --cr
 --set tolerations[1].key="env" --set tolerations[1].operator="Equal" --set tolerations[1].value="sb-uat-node" --set tolerations[1].effect="NoSchedule" \
 ```
 
-In this example, two separate tolerations are defined to match the taints configured on the cluster nodes, enabling the agent pods to be scheduled on all required nodes.
+This example defines two tolerations to match the taints on the cluster nodes, so the agent pods can schedule on all the nodes they need.
 
 :::note
   - You can add any number of tolerations by incrementing the index (`tolerations[0]`, `tolerations[1]`, etc.).
-  - Ensure that the key, operator, value, and effect match the taints applied to your nodes.
-  - If your cluster does not have taints, these parameters can be omitted. The agent pods will then be scheduled on untainted nodes by default.
+  - Make sure the key, operator, value, and effect match the taints on your nodes.
+  - If your cluster has no taints, omit these parameters. The agent pods then schedule onto untainted nodes by default.
 :::
 
 ## APM Setup Instructions
@@ -144,22 +149,22 @@ There are two ways to enable **Application Performance Monitoring (APM)** in you
 ### 1.  Enable APM via Dashboard
 
 - After installing the agent, open the APM configuration tab in the dashboard.
-- Use the toggle button to enable or disable APM.
-- Once enabled, the agent will automatically detect all running microservices and identify their respective programming languages.
+- The agent lists the workloads it discovered, grouped by namespace, with each workload's detected language. Use the namespace filter or the search box to find one in a large cluster.
+- For each workload, choose **Off**, **eBPF**, or **SDK**, then apply. eBPF starts tracing on the next check-in with no restart; SDK rolls that workload's pods. Workloads with no SDK injector — Go, Ruby, or an unrecognized runtime — offer **Off** or **eBPF** only.
 
 ![image](./images/kubernetes-agent-1.png)
 
-- After turning on APM, wait a few minutes to begin receiving metrics, then verify them on the dashboard.
+- After you turn a workload on, wait a few minutes for its traces to start, then verify them on the dashboard.
 
-### 2. Enable APM via the Patch Method
+### 2. Enable SDK tracing via the Patch Method
 
-In some cases, the agent may not automatically detect certain applications. In such scenarios, use deployment annotations to enable APM for your applications.
+Sometimes the agent doesn't detect certain applications. When that happens, use deployment annotations to turn on SDK tracing for them. (This is the SDK path only; eBPF tracing is driven by the DaemonSet and has no annotation.)
 
 **Steps:**
 
 1\. Identify each application that requires APM.
 
-2\. You can enable APM using either of the following methods:
+2\. You can enable APM with either of these methods:
 
 ### **Java:**
 
@@ -223,9 +228,18 @@ annotations
 
 3\. Restart the deployments after adding the annotations.
 
+## Configuration and next checks
+
+On Kubernetes, one agent represents one cluster. A fleet-manager pod applies the configuration, and the DaemonSet and Deployment collector pods do the collecting. The Helm chart installs the cluster role-based access control (RBAC) the agent needs. See [Kubernetes platform notes](../../platform-notes/kubernetes/).
+
+- Node, pod, and cluster telemetry starts flowing automatically. See [Host metrics and logs](../../baseline/host-metrics-and-logs/).
+- Where nodes run a supported kernel, [eBPF monitoring](../../ebpf-observability/) turns on per node.
+- Use the **Discovered Services** view to instrument workloads for APM, or enable auto-instrumentation as shown above. See [Application APM on Kubernetes](../../auto-instrumentation/kubernetes/).
+- To monitor in-cluster databases, provide credentials through a Kubernetes Secret referenced by the `dbMonitoring.secretName` Helm value. See [Database monitoring on Kubernetes](../../database-monitoring/on-kubernetes/).
+
 ## **Next Steps**
 
-- Open **Kubernetes Monitoring** to view metrics and events for your *cluster*, **nodes** , **namespaces** , **pods** , and **workloads**
+- Open **Kubernetes Monitoring** to view metrics and events for your *cluster*, **nodes**, **namespaces**, **pods**, and **workloads**
 - Use **Dashboards** to create visualizations or view **pre-built dashboards**
 - Use **Log Explorer** to investigate logs and correlate them with metrics
 - Configure **alerts** for any of these components based on thresholds

@@ -1,0 +1,46 @@
+---
+title: ".NET"
+description: "Send CPU and allocation profiles from a .NET service to KloudMate with the Pyroscope .NET profiler."
+sidebar:
+  order: 7
+---
+
+The [Pyroscope .NET profiler](https://github.com/grafana/pyroscope-dotnet) attaches to the CLR at process start and is configured entirely through environment variables — no code changes.
+
+## Prerequisites
+
+- **The ingest endpoint**: `https://otel.kloudmate.com/v1/profiles/pyroscope`
+- **An API key** — go to **Settings → API Keys**, click **Add New**, and create an **Ingest Key – Backend**. Copy it immediately; KloudMate shows it only once.
+
+## Install
+
+Download the profiler package for your OS from the [pyroscope-dotnet releases page](https://github.com/grafana/pyroscope-dotnet/releases) and install it alongside your application, or bake it into your container image.
+
+## Configure
+
+Set the following environment variables before your application starts:
+
+```bash
+export CORECLR_ENABLE_PROFILING=1
+export CORECLR_PROFILER={BD1A650D-AC5D-4896-B64F-D6FA25D6B26A}
+export CORECLR_PROFILER_PATH=/path/to/Pyroscope.Profiler.Native.so
+
+export PYROSCOPE_APPLICATION_NAME=my-service
+export PYROSCOPE_SERVER_ADDRESS=https://otel.kloudmate.com/v1/profiles/pyroscope
+export PYROSCOPE_BASIC_AUTH_USER=KloudMate
+export PYROSCOPE_BASIC_AUTH_PASSWORD=YOUR_API_KEY
+export PYROSCOPE_PROFILING_ENABLED=1
+```
+
+Swap `my-service` for a name that identifies this deployment, `YOUR_API_KEY` for the key you copied above, and `CORECLR_PROFILER_PATH` for wherever you placed the native profiler library on this OS (`.so` on Linux, `.dll` on Windows, `.dylib` on macOS).
+
+## Verify it's working
+
+Open **Profiling → All Services**, select `cpu` from the profile type dropdown, and give it a minute. Your service's card appears with a live chart as soon as the first samples land.
+
+If nothing shows up, double-check `PYROSCOPE_BASIC_AUTH_USER` is set — a missing username is the most common cause of a silent 401 — and confirm `CORECLR_ENABLE_PROFILING=1` is actually visible to the process (not just set in a shell that exited before launch).
+
+## Related
+
+- [Supported Languages](../) — every other SDK KloudMate accepts.
+- [Flame Graph](/profiling/flame-graph/) — where this data ends up once it's flowing.

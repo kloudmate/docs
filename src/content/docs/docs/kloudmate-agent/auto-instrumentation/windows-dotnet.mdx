@@ -1,0 +1,75 @@
+---
+title: "Windows and .NET"
+description: "How the KloudMate agent instruments .NET on IIS and Windows services with the CLR profiler, plus Java, Node.js, and Python through per-service registry environment."
+sidebar:
+  order: 4
+---
+
+import { Tabs, TabItem, LinkCard, CardGrid } from '@astrojs/starlight/components';
+
+Windows has no `LD_PRELOAD` and no production eBPF. But its main workload, .NET, can be traced with no code changes through the Common Language Runtime (CLR) profiler. The agent uses the profiler for .NET. For Java, Node.js, and Python it sets per-service environment variables, and it monitors all IIS traffic through Event Tracing for Windows (ETW). The opt-in flow, consent, and rollback are the same as in the [overview](../overview/).
+
+## .NET applications
+
+For .NET, the agent uses the OpenTelemetry .NET auto-instrumentation CLR profiler. It sets the profiler environment (`CORECLR_ENABLE_PROFILING=1` for .NET Core and modern .NET, `COR_ENABLE_PROFILING=1` for .NET Framework, plus the profiler identifier and path), then recycles the workload. It writes these entries straight to the Windows registry or to the Internet Information Services (IIS) `applicationHost.config`, so it does not rely on PowerShell or an administrator running commands by hand.
+
+### Supported runtimes
+
+Coverage depends on the **installed CLR runtime**, not the framework your application targets. So most older applications are covered, as long as they run on a supported runtime:
+
+| Installed runtime | Result |
+|---|---|
+| .NET Framework 4.6.2 and newer (CLR 4.x) | Full application traces through the CLR profiler |
+| .NET Core and modern .NET | Full application traces through the CLR profiler |
+| .NET Framework 3.5 (CLR 2.0) | No profiler; covered by ETW monitoring below |
+
+An application built for .NET 4.0 or 4.5 but running on a 4.6.2 or newer runtime is instrumented, because the profiler goes by the runtime, not the build target.
+
+### IIS and Windows services
+
+<Tabs>
+<TabItem label="IIS 10 and newer">
+
+Instrumentation is **per application pool**. The agent writes the profiler environment into that pool's `<environmentVariables>` in `applicationHost.config`, then recycles the pool. Other pools are unaffected.
+
+</TabItem>
+<TabItem label="IIS 8.5">
+
+IIS 8.5 has no per-pool environment, so the agent writes to the global registry. The change is host-wide and affects all application pools rather than a single one.
+
+</TabItem>
+<TabItem label="Windows service">
+
+For a .NET Windows service, the agent writes the profiler environment to the service's registry environment at `HKLM\SYSTEM\CurrentControlSet\Services\<service>\Environment`, then restarts the service.
+
+</TabItem>
+</Tabs>
+
+:::caution
+An ASP.NET Core application pool must be set to "No Managed Code" for the profiler to attach, and applying instrumentation requires an IIS recycle.
+:::
+
+## Java, Node.js, and Python on Windows
+
+These runtimes use the same language agents as Linux. The agent injects them through the per-service registry environment at `HKLM\SYSTEM\CurrentControlSet\Services\<service>\Environment`, which is the Windows equivalent of a systemd startup config. It sets the standard variable for the runtime (`JAVA_TOOL_OPTIONS`, `NODE_OPTIONS`, or `PYTHONPATH`), then restarts the service to apply it.
+
+## ETW monitoring
+
+Because Windows has no eBPF, the agent monitors without any code changes through a custom ETW receiver. It taps the HTTP.sys provider to produce:
+
+- **Server spans** for every request, at the request-path level.
+- **RED metrics** (Rate, Errors, and Duration) grouped by application pool.
+
+This works for any IIS traffic without injection. That includes workloads that cannot use the profiler, such as .NET Framework 3.5 (CLR 2.0) pools and non-.NET applications hosted on IIS. The ETW receiver only reads events. It needs no credentials and changes nothing in your applications, and it runs under the Local System account the agent uses. When a pool is also instrumented with the profiler, the agent stops generating ETW spans for that pool but keeps its RED metrics, so you do not get duplicate spans.
+
+## Discovery on Windows
+
+To build the Discovered Services list, the agent reads the Service Control Manager, IIS sites and application pools, and listening ports through Windows Management Instrumentation (WMI). Services appear with a kind of `iis` or `windows_service`. See [Discovery](../../concepts/discovery/) and [Windows platform notes](../../platform-notes/windows/).
+
+## Next steps
+
+<CardGrid>
+  <LinkCard title="Windows platform notes" href="../../platform-notes/windows/" description="Discovery, the ETW receiver, and privileges in depth." />
+  <LinkCard title="Sampling" href="../sampling/" description="Set the trace sampling rate." />
+  <LinkCard title="View traces" href="../../../apm-and-tracing/" description="See the distributed traces in KloudMate." />
+</CardGrid>

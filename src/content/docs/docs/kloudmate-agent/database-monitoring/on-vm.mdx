@@ -1,0 +1,43 @@
+---
+title: "Database monitoring on a VM"
+description: "How the KloudMate agent monitors databases on a Linux or Windows host, covering databases on the host and reachable remote databases."
+sidebar:
+  order: 3
+---
+
+import { Steps, LinkCard, CardGrid } from '@astrojs/starlight/components';
+
+On a virtual machine, the agent monitors databases running on the host or reachable from it. For the general flow, see the [Database monitoring overview](../overview/).
+
+## What you can monitor
+
+- **Databases on the host:** a database listening on the host is discovered and prefilled in the wizard.
+- **Reachable remote databases:** you can also monitor a database on another host by entering its endpoint and credentials in the wizard.
+
+On a virtual machine, you can collect the full set of coverages, including database logs. See [Engines and coverages](../engines-and-coverages/).
+
+## How local databases are identified
+
+A database on the host often listens on `localhost`. That address is not unique across your servers. So the agent identifies the database by the host's routable address instead, which keeps its metrics and traces lined up. See [Telemetry identity](../../reference/telemetry-identity/) for how to build dashboards on a database's server address.
+
+## Set up monitoring
+
+<Steps>
+1. **Open the wizard** from a discovered database, or add one manually with its endpoint.
+
+2. **Choose coverages** for the depth you want. See [Engines and coverages](../engines-and-coverages/).
+
+3. **Provide credentials** for the monitoring user, using an environment reference by default. See [Database credentials](../credentials/).
+
+4. **Apply the setup steps** the wizard shows, such as creating the monitoring role and granting it the right permissions.
+
+5. **Save.** The agent applies the configuration and starts collecting.
+</Steps>
+
+## Next steps
+
+<CardGrid>
+  <LinkCard title="Engines and coverages" href="../engines-and-coverages/" description="Choose the coverages for your engine." />
+  <LinkCard title="Credentials" href="../credentials/" description="Provide the monitoring user's credentials." />
+  <LinkCard title="On Kubernetes" href="../on-kubernetes/" description="Monitor in-cluster databases instead." />
+</CardGrid>
