@@ -72,9 +72,9 @@ eBPF monitoring has two independent parts, and each has its own opt-out toggle. 
 
 Both toggles are ignored on a `noebpf` agent build, which has no eBPF receiver compiled in. They stay off there whatever you set.
 
-### eBPF application tracing is on by default
+### eBPF application tracing
 
-`ebpf-apm` defaults to on, so a plain install sends eBPF application traces from the start. Earlier agents treated it as opt-in, so you had to set `KM_EBPF_ENABLED=true`. A host upgrading from one of those starts sending eBPF application traces once it takes the new default. To keep a host on logs, metrics, or network monitoring only, set `ebpf-apm: false`.
+`ebpf-apm` defaults to on, which allows eBPF application tracing on the host. It doesn't trace anything on its own. In managed mode, you pick which services eBPF traces from the web interface. Under auto-instrument, it traces every service. Set `ebpf-apm: false` to turn eBPF application tracing off on the host.
 
 ### Collect logs without application tracing
 
@@ -86,11 +86,30 @@ ebpf-apm: false
 ebpf-network: false
 ```
 
+### Scope and name eBPF-traced services
+
+eBPF names a service after the process it traces. Behind a reverse proxy such as nginx, that's the proxy and not your app, so several apps can collapse under one name. These two env-only settings scope and rename the traced service. You mainly need them in autonomous deployments, where your app sits behind a proxy like the Elastic Beanstalk web tier.
+
+| Environment variable | Default | Description |
+|---|---|---|
+| `KM_EBPF_OPEN_PORTS` | All listening ports | Comma-separated ports eBPF instruments. Scope it to your app's port so background processes stay out of the traces. |
+| `KM_EBPF_SERVICE_NAME` | Process name | Name for the service traced on the `KM_EBPF_OPEN_PORTS` ports. |
+
 ### Databases are not traced as APM services by default
 
 | Environment variable | Default | Description |
 |---|---|---|
 | `KM_EBPF_INSTRUMENT_DATABASES` | `false` | Set to `true` to also trace databases as eBPF APM services. |
+
+## Log collection
+
+In managed mode you pick log files from the web interface. In autonomous mode there's no web step, so the agent reads its log sources from files: every `*.yaml` or `*.yml` in a drop-in directory, read once at startup.
+
+| Environment variable | Default | Description |
+|---|---|---|
+| `KM_LOG_SOURCES_DIR` | `/etc/kmagent/logs.d`, or `C:\ProgramData\kmagent\logs.d` on Windows | Directory the agent reads log-source files from at startup. |
+
+For the file format and worked examples, see [Auto Scaling & Elastic Beanstalk](../../installation/aws-asg-deployment/#configure-log-collection) and [Log monitoring](../../log-monitoring/).
 
 ## Related
 
