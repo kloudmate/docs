@@ -7,7 +7,7 @@ sidebar:
 
 import { Steps } from '@astrojs/starlight/components';
 
-Routing Rules decide which channels get notified for which alerts. They govern **every** alert notification — both **individual alerts** and **correlated alert groups**. Each rule matches alerts by their labels; the **first matching rule wins** and sends those alerts to its destination channels. Whether the matched alerts notify one-by-one or fold into a single [Alert Group](../alert-groups/) is decided by the rule's **group-by** keys.
+Routing Rules decide which channels get notified for which alerts. They govern **every** alert notification — both **individual alerts** and **correlated alert groups**. Each rule matches alerts by their labels; the **first matching rule wins** and sends those alerts to its destination channels. Whether the matched alerts notify one-by-one or fold into a single [Alert Group](../alert-groups/) is decided by the rule's **Alert grouping** setting: deterministic group-by keys in **Static** mode, or the correlation engine in **Auto (AI)** mode.
 
 :::note[Not the incident routing rules]
 This page routes alert *notifications* to channels. To control how an alert becomes an incident inside Incident Management — its service, escalation policy, and severity — see [Incident Management → Routing Rules](../../incident-management/routing-rules/) instead.
@@ -17,7 +17,7 @@ Routing Rules replace the older **Notification Policies** flow. If you previousl
 
 ## Where to find them
 
-Open **Alerts → Routing rules** in the left navigation. Rules are evaluated in priority order (lowest number wins). The first rule an alert matches decides which channels notify and how often — and, through its group-by keys, whether the alert notifies on its own or correlates with others into one [Alert Group](../alert-groups/).
+Open **Alerts → Routing rules** in the left navigation. Rules are evaluated in priority order (lowest number wins). The first rule an alert matches decides which channels notify and how often, and whether the alert notifies on its own or correlates with others into one [Alert Group](../alert-groups/).
 
 ![Routing Rules list](./images/routing-rules-list.png)
 
@@ -32,8 +32,8 @@ A routing rule has six parts:
 | **Name** | How the rule appears in the list and audit log. |
 | **Priority** | Lower numbers win. When an alert matches multiple rules, the highest-priority (lowest-numbered) rule routes it. |
 | **Matchers** | Label conditions that pick which alerts this rule applies to. |
-| **Group-by** | Whether and how matched alerts correlate. Leave it empty (or set only `alarm_id`) for **one notification per alarm rule** — no grouping. Add a real label key (e.g. `service`) to **correlate** matching alerts that share that value into one [Alert Group](../alert-groups/). `severity` can't be used here. |
-| **Cadence** | `group_wait` (how long to wait after the first signal before sending the first notification) and `group_interval` (how often to re-notify on an open group). |
+| **Group-by** | In **Static** grouping, whether and how matched alerts correlate. Leave it empty (or set only `alarm_id`) for **one notification per alert rule**, with no grouping. Add a real label key (for example `service`) to **correlate** matching alerts that share that value into one [Alert Group](../alert-groups/). `severity` can't be used here. This field is ignored when the rule uses **Auto (AI)** grouping. |
+| **Cadence** | `group_wait` (how long to wait after the first alert before sending the first notification) and `group_interval` (how often to re-notify on an open group). |
 | **Destination channels** | One or more notification channels that receive the dispatched payload. |
 
 Optional:
@@ -57,24 +57,37 @@ A matcher value is always a single string. To match any of several values, use a
 
 As you add or edit matchers, the editor shows a live **Affected Alert Instances** preview — the alert instances this rule currently matches, with a running match count — so you can confirm the rule's scope before saving.
 
+### Alert grouping: Static or Auto (AI)
+
+Each rule has an **Alert grouping** control with two modes, and it defaults to **Static**.
+
+- **Static** groups matching alerts by the label keys you choose — the deterministic behavior described under [Group-by keys](#group-by-keys) below. Alerts that share those key values fold into one group.
+- **Auto (AI)** hands grouping to the correlation engine. It correlates related alerts from this rule into a single incident on its own, and learns which alerts tend to fire together over time. In this mode the Group-by keys picker is hidden, so you don't pick grouping keys at all.
+
+In-product, the Auto option reads: *"AI and ML automatically correlate related alerts from this rule into a single incident, learning which alerts tend to fire together over time. No grouping keys needed."*
+
+Leave a rule on **Static** when you want predictable grouping along keys you control. Switch it to **Auto (AI)** when related alerts don't share a clean label to group on, or when you'd rather let the engine find the connections. Either mode produces the same [Alert Group](../alert-groups/); that page shows what the grouped incident looks like and how an Auto-correlated group explains itself.
+
+{/* TODO: re-capture — routing rule editor showing the new Alert grouping control (Static · Auto (AI)) with Auto selected and the Group-by keys picker hidden. */}
+
 ### Group-by keys
 
-Group-by decides **whether** matched alerts correlate and, if so, along **which** dimension:
+Group-by keys apply in **Static** mode. They decide **whether** matched alerts correlate and, if so, along **which** dimension:
 
-- **Leave it empty — or set only `alarm_id`** — and the rule doesn't correlate anything: each alarm rule notifies on its own, one notification per rule. These notifications surface through the normal alerts UI, not the [Alert Groups](../alert-groups/) page.
+- **Leave it empty — or set only `alarm_id`** — and the rule doesn't correlate anything: each alert rule notifies on its own, one notification per rule. These notifications surface through the normal alerts UI, not the [Alert Groups](../alert-groups/) page.
 - **Add a real label key** and matching alerts that share that key's value fold into a single alert group. The editor suggests common keys — `service`, `env`, `host`, `region`, `team`, `issue_id`, `check_id`, `alarm_rule_folder_id` — and you can type any other label key.
 
 Two constraints the editor enforces:
 
-- If you add a real dimension alongside `alarm_id`, the `alarm_id` is dropped automatically — pinning each group to a single alarm would defeat the correlation.
+- If you add a real dimension alongside `alarm_id`, KloudMate drops the `alarm_id` automatically. Pinning each group to a single alert rule would defeat the correlation.
 - `severity` can't be a grouping dimension. It's a per-instance property fixed when the group opens, not an axis to group on.
 
 You can combine keys (e.g. `service` + `env`) to scope each group tightly. Pick keys based on which dimension changes the most: aggressive grouping (only `service`) reduces notification noise but sacrifices precision in the group title.
 
 ### Cadence
 
-- **group_wait** — default `30s`. The grouping engine holds the first notification for this long after a group opens, so closely related signals fold in before paging.
-- **group_interval** — default `5m`. Once a group is open, KloudMate re-notifies at this cadence if new signals continue to arrive.
+- **group_wait** — default `30s`. The grouping engine holds the first notification for this long after a group opens, so closely related alerts fold in before the first notification goes out.
+- **group_interval** — default `5m`. Once a group is open, KloudMate re-notifies at this cadence if new alerts continue to arrive.
 
 ## The default passthrough rule
 
@@ -91,9 +104,9 @@ If you want a clean "everything else goes to Slack" path, point the default pass
 
 3. **Add matchers.** Pick a label key, an operator, and a value. Add as many rows as needed; all matchers are combined with AND.
 
-4. **Set group-by keys.** Leave this empty to notify once per alarm rule, or add a real label key (start with `service`) to correlate matching alerts into one group. `severity` isn't allowed here.
+4. **Choose how alerts group.** Leave **Alert grouping** on **Static** and set group-by keys — empty to notify once per alert rule, or a real label key (start with `service`) to correlate matching alerts into one group (`severity` isn't allowed here). Or switch to **Auto (AI)** to let the correlation engine group related alerts for you, with no keys to set.
 
-5. **Tune cadence.** Leave the defaults (`30s` wait, `5m` interval) for most cases. Tighten them for paging rules, or loosen them for digest-style summaries.
+5. **Tune cadence.** Leave the defaults (`30s` wait, `5m` interval) for most cases. Tighten them for time-sensitive notifications, or loosen them for digest-style summaries.
 
 6. **Pick destination channels.** Add one or more channels. If you don't have a [KloudMate Incidents](../../platform/settings/notification-channels/#kloudmate-incidents) channel yet, use the inline **+ Add KloudMate Incidents channel** link in the picker.
 
