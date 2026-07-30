@@ -1,0 +1,49 @@
+---
+title: "Troubleshoot AWS sync"
+description: "Fix AWS accounts and regions that stop syncing in KloudMate after a permission error, and understand how they recover on their own."
+sidebar:
+  label: "Troubleshoot AWS sync"
+  order: 5.5
+---
+
+When KloudMate can't read part of an AWS account, it narrows the problem instead of failing the whole account. A single region that hits a permission error gets turned off, while an account whose delegation role loses access is flagged outright. This page explains why that happens, how to fix it, and how KloudMate recovers once access is restored.
+
+Start at **Settings → Data Sources**. The account card shows the connection status, and each account's **Sync settings** has a [Region sync status](../data-sources/#region-sync-status) section that lists any regions that stopped syncing.
+
+## A region stopped syncing
+
+When a sync job for a region hits an AWS permission error (an `AccessDenied` or "not authorized" response), KloudMate disables that region for the account. This is deliberate. It stops KloudMate from retrying a region it can't read, so one broken region doesn't hold back the rest of the account. The region then shows up in **Region sync status** with the recorded reason.
+
+Two causes are common:
+
+- **The delegation role is missing a permission.** The cross-account IAM role KloudMate uses doesn't grant an action it needs for a resource type in that region.
+- **The region isn't enabled in the AWS account.** KloudMate tried a region the account hasn't turned on, so AWS rejects the call.
+
+To fix a missing permission, update the KloudMate delegation stack:
+
+1. Sign in to the [AWS Console](https://console.aws.amazon.com/) and open **CloudFormation → Stacks**.
+2. Redeploy or update the `kloudmate-delegation` stack so the role grants the permission named in the error. Reconnecting the account through [AWS Account Setup](../../../aws-integration/account-setup/) gives you the current template.
+3. Back in KloudMate, either wait for automatic recovery (below) or open **Region sync status** and select **Re-enable** on the region.
+
+## Regions recover automatically
+
+Once the underlying permission is fixed, you usually don't need to do anything. KloudMate re-probes the regions it disabled for a recorded error and re-enables them on the next successful sync. Their resources come back on their own, with no manual step.
+
+Automatic recovery applies only to regions that carry a recorded error. A region that's off with **Disabled. No recent error recorded.** won't come back by itself, because there's nothing for KloudMate to re-probe. Re-enable those manually from **Region sync status**.
+
+To bring a region back immediately instead of waiting for the next cycle, select **Re-enable**, or use **Sync now** on the account after you've corrected the permission.
+
+## The whole account shows a permission error
+
+A **Permission error** on the account itself is different from a single region. It means the delegation role is missing permissions KloudMate needs across the board, so the account's access is failing rather than one region's. You'll see it on the account card in **Data Sources** and on the account's **Edit** screen, both with the reason.
+
+The fix is the same kind of change as a region permission error, applied to the whole account:
+
+1. Update the `kloudmate-delegation` CloudFormation stack so the role has the permissions it's missing.
+2. KloudMate re-checks access on the next sync. When the role can read the account again, the **Permission error** state clears on its own.
+
+## Related Resources
+
+- [Data Sources](../data-sources/)
+- [AWS Account Setup](../../../aws-integration/account-setup/)
+- [Remove an AWS Account](../deleting-your-aws-account-from-kloudmate/)
