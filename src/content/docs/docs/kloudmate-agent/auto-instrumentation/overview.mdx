@@ -33,7 +33,7 @@ Each service selected for SDK instrumentation shows a status chip so you always 
 
 Services covered by eBPF (Go, Ruby, or anything without an SDK injector) don't restart and carry no chip — eBPF traces them as soon as you turn them on. A separate **Restart pending** marker on the *agents list* is unrelated: it means the agent's own collector configuration is queued for a restart, not a per-service instrumentation change.
 
-TODO(screenshot): the Discovered Services list with per-service Off / eBPF / SDK controls and status chips.
+![Discovered Services list with per-service Off / eBPF / SDK controls and status chips](./images/discovered-services-status-chips.png)
 
 ## Restart consent and health gating
 

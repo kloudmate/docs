@@ -16,13 +16,12 @@ An Alert Group can form two ways, and both produce the same kind of group:
 - **Static grouping** folds alerts together by the deterministic group-by keys on a routing rule. Alerts that share those label values land in one group.
 - **Auto (AI) grouping** hands the decision to the correlation engine, which links related alerts on its own and learns which alerts tend to fire together over time.
 
-You choose the mode per routing rule; see [Routing Rules](../routing-rules/#alert-grouping-static-or-auto-ai). However a group opened, it behaves the same everywhere else on this page. An Auto-correlated group additionally records [why its alerts were grouped](#why-these-were-grouped).
+You choose the mode per routing rule; see [Routing Rules](../routing-rules/#alert-grouping-static-or-auto-ai). However a group forms, it behaves the same everywhere else on this page. An Auto-correlated group additionally records [why its alerts were grouped](#why-these-were-grouped).
 
 ## Where to find groups
 
 Open **Alerts → Alert groups** in the left navigation. This is the workspace-wide view of every group, open or resolved.
 
-{/* TODO: re-capture — Alert Groups list with the Labels and Signals columns gone: Group, State, Instances, Opened, Last update, and the RCA indicator. */}
 ![Alert Groups list](./images/alert-groups-list.png)
 
 Columns: **Group** (title), **State** (Open / Resolved), **Instances** (the firing-instance count), **Opened**, **Last update**, and an RCA indicator when an investigation is attached (a manual **Run RCA** or [Auto-RCA](../auto-rca/)).
@@ -56,7 +55,6 @@ Severity isn't a single group-level field. Each underlying instance carries its 
 
 Click any row to open the group detail page.
 
-{/* TODO: re-capture — Alert Group detail: header with the Run RCA / View RCA button, the meta strip reading "N alerts · N firing instances" plus a correlation chip, and the bottom "Why these were grouped" and "Was this grouping correct?" sections. */}
 ![Alert Group detail](./images/alert-group-detail.png)
 
 ### Header
@@ -80,7 +78,7 @@ A bordered card directly under the meta strip shows:
 
 ### Firing instances
 
-The **Firing instances** panel is the dominant body section. It's a table of the unique alert instances that joined this group, deduplicated by the per-instance labels the grouping engine uses.
+The **Firing instances** panel is the largest section on the page. It's a table of the unique alert instances that joined this group, deduplicated by the per-instance labels the grouping engine uses.
 
 - **Common labels bar** at the top — labels shared by every instance, so the per-row labels column only shows what varies. Internal keys are hidden from this bar and from the per-instance labels.
 - **Columns**:
@@ -102,7 +100,7 @@ The group header carries a single root-cause button, and its label reflects whet
 
 This is the manual trigger. To investigate every group a rule opens automatically instead, enable [Auto-RCA](../auto-rca/) on the routing rule; an Auto-RCA result surfaces through the same **View RCA** drawer.
 
-{/* TODO: capture — the View RCA drawer opened from a group header, showing the root-cause summary and the View full investigation link. No existing image. */}
+![View RCA drawer with the root-cause summary and a View full investigation link](./images/alert-group-rca-drawer.png)
 
 ### Tabs
 
@@ -141,7 +139,7 @@ Choosing **Wrong** lets you point at the specific alert that doesn't belong, or 
 
 ## When a group resolves
 
-KloudMate marks a group `Resolved` once every underlying instance has resolved and a short flap-grace period has elapsed (a few minutes, long enough to absorb instances that flap rapidly without closing the group prematurely). Resolved groups stay in the list under the **Resolved** filter and remain searchable indefinitely.
+KloudMate marks a group `Resolved` once every underlying instance has resolved and a short grace period for flapping has elapsed (a few minutes, long enough to absorb instances that flap rapidly without closing the group prematurely). Resolved groups stay in the list under the **Resolved** filter and remain searchable indefinitely.
 
 ## Related
 

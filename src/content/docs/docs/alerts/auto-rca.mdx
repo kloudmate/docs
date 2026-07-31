@@ -7,7 +7,7 @@ sidebar:
 
 Auto-RCA hands an [Alert Group](../alert-groups/) to KloudMate's AI investigator the moment it opens, so by the time you open the group there's already a root-cause summary waiting. You enable it per [Routing Rule](../routing-rules/) — every group the rule produces gets investigated.
 
-Auto-RCA is the automatic trigger: it runs on every group a rule opens, without anyone asking. You can also start an investigation manually on any group with the **Run RCA** button, which becomes **View RCA** once an investigation attaches and opens it in a side drawer. See [Run RCA and View RCA](../alert-groups/#run-rca-and-view-rca).
+Auto-RCA is the automatic trigger: it runs on every group a rule opens, without anyone asking. You can also start an investigation manually on any group with the **Run RCA** button. Once an investigation attaches, the button becomes **View RCA** and opens it in a side drawer. See [Run RCA and View RCA](../alert-groups/#run-rca-and-view-rca).
 
 ## How it works
 
@@ -19,10 +19,10 @@ When the investigation completes, its summary attaches to the group:
 - The notifications dispatched from the group include the investigation summary (where the channel format supports it — Slack thread reply, KloudMate Incidents comment, and so on).
 
 :::note[One investigation per group]
-Auto-RCA runs only once per alert group — when the group is first opened. Alerts that later join an existing group (for example, a Memory alert folding into a group that a CPU alert already opened) do **not** trigger a new investigation. Those alerts still send the usual group-transition notifications, but no additional Auto-RCA report is generated for them.
+Auto-RCA runs only once per alert group — when the group is first opened. Alerts that later join an existing group (for example, a Memory alert folding into a group that a CPU alert already opened) do **not** trigger a new investigation. Those alerts still send the usual group-transition notifications, but Auto-RCA doesn't generate an additional report for them.
 :::
 
-{/* TODO: capture — the View RCA drawer on a group detail page, showing the root-cause summary and the View full investigation link. Replaces the removed inline attached-investigation block (old image alert-group-investigation.png). */}
+![View RCA drawer with the root-cause summary and a View full investigation link](./images/auto-rca-single-investigation.png)
 
 ## Enable Auto-RCA on a routing rule
 
@@ -32,7 +32,7 @@ Auto-RCA runs only once per alert group — when the group is first opened. Aler
 4. Set the **Delay** if the default 5 minutes isn't right. A shorter delay surfaces answers faster; a longer one captures more alerts before the investigation runs.
 5. Save.
 
-Every group this rule opens from now on will trigger an investigation after the configured delay.
+Every group this rule opens from now on triggers an investigation after the configured delay.
 
 ## When Auto-RCA is most useful
 
