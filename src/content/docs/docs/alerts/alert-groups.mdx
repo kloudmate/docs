@@ -107,8 +107,19 @@ This is the manual trigger. To investigate every group a rule opens automaticall
 ### Tabs
 
 - **Alerts** — every underlying alert as a row. Columns: Alert (linked to the rule when available), State, Severity, Received at, Labels. Use this when you need the raw event-by-event stream rather than the instance-level rollup.
+- **Blast radius** — what the group's firing resources connect to. See [Blast radius](#blast-radius).
 - **Audit** — a vertical timeline of everything that happened to the group: opened, alerts appended, silence applied, notification dispatched, resolved. Auto-correlated groups also log correlation events here — **"Group opened by AI"** and **"Alert correlated into group"**.
 - **Notifications** — per-channel dispatch outcomes (ok / failed / suppressed-by-silence), with deep links to where the notification landed: Slack thread URL, Jira ticket, KloudMate Incidents incident, and so on.
+
+### Blast radius
+
+The **Blast radius** tab resolves the group's firing alerts to the resources they name, then graphs what each one depends on, so you can see how far the incident reaches.
+
+Each affected resource sits at the center of its own graph, with neighbours branching off along labeled edges: **runs on**, **talks to**, **calls**. Neighbours of the same kind collapse into one node (*116 Pods · runs on*) that you click to list them. AWS nodes link into [Cloud Inventory](/cloud-inventory/); Kubernetes and host nodes don't.
+
+The same graph appears on a single alert's **Blast radius** tab and on a resource's **Dependencies** tab in Cloud Inventory. An empty graph means KloudMate hasn't mapped a connection yet, not that the lookup failed. When nothing is firing or the alerts don't match a known resource, the tab says so instead of drawing one.
+
+{/* TODO: capture — the Blast radius tab: an affected resource at the center with neighbour and cluster nodes. */}
 
 ### Why these were grouped
 
@@ -126,6 +137,8 @@ The chip label tells you which kind of link the engine found:
 | **Known cascade** | A known cause-and-effect cascade links these resource types. |
 | **Topology** | These resources are connected in the dependency graph. |
 | **AI** | The correlation engine grouped these alerts by combining several weaker links. |
+
+When the reason is **Topology**, a **View blast radius** link opens the group's [Blast radius](#blast-radius) tab.
 
 The chip and section only appear when the engine actually correlated more than one alert. A lone alert the engine evaluated and left on its own shows no chip, which is expected (see [Cold start](#cold-start)).
 

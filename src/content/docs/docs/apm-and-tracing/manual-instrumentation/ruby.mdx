@@ -32,6 +32,51 @@ export OTEL_SERVICE_NAME="your-ruby-service"
 ```
 *(Replace `KM_AGENT_HOST` with the IP address or hostname of your KloudMate Agent).*
 
+## Instrument the whole request path
+
+Ruby needs its instrumentation gems added to the app, because Ruby only loads gems listed in the `Gemfile`. Once you add them, the all-in-one bundle traces the whole request path with no per-library code. Add the SDK, the instrumentation bundle, and the OTLP exporter:
+
+```ruby
+gem 'opentelemetry-sdk'
+gem 'opentelemetry-instrumentation-all'
+gem 'opentelemetry-exporter-otlp'
+```
+
+Enable them once at boot. For Rails, use an initializer:
+
+```ruby
+# config/initializers/opentelemetry.rb
+require 'opentelemetry/sdk'
+require 'opentelemetry/instrumentation/all'
+require 'opentelemetry/exporter/otlp'
+
+OpenTelemetry::SDK.configure do |c|
+  c.use_all   # turn on every instrumentation whose library is loaded
+end
+```
+
+The `opentelemetry-exporter-otlp` gem is required. Without it the SDK has no exporter, logs `otlp exporter cannot be configured` at startup, and drops every span.
+
+### What gets instrumented automatically
+
+`use_all` turns on each instrumentation whose underlying library is loaded. For a Rails app it covers the whole request path with no extra code:
+
+| Layer | Gem | What you get |
+|---|---|---|
+| HTTP server | `rack`, `action_pack` | One span per request — the root of the trace. `action_pack` adds the matched route, controller, and action, and names the span `GET /users/:id` (Rails 7.1+). |
+| Database (SQL) | `pg`, `mysql2`, `trilogy` | One span per query, carrying the SQL as `db.statement`. This is the span that shows the query text. |
+| Database (ORM) | `active_record` | Timing spans for model operations — `User#save`, `User.create`, `User query`. They show the Rails call, not the SQL. |
+| View rendering | `action_view` | Spans for template, partial, collection, and layout renders, tagged with the template path. |
+| Background jobs | `active_job`, plus `sidekiq`, `delayed_job`, `resque`, `que` | An enqueue span and a perform span per job, linked across the two processes. |
+| Outbound HTTP | `net_http`, `faraday`, `http`, `httpx`, `excon` | A client span for each call your app makes to another service. |
+| Caches and stores | `redis`, `dalli`, `mongo` | A span per cache or store operation. |
+
+The bundle also covers GraphQL, gRPC, Sinatra, Grape, the AWS SDK, and Kafka and RabbitMQ clients when your app uses them.
+
+:::note
+The SQL query text (`db.statement`) comes from the database driver instrumentation (`pg`, `mysql2`), not from `active_record`. SQLite has no such instrumentation, so a SQLite app shows the model operation but no SQL — PostgreSQL and MySQL show the query.
+:::
+
 ## Official Documentation
 
 OpenTelemetry is continuously evolving. For the most up-to-date SDK instructions, advanced configurations, and custom instrumentation details, refer to the official OpenTelemetry documentation:

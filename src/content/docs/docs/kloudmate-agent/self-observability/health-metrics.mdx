@@ -17,13 +17,9 @@ The agent reports these metrics, all carrying the resource attributes below:
 |---|---|
 | `kmagent.up` | Heartbeat. Its absence is the signal that the agent, host, or network is down. |
 | `kmagent.uptime` | Time since the agent process started. |
-| `kmagent.goroutines` | Internal thread count, useful for spotting a leak. |
 | `kmagent.memory.rss` | Agent process memory. |
 | `kmagent.cpu.utilization` | Agent process CPU. |
 | `kmagent.collector.up` | Whether the embedded collector is running (1 or 0), with `state` and `reason` attributes. |
-| `kmagent.collector.restarts` | How many times the collector has been restarted. |
-| `kmagent.config.apply.success` | Whether the last configuration push applied cleanly (1 or 0). |
-| `kmagent.config.apply.errors` | Cumulative configuration-apply failures. |
 
 Resource attributes: `service.name` is `kmagent` (so you can target it directly in dashboards and alerts), plus `host.name`, `agent.version`, `collector.version`, `os.type`, and `host.arch`.
 
@@ -35,19 +31,21 @@ Resource attributes: `service.name` is `kmagent` (so you can target it directly 
 |---|---|
 | Healthy | `kmagent.collector.up=1`, `state=running` |
 | A bad configuration was pushed | `kmagent.collector.up=0`, `reason=config_invalid` |
-| The collector exited with an error | `kmagent.collector.up=0`, `reason=run_error`, restart count increases |
-| The collector panicked | `kmagent.collector.up=0`, `reason=panic`, restart count increases (then it auto-restarts) |
+| The collector exited with an error | `kmagent.collector.up=0`, `reason=run_error` |
+| The collector panicked | `kmagent.collector.up=0`, `reason=panic` (then it auto-restarts) |
 | A graceful shutdown | `reason=shutdown` |
 
-The agent restarts the collector automatically after a crash, and the restart count records that it happened.
+The agent restarts the collector automatically after a crash.
 
 ## Alerting on a silent agent
 
 The one failure the agent cannot report is total silence. If the agent, host, or network goes down, nothing is emitted. Detect this with a dead-man's-switch alert in KloudMate that fires when `kmagent.up` stops arriving for a host.
 
-## Enabling and tuning
+## On by default, and tuning
 
-Health reporting is controlled by the agent's settings. You can turn it on or off and set its interval through the agent configuration. These are the `health-enabled` and `health-interval` settings, which map to the `KM_HEALTH_ENABLED` and `KM_HEALTH_INTERVAL` environment variables. The default interval matches the agent's check-in interval.
+Health reporting is on by default, so a freshly installed agent starts emitting these metrics without any extra step. To change how often it reports, or to turn it off, use the `health-enabled` and `health-interval` settings — either in the agent's configuration file or as the `KM_HEALTH_ENABLED` and `KM_HEALTH_INTERVAL` environment variables. Set `health-enabled: false` (or `KM_HEALTH_ENABLED=false`) to stop reporting. The default interval is 60 seconds.
+
+In autonomous auto-instrument mode the agent reports its health regardless of this setting.
 
 ## Next steps
 

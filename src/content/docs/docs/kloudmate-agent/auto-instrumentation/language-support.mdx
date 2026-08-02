@@ -105,7 +105,7 @@ A Ruby app has two levels of coverage:
   OTEL_EXPORTER_OTLP_ENDPOINT=http://localhost:4318
   ```
 
-  The SQL query text on a database span comes from the driver instrumentation (`pg`, `mysql2`), not from ActiveRecord. A database with no OpenTelemetry driver — SQLite — shows the model operation (`User#save`) but no SQL. For the full breakdown of what these gems capture, see [Ruby auto-instrumentation](../../../apm-and-tracing/auto-instrumentation/ruby/).
+  The SQL query text on a database span comes from the driver instrumentation (`pg`, `mysql2`), not from ActiveRecord. A database with no OpenTelemetry driver — SQLite — shows the model operation (`User#save`) but no SQL. For the full breakdown of what these gems capture, see [Ruby manual instrumentation](../../../apm-and-tracing/manual-instrumentation/ruby/).
 
   The current OpenTelemetry Ruby gems need **Ruby 3.3 or newer**. On Ruby 3.0 to 3.2 you have to pin older gem versions, and on Ruby 2.x they will not install at all. On those versions, use eBPF monitoring, which does not depend on the Ruby version.
 
