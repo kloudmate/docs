@@ -1,0 +1,58 @@
+---
+/**
+ * Replaces the `PageTitle` override that starlight-llm-actions injects, so the
+ * Page Actions dropdown can be wrapped in `data-pagefind-ignore`.
+ *
+ * Starlight puts `data-pagefind-body` on `<main>`, and the dropdown renders
+ * inside it, directly after the `<h1>`. Without the wrapper, Pagefind indexes
+ * the menu's labels ("Copy page", "View as Markdown", "Open in Claude", …) as
+ * the first ~380 characters of every page, so they lead the search excerpts and
+ * every page matches a search for those words.
+ *
+ * The plugin detects a user `PageTitle` override, skips its own injection, and
+ * logs a build warning pointing at exactly this pattern. Note that the skipped
+ * override is also where the plugin renders its optional `printNotice` banner;
+ * that option isn't configured here, so nothing is lost, but adding it later
+ * means porting the banner markup into this file.
+ *
+ * The `<h1>` stays outside the ignored subtree on purpose: Starlight sets no
+ * `data-pagefind-meta="title"`, so Pagefind takes each search result's title
+ * from the first indexed `<h1>`.
+ */
+import Default from '@astrojs/starlight/components/PageTitle.astro';
+import PageActions from 'starlight-llm-actions/components/PageActions.astro';
+---
+
+<div class="starlight-llm-actions-row">
+  <Default {...Astro.props}><slot /></Default>
+  <div class="sl-llm-actions-pagefind-ignore" data-pagefind-ignore>
+    <PageActions />
+  </div>
+</div>
+
+<style>
+  /* Mirrors the layout of the plugin's own PageTitle override. */
+  .starlight-llm-actions-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .starlight-llm-actions-row :global(h1) {
+    flex: 1;
+    min-width: 0;
+  }
+
+  /* The wrapper exists only to carry `data-pagefind-ignore`; `display: contents`
+   * keeps the dropdown itself as the flex item, as it is upstream. */
+  .sl-llm-actions-pagefind-ignore {
+    display: contents;
+  }
+
+  @media print {
+    .starlight-llm-actions-row {
+      display: block;
+    }
+  }
+</style>
