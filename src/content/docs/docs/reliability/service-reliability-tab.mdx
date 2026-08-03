@@ -43,17 +43,6 @@ Clicking a card opens the SLO detail page.
 
 Matching is **service-only** in v1 — every incident-based SLO on the affected service appears, even if the SLO's severity / metadata filters might exclude this specific incident. Slight over-reporting is the deliberate trade-off; re-evaluating SLO logic in the browser would be fragile.
 
-## Alert detail — Define an SLO
-
-The alert detail page header now includes a **Define an SLO** outlined button (admin-only) next to the existing actions (Ask AI, Jira integration, Edit Alert). Clicking it opens the SLO create wizard at `/<workspaceId>/slos/create`.
-
-:::note[Placeholder image]
-Screenshot pending — alert detail page header showing the Define an SLO CTA next to Edit Alert and Ask AI.
-:::
-![Alert detail Define an SLO CTA](../_placeholders/screenshot-placeholder.png)
-
-The CTA is a discovery prompt — consider defining an SLO covering the same condition as this alert. It does **not** auto-prefill the wizard because alert configurations don't map cleanly to SLI / target / window choices.
-
 ## Related
 
 - [Reliability Overview](../) — workspace-wide hub.

@@ -6,7 +6,7 @@ sidebar:
   order: 5
 ---
 
-Use **Data Sources** to connect AWS accounts, review their sync settings, and check the health of what KloudMate is syncing across regions.
+Use **Data Sources** to connect AWS accounts, review their sync settings, and check sync health across regions.
 
 ## Connect an AWS Account
 
@@ -20,17 +20,16 @@ Open **Settings → Data Sources** to view all connected AWS accounts.
 
 Each connected account appears as a card showing the AWS logo, a connection-status indicator, and the account ID with a copy button. An **Edit** action opens the connection, and a menu gives you **Sync settings** and **CloudWatch Logs**.
 
-The connection-status indicator also flags access problems. When the delegation role KloudMate uses is missing a permission it needs, the account shows a **Permission error** state with the reason. That means the whole account's access is failing, not a single region. Open the account's **Edit** screen to see the same error alongside the connection details. To fix it, update the delegation role's permissions, then let KloudMate re-check on the next sync. See [Troubleshoot AWS sync](../troubleshoot-aws-sync/).
+The connection-status indicator also flags access problems. When the delegation role KloudMate uses is missing a required permission, the account shows a **Permission error** state with the reason. That means the whole account's access is failing, not a single region. Open the account's **Edit** screen to see the same error alongside the connection details. To fix it, update the delegation role's permissions, then let KloudMate re-check on the next sync. See [Troubleshoot AWS sync](../troubleshoot-aws-sync/).
 
 From this page, you can:
 
 - Add another AWS account
 - Open account details and edit the connection
 - Review or update sync settings
-- Reach CloudWatch log subscription controls
+- Access CloudWatch log subscription controls
 - Remove an AWS account
 
-{/* TODO: re-capture — redesigned Data Sources account card: AWS logo, connection-status indicator, account ID with copy button, Edit action, and the menu (Sync settings, CloudWatch Logs). Replaces data-sources-1..3.png. */}
 ![Connected AWS accounts on the Data Sources page](./images/data-sources-1.png)
 
 Enter the AWS account name and follow the on-screen setup flow when adding a new account.
@@ -43,11 +42,13 @@ Sync Settings control what KloudMate inventories for a connected account. Open a
 
 Two account-level controls decide what gets synced: **Primary regions** and an optional **tag allowlist**. The set of resource types KloudMate inventories is platform-managed and the same for every account. See [Covered services](#covered-services). The **Region sync status** section on the same page surfaces any regions that have stopped syncing and lets an admin turn them back on.
 
+![The Sync Settings page, showing Region sync status, Primary regions, Tag Filtering, and Covered services](./images/data-sources-3.png)
+
 ### Primary regions
 
 **Primary regions** are the regions where the account's main workloads run. KloudMate syncs primary regions most frequently, and other enabled regions refresh about once a day. Set them to keep your busiest regions the freshest.
 
-Primary regions must be a subset of the regions enabled for sync, so the picker offers only regions that are currently syncing. Leave the field empty and KloudMate detects the primary regions for you, from where the account's resources actually are.
+Primary regions must be a subset of the regions enabled for sync, so the picker offers only regions that are currently syncing. Leave the field empty and KloudMate detects the primary regions for you, based on where the account's resources actually live.
 
 ### Region sync status
 
@@ -73,14 +74,10 @@ To set tags:
 
 1. Open the account's **Sync settings**.
 2. Click **Add Tags** under **Tag Filtering**.
-
-{/* TODO: re-capture — Tag Filtering inside the redesigned, regions-led Sync Settings screen (data-sources-7/8/9.png show the old layout). */}
-![Add tags under Tag Filtering](./images/data-sources-7.png)
-
 3. Enter the tags you want to match.
 4. Save the configuration.
 
-![Saved tag filters](./images/data-sources-8.png)
+![Tags entered under Tag Filtering, ready to save](./images/data-sources-8.png)
 
 If tags are already configured, use the edit action to update or remove them.
 

@@ -68,7 +68,7 @@ In-product, the Auto option reads: *"AI and ML automatically correlate related a
 
 Leave a rule on **Static** when you want predictable grouping along keys you control. Switch it to **Auto (AI)** when related alerts don't share a clean label to group on, or when you'd rather let the engine find the connections. Either mode produces the same [Alert Group](../alert-groups/); that page shows what the grouped incident looks like and how an Auto-correlated group explains itself.
 
-{/* TODO: re-capture — routing rule editor showing the new Alert grouping control (Static · Auto (AI)) with Auto selected and the Group-by keys picker hidden. */}
+![Routing rule editor with Alert grouping set to Auto (AI) and no Group-by keys picker shown](./images/routing-rules-alert-grouping.png)
 
 ### Group-by keys
 
@@ -86,7 +86,7 @@ You can combine keys (e.g. `service` + `env`) to scope each group tightly. Pick 
 
 ### Cadence
 
-- **group_wait** — default `30s`. The grouping engine holds the first notification for this long after a group opens, so closely related alerts fold in before the first notification goes out.
+- **group_wait** — default `30s`. The grouping engine waits this long after a group opens before sending the first notification, so closely related alerts have time to fold in.
 - **group_interval** — default `5m`. Once a group is open, KloudMate re-notifies at this cadence if new alerts continue to arrive.
 
 ## The default passthrough rule
