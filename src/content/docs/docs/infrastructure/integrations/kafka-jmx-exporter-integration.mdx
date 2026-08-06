@@ -1,0 +1,144 @@
+---
+title: "Kafka JMX Exporter Integration"
+description: "Collect Kafka broker, topic, and consumer group metrics from a Strimzi Kafka cluster on Kubernetes through the JMX Prometheus Exporter and the OpenTelemetry Collector's Prometheus receiver."
+sidebar:
+  order: 3.5
+---
+
+Use this integration when your Kafka cluster runs on Kubernetes through Strimzi and already exposes JMX metrics in Prometheus format. It's a Kubernetes-native alternative to [Kafka Integration](../kafka-integration/)'s `kafkametrics` receiver: instead of connecting to the Kafka protocol directly, the OpenTelemetry Collector scrapes the JMX Prometheus Exporter endpoint that Strimzi already exposes on each broker and exporter pod.
+
+## Prerequisites
+
+1. A Strimzi Kafka cluster.
+2. The JMX Prometheus Exporter enabled on the cluster.
+3. Metrics exposed on port `9404`.
+
+## Step 1: Install the Agent
+
+Install and run the [KloudMate Agent](../../../kloudmate-agent/) in your Kubernetes cluster. See [Kubernetes](../../../kloudmate-agent/installation/kubernetes-agent/) for the Helm install steps.
+
+## Step 2: Define the Prometheus Receiver for Kafka JMX Metrics
+
+Add the following configuration to the Agent's collector configuration.
+
+```yaml
+extensions:
+  health_check:
+    endpoint: 0.0.0.0:13133
+
+receivers:
+  prometheus:
+    config:
+      global:
+        scrape_interval: 30s
+
+      scrape_configs:
+        - job_name: kafka-resources
+          kubernetes_sd_configs:
+            - role: pod
+
+          relabel_configs:
+            - source_labels:
+                - __meta_kubernetes_namespace
+              action: keep
+              regex: kafka-prod
+
+            - source_labels:
+                - __meta_kubernetes_pod_label_strimzi_io_component_type
+              action: keep
+              regex: kafka|kafka-exporter
+
+            - source_labels:
+                - __meta_kubernetes_pod_container_port_name
+              action: keep
+              regex: tcp-prometheus
+```
+
+This uses Kubernetes service discovery to find every pod in the cluster, then narrows the scrape targets down through three `relabel_configs` stages: the first keeps only pods in the `kafka-prod` namespace, the second keeps only pods whose Strimzi component-type label is `kafka` or `kafka-exporter`, and the third keeps only the `tcp-prometheus` container port those pods expose. Replace the `kafka-prod` regex with your own Kafka namespace before applying the configuration.
+
+## Step 3: Add to Pipeline
+
+Add the `prometheus` receiver to the metrics pipeline in your Agent configuration.
+
+```yaml
+service:
+  extensions:
+    - health_check
+  telemetry:
+    metrics:
+      level: none
+  pipelines:
+    metrics/kafka-jmx:
+      receivers:
+        - prometheus
+      processors:
+        - batch
+      exporters:
+        - otlphttp
+```
+
+## Step 4: Apply the Configuration
+
+If you run the OpenTelemetry Collector through the KloudMate Agent in managed mode, add this configuration through [Custom config override](../../../kloudmate-agent/custom-config-override/) instead of editing the deployment's YAML directly — the override merges it into the running configuration without switching the agent to manual mode. If you operate your own OpenTelemetry Collector, merge this block into its existing configuration instead.
+
+## Step 5: Restart the Collector
+
+If the Agent runs as a Kubernetes workload, restart whichever one runs your Collector:
+
+```bash
+kubectl rollout restart deployment <otel-collector> -n <namespace>
+```
+
+or
+
+```bash
+kubectl rollout restart daemonset <otel-collector> -n <namespace>
+```
+
+## Step 6: Restart the Agent
+
+If the Agent runs as a systemd service instead:
+
+```bash
+systemctl restart kmagent
+systemctl status kmagent
+```
+
+## Step 7: Validate in KloudMate
+
+After the Agent restarts:
+
+- Open [Explore](../../../visualize-data/explore/) in KloudMate.
+- Query one of the scraped metrics, for example:
+
+```
+kafka_server_brokertopicmetrics_messagesin_total
+
+kafka_server_replicamanager_leadercount
+
+kafka_consumergroup_lag
+```
+
+- Build dashboards or alerts once the data is visible.
+
+## Metrics Collected
+
+This integration collects:
+
+- Kafka broker metrics
+- Kafka topic metrics
+- Kafka consumer group metrics
+- Kafka Exporter metrics
+- JVM metrics
+- Broker health metrics
+- Replication metrics
+- Network metrics
+- Request metrics
+- Controller metrics
+
+## Related
+
+- [Kafka Integration](../kafka-integration/) — the `kafkametrics` receiver alternative, for brokers reachable directly over the Kafka protocol instead of through JMX.
+- [Prometheus Integration](../prometheus-integration/) — the general-purpose pattern this integration builds on.
+- [Custom config override](../../../kloudmate-agent/custom-config-override/) — how to add this receiver to a managed KloudMate Agent.
+- [Explore](../../../visualize-data/explore/) — where to query the collected metrics.
