@@ -95,16 +95,7 @@ or
 kubectl rollout restart daemonset <otel-collector> -n <namespace>
 ```
 
-## Step 6: Restart the Agent
-
-If the Agent runs as a systemd service instead:
-
-```bash
-systemctl restart kmagent
-systemctl status kmagent
-```
-
-## Step 7: Validate in KloudMate
+## Step 6: Validate in KloudMate
 
 After the Agent restarts:
 
