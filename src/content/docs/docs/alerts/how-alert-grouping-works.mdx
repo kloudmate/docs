@@ -1,0 +1,74 @@
+---
+title: "How Alert Grouping Works"
+description: "How KloudMate's AI groups related firing alerts into one incident, and how to get per-host groups when you need them."
+sidebar:
+  order: 6.5
+---
+
+A single problem rarely fires a single alert. One deploy can spike CPU across forty hosts at once; one failing database can set off the app, the queue, and the health checks together. That's how a real issue turns into an alert storm.
+
+KloudMate's AI-powered alert grouping cuts through that noise. Machine learning correlates related alerts in real time and folds them into a single [Alert Group](../alert-groups/), so one incident reaches you instead of forty notifications. This page shows how the engine decides what belongs together, and how to steer it.
+
+## What gets grouped
+
+First, the detail that explains everything else: KloudMate groups individual firings, not whole rules.
+
+One alert rule can fire on many targets at once. A `High CPU` rule fires once per host that crosses the line; a pod-restart rule fires once per pod. Each firing is its own **instance**, carrying its own labels (`host_name`, `pod`, and so on). Grouping works at the instance level, so a single rule's firings can spread across a group, each placed by its own labels.
+
+## Static or Auto grouping
+
+Every alert runs through a [routing rule](../routing-rules/), and each rule groups its alerts one of two ways.
+
+**Static** grouping is deterministic: you name the labels, and alerts that share those values land together. **Auto (AI)** grouping is intelligent and powered by machine learning. KloudMate's correlation engine automatically links related alerts, and it gets smarter over time as it learns which of your alerts tend to fire together.
+
+| | **Static** | **Auto (AI)** |
+|---|---|---|
+| Who decides | You, with **Group-by keys** | KloudMate's correlation engine |
+| Based on | The **values** of your group-by labels: one group per distinct value | The strongest signal the engine can find |
+| One rule on `host=minikube` and `host=fedora` | **Two groups**, one per host | **One group** |
+
+You set the mode per rule with the **Alert grouping** control. See [Routing Rules](../routing-rules/#alert-grouping-static-or-auto-ai).
+
+## One rule stays one group in Auto mode
+
+Auto grouping treats every firing of one rule as the same signal on different targets, so they always stay in a single group, even when the hosts, pods, or containers differ.
+
+Take that deploy again. Your `High CPU` rule fires on `minikube`, `fedora`, and dozens more. Auto grouping keeps them as **one** incident instead of scattering them into dozens, because they're the same rule reporting on different machines. It's deliberate noise reduction: a rule firing on 500 hosts reaches you as one incident with 500 instances, not 500 separate notifications.
+
+:::note[Want a group per host instead?]
+Some rules you *do* want split per host, like a disk-filling-up check. Switch that rule to **Static** and add `host_name` as a Group-by key, and each host gets its own group.
+:::
+
+## When to use which
+
+- Choose **Static** when you already know the dimension you care about and want deterministic groups: one per host, per cluster, or per service.
+- Choose **Auto (AI)** when the connections aren't obvious from labels (a slow database dragging down three services that don't share a tag) and you want machine learning to surface them for you.
+
+## Why alerts group in Auto mode
+
+Auto grouping analyzes each burst of alerts and links them on the strongest signal it can find, in this order:
+
+1. **Same rule** — every firing of one rule (always together, as above).
+2. **Same identity label** — firings that share a `key=value`, like `pod=api-7`.
+3. **Fire together often** — alerts with a track record of going off at the same time.
+4. **Cause and effect** — a known pattern where trouble in one resource sets off another.
+5. **Connected resources** — the two are linked in the dependency graph.
+6. **AI grouping** — a machine-learning model makes the call on whatever's left.
+7. **On its own** — nothing links it, so it stays a group of one.
+
+However alerts link, the group shows the reason under [**Why these were grouped**](../alert-groups/#why-these-were-grouped), naming the strongest signal that covers the whole group. The engine also learns continuously: a new workspace starts with less history, and grouping gets more precise over the first few days as the model sees which alerts travel together. See [Cold start](../alert-groups/#cold-start).
+
+## How Auto grouping behaves
+
+A few points make the AI's decisions predictable once you know them.
+
+**One rule, one group.** Auto grouping always keeps a single rule's firings together, across every host it fires on. To split them, use **Static** grouping with `host_name` as the Group-by key.
+
+**Labels match on key and value.** A shared label links alerts only when the key and the value both match, and Static grouping keys on the value. Two different hosts group together because they share a rule, not because `host_name=minikube` and `host_name=fedora` count as the same.
+
+**Grouping is per instance.** Every firing is placed on its own, by its own labels. When one rule fills a group, that's Auto keeping its firings together, one instance at a time.
+
+## Related
+
+- [Routing Rules](../routing-rules/) — set the grouping mode and Group-by keys.
+- [Alert Groups](../alert-groups/) — the group you get, and where the grouping reason shows.

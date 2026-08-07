@@ -16,7 +16,7 @@ An Alert Group can form two ways, and both produce the same kind of group:
 - **Static grouping** folds alerts together by the deterministic group-by keys on a routing rule. Alerts that share those label values land in one group.
 - **Auto (AI) grouping** hands the decision to the correlation engine, which links related alerts on its own and learns which alerts tend to fire together over time.
 
-You choose the mode per routing rule; see [Routing Rules](../routing-rules/#alert-grouping-static-or-auto-ai). However a group forms, it behaves the same everywhere else on this page. An Auto-correlated group additionally records [why its alerts were grouped](#why-these-were-grouped).
+You choose the mode per routing rule; see [Routing Rules](../routing-rules/#alert-grouping-static-or-auto-ai). For how membership is decided in each mode, and why a single rule firing on many hosts stays one Auto group, see [How Alert Grouping Works](../how-alert-grouping-works/). However a group forms, it behaves the same everywhere else on this page. An Auto-correlated group additionally records [why its alerts were grouped](#why-these-were-grouped).
 
 ## Where to find groups
 
