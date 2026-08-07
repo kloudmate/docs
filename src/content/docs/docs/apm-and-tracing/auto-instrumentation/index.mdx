@@ -1,37 +1,73 @@
 ---
-title: "Auto Instrumentation"
-description: "Enable APM for your applications using zero-code or auto-instrumentation methods."
+title: "Auto-Instrumentation"
+description: "Get traces and RED metrics into KloudMate with no code changes: the KloudMate Agent instruments each service with eBPF or an OpenTelemetry SDK."
 sidebar:
-  label: "Overview"
-  order: 1
+  label: "Auto-Instrumentation"
+  order: 2
 ---
 
-Auto-instrumentation (or zero-code instrumentation) allows you to collect telemetry data from your applications without modifying their source code. KloudMate supports multiple pathways for instant observability, ranging from kernel-level eBPF to framework-specific OpenTelemetry agents.
+import { LinkCard, CardGrid } from '@astrojs/starlight/components';
 
-Choose the path that fits your environment:
+Auto-instrumentation gets traces and RED metrics into the views on this page without you touching your application code. The KloudMate Agent discovers each service and instruments it for you, so you turn tracing on per service instead of editing and redeploying every app.
 
-## Zero-Downtime eBPF (Recommended Foundation)
+You pick one of two modes for each service:
 
-If your applications run on Linux (VMs, bare metal, or Kubernetes), the preferred foundational layer for APM is eBPF. It requires no code changes and **no application restarts**, providing universal coverage across all languages.
+- **eBPF** captures Rate, Errors, and Duration (RED) metrics and trace spans from the Linux kernel. It works for any language, including Go, and needs **no restart**.
+- **SDK** attaches the matching OpenTelemetry (OTel) agent in-process for deeper distributed traces, with spans for your frameworks, database calls, and outbound requests. It needs a **one-time restart**, so you turn it on one service at a time.
 
-- [Zero-Downtime Observability (eBPF)](./ebpf/)
+The two share one trace. When a service runs on SDK, the agent stops eBPF from tracing that service's own requests, so you get the richer application spans while eBPF keeps tracing the services around it, all connected.
 
-## Kubernetes Workloads
+## eBPF or SDK
 
-If your applications run on Kubernetes, you can use the KloudMate Agent to deploy APM.
+eBPF gives broad, no-touch coverage at network and system boundaries. SDKs give deep, in-process detail. Most setups use both: eBPF everywhere, SDK on the services where you need application-level context.
 
-- [Kubernetes APM with KloudMate Agent](./kubernetes-apm/)
+| | eBPF | SDK auto-instrumentation |
+| :--- | :--- | :--- |
+| **Code changes** | None. | None — the agent attaches the OTel agent for you. |
+| **Application restarts** | None. | One restart per service, with your consent. |
+| **Language support** | Any language, including Go, Rust, and C++. | Java, Node.js, Python, .NET, and PHP. |
+| **Overhead** | Low; runs in kernel space. | Higher, with richer library instrumentation. |
+| **What you see** | RED metrics, the service map, and spans at request boundaries. | Deep spans: frameworks, database queries, and outbound calls. |
 
-## OpenTelemetry Auto-Instrumentation
+### What eBPF cannot do
 
-For richer framework-specific attributes, or environments where eBPF is not an option, KloudMate uses standard OpenTelemetry auto-instrumentation agents. This approach requires attaching an agent to your runtime and **restarting your application**.
+eBPF works at network boundaries and system calls, so it does not see inside your application:
 
-Select your language to get started:
+- **Business logic:** it cannot read custom values like `user_id` or `cart_value`, or trace a specific function path.
+- **In-process detail:** it does not produce internal function timing the way an SDK does.
 
-- [Java](./java/)
-- [Python](./python/)
-- [Node.js](./node-js/)
-- [.NET](./dotnet/)
-- [Go](./go/)
-- [PHP](./php/)
-- [Ruby](./ruby/)
+For those, add [manual instrumentation](../manual-instrumentation/) or move the service to SDK mode.
+
+## Set it up
+
+Auto-instrumentation runs through the KloudMate Agent. Install the agent, then instrument services from the **Application APM** experience:
+
+<CardGrid>
+  <LinkCard title="Application APM overview" href="../../kloudmate-agent/auto-instrumentation/overview/" description="Turn tracing on per service: Off, eBPF, or SDK, with restart consent and automatic rollback." />
+  <LinkCard title="Java" href="../../kloudmate-agent/auto-instrumentation/java/" description="systemd, runtime attach, Kubernetes, ECS, and Windows." />
+  <LinkCard title="Node.js" href="../../kloudmate-agent/auto-instrumentation/nodejs/" description="systemd, PM2, Kubernetes, ECS, and Windows." />
+  <LinkCard title="Python" href="../../kloudmate-agent/auto-instrumentation/python/" description="systemd, PM2, Kubernetes, ECS, and Windows." />
+  <LinkCard title=".NET" href="../../kloudmate-agent/auto-instrumentation/dotnet/" description="The CLR profiler on Windows and Linux, Kubernetes, and ECS." />
+  <LinkCard title="PHP" href="../../kloudmate-agent/auto-instrumentation/php/" description="PHP 7 and 8 on Linux and Docker; eBPF on Kubernetes." />
+  <LinkCard title="Go" href="../../kloudmate-agent/auto-instrumentation/go/" description="Covered by eBPF, no injection." />
+  <LinkCard title="Ruby" href="../../kloudmate-agent/auto-instrumentation/ruby/" description="eBPF out of the box, plus deep tracing with the OTel gems." />
+  <LinkCard title="eBPF observability" href="../../kloudmate-agent/ebpf-observability/" description="Enable and tune eBPF monitoring across your fleet." />
+  <LinkCard title="Sampling" href="../../kloudmate-agent/auto-instrumentation/sampling/" description="Balance trace fidelity against ingestion cost." />
+</CardGrid>
+
+## Without the agent
+
+If you run where you can't install a host agent — serverless, or a managed platform — instrument the app yourself and send the traces straight to KloudMate's cloud endpoint. Run your language's OpenTelemetry agent or SDK and point it at `otel.kloudmate.com` with your API key:
+
+```bash
+export OTEL_EXPORTER_OTLP_ENDPOINT="https://otel.kloudmate.com:4318"
+export OTEL_EXPORTER_OTLP_HEADERS="Authorization=YOUR_API_KEY"
+export OTEL_SERVICE_NAME="your-service-name"
+```
+
+Replace `YOUR_API_KEY` with your KloudMate API key. The step-by-step [OpenTelemetry guides](../../../guides/opentelemetry/java/) walk through this for each language, and [Manual Instrumentation](../manual-instrumentation/) covers doing it in code.
+
+## Related paths
+
+- [Manual Instrumentation](../manual-instrumentation/) for custom spans, business-logic attributes, and application metrics.
+- [APM Views](../apm-views/) and [Trace Explorer](../trace-explorer/) to see the data once it flows.

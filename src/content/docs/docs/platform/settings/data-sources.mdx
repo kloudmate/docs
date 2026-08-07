@@ -5,7 +5,8 @@ sidebar:
   label: "Data Sources"
   order: 5
 ---
-Use **Data Sources** to connect AWS accounts, review sync settings, and control which resources are imported into KloudMate.
+
+Use **Data Sources** to connect AWS accounts, review their sync settings, and check sync health across regions.
 
 ## Connect an AWS Account
 
@@ -15,59 +16,87 @@ To connect a new account, follow [AWS Account Setup](../../../aws-integration/ac
 
 ## Manage Connected Accounts
 
-Open **Settings -> Data Sources** to view all connected AWS accounts.
+Open **Settings → Data Sources** to view all connected AWS accounts.
+
+Each connected account appears as a card showing the AWS logo, a connection-status indicator, and the account ID with a copy button. An **Edit** action opens the connection, and a menu gives you **Sync settings** and **CloudWatch Logs**.
+
+The connection-status indicator also flags access problems. When the delegation role KloudMate uses is missing a required permission, the account shows a **Permission error** state with the reason. That means the whole account's access is failing, not a single region. Open the account's **Edit** screen to see the same error alongside the connection details. To fix it, update the delegation role's permissions, then let KloudMate re-check on the next sync. See [Troubleshoot AWS sync](../troubleshoot-aws-sync/).
 
 From this page, you can:
 
-- Add additional AWS accounts
-- Open account details
+- Add another AWS account
+- Open account details and edit the connection
 - Review or update sync settings
 - Access CloudWatch log subscription controls
 - Remove an AWS account
 
-![image](./images/data-sources-1.png)
+![Connected AWS accounts on the Data Sources page](./images/data-sources-1.png)
 
 Enter the AWS account name and follow the on-screen setup flow when adding a new account.
 
-![image](./images/data-sources-2.png)
+![Adding an AWS account](./images/data-sources-2.png)
 
-## Review Sync Settings
+## Sync Settings
 
-The data sources page shows every connected AWS account.
+Sync Settings control what KloudMate inventories for a connected account. Open an account's menu and choose **Sync settings**.
 
-![image](./images/data-sources-3.png)
+Two account-level controls decide what gets synced: **Primary regions** and an optional **tag allowlist**. The set of resource types KloudMate inventories is platform-managed and the same for every account. See [Covered services](#covered-services). The **Region sync status** section on the same page surfaces any regions that have stopped syncing and lets an admin turn them back on.
 
-Open the account details screen for the AWS account you want to manage.
+![The Sync Settings page, showing Region sync status, Primary regions, Tag Filtering, and Covered services](./images/data-sources-3.png)
 
-![image](./images/data-sources-4.png)
+### Primary regions
 
-Use the account settings view to control sync behavior and review CloudWatch log options.
+**Primary regions** are the regions where the account's main workloads run. KloudMate syncs primary regions most frequently, and other enabled regions refresh about once a day. Set them to keep your busiest regions the freshest.
 
-![image](./images/data-sources-5.png)
+Primary regions must be a subset of the regions enabled for sync, so the picker offers only regions that are currently syncing. Leave the field empty and KloudMate detects the primary regions for you, based on where the account's resources actually live.
 
-Enable or disable sync for individual services and regions based on what you want KloudMate to monitor.
+### Region sync status
 
-![image](./images/data-sources-6.png)
+KloudMate normally syncs every region that's enabled for an account. If a sync hits an AWS permission error in one region, KloudMate turns that region off so it stops retrying a region it can't read, and the rest of the account keeps syncing. The **Region sync status** section lists any regions that are currently turned off and not syncing.
 
-## Tag Filtering
+For each region, the panel shows why it stopped:
 
-Tag filtering lets you limit syncing to AWS resources that match specific tags.
+- If a permission error disabled it, the recorded reason appears, for example an `AccessDenied` message naming the missing permission.
+- If it was turned off some other way, it shows **Disabled. No recent error recorded.**
 
-1. Open the sync settings screen.
+A workspace admin can select **Re-enable** on a region. That turns the region back on, clears its stored error, and starts a sync right away, so its resources return without waiting for the next cycle. Non-admins see the status but can't re-enable.
+
+Most permission problems recover on their own once you fix the underlying access. To find the cause and confirm the fix, see [Troubleshoot AWS sync](../troubleshoot-aws-sync/).
+
+### Tag filtering
+
+The tag allowlist limits syncing to resources that carry a tag you list. Add one or more `name = value` tags and KloudMate syncs only resources matching at least one of them. Leave the list empty to sync everything.
+
+- Tags combine with **OR**: a resource matches if it carries any one of the listed tags.
+- Tag matching is **case-sensitive**, so `env = Prod` and `env = prod` are different.
+
+To set tags:
+
+1. Open the account's **Sync settings**.
 2. Click **Add Tags** under **Tag Filtering**.
-
-![image](./images/data-sources-7.png)
-
-3. Enter the tags you want to use.
+3. Enter the tags you want to match.
 4. Save the configuration.
 
-![image](./images/data-sources-8.png)
+![Tags entered under Tag Filtering, ready to save](./images/data-sources-8.png)
 
 If tags are already configured, use the edit action to update or remove them.
 
-![image](./images/data-sources-9.png)
+![Editing configured tags](./images/data-sources-9.png)
+
+### Covered services
+
+KloudMate inventories a fixed set of about 52 AWS resource types, the same for every account. Sync Settings shows them as a read-only **Covered services** list, grouped by AWS category (Compute, Storage, Database, Networking, and so on) with each service's icon.
+
+This list is platform-managed and applies to every connected account. There's no per-service on/off switch. You scope what's inventoried with regions and tags, not by toggling individual services.
+
+## Sync now
+
+To refresh an account without waiting for the scheduled cycle, use **Sync now**. It refreshes the cloud inventory and the per-region resource sync together, so one action brings everything for the account up to date.
+
+Reach for it after you re-enable a region or fix a permission problem and want the account's resources to reappear right away.
 
 ## Related Resources
 
 - [AWS Account Setup](../../../aws-integration/account-setup/)
+- [Troubleshoot AWS sync](../troubleshoot-aws-sync/)
 - [CloudWatch Logs](../../../aws-integration/cloudwatch-logs/)

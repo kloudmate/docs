@@ -8,34 +8,34 @@ sidebar:
 
 import { Steps } from '@astrojs/starlight/components';
 
-KloudMate attaches custom metadata to your alerts using **annotations** — key-value pairs that flow into notifications and incidents along with the alert itself.
+**Annotations** are key-value pairs you attach to an alert. They flow into notifications and incidents along with the alert itself.
 
 Annotation values support **Liquid templating**, so you can pull live data from the firing alert into the notification text. The reserved key `severity` drives how incident-management and routing tools prioritize the alert.
 
 ## Where to find annotations
 
-Annotations live in the **Responder context** section of the alert rule editor (inside the **Add alarm details** step). Five annotation keys are pre-defined and render as labelled form fields:
+Annotations live in the **Responder context** section of the alert rule editor (inside the **Add alarm details** step). The pre-defined annotation keys render as labeled form fields:
 
-- **Severity** — free-form severity string, e.g. `sev1`, `critical`, `p1`. Plain text or Liquid template.
-- **Summary** — multiline text, shown as the alert headline in notifications. Supports templates.
-- **Dashboard** — pick a workspace dashboard to link from the notification.
-- **Panel** — when a dashboard is picked, narrows the link to a specific panel.
-- **Playbook URL** — link to the runbook responders should follow. Supports templates.
+- **Severity:** free-form severity string, for example `sev1`, `critical`, or `p1`. Plain text or a Liquid template.
+- **Summary:** multiline text, shown as the alert headline in notifications. Supports templates.
+- **Dashboard:** pick a workspace dashboard to link from the notification.
+- **Panel:** when a dashboard is picked, narrows the link to a specific panel.
+- **Playbook URL:** link to the runbook responders should follow. Supports templates.
 
-Any other key is a **custom annotation**. Custom annotations live under a collapsible **Custom annotations** accordion below the fixed fields — click **Add Annotation** to create a new key-value row.
+Any other key is a **custom annotation**. Custom annotations live under a collapsible **Custom annotations** accordion below the fixed fields. Click **Add Annotation** to create a new key-value row.
 
 ## Add a custom annotation
 
 <Steps>
-1. **Open the rule editor.** Scroll to **Responder context** → expand the **Custom annotations** accordion.
+1. **Open the rule editor.** Scroll to **Responder context** and expand the **Custom annotations** accordion.
 
 2. **Click Add Annotation.** A new key-value row appears.
 
-3. **Provide a key.** Use any string — e.g. `service_owner`, `region`, `runbook_section`.
+3. **Provide a key.** Use any string, for example `service_owner`, `region`, or `runbook_section`.
 
 4. **Provide a value.** This can be static text (`payments-team`) or a Liquid template (`{{ labels.service }} is degraded`).
 
-5. **Save the rule.** Annotation values render at notification time, not at save time — see [Failure mode](#failure-mode) below.
+5. **Save the rule.** Annotation values render at notification time, not at save time. See [Failure mode](#failure-mode) below.
 </Steps>
 
 ## Using Liquid templates
@@ -66,12 +66,12 @@ You can interpolate live alert data into any annotation value with the `{{ }}` s
 
 ### Common references
 
-- `{{ labels.service }}` — the value of the `service` label on the firing instance.
-- `{{ state.value }}` — the evaluated number that crossed the threshold.
-- `{{ state.values.A }}`, `{{ state.values.B }}` — raw outputs of each query / expression node (by node ID).
-- `{{ state.current_state }}` — `Alerting`, `Normal`, etc.
-- `{{ state.resolved }}` — boolean; useful in `{% if state.resolved %}…{% endif %}` branches.
-- `{{ rule.name }}`, `{{ rule.id }}` — the alert rule's name and id. Prefer these over `labels.alarm_id` / `labels.alarm_name` — those internal keys are stripped before render.
+- `{{ labels.service }}`: the value of the `service` label on the firing instance.
+- `{{ state.value }}`: the evaluated number that crossed the threshold.
+- `{{ state.values.A }}`, `{{ state.values.B }}`: raw outputs of each query or expression node (by node ID).
+- `{{ state.current_state }}`: `Alerting`, `Normal`, and so on.
+- `{{ state.resolved }}`: boolean, useful in `{% if state.resolved %}…{% endif %}` branches.
+- `{{ rule.name }}`, `{{ rule.id }}`: the alert rule's name and id. Prefer these over `labels.alarm_id` / `labels.alarm_name`; those internal keys are stripped before render.
 
 ### Example: contextual summary
 
@@ -90,7 +90,7 @@ Every templated value field has a **Test template** icon to its right. Click it 
 - A **Sample context** panel lets you tweak the labels / state / rule JSON the template renders against.
 - Click **Test** to see the rendered output below. Parse errors surface inline so you can fix them before saving.
 
-The drawer is purely opt-in — KloudMate doesn't validate templates on save. If a template can't render at notification time, KloudMate falls back to the raw template string rather than dropping the notification.
+The drawer is opt-in; KloudMate doesn't validate templates on save. If a template can't render at notification time, KloudMate falls back to the raw template string rather than dropping the notification.
 
 ### Failure mode
 
@@ -122,15 +122,15 @@ At notification time, KloudMate evaluates the template against the firing alert'
 
 ## Severity vs. tags
 
-Earlier versions of KloudMate used **notification tags** on the rule as the routing key. Tags have been replaced by:
+Earlier versions of KloudMate routed by **notification tags** on the rule. Tags are gone now, replaced by:
 
-- **Labels** — auto-derived from query dimensions and folders. These are what [Routing Rules](../routing-rules/) match against.
-- **Annotations** — human-readable context that flows into the notification.
-- **Severity** — the reserved annotation key, free-form, optionally Liquid-templated.
+- **Labels:** auto-derived from query dimensions and folders. These are what [Routing Rules](../routing-rules/) match against.
+- **Annotations:** human-readable context that flows into the notification.
+- **Severity:** the reserved annotation key, free-form, optionally Liquid-templated.
 
-If you used to route by tag, switch to a routing rule that matches on the equivalent label (e.g. `service=checkout-api`).
+If you used to route by tag, switch to a routing rule that matches on the equivalent label (for example, `service=checkout-api`).
 
 ## Related
 
-- [Routing Rules](../routing-rules/) — how labels match alerts to channels.
-- [Creating Alerts](../create-alerts/) — where annotations live in the rule editor.
+- [Routing Rules](../routing-rules/): how labels match alerts to channels.
+- [Creating Alerts](../create-alerts/): where annotations live in the rule editor.

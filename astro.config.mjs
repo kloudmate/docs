@@ -74,6 +74,9 @@ export default defineConfig({
       customCss: ['./src/styles/brand.css'],
       components: {
         Header: './src/components/Header.astro',
+        // Wraps starlight-llm-actions' Page Actions dropdown in
+        // `data-pagefind-ignore` so its menu labels stay out of the search index.
+        PageTitle: './src/components/PageTitle.astro',
         Sidebar: './src/components/Sidebar.astro',
       },
       sidebar: [

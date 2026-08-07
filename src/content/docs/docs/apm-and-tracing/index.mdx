@@ -18,17 +18,15 @@ The `APM & Tracing` section in KloudMate gives you end-to-end visibility into ho
 
 Start in **APM Views** when you need higher-level service health and dependency analysis. Move to **Trace Explorer** to find the trace you care about, then open it in **Trace Detail** to find the root cause.
 
-## Instrumentation Paths
+## Get your data in
 
-KloudMate supports multiple ways to generate APM and tracing data:
+These views are built from traces and RED metrics. There are two ways to produce them:
 
-- [KloudMate Agent eBPF Observability](../kloudmate-agent/ebpf-observability/) for kernel-level tracing and RED metrics without code changes or restarts
-- [KloudMate Agent Application APM](../kloudmate-agent/auto-instrumentation/overview/) to add full distributed tracing to a service, one at a time, and view the results here
-- [Auto Instrumentation](./auto-instrumentation/) for the preferred Kubernetes APM flow through the KloudMate Agent
-- [Manual Instrumentation](./manual-instrumentation/) for SDK-based tracing, application metrics, and custom metrics with the most control.
+- **[Auto-Instrumentation](./auto-instrumentation/)** — the KloudMate Agent instruments each service for you with no code change, using eBPF (no restart, any language) or an OpenTelemetry SDK (deep traces, one restart per service). This is the fastest path to a populated service map. Set it up from the agent's [Application APM](../kloudmate-agent/auto-instrumentation/overview/) experience.
+- **[Manual Instrumentation](./manual-instrumentation/)** — use the OpenTelemetry SDK in your own code when you need custom spans, business-logic attributes, and application metrics.
 
 :::note
-Because Application Metrics and Custom Metrics are emitted through the exact same OpenTelemetry SDK flow as traces, they are configured together. See [Manual Instrumentation](./manual-instrumentation/) for language-specific guides.
+Application Metrics and Custom Metrics go through the same OpenTelemetry SDK flow as traces, so they are configured together. See [Manual Instrumentation](./manual-instrumentation/) for language-specific guides.
 :::
 
 ## Related Paths

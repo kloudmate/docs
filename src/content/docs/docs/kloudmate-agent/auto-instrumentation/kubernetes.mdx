@@ -1,16 +1,17 @@
 ---
-title: "Kubernetes"
-description: "How the KloudMate agent traces Kubernetes workloads one at a time — Off, eBPF, or SDK — with the OpenTelemetry Operator handling SDK injection."
+title: "Kubernetes setup"
+description: "How the KloudMate agent traces Kubernetes workloads: Off, eBPF, or SDK, with the OpenTelemetry Operator handling SDK injection."
 sidebar:
-  order: 3
+  label: "Kubernetes setup"
+  order: 10
 ---
 
 import { Tabs, TabItem, LinkCard, CardGrid } from '@astrojs/starlight/components';
 
-On Kubernetes, application performance monitoring (APM) works the same opt-in, per-workload way as on other platforms: for each workload you choose **Off**, **eBPF**, or **SDK**. eBPF tracing runs in the DaemonSet collector and needs no code change and no restart. SDK tracing uses the OpenTelemetry (OTel) Operator — the agent adds an annotation, the Operator injects the matching language agent, and that workload's pods restart with tracing on. Off is the default, so nothing is traced until you turn it on. For the shared flow, consent, and status behavior, see the [Application APM overview](../overview/).
+On Kubernetes, application performance monitoring (APM) works the same opt-in, per-workload way as on other platforms: for each workload you choose **Off**, **eBPF**, or **SDK**. eBPF tracing runs in the DaemonSet collector and needs no code change and no restart. SDK tracing uses the OpenTelemetry (OTel) Operator: the agent adds an annotation, the Operator injects the matching language agent, and that workload's pods restart with tracing on. Off is the default, so nothing is traced until you turn it on. For the shared flow, consent, and status behavior, see the [Application APM overview](../overview/).
 
 :::note[Which modes a workload offers]
-Workloads with a supported SDK language — Java, Node.js, Python, or .NET — offer all three modes. Go, Ruby, and unrecognized runtimes such as Hasura have no SDK injector, so they offer **Off** or **eBPF** only. eBPF traces those at the kernel level with no injector and no restart, which is the only way to get traces from a workload no language agent can attach to.
+Workloads with a supported SDK language (Java, Node.js, Python, or .NET) offer all three modes. Go, Ruby, PHP, and unrecognized runtimes such as Hasura have no SDK injector, so they offer **Off** or **eBPF** only. eBPF traces those at the kernel level with no injector and no restart, which is the only way to get traces from a workload no language agent can attach to.
 :::
 
 ## Prerequisites
@@ -19,7 +20,7 @@ Auto-instrumentation on Kubernetes uses the OpenTelemetry Operator, which the Kl
 
 ## Enable APM
 
-There are two ways to instrument workloads.
+Instrument workloads from the dashboard, or add the annotation yourself.
 
 ### From the dashboard
 
@@ -29,7 +30,7 @@ After the agent is installed, open the cluster's APM configuration. The agent li
 
 ### With deployment annotations
 
-If a workload isn't detected automatically, you can turn on **SDK** tracing by hand: add the OpenTelemetry Operator annotation for its language and restart the workload. This is the same annotation the SDK control applies. eBPF tracing has no annotation — the DaemonSet drives it, so you select it from the dashboard.
+If a workload isn't detected automatically, you can turn on **SDK** tracing by hand: add the OpenTelemetry Operator annotation for its language and restart the workload. This is the same annotation the SDK control applies. eBPF tracing has no annotation; the DaemonSet drives it, so you select it from the dashboard.
 
 <Tabs>
 <TabItem label="Java">
@@ -66,14 +67,14 @@ After adding the annotation, restart the deployment so the Operator injects the 
 
 ## How each mode applies
 
-The opt-in flow is the same as on [Linux](../linux-systemd/): discover a workload, pick Off, eBPF, or SDK, and let traces flow. What differs is how Kubernetes applies each mode:
+The opt-in flow is the same as on any platform: discover a workload, pick Off, eBPF, or SDK, and let traces flow. What differs is how Kubernetes applies each mode:
 
 - **eBPF** changes take effect on the next agent check-in with **no pod restart**. The DaemonSet reloads its configuration in place and starts tracing the workloads you selected, so switching a workload on or off doesn't roll any pods.
 - **SDK** changes go through the OTel Operator's annotation, so **only that workload's pods** roll to pick up the injected agent. Linux, by contrast, applies SDK through systemd config files and a service restart.
 
 ## Monitored namespaces
 
-APM discovery applies to the namespaces you monitor, which you set at install time with `monitoredNamespaces`. Leave it empty to discover workloads in every namespace except the system ones: `kube-system`, `kube-public`, `kube-node-lease`, `cert-manager`, and anything starting with `kube-` are excluded by default. To also skip your own cluster-infrastructure namespaces — ingress controllers, `vpa`, `external-secrets`, and the like — list them in the `excludedNamespaces` Helm value. See the [Kubernetes installation guide](../../installation/kubernetes-agent/).
+APM discovery applies to the namespaces you monitor, which you set at install time with `monitoredNamespaces`. Leave it empty to discover workloads in every namespace except the system ones: `kube-system`, `kube-public`, `kube-node-lease`, `cert-manager`, and anything starting with `kube-` are excluded by default. To also skip your own cluster-infrastructure namespaces (ingress controllers, `vpa`, `external-secrets`, and the like), list them in the `excludedNamespaces` Helm value. See the [Kubernetes installation guide](../../installation/kubernetes-agent/).
 
 ## Next steps
 

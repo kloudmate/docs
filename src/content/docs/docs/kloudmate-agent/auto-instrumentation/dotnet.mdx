@@ -1,0 +1,86 @@
+---
+title: ".NET"
+description: "How the KloudMate agent traces .NET with the OpenTelemetry CLR profiler on Windows (IIS and services) and Linux, plus Kubernetes, Amazon ECS, and Docker."
+sidebar:
+  order: 5
+---
+
+import { Tabs, TabItem, LinkCard, CardGrid } from '@astrojs/starlight/components';
+
+The agent traces your .NET applications with the OpenTelemetry .NET auto-instrumentation, a Common Language Runtime (CLR) profiler, with no code change. Windows is the most common home for .NET, so it's covered first, then Linux, Kubernetes, Amazon ECS, and Docker. For the shared opt-in flow, restart consent, and automatic rollback, see the [Application APM overview](../overview/).
+
+The profiler ships inside the KloudMate agent package and upgrades with it. When you instrument a .NET service, the agent stops eBPF monitoring from tracing that service's own requests, so you get the richer profiler spans without duplicates, on one connected trace.
+
+## On Windows
+
+For .NET on Windows, the agent sets the profiler environment (`CORECLR_ENABLE_PROFILING=1` for .NET Core and modern .NET, `COR_ENABLE_PROFILING=1` for .NET Framework, plus the profiler identifier and path), then recycles the workload. It writes these entries straight to the Windows registry or to the IIS `applicationHost.config`, so it doesn't rely on PowerShell or an administrator running commands by hand.
+
+### Supported runtimes
+
+Coverage depends on the **installed CLR runtime**, not the framework your application targets. So an application built for .NET 4.0 or 4.5 is instrumented as long as it runs on a supported runtime:
+
+| Installed runtime | Result |
+|---|---|
+| .NET Framework 4.6.2 and newer (CLR 4.x) | Full application traces through the CLR profiler |
+| .NET Core and modern .NET | Full application traces through the CLR profiler |
+| .NET Framework 3.5 (CLR 2.0) | No profiler; covered by ETW monitoring |
+
+A .NET Framework 3.5 (CLR 2.0) pool has no profiler, but ETW still gives it server spans and RED metrics. See [Windows platform notes](../../platform-notes/windows/).
+
+### IIS and Windows services
+
+<Tabs>
+<TabItem label="IIS 10 and newer">
+
+Instrumentation is **per application pool**. The agent writes the profiler environment into that pool's `<environmentVariables>` in `applicationHost.config`, then recycles the pool. Other pools are unaffected.
+
+</TabItem>
+<TabItem label="IIS 8.5">
+
+IIS 8.5 has no per-pool environment, so the agent writes to the global registry. The change is host-wide and affects all application pools rather than a single one.
+
+</TabItem>
+<TabItem label="Windows service">
+
+For a .NET Windows service, the agent writes the profiler environment to the service's registry environment at `HKLM\SYSTEM\CurrentControlSet\Services\<service>\Environment`, then restarts the service.
+
+</TabItem>
+</Tabs>
+
+:::caution
+An ASP.NET Core application pool must be set to "No Managed Code" for the profiler to attach, and applying instrumentation requires an IIS recycle.
+:::
+
+## On Linux
+
+On Linux, the agent instruments .NET through the same CLR profiler, loaded through the `CORECLR_*` and `DOTNET_STARTUP_HOOKS` variables in a systemd startup config, then restarts the service. This is less common than .NET on Windows. .NET under PM2 isn't handled automatically; run a .NET service under systemd to instrument it.
+
+## On Kubernetes
+
+Choose **SDK** for the workload and the agent adds the OpenTelemetry Operator annotation `instrumentation.opentelemetry.io/inject-dotnet`. The Operator injects the profiler, and that workload's pods roll to pick it up.
+
+If a workload isn't detected automatically, add the annotation yourself, then restart the deployment:
+
+```bash
+kubectl patch deployment <name> -n <ns> -p '{"spec":{"template":{"metadata":{"annotations":{"instrumentation.opentelemetry.io/inject-dotnet":"km-agent/km-agent-instrumentation-crd"}}}}}'
+```
+
+See [Kubernetes setup](../kubernetes/) and the [Kubernetes installation guide](../../installation/kubernetes-agent/).
+
+## On Amazon ECS
+
+On Amazon ECS, the agent injects the .NET instrumentation into the services you name, on both the EC2 and Fargate launch types, by rewriting the task definition. List your .NET services in `KM_ECS_SERVICES` when you install. The bundled .NET instrumentation is glibc-only, so use a glibc-based image; on Alpine or other musl-based images it won't load. See the [Amazon ECS install guide](../../installation/ecs-agent/).
+
+## On Docker
+
+When the agent runs in Docker mode, eBPF traces your .NET containers per service through the **Off / eBPF** toggle in Discovered Services, with no code change and no restart.
+
+The agent can't inject the in-process SDK into a running container, so SDK mode isn't offered for containers. For full SDK depth, add OpenTelemetry to your image yourself and point it at the KloudMate agent's OTLP endpoint. See [Docker platform notes](../../platform-notes/docker/) for the endpoint addresses. On Windows, systemd, Kubernetes, or Amazon ECS, the agent injects the profiler for you instead.
+
+## Next steps
+
+<CardGrid>
+  <LinkCard title="Windows platform notes" href="../../platform-notes/windows/" description="ETW, IIS application pools, and discovery on Windows." />
+  <LinkCard title="Sampling" href="../sampling/" description="Set the trace sampling rate." />
+  <LinkCard title="View traces" href="../../../apm-and-tracing/" description="See the distributed traces in KloudMate." />
+</CardGrid>

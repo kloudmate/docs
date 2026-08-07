@@ -1,0 +1,66 @@
+---
+title: "Python"
+description: "How the KloudMate agent traces Python services with OpenTelemetry on systemd, under PM2, on Kubernetes, on Amazon ECS, and on Windows, including the supported versions."
+sidebar:
+  order: 4
+---
+
+import { LinkCard, CardGrid } from '@astrojs/starlight/components';
+
+The agent traces your Python services with OpenTelemetry auto-instrumentation, loaded at startup with no code change. How it attaches depends on where the service runs, so each environment is covered below. For the shared opt-in flow, restart consent, and automatic rollback, see the [Application APM overview](../overview/).
+
+The instrumentation ships inside the KloudMate agent package and upgrades with it. When you instrument a Python service, the agent stops eBPF monitoring from tracing that service's own requests, so you get the richer application spans without duplicates, on one connected trace.
+
+## On Linux
+
+### systemd services
+
+When you turn on SDK tracing for a systemd service, the agent writes a startup config that loads the instrumentation through `PYTHONPATH`, then restarts the service after you confirm. It sets a fixed `service.name`, the sampling rate, and where to send traces up front. Turning tracing off removes the config and restarts the service. Running the same action twice changes nothing.
+
+### PM2 apps
+
+For a Python app under PM2, the agent restarts it with tracing switched on (`pm2 restart <app> --update-env`). Each app keeps its PM2 process name as its `service.name`. The agent covers PM2 for every user on the host, not just root. If an app doesn't come back up after the change, the agent undoes it and restarts the app.
+
+### Standalone processes
+
+The agent can instrument a Python process only when it runs under systemd or PM2. A process started on its own can't be instrumented automatically. Run it under systemd or PM2 first; the Discovered Services list flags these and tells you so.
+
+## On Kubernetes
+
+Choose **SDK** for the workload and the agent adds the OpenTelemetry Operator annotation `instrumentation.opentelemetry.io/inject-python`. The Operator injects the instrumentation, and that workload's pods roll to pick it up.
+
+If a workload isn't detected automatically, add the annotation yourself, then restart the deployment:
+
+```bash
+kubectl patch deployment <name> -n <ns> -p '{"spec":{"template":{"metadata":{"annotations":{"instrumentation.opentelemetry.io/inject-python":"km-agent/km-agent-instrumentation-crd"}}}}}'
+```
+
+The Operator and its Cert Manager prerequisite are installed with the agent. See [Kubernetes setup](../kubernetes/) and the [Kubernetes installation guide](../../installation/kubernetes-agent/).
+
+## On Amazon ECS
+
+On Amazon ECS, the agent injects the Python instrumentation into the services you name, on both the EC2 and Fargate launch types. It rewrites the task definition and sends traces to the collector: the per-instance daemon on EC2, or a sidecar on Fargate. List your Python services in `KM_ECS_SERVICES` when you install. See the [Amazon ECS install guide](../../installation/ecs-agent/).
+
+## On Docker
+
+When the agent runs in Docker mode, eBPF traces your Python containers per service through the **Off / eBPF** toggle in Discovered Services, with no code change and no restart.
+
+The agent can't inject the in-process SDK into a running container, so SDK mode isn't offered for containers. For full SDK depth, add OpenTelemetry to your image yourself and point it at the KloudMate agent's OTLP endpoint. See [Docker platform notes](../../platform-notes/docker/) for the endpoint addresses. On systemd, Kubernetes, or Amazon ECS, the agent injects the instrumentation for you instead.
+
+## On Windows
+
+The agent injects the instrumentation through the per-service registry environment at `HKLM\SYSTEM\CurrentControlSet\Services\<service>\Environment`. It sets `PYTHONPATH`, then restarts the service. For how Windows discovers services and traces IIS, see [Windows platform notes](../../platform-notes/windows/).
+
+## Versions and limitations
+
+- **SDK injection covers Python 3.10 through 3.13.** Other versions, such as 3.14, are covered by [eBPF monitoring](../../ebpf-observability/) instead.
+- **The bundled instrumentation is glibc-only.** On Alpine or other musl-based images it won't load; use a glibc-based image.
+- **Standalone Python needs systemd or PM2.** Without one of them, there's no automatic way to instrument the app.
+
+## Next steps
+
+<CardGrid>
+  <LinkCard title="Sampling" href="../sampling/" description="Set the trace sampling rate for Python services." />
+  <LinkCard title="Application APM overview" href="../overview/" description="The per-service opt-in flow, consent, and rollback." />
+  <LinkCard title="View traces" href="../../../apm-and-tracing/" description="See the distributed traces in KloudMate." />
+</CardGrid>

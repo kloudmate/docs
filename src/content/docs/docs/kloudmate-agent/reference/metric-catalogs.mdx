@@ -37,13 +37,9 @@ The agent reports these `kmagent.*` metrics about itself, separately from the co
 |---|---|
 | `kmagent.up` | Heartbeat |
 | `kmagent.uptime` | Process uptime |
-| `kmagent.goroutines` | Internal thread count |
 | `kmagent.memory.rss` | Process memory |
 | `kmagent.cpu.utilization` | Process CPU |
 | `kmagent.collector.up` | Collector liveness, with `state` and `reason` |
-| `kmagent.collector.restarts` | Collector restart count |
-| `kmagent.config.apply.success` | Last configuration apply succeeded |
-| `kmagent.config.apply.errors` | Cumulative configuration-apply failures |
 
 See [Agent health metrics](../../self-observability/health-metrics/) for how to use them. When collector self-telemetry is enabled, the agent also produces the standard `otelcol_*` metrics. See [Collector self-telemetry](../../self-observability/self-telemetry/).
 
