@@ -1,0 +1,74 @@
+---
+title: "Java"
+description: "How the KloudMate agent traces Java services with the OpenTelemetry Java agent on systemd, under PM2, on Kubernetes, and on Windows, with no code change."
+sidebar:
+  order: 2
+---
+
+import { LinkCard, CardGrid } from '@astrojs/starlight/components';
+
+The agent traces your Java services with the OpenTelemetry Java agent, without a code change. How it attaches depends on where the service runs, so each environment is covered below. For the shared opt-in flow, restart consent, and automatic rollback, see the [Application APM overview](../overview/).
+
+The Java agent ships inside the KloudMate agent package and upgrades with it, so there's no separate download to manage. When you instrument a Java service, the agent stops eBPF monitoring from tracing that service's own requests, so you get the richer Java-agent spans without duplicates, on one connected trace.
+
+## On Linux
+
+### systemd services
+
+This is the main method on Linux. When you turn on SDK tracing for a systemd service, the agent writes a small startup config that loads the Java agent through `JAVA_TOOL_OPTIONS`, then restarts the service after you confirm. Because the service restarts, the agent sets everything up front: a fixed `service.name` (the name shown in Discovered Services), the sampling rate, and where to send traces.
+
+Turning tracing off removes the config and restarts the service, leaving it as it was. Running the same action twice changes nothing, so it's safe to repeat.
+
+### PM2 and standalone processes (runtime attach)
+
+A Java process that isn't a systemd service can still be traced, whether it runs as a plain `java -jar` process, under PM2, or from a script. The agent attaches the Java agent to the already-running process, with no restart. This is tested against common frameworks, including Spring Boot and Tomcat.
+
+The agent sets `service.name` automatically, trying these in order:
+
+1. The jar name for a `java -jar app.jar` launch, so `app.jar` reports as `app`.
+2. `spring.application.name`, when the app sets it.
+3. Otherwise `unknown_service:java`.
+
+Attaching to a running process has these consequences:
+
+- **You can't force a specific `service.name`.** For a fixed name, set `spring.application.name` in the app, or run it as a systemd service.
+- **It can't be undone while the app runs.** Once attached, the agent stays until the process restarts. Turning tracing off doesn't remove it from a running process; that takes effect on the next restart.
+
+## On Kubernetes
+
+Choose **SDK** for the workload and the agent adds the OpenTelemetry Operator annotation `instrumentation.opentelemetry.io/inject-java`. The Operator injects the Java agent, and that workload's pods roll to pick it up.
+
+If a workload isn't detected automatically, add the annotation yourself, then restart the deployment so the Operator injects the agent into new pods:
+
+```bash
+kubectl patch deployment <name> -n <ns> -p '{"spec":{"template":{"metadata":{"annotations":{"instrumentation.opentelemetry.io/inject-java":"km-agent/km-agent-instrumentation-crd"}}}}}'
+```
+
+The Operator and its Cert Manager prerequisite are installed with the agent. For that shared setup, see [Kubernetes setup](../kubernetes/) and the [Kubernetes installation guide](../../installation/kubernetes-agent/).
+
+## On Amazon ECS
+
+On Amazon ECS, the agent injects the OpenTelemetry Java agent into the services you name, on both the EC2 and Fargate launch types. It rewrites the task definition to load the Java agent and send traces to the collector: the per-instance daemon on EC2, or a sidecar on Fargate. List your Java services in `KM_ECS_SERVICES` when you install. See the [Amazon ECS install guide](../../installation/ecs-agent/).
+
+## On Docker
+
+When the agent runs in Docker mode, eBPF traces your Java containers per service through the **Off / eBPF** toggle in Discovered Services, with no code change and no restart.
+
+The agent can't inject the in-process SDK into a running container, so SDK mode isn't offered for containers. For full SDK depth, add the OpenTelemetry Java agent to your image yourself and point it at the KloudMate agent's OTLP endpoint. See [Docker platform notes](../../platform-notes/docker/) for the endpoint addresses. On systemd, Kubernetes, or Amazon ECS, the agent injects the Java agent for you instead.
+
+## On Windows
+
+The agent injects the Java agent through the per-service registry environment at `HKLM\SYSTEM\CurrentControlSet\Services\<service>\Environment`, the Windows equivalent of a systemd startup config. It sets `JAVA_TOOL_OPTIONS`, then restarts the service. This is the same Java agent used on Linux. For how Windows discovers services and traces IIS, see [Windows platform notes](../../platform-notes/windows/).
+
+## Versions and limitations
+
+- **JDK 21 and newer print a dynamic-agent warning.** Runtime attach triggers the JVM warning `A future release of the JVM may disallow dynamic loading of agents by default` ([JEP 451](https://openjdk.org/jeps/451)). It's harmless today. A future JVM may need you to start the app with `-XX:+EnableDynamicAgentLoading` for runtime attach to keep working. This applies only to runtime attach (PM2 and standalone), not to systemd, Kubernetes, or Windows, where the agent loads at startup.
+- **Runtime attach doesn't cover the JDK's built-in `com.sun.net.httpserver`.** That server sets up its handler before the agent attaches, and it can't be changed afterward. Spring Boot, Tomcat, and other common frameworks are fully covered; only apps that serve directly from the JDK's built-in server are affected.
+
+## Next steps
+
+<CardGrid>
+  <LinkCard title="Sampling" href="../sampling/" description="Set the trace sampling rate for Java services." />
+  <LinkCard title="Application APM overview" href="../overview/" description="The per-service opt-in flow, consent, and rollback." />
+  <LinkCard title="View traces" href="../../../apm-and-tracing/" description="See the distributed traces in KloudMate." />
+</CardGrid>

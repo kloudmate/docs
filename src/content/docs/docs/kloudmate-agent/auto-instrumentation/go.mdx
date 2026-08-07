@@ -1,13 +1,13 @@
 ---
-title: "Go (eBPF)"
-description: "Why the KloudMate agent covers Go services through eBPF uprobes instead of code injection, and how Go traces connect to instrumented neighbors."
+title: "Go"
+description: "Why the KloudMate agent covers Go services through eBPF instead of code injection, and how Go traces connect to instrumented neighbors."
 sidebar:
-  order: 6
+  order: 7
 ---
 
 import { LinkCard, CardGrid } from '@astrojs/starlight/components';
 
-Go is the one runtime the agent does not inject. It compiles to a static binary with no runtime to attach an agent to. So instead of code injection, the agent covers Go services through extended Berkeley Packet Filter (eBPF) monitoring. There is no **Instrument** toggle to turn on for a Go service. It is covered automatically wherever eBPF monitoring is active: on **Linux, Kubernetes, and Docker**, but not on **Windows**, which has no eBPF.
+Go is the one runtime the agent doesn't inject. It compiles to a static binary with no runtime to attach an agent to, so instead of code injection, the agent covers Go services through eBPF monitoring. There's no **SDK** option for a Go service. It's covered by **eBPF** wherever eBPF monitoring runs: on **Linux, Kubernetes, and Docker**, and on **Amazon ECS EC2**. Go isn't traced on **Windows** or on **ECS Fargate**, neither of which runs eBPF, though the service still gets logs and metrics there.
 
 ## Rich eBPF coverage for Go
 
@@ -27,7 +27,7 @@ The result is close to what a language SDK would produce, without changing your 
 eBPF monitoring and the language agents both propagate W3C trace context (`traceparent`). So when an instrumented service calls a Go service, the Go service's eBPF span joins the caller's trace. You see one connected trace with the correct parent-child links, not two separate views.
 
 :::note
-In the Discovered Services list, a Go service is marked as covered by eBPF rather than as one you can instrument, and its Instrument toggle is disabled. This is expected: eBPF monitoring is already tracing it.
+In the Discovered Services list, a Go service offers **Off** and **eBPF** but not **SDK**. eBPF is already tracing it at the kernel level, so there's no in-process agent to add.
 :::
 
 ## Next steps

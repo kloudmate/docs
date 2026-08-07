@@ -1,0 +1,54 @@
+---
+title: "Ruby"
+description: "How the KloudMate agent covers Ruby with eBPF out of the box, and how to add deep OpenTelemetry tracing with the Ruby gems."
+sidebar:
+  order: 8
+---
+
+import { LinkCard, CardGrid } from '@astrojs/starlight/components';
+
+A Ruby service gets eBPF monitoring out of the box with no code change, and deeper OpenTelemetry tracing once you add the Ruby gems to the app. The agent can't inject a Ruby SDK from outside, because Ruby only loads gems listed in the app's `Gemfile`. For the shared opt-in flow, see the [Application APM overview](../overview/).
+
+## eBPF monitoring, no code change
+
+[eBPF monitoring](../../ebpf-observability/) gives a Ruby service HTTP server traces, RED metrics (request rate, errors, and duration), and the service map from the kernel, with no gem and on any Ruby version. This is the same coverage Go gets, and it works on Linux, Kubernetes, and Docker. On Kubernetes it's the only trace path for Ruby, since there's no OpenTelemetry Operator injector for it.
+
+## Deep Ruby tracing with the OpenTelemetry gems
+
+For database queries, view rendering, background jobs, and outbound HTTP calls, add the OpenTelemetry Ruby gems to the app's `Gemfile`. With them, `use_all` traces the whole request path.
+
+```ruby
+# Gemfile
+gem 'opentelemetry-sdk'
+gem 'opentelemetry-instrumentation-all'
+gem 'opentelemetry-exporter-otlp'
+```
+
+```ruby
+# config/initializers/opentelemetry.rb
+require 'opentelemetry/sdk'
+require 'opentelemetry/instrumentation/all'
+require 'opentelemetry/exporter/otlp'
+OpenTelemetry::SDK.configure { |c| c.use_all }
+```
+
+Set the service name and where to send traces through the app's environment:
+
+```text
+OTEL_SERVICE_NAME=my-rails-app
+OTEL_EXPORTER_OTLP_ENDPOINT=http://localhost:4318
+```
+
+The SQL query text on a database span comes from the driver instrumentation (`pg`, `mysql2`), not from ActiveRecord. A database with no OpenTelemetry driver, such as SQLite, shows the model operation (`User#save`) but no SQL. For the full breakdown of what these gems capture, see [Ruby manual instrumentation](../../../apm-and-tracing/manual-instrumentation/ruby/).
+
+## Versions
+
+The current OpenTelemetry Ruby gems need **Ruby 3.3 or newer**. On Ruby 3.0 to 3.2 you have to pin older gem versions, and on Ruby 2.x they won't install at all. On those versions, use eBPF monitoring, which doesn't depend on the Ruby version.
+
+## Next steps
+
+<CardGrid>
+  <LinkCard title="eBPF observability" href="../../ebpf-observability/" description="The kernel-level monitoring that covers Ruby." />
+  <LinkCard title="Ruby manual instrumentation" href="../../../apm-and-tracing/manual-instrumentation/ruby/" description="What the OpenTelemetry Ruby gems capture." />
+  <LinkCard title="Application APM overview" href="../overview/" description="How opt-in tracing works." />
+</CardGrid>

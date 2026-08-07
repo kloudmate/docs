@@ -1,30 +1,36 @@
 ---
 title: "PHP"
-description: "How the KloudMate agent adds route-level tracing to PHP 7 and 8 applications on Linux and Docker."
+description: "How the KloudMate agent adds route-level tracing to PHP 7 and 8 on Linux and Docker, and how PHP is covered on Kubernetes."
 sidebar:
-  order: 5
+  order: 6
 ---
 
 import { LinkCard, CardGrid } from '@astrojs/starlight/components';
 
-The agent traces PHP **7.0 through 8.x** applications on **Linux** (host PHP-FPM) and **Docker**. It does **not** apply on **Windows**.
-
-## How it works
-
-When you instrument a PHP service, the agent attaches tracing to it automatically, with **no application code changes**. It reloads the PHP process manager gracefully, so requests keep being served. If tracing fails to load, it rolls back. If a PHP build is not supported, the agent skips it and tells you why.
+The agent traces PHP **7.0 through 8.x** applications with no code change, by attaching tracing to the PHP runtime and reloading it gracefully. PHP works on **Linux** and **Docker**. On **Kubernetes** it's covered by eBPF, and it isn't traced on **Windows**. For the shared opt-in flow, see the [Application APM overview](../overview/).
 
 ## What you get
 
-The agent produces route-level server spans, database spans (for example, PDO calls), and error spans. It propagates W3C trace context (`traceparent`), so a PHP span shares its trace identifier with eBPF monitoring and with any upstream or downstream service.
+The agent produces route-level server spans, database spans (for example, PDO calls), and error spans. It propagates W3C trace context (`traceparent`), so a PHP span shares its trace with eBPF monitoring and with any upstream or downstream service.
 
-## PHP in containers
+## On Linux
 
-In Docker, the agent instruments PHP containers without a redeploy, and matches the container's PHP build automatically. The instrumented application sends its traces to the agent through the container's host gateway. See [Docker platform notes](../../platform-notes/docker/) for the container details.
+When you instrument a PHP service, the agent adds a config file for the target's PHP build, then reloads the process manager gracefully (a php-fpm or Apache reload) so no requests are dropped. It uses the native OpenTelemetry extension on **PHP 8**, and falls back to a tracer that also covers **PHP 7**. If a PHP build isn't supported, the agent skips it and tells you why. If tracing fails to load, it rolls back.
+
+## On Docker
+
+In Docker mode, the agent instruments PHP containers automatically, in place, and matches the container's PHP build. It reloads the SAPI (Apache graceful or php-fpm) with no redeploy, so this is separate from the **Off / eBPF** toggle. Narrow or turn it off with the `KM_CONTAINER_INSTRUMENT_*` environment variables. The instrumented application sends traces to the agent through the container's host gateway.
+
+The built-in PHP server (`php -S`) and Alpine (musl) images aren't supported: the built-in server has no graceful reload, and the bundled tracer assets target glibc. For the details, including the PHP 7 build-time recipe, see [Docker platform notes](../../platform-notes/docker/).
+
+## On Kubernetes
+
+On Kubernetes, PHP is covered by [eBPF monitoring](../../ebpf-observability/), not SDK injection, because there's no OpenTelemetry Operator injector for PHP. Select **eBPF** for the workload to get HTTP server traces, RED metrics, and the service map from the kernel, with no code change.
 
 ## Next steps
 
 <CardGrid>
-  <LinkCard title="Application APM overview" href="../overview/" description="The per-service opt-in flow, consent, and rollback." />
+  <LinkCard title="Docker platform notes" href="../../platform-notes/docker/" description="PHP containers, supported servers, and the PHP 7 recipe." />
   <LinkCard title="Sampling" href="../sampling/" description="Set the trace sampling rate." />
   <LinkCard title="View traces" href="../../../apm-and-tracing/" description="See the distributed traces in KloudMate." />
 </CardGrid>

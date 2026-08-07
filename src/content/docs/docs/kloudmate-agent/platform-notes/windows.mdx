@@ -7,7 +7,7 @@ sidebar:
 
 import { LinkCard, CardGrid } from '@astrojs/starlight/components';
 
-How the agent runs on Windows. For installation, see the [Windows installation guide](../../installation/windows-agent/). For how .NET and other runtimes are instrumented, see [Windows and .NET application APM](../../auto-instrumentation/windows-dotnet/).
+How the agent runs on Windows. For installation, see the [Windows installation guide](../../installation/windows-agent/). For how each runtime is instrumented, see the [Application APM](../../auto-instrumentation/overview/) language pages, starting with [.NET](../../auto-instrumentation/dotnet/).
 
 ## A different mechanism, the same model
 
@@ -25,14 +25,14 @@ Discovered services appear with a kind of `iis` or `windows_service`. See [Disco
 
 ## ETW monitoring
 
-Because Windows has no eBPF, the agent gives you equivalent zero-code monitoring through a custom Event Tracing for Windows (ETW) receiver. The receiver taps the HTTP.sys provider to emit server spans (at the request-path level) and Rate, Errors, and Duration (RED) metrics for all IIS traffic, with no injection. This covers workloads that cannot use the .NET profiler, including legacy .NET Framework 3.5 pools and non-.NET applications on IIS. The receiver reads events only and makes no changes to your applications. See [Windows and .NET application APM](../../auto-instrumentation/windows-dotnet/) for how ETW monitoring and the CLR profiler work together.
+Because Windows has no eBPF, the agent gives you equivalent zero-code monitoring through a custom Event Tracing for Windows (ETW) receiver. The receiver taps the HTTP.sys provider to emit server spans (at the request-path level) and Rate, Errors, and Duration (RED) metrics for all IIS traffic, with no injection. This covers workloads that cannot use the .NET profiler, including legacy .NET Framework 3.5 pools and non-.NET applications on IIS. The receiver reads events only and makes no changes to your applications. See [.NET](../../auto-instrumentation/dotnet/) for how the CLR profiler and ETW monitoring work together.
 
 ## Injection mechanisms
 
 - **.NET** is instrumented with the Common Language Runtime (CLR) profiler. The agent writes the profiler's environment directly to the registry or to the IIS `applicationHost.config`. On IIS 10 and newer, it can do this per application pool.
 - **Java, Node.js, and Python** are instrumented through the per-service registry environment.
 
-See [Windows and .NET application APM](../../auto-instrumentation/windows-dotnet/) for the details.
+See the [Application APM](../../auto-instrumentation/overview/) language pages for the details.
 
 ## Privileges
 
@@ -50,6 +50,6 @@ Alongside application instrumentation, the agent automatically collects Windows 
 
 <CardGrid>
   <LinkCard title="Install on Windows" href="../../installation/windows-agent/" description="MSI installation and setup." />
-  <LinkCard title="Windows and .NET APM" href="../../auto-instrumentation/windows-dotnet/" description="Instrument .NET and other runtimes." />
+  <LinkCard title=".NET application APM" href="../../auto-instrumentation/dotnet/" description="Instrument .NET on IIS and Windows services." />
   <LinkCard title="Host metrics and logs" href="../../baseline/host-metrics-and-logs/" description="Metrics and logs collected automatically on Windows." />
 </CardGrid>

@@ -43,13 +43,14 @@ For those, add [manual instrumentation](../manual-instrumentation/) or move the 
 Auto-instrumentation runs through the KloudMate Agent. Install the agent, then instrument services from the **Application APM** experience:
 
 <CardGrid>
-  <LinkCard title="Application APM overview" href="../../kloudmate-agent/auto-instrumentation/overview/" description="Turn tracing on per service — Off, eBPF, or SDK — with restart consent and automatic rollback." />
-  <LinkCard title="Languages & process managers" href="../../kloudmate-agent/auto-instrumentation/language-support/" description="The support matrix across systemd, PM2, and bare processes, and the limitations." />
-  <LinkCard title="Linux (systemd)" href="../../kloudmate-agent/auto-instrumentation/linux-systemd/" description="Instrument Java, Node.js, Python, and .NET on systemd hosts." />
-  <LinkCard title="Kubernetes" href="../../kloudmate-agent/auto-instrumentation/kubernetes/" description="Instrument workloads with the OpenTelemetry Operator." />
-  <LinkCard title="Windows and .NET" href="../../kloudmate-agent/auto-instrumentation/windows-dotnet/" description="Instrument .NET on IIS and Windows services." />
-  <LinkCard title="PHP" href="../../kloudmate-agent/auto-instrumentation/php/" description="Trace PHP 7 and PHP 8 applications without a redeploy." />
-  <LinkCard title="Go (eBPF)" href="../../kloudmate-agent/auto-instrumentation/go-ebpf/" description="How Go is covered from the kernel, with no injection." />
+  <LinkCard title="Application APM overview" href="../../kloudmate-agent/auto-instrumentation/overview/" description="Turn tracing on per service: Off, eBPF, or SDK, with restart consent and automatic rollback." />
+  <LinkCard title="Java" href="../../kloudmate-agent/auto-instrumentation/java/" description="systemd, runtime attach, Kubernetes, ECS, and Windows." />
+  <LinkCard title="Node.js" href="../../kloudmate-agent/auto-instrumentation/nodejs/" description="systemd, PM2, Kubernetes, ECS, and Windows." />
+  <LinkCard title="Python" href="../../kloudmate-agent/auto-instrumentation/python/" description="systemd, PM2, Kubernetes, ECS, and Windows." />
+  <LinkCard title=".NET" href="../../kloudmate-agent/auto-instrumentation/dotnet/" description="The CLR profiler on Windows and Linux, Kubernetes, and ECS." />
+  <LinkCard title="PHP" href="../../kloudmate-agent/auto-instrumentation/php/" description="PHP 7 and 8 on Linux and Docker; eBPF on Kubernetes." />
+  <LinkCard title="Go" href="../../kloudmate-agent/auto-instrumentation/go/" description="Covered by eBPF, no injection." />
+  <LinkCard title="Ruby" href="../../kloudmate-agent/auto-instrumentation/ruby/" description="eBPF out of the box, plus deep tracing with the OTel gems." />
   <LinkCard title="eBPF observability" href="../../kloudmate-agent/ebpf-observability/" description="Enable and tune eBPF monitoring across your fleet." />
   <LinkCard title="Sampling" href="../../kloudmate-agent/auto-instrumentation/sampling/" description="Balance trace fidelity against ingestion cost." />
 </CardGrid>
