@@ -8,14 +8,14 @@ sidebar:
 
 import { LinkCard, CardGrid } from '@astrojs/starlight/components';
 
-Once you've [created an alert](../create-alerts/), KloudMate evaluates it on a schedule and moves it through a series of states. The control knobs in **Configure evaluation settings** — **Evaluate every**, **Pending duration**, **Recovery period**, **Alert state if No data**, and **Alert state if Error** — each shape *when* and *how* those transitions happen.
+Once you've [created an alert](../create-alerts/), KloudMate evaluates it on a schedule and moves it through a series of states. The control knobs in **Configure evaluation settings** (**Evaluate every**, **Pending duration**, **Recovery period**, **Alert state if No data**, and **Alert state if Error**) each shape *when* and *how* those transitions happen.
 
-This page explains the lifecycle so the behavior never surprises you. If you've ever wondered "why did my alert fire instantly?" or "why didn't No Data wait out my pending duration?", the answer is here.
+This page explains the full lifecycle: why an alert can fire instantly, and why No Data and Error don't wait out the pending duration.
 
 ## How evaluation works
 
-1. KloudMate runs the rule's queries and expressions on the cadence set by **Evaluate every** (e.g. every `60s`).
-2. A single rule can produce many **instances** — one per series returned by the query (one per host, function, endpoint, …). Each instance is tracked independently and has its own state.
+1. KloudMate runs the rule's queries and expressions on the cadence set by **Evaluate every** (for example, every `60s`).
+2. A single rule can produce many **instances**, one per series returned by the query (one per host, function, endpoint, …). Each instance is tracked independently and has its own state.
 3. Every evaluation produces one raw **outcome** per instance, *before* any of the timing knobs are applied:
 
 | Outcome | What it means |
@@ -23,7 +23,7 @@ This page explains the lifecycle so the behavior never surprises you. If you've 
 | **Breaching** | The alert condition evaluated to true. For a [Condition Expression](../expressions/), that's your threshold being crossed. |
 | **Normal** | The alert condition evaluated to false. |
 | **No Data** | The query returned no data points for the window (or the value was null / `NaN`). |
-| **Error** | A query failed, or the rule couldn't be evaluated at all — bad query, source unreachable, or an evaluation timeout. |
+| **Error** | A query failed, or the rule couldn't be evaluated at all: bad query, source unreachable, or an evaluation timeout. |
 
 :::tip
 A raw metric is treated as **breaching** whenever its value is non-zero. To compare against a threshold instead, wrap it in a **Condition Expression** so the outcome reflects `value > threshold` (true/false), not just "non-zero". See [Writing Expressions](../expressions/).
@@ -37,23 +37,23 @@ These raw outcomes are then fed through the timing knobs to produce the instance
 |---|---|
 | **Normal** | The condition is within threshold. Nothing to do. |
 | **Pending** | The condition is currently breaching but hasn't held long enough to fire yet. |
-| **Firing** | The condition has breached for at least the **Pending duration**. This is what notifies.
+| **Firing** | The condition has breached for at least the **Pending duration**. This is what notifies. |
 | **Recovering** | The condition has cleared, but the instance is still firing while it waits out the **Recovery period**. It has *not* resolved yet. |
-| **No Data** | The query returned no data — and the rule is configured to surface that as its own state. |
-| **Error** | The evaluation errored — and the rule is configured to surface that as its own state. |
+| **No Data** | The query returned no data, and the rule is configured to surface that as its own state. |
+| **Error** | The evaluation errored, and the rule is configured to surface that as its own state. |
 
-**Pending** and **Recovering** are *derived* states — KloudMate computes them from the raw outcome plus the timing knobs. The evaluator itself never reports them.
+**Pending** and **Recovering** are *derived* states. KloudMate computes them from the raw outcome plus the timing knobs; the evaluator itself never reports them.
 
 ## The firing episode
 
-The core of the lifecycle is the **firing episode** — the path an instance takes from quiet, to firing, and back to quiet:
+The core of the lifecycle is the **firing episode**, the path an instance takes from quiet, to firing, and back to quiet:
 
 ```
 Normal ──breach──▶ Pending ──held ≥ pending duration──▶ Firing ──clears──▶ Recovering ──clear held ≥ recovery period──▶ Normal
 ```
 
-- **Pending duration** gates the way *in*. The condition must breach **continuously** for this long before the instance fires. A single Normal evaluation in the middle resets it back to Normal — the breach has to be sustained, not intermittent. Set it to `0` (leave it empty) to fire on the first breaching evaluation.
-- **Recovery period** gates the way *out*. After an instance clears, it stays **Firing** (shown as **Recovering**) until the condition has stayed clear for this long. This stops a flapping metric from resolving and immediately re-firing — which, because a resolved alert is terminal, would otherwise open a brand-new alert group on every flap. Set it to `0` (leave it empty) to resolve the instant the condition clears.
+- **Pending duration** gates the way *in*. The condition must breach **continuously** for this long before the instance fires. A single Normal evaluation in the middle resets it back to Normal, so the breach has to be sustained, not intermittent. Set it to `0` (leave it empty) to fire on the first breaching evaluation.
+- **Recovery period** gates the way *out*. After an instance clears, it stays **Firing** (shown as **Recovering**) until the condition has stayed clear for this long. This stops a flapping metric from resolving and immediately re-firing. Because a resolved alert is terminal, that would otherwise open a brand-new alert group on every flap. Set it to `0` (leave it empty) to resolve the instant the condition clears.
 
 Exact transitions:
 
@@ -63,15 +63,15 @@ Exact transitions:
 | Normal | breaching | **Firing** | Pending duration = 0 (fire immediately) |
 | Pending | breaching | **Firing** | breach has been sustained ≥ Pending duration |
 | Pending | breaching | **Pending** | still inside the Pending duration |
-| Pending | clears | **Normal** | resets — the breach was never confirmed |
+| Pending | clears | **Normal** | resets; the breach was never confirmed |
 | Firing | clears | **Recovering** | Recovery period > 0 |
 | Firing | clears | **Normal** (resolved) | Recovery period = 0 (resolve immediately) |
 | Recovering | clears | **Normal** (resolved) | clear has been sustained ≥ Recovery period |
 | Recovering | clears | **Recovering** | still inside the Recovery period |
-| Recovering | breaching | **Firing** | a re-breach during recovery — snaps straight back to Firing |
+| Recovering | breaching | **Firing** | a re-breach during recovery snaps straight back to Firing |
 
 :::note
-A **re-breach during Recovering** snaps the instance back to **Firing** without starting a fresh Pending wait and without re-notifying — from the episode's point of view it never stopped firing. Only a clear that survives the whole Recovery period actually resolves the alert.
+A **re-breach during Recovering** snaps the instance back to **Firing** without starting a fresh Pending wait and without re-notifying. From the episode's point of view it never stopped firing. Only a clear that survives the whole Recovery period actually resolves the alert.
 :::
 
 ## The control knobs at a glance
@@ -79,18 +79,18 @@ A **re-breach during Recovering** snaps the instance back to **Firing** without 
 | Knob (form label) | What it controls | Default | Inherits from [folder](../folders/)? |
 |---|---|---|---|
 | **Evaluate every** | How often the rule runs. | `60s` | Yes |
-| **Pending duration** | How long a breach must hold before **Firing**. | Fire immediately | No — per rule |
-| **Recovery period** | How long a clear must hold before resolving. | Resolve immediately | No — per rule |
+| **Pending duration** | How long a breach must hold before **Firing**. | Fire immediately | No (per rule) |
+| **Recovery period** | How long a clear must hold before resolving. | Resolve immediately | No (per rule) |
 | **Alert state if No data** | Which state a no-data result becomes. | No Data | Yes |
 | **Alert state if Error** | Which state an error result becomes. | Error | Yes |
 
 ## How No Data and Error fit in
 
-This is the part that most often surprises people, and it's the answer to a common question:
+No Data and Error behave differently from a threshold breach. A common question:
 
-> *I configured the same query, pending duration, and recovery period. Only the **Firing** state goes through the pending and recovery windows — **No Data** and **Error** don't. Is that expected?*
+> *I configured the same query, pending duration, and recovery period. Only the **Firing** state goes through the pending and recovery windows; **No Data** and **Error** don't. Is that expected?*
 
-**Yes — that's expected.** The **Pending duration** and **Recovery period** are properties of the *firing episode*. They gate the ramp **into** and **out of** Firing. **No Data** and **Error** are separate evaluation outcomes — by default they are not part of a firing episode, so there is nothing for those windows to debounce. An instance switches into (and out of) No Data or Error **immediately**.
+**Yes, that's expected.** The **Pending duration** and **Recovery period** are properties of the *firing episode*. They gate the ramp **into** and **out of** Firing. **No Data** and **Error** are separate evaluation outcomes. By default they aren't part of a firing episode, so there is nothing for those windows to debounce. An instance switches into (and out of) No Data or Error **immediately**.
 
 What each setting does on a no-data or error result:
 
@@ -99,7 +99,7 @@ What each setting does on a no-data or error result:
 | Target | Behavior when the query returns no data |
 |---|---|
 | **No Data** (default) | Instance switches to **No Data** immediately. No pending wait, no recovery wait. |
-| **Normal** | Instance switches to **Normal** immediately — treated as a clear. |
+| **Normal** | Instance switches to **Normal** immediately, treated as a clear. |
 | **Error** | Instance switches to **Error** immediately. |
 | **Firing** | Treated exactly like a threshold breach: it ramps through the **Pending duration** on the way in, and once firing it honors the **Recovery period** when data returns. An already-firing instance rides through the gap without resetting. |
 
@@ -108,23 +108,23 @@ What each setting does on a no-data or error result:
 | Target | Behavior when the evaluation errors |
 |---|---|
 | **Error** (default) | Instance switches to **Error** immediately. No pending wait, no recovery wait. |
-| **Normal** | Instance switches to **Normal** immediately — treated as a clear (so a firing instance enters the Recovery period). |
+| **Normal** | Instance switches to **Normal** immediately, treated as a clear (so a firing instance enters the Recovery period). |
 | **Firing** | Treated exactly like a threshold breach: it ramps through the **Pending duration**, and honors the **Recovery period** when the query recovers. |
 
 :::note[The takeaway]
-If you want a no-data or error condition to be **debounced by the same Pending duration and Recovery period as a threshold breach**, set **Alert state if No data** / **Alert state if Error** to **Firing**. Left on their default (**No Data** / **Error**), they are immediate, deliberate signals — a gap or a broken query shows up right away rather than waiting out a timer.
+If you want a no-data or error condition to be **debounced by the same Pending duration and Recovery period as a threshold breach**, set **Alert state if No data** / **Alert state if Error** to **Firing**. Left on their default (**No Data** / **Error**), they're immediate and deliberate: a gap or a broken query shows up right away rather than waiting out a timer.
 :::
 
 :::tip
-Infrastructure failures — a query timeout, an unreachable source, or any error that prevents the rule from running — are routed through **Alert state if Error**, exactly like an error *returned* by the query. So "couldn't evaluate" behaves consistently with how you configured the error state.
+Infrastructure failures (a query timeout, an unreachable source, or any error that prevents the rule from running) are routed through **Alert state if Error**, exactly like an error *returned* by the query. So "couldn't evaluate" behaves consistently with how you configured the error state.
 :::
 
 ## Other behaviors you might notice
 
-- **Transient blips on a firing alert.** A firing instance only *rides through* a momentary No Data or Error gap when that state is mapped to **Firing**. If No Data / Error are left on their defaults, a firing instance switches to **No Data** / **Error** on the next bad evaluation — it does not stay "Firing" through the gap.
-- **A series that disappears entirely.** When a whole series stops appearing in the query results (a host is decommissioned, a metric is dropped), KloudMate waits a short grace window — about **two evaluation intervals** — and then treats the vanished instance as resolved and closes it. This is distinct from **No Data**, which is the query *running* and returning nothing. To alert on the disappearance instead of closing it quietly, turn on [Instance Absence Detection](../instance-absence-detection/).
+- **Transient blips on a firing alert.** A firing instance only *rides through* a momentary No Data or Error gap when that state is mapped to **Firing**. If No Data / Error are left on their defaults, a firing instance switches to **No Data** / **Error** on the next bad evaluation; it does not stay "Firing" through the gap.
+- **A series that disappears entirely.** When a whole series stops appearing in the query results (a host is decommissioned, a metric is dropped), KloudMate waits a short grace window (about **two evaluation intervals**) and then treats the vanished instance as resolved and closes it. This is distinct from **No Data**, which is the query *running* and returning nothing. To alert on the disappearance instead of closing it quietly, turn on [Instance Absence Detection](../instance-absence-detection/).
 - **Multi-instance rules.** A rule's overall state reflects its instances: if any instance is firing (or recovering), the rule reads as **Firing**; otherwise it surfaces the most significant instance state. Each instance still runs its own lifecycle independently.
-- **Silences and maintenance windows don't change state.** They gate the outbound *notification*, not the lifecycle. A silenced instance keeps evaluating and transitioning, and its state changes still land in history — only the notification is withheld. See [Silences](../silences/) and [Maintenance Windows](../maintenance-windows/).
+- **Silences and maintenance windows don't change state.** They gate the outbound *notification*, not the lifecycle. A silenced instance keeps evaluating and transitioning, and its state changes still land in history; only the notification is withheld. See [Silences](../silences/) and [Maintenance Windows](../maintenance-windows/).
 
 ## Related
 

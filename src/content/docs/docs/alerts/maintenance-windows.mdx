@@ -4,9 +4,10 @@ description: "Schedule recurring or one-time maintenance windows that suppress a
 sidebar:
   order: 9
 ---
-A Maintenance Window defines a scheduled period during which matching alerts continue to evaluate but their notifications are suppressed. State changes are still recorded in alert history (marked with `silenced_at` / `silenced_by_*` so you can audit what happened), but no notification fires. Like a [Silence](../silences/), a maintenance window is a **notification gate**: it mutes notifications for the matching alerts but never changes their state or resolves them.
 
-Use a maintenance window when you have a calendar-driven quiet period: a planned deployment, a recurring batch job window, a vendor outage you've been told to expect. For one-off, ad-hoc suppression in the moment, use [Silences](../silences/) instead.
+A Maintenance Window is a scheduled period during which matching alerts keep evaluating but their notifications are suppressed. State changes are still recorded in alert history (marked with `silenced_at` / `silenced_by_*` so you can audit what happened), but no notification fires. Like a [Silence](../silences/), a maintenance window is a **notification gate**: it mutes notifications for the matching alerts but never changes their state or resolves them.
+
+Use a maintenance window when you have a calendar-driven quiet period: a planned deployment, a recurring batch job window, or a vendor outage you've been told to expect. For one-off, ad-hoc suppression in the moment, use [Silences](../silences/) instead.
 
 ## Purpose
 
@@ -16,40 +17,40 @@ Use a maintenance window when you have a calendar-driven quiet period: a planned
 
 ## Overview page
 
-The overview page displays all created maintenance windows with these details:
+The overview page lists every maintenance window with these details:
 
-- **Name** — Name of the maintenance window.
-- **Description** — Description of the maintenance window.
-- **Alert rule targeted** — Alert rule to which the maintenance window applies.
-- **Matching label** — Labels assigned to the maintenance window.
-- **Schedule** — Start and end time period for the maintenance window.
-- **Status** — Whether the maintenance window is active or paused.
+- **Name:** name of the maintenance window.
+- **Description:** description of the maintenance window.
+- **Alert rule targeted:** the alert rule the maintenance window applies to.
+- **Matching label:** labels assigned to the maintenance window.
+- **Schedule:** start and end time for the maintenance window.
+- **Status:** whether the maintenance window is active or paused.
 
 ![Maintenance window overview](./images/alarm-maintenance-window-1.png)
 
 ## Creating a maintenance window
 
-1. Navigate to the **Maintenance Windows** page in the Alerts module.
+1. Open the **Maintenance Windows** page in the Alerts module.
 2. Click **Create Maintenance Window**.
 
 ![Create Maintenance Window](./images/alarm-maintenance-window-1.jpeg)
 
 3. Configure these details:
 
-- **Name** — Name for the maintenance window.
-- **Description** — Short description of the maintenance window.
-- **Timezone** — Timezone for the scheduled maintenance window.
-- **One time** — A one-time maintenance window schedules a maintenance period only once for a specific date and time.
-- **Recurring** — A recurring maintenance window automatically repeats on a regular cycle, eliminating the need to configure it each time.
+- **Name:** a name for the maintenance window.
+- **Description:** a short description of the maintenance window.
+- **Timezone:** the timezone for the scheduled window.
+- **One time:** schedules the maintenance period once, for a specific date and time.
+- **Recurring:** repeats automatically on a regular cycle, so you don't reconfigure it each time.
 
 ![Maintenance window timing options](./images/alarm-maintenance-window-2.jpeg)
 
 Additional settings:
 
-- **Start time** — Date and time when the maintenance window begins.
-- **End time** — Date and time when the maintenance window ends.
-- **Frequency** — Available only for recurring windows; select daily, weekly, or monthly schedules.
-- **Label Matchers** — Target the window to specific alerts by their labels (e.g. service name, host, region). Each matcher is a label key, an operator, and a value, combined with AND. The operators are the same four used across the alert module — **Equals**, **Not equals**, **Matches regex**, **Doesn't match regex** — matched against alert rule labels and alert instance labels.
+- **Start time:** date and time when the maintenance window begins.
+- **End time:** date and time when the maintenance window ends.
+- **Frequency:** available only for recurring windows; select a daily, weekly, or monthly schedule.
+- **Label Matchers:** target the window to specific alerts by their labels (for example, service name, host, or region). Each matcher is a label key, an operator, and a value, combined with AND. The operators are the same four used across the alert module (**Equals**, **Not equals**, **Matches regex**, **Doesn't match regex**), matched against alert rule labels and alert instance labels.
 
 4. Click **Save** to create the new maintenance window.
 

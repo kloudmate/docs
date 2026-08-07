@@ -4,15 +4,16 @@ description: "Step-by-step guide to setting up and configuring KloudMate alerts.
 sidebar:
   order: 2
 ---
-KloudMate lets you create and configure alerts for events that are critical to your application. Each alert watches a query, evaluates a condition, and — when the condition holds long enough — fires into the grouping and routing engine so the right people are notified.
+
+An alert watches a query, evaluates a condition, and when the condition holds long enough, fires into the grouping and routing engine so the right people get notified. This page walks through creating one, step by step.
 
 ## Getting started
 
-Navigate to the **Alerts** section from the left navigation menu.
+Open the **Alerts** section from the left navigation.
 
 ![Alerts list](./images/setting-up-kloudmate-alarms-1.png)
 
-The **Alerts** screen displays a list of all existing alert rules along with their current state, name, and description. The summary at the top shows the total number of rules, including how many are currently **Firing** or **Pending**. Rules can be grouped into [Folders](../folders/), which appear as collapsible header rows.
+The **Alerts** screen lists your alert rules with their current state, name, and description. A summary at the top shows how many rules you have, and how many are currently **Firing** or **Pending**. You can group rules into [Folders](../folders/), which appear as collapsible header rows.
 
 From the **more options (⋯)** icon on any rule, you can:
 
@@ -25,59 +26,59 @@ From the **more options (⋯)** icon on any rule, you can:
 
 ![Alert row actions](./images/setting-up-kloudmate-alarms-1.jpeg)
 
-**Pause Notifications** opens a dialog that creates a temporary [silence](../silences/) scoped to this alert: the alert keeps evaluating, but its notifications are suppressed until the silence expires. While it's paused the rule shows a **Silenced** badge on the alerts list and on its detail page; view or end the pause from **Alerts → Silences**. Add matchers to limit it to specific instances.
+**Pause Notifications** creates a temporary [silence](../silences/) scoped to this alert: the rule keeps evaluating, but KloudMate suppresses its notifications until the silence expires. While it's paused, the rule shows a **Silenced** badge on the alerts list and its detail page; view or end the pause from **Alerts → Silences**. Add matchers to limit it to specific instances.
 
-To learn about the key concepts of KloudMate Alerts, see the [Alerts Overview](../).
+For the key concepts, see the [Alerts Overview](../).
 
 ## Creating a new alert
 
-Click the **Create Alert** button at the top-right corner of the **Alerts** screen. A dialog appears with three ways to create an alert:
+Click the **Create Alert** button at the top right of the **Alerts** screen. A dialog appears with three ways to create an alert:
 
 ![Create Alert dialog](./images/create-alarm-dialog.png)
 
-- **From Template** — Start with a pre-configured alert for a common monitoring scenario.
-- **From Scratch** — Create a custom alert from an empty configuration.
-- **Using AI** — Open **KloudMate Builder** and describe the alert you want in plain English.
+- **From Template:** start with a pre-configured alert for a common monitoring scenario.
+- **From Scratch:** create a custom alert from an empty configuration.
+- **Using AI:** open **KloudMate Builder** and describe the alert you want in plain English.
 
 ### From Template
 
-Instead of building an alert from scratch, you can start from a pre-configured template that covers common monitoring scenarios and best practices.
+Instead of building an alert from scratch, start from a pre-configured template that covers a common monitoring scenario.
 
 1. In the **Create Alert** dialog, select **From Template**.
 2. Click the **Select a template** dropdown and choose a template that matches your monitoring needs.
 
 ![Template selection dropdown](./images/from-template-dropdown.png)
 
-3. Click **Create Alert**. The alert is created and appears in the **Alerts** list.
+3. Click **Create Alert**. The alert appears in the **Alerts** list.
 4. To open and configure it, click the menu next to the alert and select **Edit**.
-5. The alert opens pre-configured with the query, aggregation, and threshold settings from the template. Review and adjust any filters to match your environment.
-6. Click **Save** or **Save & Close** when done.
+5. The alert opens pre-configured with the query, aggregation, and threshold from the template. Review it and adjust any filters to match your environment.
+6. Click **Save** or **Save & Close** when you're done.
 
 ### Using AI
 
-KloudMate's assistant can automatically generate queries and thresholds based on your natural language prompt.
+The KloudMate assistant generates the queries and thresholds from a plain-English prompt.
 
 1. In the **Create Alert** dialog, select **Using AI**.
 2. A text box appears. Describe the alert you want to create.
 
 ![Using AI prompt](./images/using-ai-prompt.png)
 
-3. Click **Create Alert**. KloudMate generates the alert configuration based on your description.
+3. Click **Create Alert**. KloudMate generates the alert configuration from your description.
 4. To review or adjust the settings, click the menu next to the alert and select **Edit**.
 
 ### From Scratch
 
 To build a fully custom alert, select **From Scratch** in the **Create Alert** dialog and click **Create Alert**.
 
-This opens the alert creation form where you can choose a data source, configure the metric or query to monitor, and define the alert condition on a single page.
+This opens the alert creation form, where you choose a data source, configure the metric or query to monitor, and define the alert condition on a single page.
 
-You can create multiple queries and expressions using the **Add Query** and **Add Expression** buttons. Each query or expression is assigned a unique alphabetical notation such as **A**, **B**, or **C**. You can duplicate any query or expression using the copy icon at the top-right corner of each block.
+Create more queries and expressions with the **Add Query** and **Add Expression** buttons. KloudMate assigns each one a letter, such as **A**, **B**, or **C**, and you can duplicate any block with the copy icon at its top right.
 
-To access advanced query and expression options such as **Math expressions**, **Reduce**, and **Condition expressions**, click **Advanced mode** at the top of the form.
+To reach advanced options such as **Math expressions**, **Reduce**, and **Condition expressions**, click **Advanced mode** at the top of the form.
 
 ![Advanced mode options](./images/advanced-mode-options.png)
 
-The rule editor walks you through four steps: **Setup query conditions and expressions**, **Configure evaluation settings**, **Add alarm details**, and **Notifications**.
+The rule editor walks you through **Setup query conditions and expressions**, **Configure evaluation settings**, **Add alarm details**, and **Notifications**, then a final save.
 
 ### 1. Setup query conditions and expressions
 
@@ -85,10 +86,10 @@ The rule editor walks you through four steps: **Setup query conditions and expre
 
 ![OpenTelemetry / KloudMate query setup](./images/setting-up-kloudmate-alarms-2.png)
 
-- **Data Set:** Select the dataset you want to retrieve from your data source.
-- **Metric to Aggregate:** Select the metric associated with the selected dataset that you want to monitor.
-- **Group By:** Enter the attributes used to group the data points.
-- **Filters:** Add filters to narrow down the retrieved data points.
+- **Data Set:** select the dataset you want to retrieve from your data source.
+- **Metric to Aggregate:** select the metric you want to monitor from that dataset.
+- **Group By:** enter the attributes used to group the data points.
+- **Filters:** add filters to narrow the retrieved data points.
 
 OpenTelemetry users can also use **Prometheus query language** to retrieve data and configure alerts.
 
@@ -96,12 +97,12 @@ OpenTelemetry users can also use **Prometheus query language** to retrieve data 
 
 ![AWS CloudWatch query setup](./images/setting-up-kloudmate-alarms-3.png)
 
-- **Time Range:** Set the duration for which data should be fetched using the dropdown, or enter a custom value in seconds.
-- **Region:** Select the AWS region of the service you want to monitor.
-- **Namespace:** Select the AWS service namespace you want to create an alert for.
-- **Metric:** Select the metric associated with the selected namespace.
-- **Statistic:** Select the statistical function to use when calculating data points.
-- **Dimensions:** Optionally configure the alert for grouped resources within the selected namespace. For example, for EC2, you can filter by autoscaling group name, image ID, instance type, and more.
+- **Time Range:** set how far back to fetch data with the dropdown, or enter a custom value in seconds.
+- **Region:** select the AWS region of the service you want to monitor.
+- **Namespace:** select the AWS service namespace you want to alert on.
+- **Metric:** select the metric from that namespace.
+- **Statistic:** select the statistical function to apply when calculating data points.
+- **Dimensions:** optionally scope the alert to grouped resources within the namespace. For EC2, for example, you can filter by autoscaling group name, image ID, instance type, and more.
 
 Click **Run Query** to fetch data.
 
@@ -110,93 +111,93 @@ Click **Run Query** to fetch data.
 Query time ranges support the following:
 
 - **Operators:** `-` for subtracting time
-- **Supported values:** The same units and keywords used in dashboards
+- **Supported values:** the same units and keywords used in dashboards
 - **Examples:** `now`, `now-5m`
 
 #### Setting up evaluation expressions
 
-Expressions let you apply logic to query results. Reference any configured query or expression using its alphabetical notation, such as **A**, **B**, or **C**. An expression can be passed as a parameter only when multiple expressions are configured.
+Expressions let you apply logic to query results. Reference any query or expression by its letter, such as **A**, **B**, or **C**. An expression can be passed as a parameter only when multiple expressions are configured.
 
-Choose from the following expression types:
+Choose from these expression types:
 
-- **Math Expression:** Enter a mathematical expression to apply to the value of a query or expression. Examples: `$A+1`, `$A<$B`, `$A && $C`. For more information, see [Alert Expressions](../expressions/).
-- **Reduce:** Select a function to aggregate the values of a query or expression into a single number, then select the target query or expression from the **Input** dropdown. Available functions include `mean()`, `max()`, `min()`, `sum()`, `last()`, and `count()`.
-- **Condition Expression:** Select a function and a query or expression, then choose a condition and provide a threshold value to evaluate against. You can add multiple conditions and combine them using **AND** or **OR** logical operators.
+- **Math Expression:** enter a mathematical expression to apply to a query or expression, such as `$A+1`, `$A<$B`, or `$A && $C`. See [Alert Expressions](../expressions/).
+- **Reduce:** aggregate a query or expression into a single number with a function, then pick the target from the **Input** dropdown. Available functions include `mean()`, `max()`, `min()`, `sum()`, `last()`, and `count()`.
+- **Condition Expression:** pick a function and a query or expression, then choose a condition and a threshold to evaluate against. You can add multiple conditions and combine them with **AND** or **OR**.
 
-Click **Run Queries** to execute all configured queries and expressions.
+Click **Run Queries** to execute everything you've configured.
 
 :::tip
-To avoid the **NoData** issue when using multiple queries in a single alert, use the `ifNull` operator to assign a default value. Read more in [Alert Expressions](../expressions/).
+To avoid the **NoData** issue when a single alert uses multiple queries, use the `ifNull` operator to assign a default value. See [Alert Expressions](../expressions/).
 :::
 
 ### 2. Configure evaluation settings
 
-This section opens with a **Folder** dropdown — select an existing folder (or type a new name to create one inline) to organize the rule and inherit shared defaults. The folder's `interval_seconds`, `no_data_state`, and `eval_error_state` flow into the rule as inheritable defaults you can override per-field. See [Folders](../folders/).
+This step opens with a **Folder** dropdown. Select an existing folder, or type a new name to create one inline, to organize the rule and inherit shared defaults. The folder's `interval_seconds`, `no_data_state`, and `eval_error_state` flow into the rule as defaults you can override per field. See [Folders](../folders/).
 
 ![Evaluation settings](./images/setting-up-kloudmate-alarms-4.png)
 
-- **Alert condition** — Select the query or expression that should trigger the alert, such as **A**, **B**, or **C**.
-- **Evaluate every** — How frequently the alert condition should be evaluated (e.g. `60s`, `1m`).
-- **Pending duration** — How long the condition must remain true before the alert fires (e.g. `5m`). Leave empty to fire immediately.
-- **Recovery period** — How long the condition must stay within threshold before the rule resolves (e.g. `5m`), which stops a flapping metric from resolving and immediately re-firing. While the rule waits out this window, the instance shows as **Recovering** — still firing, not yet back to Normal. Leave empty to resolve as soon as the condition clears.
-- **Alert state if No data** — Which state the alert enters when the query returns no data points. Options: **Firing**, **No Data**, **Normal**, or **Error**.
-- **Alert state if Error** — Which state the alert enters when a query returns an error. Options: **Firing**, **Error**, or **Normal**.
-- **Alert when an instance stops reporting** — Track each instance the query returns and alert when one of them goes silent, even though the other instances keep reporting. Turning this on also sets **Alert state if No data** to **Firing**. An **Auto-close after** field appears alongside it, controlling how long a silent instance stays tracked. See [Instance Absence Detection](../instance-absence-detection/).
+- **Alert condition:** the query or expression that triggers the alert, such as **A**, **B**, or **C**.
+- **Evaluate every:** how often the alert condition is evaluated (for example, `60s` or `1m`).
+- **Pending duration:** how long the condition must stay true before the alert fires (for example, `5m`). Leave empty to fire immediately.
+- **Recovery period:** how long the condition must stay within threshold before the rule resolves (for example, `5m`). This stops a flapping metric from resolving and immediately re-firing. While the rule waits out this window, the instance shows as **Recovering**: still firing, not yet back to Normal. Leave empty to resolve as soon as the condition clears.
+- **Alert state if No data:** which state the alert enters when the query returns no data points. Options: **Firing**, **No Data**, **Normal**, or **Error**.
+- **Alert state if Error:** which state the alert enters when a query returns an error. Options: **Firing**, **Error**, or **Normal**.
+- **Alert when an instance stops reporting:** track each instance the query returns, and alert when one goes silent while the others keep reporting. Turning this on also sets **Alert state if No data** to **Firing**. An **Auto-close after** field appears alongside it, controlling how long a silent instance stays tracked. See [Instance Absence Detection](../instance-absence-detection/).
 
 :::note[How “Firing” interacts with the pending duration]
-When **Alert state if No data** or **Alert state if Error** is set to **Firing**, the alert doesn't fire the instant data goes missing or a query errors. It fires only after the condition has held for the **Pending duration** above — so a brief gap or a transient error won't page anyone, and a series that's already firing rides through the blip without resetting. Set the **Pending duration** to `0` to fire immediately instead.
+When **Alert state if No data** or **Alert state if Error** is set to **Firing**, the alert doesn't fire the instant data goes missing or a query errors. It fires only after the condition has held for the **Pending duration** above, so a brief gap or a transient error won't notify anyone, and a series that's already firing rides through the blip without resetting. Set the **Pending duration** to `0` to fire immediately instead.
 :::
 
 :::tip
-For the full lifecycle — how **Pending duration**, **Recovery period**, and the **No data** / **Error** states interact across an alert's states — see [Alert Lifecycle & States](../alert-lifecycle/).
+For the full lifecycle, and how **Pending duration**, **Recovery period**, and the **No data** / **Error** states interact across an alert's states, see [Alert Lifecycle & States](../alert-lifecycle/).
 :::
 
 Click **Preview alerts** to run the query immediately and check the result.
 
 :::tip
-If the rule belongs to a folder with shared defaults, **Evaluate every**, **Alert state if No data**, and **Alert state if Error** appear with placeholder values inherited from the folder. Leave them blank to keep inheriting, or type a value to override. A small **Reset to folder default** link appears under any field you've overridden.
+If the rule belongs to a folder with shared defaults, **Evaluate every**, **Alert state if No data**, and **Alert state if Error** show placeholder values inherited from the folder. Leave them blank to keep inheriting, or type a value to override. A small **Reset to folder default** link appears under any field you've overridden.
 :::
 
 ### 3. Add alarm details
 
 ![Alert details](./images/setting-up-kloudmate-alarms-5.png)
 
-Two top-level fields and one section:
+Set the alert's name and description, then fill in the responder context:
 
-- **Alert name** — Enter a name for the alert.
-- **Description** — Add a description to help identify the alert's purpose.
+- **Alert name:** a name for the alert.
+- **Description:** a short description of the alert's purpose.
 
-**Responder context** — a labelled section that holds the five fixed annotations responders see when the notification lands. The hint above the section reads e.g. *"Help on-call responders understand the alarm and act quickly."*
+**Responder context** is a labeled section that holds the annotations responders see when the notification lands. The hint above it reads, for example, *"Help on-call responders understand the alarm and act quickly."*
 
-- **Severity** — Free-form severity (e.g. `sev1`, `critical`, `p1`). Supports Liquid templates so severity can depend on the firing value.
-- **Summary** — Multiline message included in notifications. Supports templates.
-- **Dashboard** — Optional dashboard link surfaced with the notification.
-- **Panel** — When a dashboard is picked, narrows the link to a specific panel.
-- **Playbook URL** — Optional runbook URL.
+- **Severity:** free-form severity (for example, `sev1`, `critical`, or `p1`). Supports Liquid templates, so severity can depend on the firing value.
+- **Summary:** multiline message included in notifications. Supports templates.
+- **Dashboard:** optional dashboard link surfaced with the notification.
+- **Panel:** when you pick a dashboard, narrows the link to a specific panel.
+- **Playbook URL:** optional runbook URL.
 
-**Custom annotations** — collapsed accordion at the bottom. Open it to add custom key-value pairs (e.g. `service_owner`, `region`). Values support Liquid templates. See [Annotations & Severity](../annotations-and-severity/).
+**Custom annotations** is a collapsed accordion at the bottom. Open it to add your own key-value pairs (for example, `service_owner` or `region`). Values support Liquid templates. See [Annotations & Severity](../annotations-and-severity/).
 
 ### 4. Notifications
 
-The Notifications step covers how this alert flows into the grouping engine. KloudMate replaced free-form notification tags with **labels** that routing rules match on:
+The Notifications step controls how this alert flows into the grouping engine. Routing rules match on **labels**, not free-form tags:
 
-- **Labels** — Key/value pairs attached to every signal this alert emits. Add them with **Add label**; the list can also be left empty. Routing rules match on these labels, plus the reserved `alarm_id`, `alarm_rule_folder_id`, and per-instance query labels, to decide which channels notify and how signals are grouped.
-- **Routing** is decided by [Routing Rules](../routing-rules/) in **Alerts → Routing rules**, which match alerts by label and send them to one or more notification channels.
-- **Severity** flows through the reserved `severity` annotation from the previous step — downstream tools use it to prioritize.
+- **Labels:** key/value pairs attached to each alert this rule fires. Add them with **Add label**, or leave the list empty. Routing rules match on these labels, plus the reserved `alarm_id`, `alarm_rule_folder_id`, and per-instance query labels, to decide which channels notify and how alerts group.
+- **Routing:** [Routing Rules](../routing-rules/) in **Alerts → Routing rules** match alerts by label and send them to one or more notification channels.
+- **Severity:** flows through the reserved `severity` annotation from the previous step; downstream tools use it to prioritize.
 
-If you're migrating an existing rule that used notification tags, the rule keeps working; routing now matches on labels instead.
+If you're migrating a rule that used notification tags, it keeps working; routing now matches on labels instead.
 
 ### 5. Save the alert
 
-Click **Save** to save the alert, or **Save & Close** to save and return to the **Alerts** screen. A confirmation message appears when the alert is created successfully.
+Click **Save** to save the alert, or **Save & Close** to save and return to the **Alerts** screen. A confirmation appears once the alert is created.
 
 ## Viewing an alert
 
-To open an alert, click the menu next to it and select **View**. This opens the detail page with four tabs:
+To open an alert, click the menu next to it and select **View**. The detail page has these tabs:
 
 ![Alert detail overview](./images/alarm-detail-overview.png)
 
-- **Overview** — Shows instance states, breaching instances with labels, reason, and duration, along with recent state transitions.
-- **Instances** — Shows the full list of alert instances and their current states.
-- **History** — Shows the state change history over time.
-- **Rule** — Shows the alert configuration and query definition.
+- **Overview:** instance states, breaching instances with their labels, reason, and duration, plus recent state transitions.
+- **Instances:** the full list of alert instances and their current states.
+- **History:** the state-change history over time.
+- **Rule:** the alert configuration and query definition.

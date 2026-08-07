@@ -29,7 +29,7 @@ Routing itself works as usual, since each instance carries its own labels.
 
 1. Create or edit an alert rule and go to **Configure evaluation settings**.
 2. Turn on **Alert when an instance stops reporting**.
-3. Optionally set **Auto-close after**: how long a silent instance stays tracked, and firing, before it closes on its own, which happens only while other instances are still reporting. Leave it blank to inherit the folder default, or the system default of 24 hours. Durations from `5m` to `72h` are accepted, for example `30m` or `48h`.
+3. Optionally set **Auto-close after**: how long a silent instance stays tracked, and firing, before it closes on its own, which happens only while other instances are still reporting. Leave it blank to inherit the folder default, or the system default of 24 hours. It accepts durations from `5m` to `72h`, for example `30m` or `48h`.
 4. Save the rule.
 
 Turning the toggle on also sets **Alert state if No data** to **Firing**. Both are needed for absence detection, so the form does it in one step. Turning the toggle off leaves the No-data state alone, in case you still want the rule to fire when the whole query returns nothing.
@@ -38,7 +38,7 @@ Both settings inherit from [folders](../folders/) exactly like the other evaluat
 
 ## Make the query window longer than the reporting interval
 
-Two settings decide when an absence fires:
+The query window and the pending duration together decide when an absence fires:
 
 - **The query's time window** decides when an instance counts as missing. As long as the window still contains old datapoints, the instance counts as reporting; it goes missing only after the window slides past its last datapoint.
 - **Pending duration** then runs as usual before the instance fires.

@@ -7,16 +7,16 @@ sidebar:
 
 When related alerts fire close together, KloudMate groups them into a single **Alert Group**. Instead of notifying on every individual alert, you get one notification for the group, and new alerts append to it rather than fan out into separate notifications.
 
-A group survives restarts and deduplicates against the same incident over time, so the same recurring issue keeps showing up on the same group rather than spawning a fresh one each time.
+A group survives restarts and deduplicates against the same incident over time, so a recurring issue keeps showing up on the same group rather than spawning a fresh one each time.
 
 ## How groups form
 
-An Alert Group can form two ways, and both produce the same kind of group:
+An Alert Group forms by static grouping or by the AI correlation engine. Both produce the same kind of group:
 
 - **Static grouping** folds alerts together by the deterministic group-by keys on a routing rule. Alerts that share those label values land in one group.
 - **Auto (AI) grouping** hands the decision to the correlation engine, which links related alerts on its own and learns which alerts tend to fire together over time.
 
-You choose the mode per routing rule; see [Routing Rules](../routing-rules/#alert-grouping-static-or-auto-ai). For how membership is decided in each mode, and why a single rule firing on many hosts stays one Auto group, see [How Alert Grouping Works](../how-alert-grouping-works/). However a group forms, it behaves the same everywhere else on this page. An Auto-correlated group additionally records [why its alerts were grouped](#why-these-were-grouped).
+You choose the mode per routing rule; see [Routing Rules](../routing-rules/#alert-grouping-static-or-auto-ai). For how membership is decided in each mode, and why a single rule firing on many hosts stays one Auto group, see [How Alert Grouping Works](../how-alert-grouping-works/). However a group forms, it behaves the same everywhere else on this page. An Auto-correlated group also records [why its alerts were grouped](#why-these-were-grouped).
 
 ## Where to find groups
 
@@ -30,9 +30,9 @@ Expand any row to preview that group's alerts inline: alert name, state, severit
 
 Filters across the top:
 
-- **State** — All / Open / Resolved toggle. Defaults to **Open**.
-- **Routing rule** — dropdown filtered to rules in the workspace.
-- **Label matchers** — chip input where you type `key=value`. Press Enter to add a chip.
+- **State:** All / Open / Resolved toggle. Defaults to **Open**.
+- **Routing rule:** dropdown filtered to rules in the workspace.
+- **Label matchers:** chip input where you type `key=value`. Press Enter to add a chip.
 
 Severity isn't a filter on the list. It lives on the per-instance alerts inside a group, not on the group itself.
 
@@ -40,14 +40,14 @@ Severity isn't a filter on the list. It lives on the per-instance alerts inside 
 
 A group carries:
 
-- **Title** — set by the first alert that opened the group, and **immutable** after that even if a higher-severity alert joins later. A lock icon next to the title marks this; hovering it reads *"Set by first alert — cannot be changed."*
-- **State** — `Open` while at least one underlying instance is firing; `Resolved` once everything quiets. A firing group whose firing instances are **all silenced** stays `Open` but carries a **Muted** badge (*"Firing, but all instances are silenced — notifications muted"*). Muting gates notifications; it doesn't resolve the group.
-- **Labels** — the labels that define the group, read from the alerts that joined it (the group-by keys, in Static mode).
-- **Alerts and instances** — how many distinct alerts and firing instances the group holds so far, shown as *"N alerts · N firing instances"*.
-- **Routing rule** — the rule that opened the group.
-- **Group ID** — the durable identifier you can share with teammates or paste into the assistant.
-- **Correlation reason** — for an Auto-correlated group, why these alerts were grouped. See [Why these were grouped](#why-these-were-grouped).
-- **Investigation** — a root-cause investigation, when one is attached. Start it manually with **Run RCA**, or automatically with [Auto-RCA](../auto-rca/); see [Run RCA and View RCA](#run-rca-and-view-rca).
+- **Title:** set by the first alert that opened the group, and **immutable** afterward, even if a higher-severity alert joins later. A lock icon next to the title marks it.
+- **State:** `Open` while at least one underlying instance is firing; `Resolved` once everything quiets. A firing group whose instances are **all silenced** stays `Open` but carries a **Muted** badge. Muting gates notifications; it doesn't resolve the group.
+- **Labels:** the labels that define the group, read from the alerts that joined it (the group-by keys, in Static mode).
+- **Alerts and instances:** how many distinct alerts and firing instances the group holds so far, shown as *"N alerts · N firing instances"*.
+- **Routing rule:** the rule that opened the group.
+- **Group ID:** the durable identifier you can share with teammates or paste into the assistant.
+- **Correlation reason:** for an Auto-correlated group, why these alerts were grouped. See [Why these were grouped](#why-these-were-grouped).
+- **Investigation:** a root-cause investigation, when one is attached. Start it manually with **Run RCA**, or automatically with [Auto-RCA](../auto-rca/); see [Run RCA and View RCA](#run-rca-and-view-rca).
 
 Severity isn't a single group-level field. Each underlying instance carries its own severity, which you read on the **Firing instances** panel and the **Alerts** tab.
 
@@ -59,32 +59,31 @@ Click any row to open the group detail page.
 
 ### Header
 
-- **Title** with a lock icon (hover: *"Set by first alert — cannot be changed"*).
-- **Run RCA / View RCA** — starts or opens a root-cause investigation for the group. See [Run RCA and View RCA](#run-rca-and-view-rca).
-- **Ask KloudMate Assistant** — opens the assistant chat panel with the group's labels, state, alert and instance counts, and routing rule pre-loaded into the prompt, so you can jump into investigation without retyping context.
-- **Silence this group** — opens the silence creator pre-filled with the group's labels as matchers and bound to the group via `auto_expire_group_id`.
-
+- **Title** with a lock icon: it's set by the first alert and can't be changed.
+- **Run RCA / View RCA:** starts or opens a root-cause investigation for the group. See [Run RCA and View RCA](#run-rca-and-view-rca).
+- **Ask KloudMate Assistant:** opens the assistant chat panel with the group's labels, state, alert and instance counts, and routing rule pre-loaded into the prompt, so you can start investigating without retyping context.
+- **Silence this group:** opens the silence creator pre-filled with the group's labels as matchers and bound to the group via `auto_expire_group_id`.
 
 ### Firing instances
 
 The **Firing instances** panel is the largest section on the page. It's a table of the unique alert instances that joined this group, deduplicated by the per-instance labels the grouping engine uses.
 
-- **Common labels bar** at the top — labels shared by every instance, so the per-row labels column only shows what varies.
-- **Columns**:
-  - **State** — the instance's current state: **Firing**, **No Data**, **Error**, or **Resolved**. Silenced instances are flagged as muted, so you can see at a glance which ones are firing but suppressed.
-  - **Alert** — the alert rule name. Links to the rule when the alert is KloudMate-native (carries an `alarm_id` label).
-  - **Instance labels** — the labels that distinguish this instance from siblings (common labels are stripped out).
-  - **Severity** — the per-instance severity, if the alert carries one.
-  - **Since** — how long this instance has been in its current state.
+- **Common labels bar** at the top: labels shared by every instance, so the per-row labels column only shows what varies.
+- **Columns:**
+  - **State:** the instance's current state: **Firing**, **No Data**, **Error**, or **Resolved**. Silenced instances are flagged as muted, so you can see at a glance which ones are firing but suppressed.
+  - **Alert:** the alert rule name. Links to the rule when the alert is KloudMate-native (carries an `alarm_id` label).
+  - **Instance labels:** the labels that distinguish this instance from its siblings (common labels are stripped out).
+  - **Severity:** the per-instance severity, if the alert carries one.
+  - **Since:** how long this instance has been in its current state.
 
-Use this panel to see what's firing inside the group at a glance — for example, service A's `prod` and `staging` are firing while `dev` has already recovered.
+Use this panel to see what's firing inside the group at a glance. For example, service A's `prod` and `staging` are firing while `dev` has already recovered.
 
 ### Run RCA and View RCA
 
 The group header carries a single root-cause button, and its label reflects whether an investigation is attached yet:
 
-- **Run RCA** — shown when no investigation is attached. It starts a root-cause investigation for the group on demand.
-- **View RCA** — shown once an investigation is attached. It opens a side drawer with the root-cause summary and a **View full investigation** link.
+- **Run RCA:** shown when no investigation is attached. It starts a root-cause investigation for the group on demand.
+- **View RCA:** shown once an investigation is attached. It opens a side drawer with the root-cause summary and a **View full investigation** link.
 
 This is the manual trigger. To investigate every group a rule opens automatically instead, enable [Auto-RCA](../auto-rca/) on the routing rule; an Auto-RCA result surfaces through the same **View RCA** drawer.
 
@@ -92,16 +91,16 @@ This is the manual trigger. To investigate every group a rule opens automaticall
 
 ### Tabs
 
-- **Alerts** — every underlying alert as a row. Columns: Alert (linked to the rule when available), State, Severity, Received at, Labels. Use this when you need the raw event-by-event stream rather than the instance-level rollup.
-- **Blast radius** — what the group's firing resources connect to. See [Blast radius](#blast-radius).
-- **Audit** — a vertical timeline of everything that happened to the group: opened, alerts appended, silence applied, notification dispatched, resolved. Auto-correlated groups also log correlation events here — **"Group opened by AI"** and **"Alert correlated into group"**.
-- **Notifications** — per-channel dispatch outcomes (ok / failed / suppressed-by-silence), with deep links to where the notification landed: Slack thread URL, Jira ticket, KloudMate Incidents incident, and so on.
+- **Alerts:** every underlying alert as a row. Columns: Alert (linked to the rule when available), State, Severity, Received at, Labels. Use this when you need the raw event-by-event stream rather than the instance-level rollup.
+- **Blast radius:** what the group's firing resources connect to. See [Blast radius](#blast-radius).
+- **Audit:** a vertical timeline of everything that happened to the group: opened, alerts appended, silence applied, notification dispatched, resolved. Auto-correlated groups also log correlation events here: **"Group opened by AI"** and **"Alert correlated into group"**.
+- **Notifications:** per-channel dispatch outcomes (ok / failed / suppressed-by-silence), with deep links to where the notification landed: Slack thread URL, Jira ticket, KloudMate Incidents incident, and so on.
 
 ### Blast radius
 
 The **Blast radius** tab resolves the group's firing alerts to the resources they name, then graphs what each one depends on, so you can see how far the incident reaches.
 
-Each affected resource sits at the center of its own graph, with neighbours branching off along labeled edges: **runs on**, **talks to**, **calls**. Neighbours of the same kind collapse into one node (*116 Pods · runs on*) that you click to list them.
+Each affected resource sits at the center of its own graph, with neighbors branching off along labeled edges: **runs on**, **talks to**, **calls**. Neighbors of the same kind collapse into one node (*116 Pods · runs on*) that you click to list them.
 
 The same graph appears on a single alert's **Blast radius** tab and on a resource's **Dependencies** tab in Cloud Inventory. An empty graph means KloudMate hasn't mapped a connection yet, not that the lookup failed. When nothing is firing or the alerts don't match a known resource, the tab says so instead of drawing one.
 
@@ -109,7 +108,7 @@ The same graph appears on a single alert's **Blast radius** tab and on a resourc
 
 ### Why these were grouped
 
-A **Why these were grouped** section at the bottom of the detail page, with the reason in plain English, the shared labels, and supporting detail.
+A **Why these were grouped** section sits at the bottom of the detail page, with the reason in plain English, the shared labels, and supporting detail.
 
 The chip and section only appear when the engine actually correlated more than one alert. A lone alert the engine evaluated and left on its own shows no chip, which is expected (see [Cold start](#cold-start)).
 
@@ -129,6 +128,6 @@ KloudMate marks a group `Resolved` once every underlying instance has resolved a
 
 ## Related
 
-- [Routing Rules](../routing-rules/) — define which alerts a group accepts, and whether it groups by keys (Static) or by the correlation engine (Auto).
-- [Silences](../silences/) — suppress notifications for matching labels.
-- [Auto-RCA](../auto-rca/) — automatic investigations on group open.
+- [Routing Rules](../routing-rules/): define which alerts a group accepts, and whether it groups by keys (Static) or by the correlation engine (Auto).
+- [Silences](../silences/): suppress notifications for matching labels.
+- [Auto-RCA](../auto-rca/): automatic investigations on group open.
