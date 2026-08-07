@@ -17,8 +17,6 @@ When you instrument a PHP service, the agent attaches tracing to it automaticall
 
 The agent produces route-level server spans, database spans (for example, PDO calls), and error spans. It propagates W3C trace context (`traceparent`), so a PHP span shares its trace identifier with eBPF monitoring and with any upstream or downstream service.
 
-The overhead is small: a fixed cost of roughly 1.6 milliseconds per request, which is a low single-digit percentage on realistic requests.
-
 ## PHP in containers
 
 In Docker, the agent instruments PHP containers without a redeploy, and matches the container's PHP build automatically. The instrumented application sends its traces to the agent through the container's host gateway. See [Docker platform notes](../../platform-notes/docker/) for the container details.

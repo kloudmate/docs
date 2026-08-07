@@ -64,30 +64,18 @@ Click any row to open the group detail page.
 - **Ask KloudMate Assistant** — opens the assistant chat panel with the group's labels, state, alert and instance counts, and routing rule pre-loaded into the prompt, so you can jump into investigation without retyping context.
 - **Silence this group** — opens the silence creator pre-filled with the group's labels as matchers and bound to the group via `auto_expire_group_id`.
 
-### Meta strip
-
-Below the title: the state chip, the counts (*"N alerts · N firing instances"*), a correlation chip when the group was Auto-correlated (see [Why these were grouped](#why-these-were-grouped)), Opened relative time, Resolved relative time when applicable, and Last update relative time.
-
-### Labels, routing rule, and Group ID
-
-A bordered card directly under the meta strip shows:
-
-- **Labels** — the group's label chips. Internal and per-instance keys are filtered out here, so you see the labels that actually defined the group.
-- **Routing rule** — a link to the rule that opened the group.
-- **Group ID** — monospace, for sharing or pasting into tooling.
 
 ### Firing instances
 
 The **Firing instances** panel is the largest section on the page. It's a table of the unique alert instances that joined this group, deduplicated by the per-instance labels the grouping engine uses.
 
-- **Common labels bar** at the top — labels shared by every instance, so the per-row labels column only shows what varies. Internal keys are hidden from this bar and from the per-instance labels.
+- **Common labels bar** at the top — labels shared by every instance, so the per-row labels column only shows what varies.
 - **Columns**:
   - **State** — the instance's current state: **Firing**, **No Data**, **Error**, or **Resolved**. Silenced instances are flagged as muted, so you can see at a glance which ones are firing but suppressed.
   - **Alert** — the alert rule name. Links to the rule when the alert is KloudMate-native (carries an `alarm_id` label).
   - **Instance labels** — the labels that distinguish this instance from siblings (common labels are stripped out).
   - **Severity** — the per-instance severity, if the alert carries one.
   - **Since** — how long this instance has been in its current state.
-- A summary above the table reports the alert and instance counts with a per-state breakdown, for example *"2 alerts · 7 instances · 4 firing, 3 resolved"*.
 
 Use this panel to see what's firing inside the group at a glance — for example, service A's `prod` and `staging` are firing while `dev` has already recovered.
 
@@ -113,42 +101,27 @@ This is the manual trigger. To investigate every group a rule opens automaticall
 
 The **Blast radius** tab resolves the group's firing alerts to the resources they name, then graphs what each one depends on, so you can see how far the incident reaches.
 
-Each affected resource sits at the center of its own graph, with neighbours branching off along labeled edges: **runs on**, **talks to**, **calls**. Neighbours of the same kind collapse into one node (*116 Pods · runs on*) that you click to list them. AWS nodes link into [Cloud Inventory](/cloud-inventory/); Kubernetes and host nodes don't.
+Each affected resource sits at the center of its own graph, with neighbours branching off along labeled edges: **runs on**, **talks to**, **calls**. Neighbours of the same kind collapse into one node (*116 Pods · runs on*) that you click to list them.
 
 The same graph appears on a single alert's **Blast radius** tab and on a resource's **Dependencies** tab in Cloud Inventory. An empty graph means KloudMate hasn't mapped a connection yet, not that the lookup failed. When nothing is firing or the alerts don't match a known resource, the tab says so instead of drawing one.
 
-{/* TODO: capture — the Blast radius tab: an affected resource at the center with neighbour and cluster nodes. */}
+![The Blast radius tab: a row of affected resource chips above a graph of each resource and what it runs on](./images/alert-group-blast-radius.png)
 
 ### Why these were grouped
 
-When the correlation engine groups more than one alert, it records why. That reasoning surfaces in two places:
-
-- A **correlation chip** in the header meta strip, labeling the strongest reason at a glance.
-- A **Why these were grouped** section at the bottom of the detail page, with the reason in plain English, the shared labels, and supporting detail.
-
-The chip label tells you which kind of link the engine found:
-
-| Chip | What it means |
-|---|---|
-| **Shared attribute** | These alerts share an identifying attribute. |
-| **Co-occurring history** | These alerts have fired together before. |
-| **Known cascade** | A known cause-and-effect cascade links these resource types. |
-| **Topology** | These resources are connected in the dependency graph. |
-| **AI** | The correlation engine grouped these alerts by combining several weaker links. |
-
-When the reason is **Topology**, a **View blast radius** link opens the group's [Blast radius](#blast-radius) tab.
+A **Why these were grouped** section at the bottom of the detail page, with the reason in plain English, the shared labels, and supporting detail.
 
 The chip and section only appear when the engine actually correlated more than one alert. A lone alert the engine evaluated and left on its own shows no chip, which is expected (see [Cold start](#cold-start)).
 
 ### Cold start
 
-A brand-new or quiet workspace has little co-occurrence history for the engine to learn from, so it leaves most alerts as separate singletons with no correlation chip. That's expected, not a failure. Correlation strengthens over the following days as the engine sees which alerts tend to fire together.
+A new workspace has little co-occurrence history for the engine to learn from, so it leaves most alerts as separate singletons with no correlation chip. That's expected, not a failure. Correlation strengthens over the following days as the engine sees which alerts tend to fire together.
 
-### Was this grouping correct?
+### Feedback
 
 Under the reason, a **Was this grouping correct?** control takes feedback with **Correct** and **Wrong**.
 
-Choosing **Wrong** lets you point at the specific alert that doesn't belong, or mark the whole group as wrong. That feedback trains the correlation engine: a **Wrong** verdict makes it less likely to pair those alerts again, and **Correct** reinforces the grouping. Feedback appears only on Auto-correlated groups, since a Static group has no engine decision to correct.
+Choosing **Wrong** lets you point at the specific alert that doesn't belong, or mark the whole group as wrong. That feedback trains the correlation engine: a **Wrong** verdict makes it less likely to pair those alerts again, and **Correct** reinforces the grouping.
 
 ## When a group resolves
 
