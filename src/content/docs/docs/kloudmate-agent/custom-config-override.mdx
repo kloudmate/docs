@@ -8,40 +8,44 @@ sidebar:
 
 import { LinkCard, CardGrid } from '@astrojs/starlight/components';
 
-The **custom config override** lets you add your own collector configuration on top of a managed agent, without giving up managed mode. Use it when the managed integrations cover almost everything you need and you want to add one processor, adjust an exporter, or wire in an extra pipeline.
+The **custom config override** lets you add your own collector configuration on top of a managed agent, without giving up managed mode. Use it when the managed integrations cover almost everything you need and you want to add a processor, send data to a second place, or turn off one metric.
 
-This is the lighter alternative to [manual mode](../advanced-configuration/). Manual mode hands you the whole collector YAML and turns the feature toggles off. The override keeps you in managed mode, keeps every toggle working, and applies only the small piece of YAML you add.
+This is the recommended alternative to [manual mode](../advanced-configuration/). Manual mode hands you the whole collector YAML and turns the feature toggles off. The override keeps you in managed mode, keeps every toggle working, and applies only the piece of YAML you add.
+
+Write plain collector YAML. You don't add a `kloudmate:` wrapper or know the rest of the config. The agent merges what you write into the live configuration on the host.
 
 ## Where the override sits
 
-Your override is the **final layer** of the agent's configuration. The agent merges it on top of everything else, in this order:
+Your override is the final layer of the agent's configuration. The agent applies it on top of everything else, in this order:
 
 1. The base configuration.
 2. Whatever your managed integrations generate.
 3. Every receiver and processor the agent adds automatically (eBPF, PHP, PM2, database monitoring, and so on).
-4. **Your override, last.**
+4. Your override, last.
 
-Because it merges last, the override wins any conflict. It is also kept when your integrations change, so you do not have to reapply it after toggling a feature.
+Because it applies last, the override wins any conflict. The agent also keeps it when your integrations change, so you don't reapply it after toggling a feature.
 
 ## Set an override
 
 1. Open the agent's **Configuration** page.
 2. Find the **Custom config override** section.
-3. Enter your collector YAML in the editor. It is validated as you type.
+3. Enter your collector YAML in the editor. It's validated as you type.
 4. Choose **Save override**.
 
 The agent picks up the change on its next check-in.
 
 ## How the merge works
 
-The override is deep-merged with the configuration underneath it:
+What happens depends on what you write:
 
-- **Maps merge.** Adding a new processor under `processors:` leaves the existing processors untouched.
-- **Scalars and lists are replaced, not combined.** If your override sets a key that already has a value, or a list such as a pipeline's `receivers:`, your value replaces what was there. A list is never appended to, so include every element you want when you override one.
+- **Pipeline lists add, they don't replace.** When you set a pipeline's `processors`, `receivers`, or `exporters`, the agent adds your entries to what's already there and keeps everything the managed config and automatic monitoring put in the pipeline. List only what you want to add. A new processor lands just before `batch`. Adding a component that's already present does nothing, so an override stays correct even as the agent adds more receivers over time.
+- **Everything else deep-merges.** Maps merge key by key, so you change one setting by writing only the path down to it. A scalar or a non-pipeline list that you set replaces what was there.
 
-## Example: stamp an attribute on all metrics
+Two things an override can't do: remove a component from a pipeline, or change where the agent sends data. You can add another destination, but the default one stays and can't be repointed. To stop collecting something, add a `filter` processor instead of removing one.
 
-This adds a `resource` processor and wires it into the metrics pipeline, so every metric carries a `team` attribute:
+## Add a processor to a pipeline
+
+Stamp a `team` attribute on every metric. List only `resource/team`; the agent adds it to the metrics pipeline before `batch` and leaves the other processors in place.
 
 ```yaml
 processors:
@@ -56,11 +60,152 @@ service:
       processors: [resource/team]
 ```
 
-Because a list is replaced rather than merged, the `processors:` list you set here becomes the metrics pipeline's processor list. Include the other processors that pipeline needs alongside `resource/team`.
+## Send data to a second destination
 
-## Example: raise exporter verbosity while debugging
+Fan traces out to your own endpoint alongside KloudMate. Define the exporter, then add it to the pipeline. The default `otlphttp` exporter stays, so KloudMate keeps receiving the same traces.
 
-To make the debug exporter log full telemetry while you diagnose a pipeline:
+```yaml
+exporters:
+  otlphttp/backup:
+    endpoint: https://otel.example.com:4318
+    headers:
+      Authorization: <your-token>
+service:
+  pipelines:
+    traces:
+      exporters: [otlphttp/backup]
+```
+
+## Turn off a single metric
+
+Disable one host metric without touching the rest. Maps merge, so you write only the path to the `enabled` flag. Every other scraper, metric, and setting stays as the managed config left it.
+
+```yaml
+receivers:
+  hostmetrics:
+    scrapers:
+      cpu:
+        metrics:
+          system.cpu.utilization:
+            enabled: false
+```
+
+## Drop telemetry that matches a condition
+
+To stop collecting something, add a `filter` processor rather than removing one. Conditions are [OTTL](https://opentelemetry.io/docs/collector/transforming-telemetry/) expressions, so you drop exactly what you don't want. This drops health-check spans and any span under an internal path:
+
+```yaml
+processors:
+  filter/drop_noise:
+    error_mode: ignore
+    traces:
+      span:
+        - 'span.attributes["http.route"] == "/healthz"'
+        - 'IsMatch(span.attributes["url.path"], "/internal/.*")'
+service:
+  pipelines:
+    traces:
+      processors: [filter/drop_noise]
+```
+
+The same processor drops a high-volume metric:
+
+```yaml
+processors:
+  filter/drop_metric:
+    error_mode: ignore
+    metrics:
+      metric:
+        - 'metric.name == "process.runtime.gc_count"'
+service:
+  pipelines:
+    metrics:
+      processors: [filter/drop_metric]
+```
+
+## Keep only the logs that matter
+
+To cut log volume without losing the signal, keep `WARN` and above and drop the rest. This is usually a bigger and safer saving than random log sampling, which drops errors along with the noise.
+
+```yaml
+processors:
+  filter/min_severity:
+    error_mode: ignore
+    logs:
+      log_record:
+        - 'log.severity_number < SEVERITY_NUMBER_WARN'
+service:
+  pipelines:
+    logs:
+      processors: [filter/min_severity]
+```
+
+Adjust the threshold: `SEVERITY_NUMBER_INFO` keeps info and above, `SEVERITY_NUMBER_ERROR` keeps only errors.
+
+## Sample a percentage of traces and logs
+
+Sampling cuts volume *uniformly*: it keeps a random fraction and drops the rest, **including errors in the same proportion**. Use it for high-volume but uniform telemetry (a firehose of successful requests), and pair it with the filters above so the records you care about still survive.
+
+The `probabilistic_sampler` keeps a deterministic percentage of traces by trace ID, so every span of a kept trace stays together:
+
+```yaml
+processors:
+  probabilistic_sampler:
+    sampling_percentage: 10
+service:
+  pipelines:
+    traces:
+      processors: [probabilistic_sampler]
+```
+
+For logs, `attribute_source: record` samples every log. The default, `traceID`, only samples logs that carry a trace ID, so unlinked logs pass through untouched:
+
+```yaml
+processors:
+  probabilistic_sampler/logs:
+    sampling_percentage: 10
+    attribute_source: record
+service:
+  pipelines:
+    logs:
+      processors: [probabilistic_sampler/logs]
+```
+
+## Keep error and slow traces, sample the rest
+
+Tail sampling decides after a trace finishes, so you can keep every error and slow trace whole and sample only the successful, fast ones. Add the `tail_sampling` processor to the traces pipeline:
+
+```yaml
+processors:
+  tail_sampling:
+    decision_wait: 5s
+    policies:
+      - name: keep-errors
+        type: status_code
+        status_code:
+          status_codes: [ERROR]
+      - name: keep-slow
+        type: latency
+        latency:
+          threshold_ms: 1000
+      - name: sample-the-rest
+        type: probabilistic
+        probabilistic:
+          sampling_percentage: 10
+```
+
+```yaml
+service:
+  pipelines:
+    traces:
+      processors: [tail_sampling]
+```
+
+Set `decision_wait` comfortably longer than your slowest trace, since the collector buffers a trace's spans in memory until then. Tail sampling also needs every span of a trace to reach the same collector, which holds on a VM or Docker host. On Kubernetes spans are spread across per-node agents, so tail sampling belongs on a single gateway collector, not the node agents.
+
+## Change a component setting
+
+Adjust an existing component by setting only the field you want. This makes the debug exporter log full telemetry while you diagnose a pipeline.
 
 ```yaml
 exporters:
@@ -68,9 +213,27 @@ exporters:
     verbosity: detailed
 ```
 
+## On Kubernetes
+
+A Kubernetes agent runs two collectors, so the override is split into two sections. Put node-level changes under `daemonset_config` and cluster-level changes under `deployment_config`. Each section is plain collector YAML and merges the same way.
+
+```yaml
+deployment_config:
+  processors:
+    resource/env:
+      attributes:
+        - key: deployment.environment
+          value: production
+          action: upsert
+  service:
+    pipelines:
+      metrics/otlp:
+        processors: [resource/env]
+```
+
 ## Safety
 
-Before it applies a new configuration, the agent validates it. If your override makes the configuration invalid (most often from a wrong top-level key), the agent **rejects it and keeps the last working configuration** instead of restarting the collector into a broken state. The reason is reported back to your workspace, so you can see why an override was not applied without logging in to the host.
+Before it applies a new configuration, the agent validates it. If your override makes the configuration invalid, most often from a wrong top-level key, the agent rejects it and keeps the last working configuration instead of restarting the collector into a broken state. The reason is reported back to your workspace, so you can see why an override wasn't applied without logging in to the host.
 
 ## Related
 

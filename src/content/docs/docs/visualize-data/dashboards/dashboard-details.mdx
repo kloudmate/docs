@@ -27,7 +27,7 @@ The toolbar at the top provides the following controls:
 ![image](./images/dashboard-details-3.jpeg)
 
 - **Export:** Exports the dashboard.
-- **Share:** Opens the Share Dashboard dialog to generate a public link.
+- **Share:** Opens the Share Dashboard dialog, with options for a public link or a copy of the dashboard's JSON.
 - **Fullscreen:** Expands the dashboard to fullscreen view.
 - **Edit:** Enters edit mode to modify the dashboard and its panels.
 
@@ -42,9 +42,13 @@ KloudMate integrates alerts directly into your dashboard visualizations, providi
 
 ## Sharing a Dashboard
 
-Click the **Share** button to open the Share Dashboard dialog. Sharing generates a public link that anyone can use to view the dashboard without logging in to KloudMate.
+Click **Share** — from the dashboard list's more options (⋯) icon, or from an individual dashboard's toolbar — to open the Share Dashboard dialog. Both entry points offer the same two options.
 
 ![image](./images/dashboard-details-2.png)
+
+### Public link
+
+Generates a link that anyone can use to view the dashboard without logging in to KloudMate.
 
 - **Enable public sharing:** Toggle this on to activate the public link.
 - **Allow time range selection:** Toggle this on to let viewers change the time range when viewing the shared dashboard.
@@ -52,14 +56,10 @@ Click the **Share** button to open the Share Dashboard dialog. Sharing generates
 
 Click **Save** to apply the settings. The shared link can be managed from the **Public Dashboards** page.
 
-## Sharing a Dashboard Across Workspaces
+### Copy JSON
 
-You can replicate a dashboard in another workspace by exporting it as JSON. This saves time when the same dashboard layout is needed across multiple workspaces.
-
-To share:
-
-1. Open the dashboard and click the more options icon, then select **Share**. This copies the dashboard JSON to your clipboard.
+Copies the dashboard's JSON definition to your clipboard. Use this to replicate a dashboard in another workspace: same layout, no manual rebuild.
 
 ![image](./images/dashboard-details-4.jpeg)
 
-2. Navigate to the Dashboards section in the target workspace, click **Import** , paste the copied JSON, and click **Submit**. The dashboard is recreated in the new workspace.
+To recreate it elsewhere, navigate to the Dashboards section in the target workspace, click **Import**, paste the copied JSON, and click **Submit**. The dashboard is recreated in the new workspace.
