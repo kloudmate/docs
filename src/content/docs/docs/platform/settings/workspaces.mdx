@@ -5,37 +5,54 @@ sidebar:
   label: "Workspaces"
   order: 2
 ---
+
 Workspaces let you organize data sources, services, and users by environment, team, or ownership boundary.
 
 ## Manage Workspaces
 
-You create your first workspace during [initial setup](../../../getting-started/setting-up-kloudmate/). After that, you can create and manage additional workspaces from **Settings -> Workspaces**.
+You create your first workspace during [initial setup](../../../getting-started/setting-up-kloudmate/). After that, manage additional workspaces from **Settings → Workspaces**.
 
 From this page, you can:
 
 - View existing workspaces
-- Create a new workspace
+- Add a new workspace
 - Rename a workspace
 - Delete a workspace
 
-![image](./images/workspaces-1.png)
+![Workspaces settings page, showing the organization's workspace list, usage against the plan limit, and the Add Workspace button](./images/workspaces-list.png)
 
 ## Create a Workspace
 
-1. Click **Add Workspace**.
-2. Enter the workspace name.
-3. Submit the form to create the workspace.
+Click **Add Workspace** to start a three-step wizard that creates the workspace and confirms data is flowing into it, rather than just naming an empty workspace.
 
-![image](./images/workspaces-2.png)
+1. **Workspace.** Name the new workspace. Stack and team settings carry over from the organization, so this step only needs a name.
 
-## Edit or Delete a Workspace
+   ![Add a workspace wizard, step 1: naming the new workspace](./images/workspaces-create-step1.png)
 
-Use the edit action to rename a workspace. Use the delete action to permanently remove the workspace.
+2. **Send data to KloudMate.** Choose how to send data to the new workspace, either the KloudMate OpenTelemetry Agent or AWS Integration. Each workspace gets its own ingest API key.
 
-![image](./images/workspaces-3.png)
+   ![Add a workspace wizard, step 2: choosing OpenTelemetry Agent or AWS Integration](./images/workspaces-create-step2-methods.png)
+
+   - **OpenTelemetry Agent:** install the agent, or, if you already run an OpenTelemetry Collector, point it at the given endpoint using the generated API key as the `Authorization` header.
+
+     ![Add a workspace wizard, step 2: OpenTelemetry Agent install and Collector API key](./images/workspaces-create-step2-otel.png)
+
+   - **AWS Integration:** name the AWS account KloudMate will connect to. You can add more accounts later from **Settings → Data Sources**.
+
+     ![Add a workspace wizard, step 2: naming the AWS account for AWS Integration](./images/workspaces-create-step2-aws.png)
+
+3. **Verify ingestion.** The wizard waits for the first event to confirm data is reaching the workspace. This usually takes a few seconds, longer for a fresh install. Select **Skip for now** to finish setup without waiting.
+
+   ![Add a workspace wizard, step 3: waiting for the first event to confirm ingestion](./images/workspaces-create-step3-verify.png)
+
+## Rename or Delete a Workspace
+
+Open the **⋯** menu on a workspace's row and choose **Rename** or **Delete**. Deleting a workspace is permanent.
+
+![Workspace row menu with Rename and Delete actions](./images/workspaces-rename-delete.png)
 
 ## Switch Between Workspaces
 
-If you belong to multiple workspaces, use the workspace selector in the top-right corner of the interface to switch context.
+Click the workspace selector in the top-left corner of the interface to switch context. If you belong to multiple organizations, the switcher groups workspaces by organization so you can jump between them without signing out.
 
-![image](./images/workspaces-4.png)
+![Workspace switcher, grouping workspaces by organization](./images/workspaces-switcher.png)

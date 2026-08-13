@@ -20,21 +20,20 @@ Use a maintenance window when you have a calendar-driven quiet period: a planned
 The overview page lists every maintenance window with these details:
 
 - **Name:** name of the maintenance window.
-- **Description:** description of the maintenance window.
+- **Type:** whether the window is **One Time** or **Recurring**.
 - **Alert rule targeted:** the alert rule the maintenance window applies to.
-- **Matching label:** labels assigned to the maintenance window.
+- **Matching labels:** labels assigned to the maintenance window.
 - **Schedule:** start and end time for the maintenance window.
 - **Status:** whether the maintenance window is active or paused.
 
-![Maintenance window overview](./images/alarm-maintenance-window-1.png)
+Each row also has an **Actions** menu for further row-level controls.
+
+![Maintenance window overview](./images/maintenance-window-1.png)
 
 ## Creating a maintenance window
 
 1. Open the **Maintenance Windows** page in the Alerts module.
 2. Click **Create Maintenance Window**.
-
-![Create Maintenance Window](./images/alarm-maintenance-window-1.jpeg)
-
 3. Configure these details:
 
 - **Name:** a name for the maintenance window.
@@ -43,7 +42,7 @@ The overview page lists every maintenance window with these details:
 - **One time:** schedules the maintenance period once, for a specific date and time.
 - **Recurring:** repeats automatically on a regular cycle, so you don't reconfigure it each time.
 
-![Maintenance window timing options](./images/alarm-maintenance-window-2.jpeg)
+![Maintenance window Name, Description, Timezone, and One time/Recurring fields](./images/maintenance-window-2.png)
 
 Additional settings:
 
@@ -52,6 +51,8 @@ Additional settings:
 - **Frequency:** available only for recurring windows; select a daily, weekly, or monthly schedule.
 - **Label Matchers:** target the window to specific alerts by their labels (for example, service name, host, or region). Each matcher is a label key, an operator, and a value, combined with AND. The operators are the same four used across the alert module (**Equals**, **Not equals**, **Matches regex**, **Doesn't match regex**), matched against alert rule labels and alert instance labels.
 
+As you add matchers, an **Affected Alert Instances** preview lists the alert rules and instances the window currently matches, so you can confirm its scope before saving.
+
 4. Click **Save** to create the new maintenance window.
 
-![Maintenance window saved](./images/alarm-maintenance-window-3.jpeg)
+![Maintenance window additional settings, Affected Alert Instances preview, and Save button](./images/maintenance-window-3.png)

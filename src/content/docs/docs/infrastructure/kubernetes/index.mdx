@@ -53,12 +53,35 @@ Use these guides when you need deeper service-level visibility:
 
 KloudMate provides visibility into all major Kubernetes components:
 
-- **Clusters:** overall health, capacity, and scale
-- **Nodes:** infrastructure-level resource usage and node health
-- **Namespaces:** resource distribution across teams, applications, or environments
-- **Pods:** pod performance, restarts, and resource consumption
-- **Storage:** Persistent Volume Claims (PVCs) across clusters — status, claim, storage class, and capacity
-- **Workloads:** health and availability of deployments, daemonsets, and statefulsets
+### Clusters
+
+The **Clusters** tab lists every connected cluster, with overall health, capacity, and scale at a glance. Use it as the starting point before drilling into a specific node, namespace, or workload.
+
+### Nodes
+
+The **Nodes** tab lists every node across your clusters, showing node health and infrastructure-level resource usage: allocatable CPU and memory alongside current usage for each. Use it to spot nodes running hot before they affect scheduling.
+
+![Nodes tab in Kubernetes Monitoring, showing CPU and memory allocatable capacity and usage per node](./images/kubernetes-nodes-tab.png)
+
+### Namespaces
+
+The **Namespaces** tab breaks resource distribution down by namespace, so you can see how CPU, memory, and workload counts spread across the teams, applications, or environments sharing a cluster.
+
+### Pods
+
+The **Pods** tab lists every pod across your clusters, with its performance, restart count, and resource consumption. Use it to find pods that are restarting frequently or running hot before they affect the workloads they belong to.
+
+### Storage
+
+The **Storage** tab lists Persistent Volume Claims (PVCs) across your clusters, with their status, claim, storage class, and capacity. Use it to see what's provisioned and bound without checking each cluster individually.
+
+![Storage tab in Kubernetes Monitoring, listing Persistent Volumes with their cluster, status, claim, storage class, and capacity](./images/kubernetes-storage-tab.png)
+
+### Workloads
+
+The **Workloads** tab lists deployments, daemonsets, statefulsets, and other workload types across your clusters, showing their health and availability alongside pod counts and CPU and memory requests and limits. Filter by workload type, namespace, or cluster to narrow the list.
+
+![Workloads tab in Kubernetes Monitoring, listing deployments with pod counts and CPU/memory request and limit values](./images/kubernetes-workloads-tab.png)
 
 ## Validation Checklist
 
