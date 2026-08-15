@@ -21,7 +21,7 @@ Alert expressions support three operations:
 
 A math expression takes the time series or numbers returned by a query or expression and transforms them with mathematical operations or functions.
 
-![image](./images/writing-expressions-for-kloudmate-alarms-1.png)
+![image](./images/expressions-1.png)
 
 **Input:** any mathematical operation to apply to the data returned from other queries or expressions. Reference queries and expressions by their letter, prefixed with a dollar sign, for example `$A`.
 
@@ -96,11 +96,11 @@ Reduce takes the time series or numbers returned by a query or expression and tu
 
 - **Reduction function:** select the function to apply: `mean()`, `max()`, `min()`, `sum()`, `last()`, or `count()`.
 
-![image](./images/writing-expressions-for-kloudmate-alarms-2.png)
+![image](./images/expressions-2.png)
 
 - **Input:** select the query or expression to reduce by its letter.
 
-![image](./images/writing-expressions-for-kloudmate-alarms-3.png)
+![image](./images/expressions-3.png)
 
 The reduction function aggregates the values of the query or expression into a single value.
 
@@ -110,19 +110,19 @@ A condition expression takes the time series or numbers returned by queries or e
 
 - **WHEN:** select the reduction function: `last()`, `mean()`, `max()`, `min()`, `sum()`, or `count()`.
 
-![image](./images/writing-expressions-for-kloudmate-alarms-4.png)
+![image](./images/expressions-4.png)
 
 - **OF:** select the query or expression by its letter (for example, A or C).
 
-![image](./images/writing-expressions-for-kloudmate-alarms-5.png)
+![image](./images/expressions-5.png)
 
 - **Condition string:** select the comparison: `IS ABOVE`, `IS SAME OR ABOVE`, `IS BELOW`, or `IS SAME OR BELOW`.
 
-![image](./images/writing-expressions-for-kloudmate-alarms-6.png)
+![image](./images/expressions-6.png)
 
 - **Threshold:** enter the numeric value to evaluate the condition against.
 
-![image](./images/writing-expressions-for-kloudmate-alarms-7.png)
+![image](./images/expressions-7.png)
 
 The reduction function is applied to the query or expression to produce a single value, which is then compared against the threshold using the condition you chose. When the input is a collection of time series or numbers, the reduction function is applied to each element individually, each reduced output is evaluated against the condition, and the outputs are combined with AND.
 
@@ -132,16 +132,16 @@ Add more conditions with the **Add condition** button, and choose how they combi
 
 Nodes represent the individual queries or expressions used to build alerts and dashboards. KloudMate assigns each node a letter by default (for example, A, B, or C), based on the order it was created.
 
-![image](./images/writing-expressions-for-kloudmate-alarms-1.jpeg)
+![image](./images/expressions-8.png)
 
 Nodes serve as reference points, so you can identify and evaluate specific queries or expressions during analysis.
 
-![image](./images/writing-expressions-for-kloudmate-alarms-2.jpeg)
+![image](./images/expressions-9.png)
 
 KloudMate names nodes alphabetically by default, but you can rename them for clarity.
 
-![image](./images/writing-expressions-for-kloudmate-alarms-3.jpeg)
+![image](./images/expressions-10.png)
 
 If a custom node name includes spaces, enclose it in **${}**. For example: `${CPU usage}`
 
-![image](./images/writing-expressions-for-kloudmate-alarms-4.jpeg)
+![image](./images/expressions-11.png)

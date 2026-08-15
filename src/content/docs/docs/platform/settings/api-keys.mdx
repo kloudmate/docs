@@ -1,6 +1,6 @@
 ---
 title: "API Keys"
-description: "Create and manage API keys: User Keys for programmatic and MCP access, and Ingest Keys for sending telemetry to KloudMate."
+description: "Create and manage API keys: Personal API Keys that act on your behalf for the API and MCP, and Ingest Keys for sending telemetry into a workspace."
 sidebar:
   label: "API Keys"
   order: 2
@@ -8,17 +8,16 @@ sidebar:
 
 import { Steps } from '@astrojs/starlight/components';
 
-API keys authenticate requests to KloudMate. You'll use them for two jobs: sending telemetry *into* your workspace, and reading data back *out* through the KloudMate API or the [MCP server](../../../kloudmate-assistant/mcp-server/). What a key can do comes down to its **type**, which you choose when you create it.
+KloudMate has two kinds of API key, each for a different job:
 
-Find your keys under **Settings → API Keys**. The page lists every key in the workspace along with its type, note, and creation date. A key belongs to the workspace it's created in, so create it in the workspace whose data you want to reach. Adding a key requires the **Admin** role.
+- **Personal API Keys** authenticate *you*. Use one to read your data through the KloudMate API or the [MCP server](../../../kloudmate-assistant/mcp-server/). The key carries your own account's permissions.
+- **Ingest Keys** authenticate a *workspace's data pipeline*. Your OpenTelemetry collectors, SDKs, and the KloudMate agent use one to send logs, metrics, and traces into a single workspace.
 
-## Key types
+## Personal API Keys
 
-KloudMate has three key types. Pick the one that matches what you're building.
+A personal key acts on your behalf. It's tied to **your** account and pinned to your current organization, so it can reach every workspace you belong to in that org, with exactly the permissions you already have, and nothing more.
 
-### User Key
-
-A User Key works for any KloudMate API operation and is tied to **your** account's permissions — it can read whatever you can read. This is the key to use for the [KloudMate MCP server](../../../kloudmate-assistant/mcp-server/), and for any script or service that queries your observability data through the API.
+Find your personal keys in the account menu (top-right) under **API keys**, on the **Personal API Keys** screen in your profile. Any signed-in user can create one; you don't need an admin role, because the key can only do what you can already do.
 
 Pass it as a bearer token:
 
@@ -26,7 +25,23 @@ Pass it as a bearer token:
 Authorization: Bearer YOUR_API_KEY
 ```
 
-Because the key carries your access, treat it like a password. Anyone holding it can act as you in the workspace.
+...or in the `x-api-key` header:
+
+```http
+x-api-key: YOUR_API_KEY
+```
+
+This is the key to use for the [KloudMate MCP server](../../../kloudmate-assistant/mcp-server/) and for any script or service that queries your observability data. Because it carries your access, treat it like a password. Anyone holding it can act as you.
+
+:::note
+A personal key spans every workspace you can reach, so a tool that reads from **one** workspace at a time, like the MCP server, also needs you to name the target workspace on each request. The [MCP server](../../../kloudmate-assistant/mcp-server/) setup shows how with the `x-workspace-id` header.
+:::
+
+## Ingest Keys
+
+Ingest keys send telemetry into a single workspace. A key belongs to the workspace it's created in, so create it in the workspace whose data you want to fill. Find them in that workspace under **Settings → Ingest Keys**; adding one requires the **Admin** role.
+
+There are two kinds.
 
 ### Ingest Key — Backend
 
@@ -46,23 +61,39 @@ exporters:
 
 A Frontend ingest key is for telemetry sent straight from a browser or mobile app, such as [Real-User Monitoring](../../../rum/). Because the key ships in client code where anyone can read it, you must list the **allowed hosts** it can send from. Data from any other origin is rejected, which limits the damage if the key leaks.
 
-## Create an API key
+## Create a key
+
+### A personal key
 
 <Steps>
 
-1. Go to **Settings → API Keys** and click **Add New**. (The button appears only if you have the Admin role.)
+1. Open the account menu (top-right) and click **API keys**.
 
-2. Choose a **Key Type** — User Key, Ingest Key – Backend, or Ingest Key – Frontend. You can't change the type after the key is created, so pick the one that fits.
+2. Click **Create Key**.
 
-3. For a Frontend ingest key, add at least one **allowed host**. Include the protocol and port if there is one, for example `https://app.example.com`. Data sent from any other origin is rejected.
+3. Add a **Note** that says what the key is for: `mcp-cli`, `reporting-script`. The list shows only the note, so make it recognizable.
 
-4. Add a **Note** that says what the key is for — `mcp-server`, `prod-otel-collector`, `rum-web`. The list shows only the note, so make it recognizable.
+4. Click **Create**.
+
+</Steps>
+
+### An ingest key
+
+<Steps>
+
+1. In the workspace you want to send data to, go to **Settings → Ingest Keys** and click **Add New**. (The button appears only if you have the Admin role.)
+
+2. Choose **Ingest Key – Backend** or **Ingest Key – Frontend**. You can't change the type after the key is created, so pick the one that fits.
+
+3. For a Frontend key, add at least one **allowed host**. Include the protocol and port if there is one, for example `https://app.example.com`. Data sent from any other origin is rejected.
+
+4. Add a **Note** that says what the key is for: `prod-otel-collector`, `rum-web`.
 
 5. Click **Submit**.
 
 </Steps>
 
-The key is shown **once**, right after you create it:
+Either way, the key is shown **once**, right after you create it:
 
 > Please copy and save the API key below as it will not be shown again.
 
@@ -70,9 +101,9 @@ Copy it then and store it somewhere safe — a secret manager, your client's con
 
 ## Edit or delete a key
 
-You can edit or delete only the keys **you** created. Open the actions menu on a key's row to find both.
+Manage a personal key from the **Personal API Keys** screen, and an ingest key from **Settings → Ingest Keys**. Open the actions menu on a key's row to find both actions. You can edit or delete the personal keys you own. With the Admin role, you can do the same to the ingest keys in your workspace.
 
-- **Edit** lets you change the note and, for a Frontend key, its allowed hosts. The key type is fixed once created.
-- **Delete** is permanent — *this action cannot be undone*. Any agent, collector, app, or MCP client using that key stops working the moment you delete it, so swap in a replacement first if the key is in active use.
+- **Edit** lets you change the note, and for a Frontend ingest key its allowed hosts. The key type is fixed once created.
+- **Delete** is permanent: *this action cannot be undone*. Any agent, collector, app, script, or MCP client using that key stops working the moment you delete it, so swap in a replacement first if the key is in active use.
 
 Delete a key promptly if it's exposed or no longer needed. That's the way to cut off access for a key that's been leaked.

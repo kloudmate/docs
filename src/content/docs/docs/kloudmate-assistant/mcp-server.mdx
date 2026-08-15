@@ -16,30 +16,32 @@ Once you're connected, your agent can chain KloudMate's query tools to investiga
 
 ## Connection details
 
-The server is a single remote endpoint. You authenticate with a KloudMate [User Key](../../platform/settings/api-keys/#user-key) passed as a bearer token.
+The server is a single remote endpoint. You authenticate with a KloudMate [Personal API Key](../../platform/settings/api-keys/#personal-api-keys) passed as a bearer token, and name the workspace you want to read with an `x-workspace-id` header.
 
 | Setting | Value |
 |---|---|
 | **Endpoint** | `https://api.kloudmate.com/mcp` |
 | **Transport** | Streamable HTTP |
 | **Authentication** | `Authorization: Bearer YOUR_API_KEY` |
+| **Workspace** | `x-workspace-id: YOUR_WORKSPACE_ID` |
 
-The API key determines which workspace the connection reads from, so you never specify a workspace ID — the key already scopes it. To connect a different workspace, use a key that belongs to that workspace.
+A personal key carries your access to every workspace you belong to, so the connection needs the `x-workspace-id` header to know which one to read. Find the workspace ID in the workspace's URL in the KloudMate app. To point the same key at a different workspace, change that header. One key works for all of them.
 
 ## Before you start
 
-You'll need two things:
+You'll need:
 
-- **A KloudMate User Key.** Under **Settings → API Keys**, click **Add New** and choose the **User Key** type — it's tied to your account's permissions and reads whatever you can read. Copy it when it's shown (it's shown only once) and keep it handy for your client's config. See [API Keys](../../platform/settings/api-keys/#user-key) for the full walkthrough. Creating a key requires the Admin role.
+- **A KloudMate Personal API Key.** From the account menu (top-right), open **API keys** and click **Create Key**. It's tied to your account and reads whatever you can read. Copy it when it's shown (it's shown only once) and keep it handy for your client's config. Any signed-in user can create one; no admin role needed. See [API Keys](../../platform/settings/api-keys/#personal-api-keys) for the full walkthrough.
+- **The workspace ID** you want to query. Find it in the workspace's URL in the KloudMate app; it goes in the `x-workspace-id` header.
 - **An MCP-capable client.** Any tool that supports remote MCP servers over Streamable HTTP with custom headers works. The steps below cover Claude Code, Cursor, VS Code, and Claude Desktop.
 
 :::caution
-Your API key carries your access to the workspace. Treat it like a password: don't paste it into shared files or commit it to version control. The client configs below show how to keep it in an environment variable or a prompted secret instead of hardcoding it. If a key leaks, revoke it from **Settings → API Keys**.
+Your API key carries your KloudMate access. Treat it like a password: don't paste it into shared files or commit it to version control. The client configs below show how to keep it in an environment variable or a prompted secret instead of hardcoding it. If a key leaks, delete it from the **Personal API Keys** screen in your account menu.
 :::
 
 ## Connect your client
 
-Pick your tool and follow the steps. Swap `YOUR_API_KEY` for the key you just created.
+Pick your tool and follow the steps. Swap `YOUR_API_KEY` for the key you just created, and `YOUR_WORKSPACE_ID` for the workspace you want to query.
 
 <Tabs>
 <TabItem label="Claude Code">
@@ -48,14 +50,16 @@ Add the server from your terminal with the `claude mcp add` command:
 
 ```bash
 claude mcp add --transport http kloudmate https://api.kloudmate.com/mcp \
-  --header "Authorization: Bearer YOUR_API_KEY"
+  --header "Authorization: Bearer YOUR_API_KEY" \
+  --header "x-workspace-id: YOUR_WORKSPACE_ID"
 ```
 
 By default the server is available in the current project only. Add `--scope user` before the server name to make it available across all your projects:
 
 ```bash
 claude mcp add --transport http --scope user kloudmate https://api.kloudmate.com/mcp \
-  --header "Authorization: Bearer YOUR_API_KEY"
+  --header "Authorization: Bearer YOUR_API_KEY" \
+  --header "x-workspace-id: YOUR_WORKSPACE_ID"
 ```
 
 Run `/mcp` inside Claude Code to confirm `kloudmate` shows as connected and to see the tools it exposes.
@@ -71,7 +75,8 @@ Create or edit `~/.cursor/mcp.json` (global, all projects) or `.cursor/mcp.json`
     "kloudmate": {
       "url": "https://api.kloudmate.com/mcp",
       "headers": {
-        "Authorization": "Bearer ${env:KLOUDMATE_API_KEY}"
+        "Authorization": "Bearer ${env:KLOUDMATE_API_KEY}",
+        "x-workspace-id": "YOUR_WORKSPACE_ID"
       }
     }
   }
@@ -91,7 +96,7 @@ Create `.vscode/mcp.json` in your workspace. The `inputs` block prompts you for 
     {
       "type": "promptString",
       "id": "kloudmate-api-key",
-      "description": "KloudMate User API Key",
+      "description": "KloudMate Personal API Key",
       "password": true
     }
   ],
@@ -100,7 +105,8 @@ Create `.vscode/mcp.json` in your workspace. The `inputs` block prompts you for 
       "type": "http",
       "url": "https://api.kloudmate.com/mcp",
       "headers": {
-        "Authorization": "Bearer ${input:kloudmate-api-key}"
+        "Authorization": "Bearer ${input:kloudmate-api-key}",
+        "x-workspace-id": "YOUR_WORKSPACE_ID"
       }
     }
   }
@@ -126,7 +132,9 @@ Open `claude_desktop_config.json` (**Settings → Developer → Edit Config**) a
         "mcp-remote",
         "https://api.kloudmate.com/mcp",
         "--header",
-        "Authorization:${AUTH_HEADER}"
+        "Authorization:${AUTH_HEADER}",
+        "--header",
+        "x-workspace-id:YOUR_WORKSPACE_ID"
       ],
       "env": {
         "AUTH_HEADER": "Bearer YOUR_API_KEY"
@@ -146,7 +154,7 @@ The config file lives at:
 </TabItem>
 </Tabs>
 
-Using a different client? Point it at `https://api.kloudmate.com/mcp` with an `Authorization: Bearer YOUR_API_KEY` header. Any client that speaks Streamable HTTP and lets you set request headers can connect.
+Using a different client? Point it at `https://api.kloudmate.com/mcp` with an `Authorization: Bearer YOUR_API_KEY` header and an `x-workspace-id: YOUR_WORKSPACE_ID` header. Any client that speaks Streamable HTTP and lets you set request headers can connect.
 
 ## Verify the connection
 
@@ -154,7 +162,7 @@ Once the server is connected, your client lists the KloudMate tools and your age
 
 > Which alerts are firing in KloudMate right now?
 
-If the connection is healthy, the agent calls a KloudMate tool and answers from your workspace. If it reports an authentication failure, the key is likely wrong, revoked, or missing the `Bearer ` prefix — recheck the header and try again.
+If the connection is healthy, the agent calls a KloudMate tool and answers from your workspace. If it reports an authentication failure, the key is likely wrong, deleted, or missing the `Bearer ` prefix. Recheck the header and try again.
 
 ## Available tools
 
@@ -218,14 +226,14 @@ A triage workflow, for example, might pull the currently firing alerts, scope th
 A few things worth keeping in mind:
 
 - **Read-only.** The server can't change anything in your workspace. Connecting it can't cause an outage or alter a dashboard.
-- **Workspace-scoped.** The key binds the connection to one workspace. Use separate keys for separate workspaces.
+- **Scoped to you.** The key carries your own account's permissions, and the `x-workspace-id` header picks which workspace each request reads. It can't reach a workspace you can't.
 - **Keep the key secret.** Prefer the environment-variable or prompted-secret options above over pasting the key into a file. Add config files that contain a key to `.gitignore`.
-- **Revoke when needed.** If a key is exposed or no longer used, revoke it from **Settings → API Keys**. Any client using it stops working immediately.
+- **Delete when needed.** If a key is exposed or no longer used, delete it from the **Personal API Keys** screen in your account menu. Any client using it stops working immediately.
 
 ## Related
 
 <CardGrid>
-  <LinkCard title="API Keys" description="Create the User Key the MCP server authenticates with, and manage ingest keys." href="../../platform/settings/api-keys/#user-key" />
+  <LinkCard title="API Keys" description="Create the personal key the MCP server authenticates with, and manage ingest keys." href="../../platform/settings/api-keys/#personal-api-keys" />
   <LinkCard title="Assistant Settings" description="Connect external MCP servers and tools into the KloudMate Assistant." href="../settings/#mcp-integrations" />
   <LinkCard title="Investigations" description="Run AI-assisted root cause analysis inside KloudMate." href="../investigations/" />
   <LinkCard title="KloudMate Assistant" description="The in-app AI assistant for monitoring, dashboards, and RCA." href="../" />
