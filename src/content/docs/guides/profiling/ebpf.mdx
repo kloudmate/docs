@@ -11,7 +11,7 @@ The [OpenTelemetry eBPF profiler](https://github.com/open-telemetry/opentelemetr
 
 - A Linux host with a kernel new enough for eBPF (4.19+; 5.x recommended) and privileged access to load BPF programs (`CAP_SYS_ADMIN`/`CAP_BPF`, typically run as root or in a privileged container).
 - **The ingest endpoint**: `https://otel.kloudmate.com/v1/profiles/pyroscope`
-- **An API key** — go to **Settings → API Keys**, click **Add New**, and create an **Ingest Key – Backend**. Copy it immediately; KloudMate shows it only once.
+- **An API key** — go to **Settings → Ingest Keys**, click **Add New**, and create an **Ingest Key – Backend**. Copy it immediately; KloudMate shows it only once.
 
 ## Install and run
 
@@ -21,7 +21,7 @@ The project ships a container image, so the fastest path is running it directly 
 docker run --privileged --pid=host \
   -v /sys/kernel/debug:/sys/kernel/debug:ro \
   otel/opentelemetry-ebpf-profiler:latest \
-  -collection-agent=https://otel.kloudmate.dev/v1/profiles/pyroscope \
+  -collection-agent=https://otel.kloudmate.com/v1/profiles/pyroscope \
   -secret-token=YOUR_API_KEY \
   -environment=my-environment
 ```
