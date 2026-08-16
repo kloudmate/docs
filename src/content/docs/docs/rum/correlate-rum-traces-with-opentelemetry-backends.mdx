@@ -9,37 +9,74 @@ KloudMate's RUM lets you connect requests from your web apps to their related ba
   The RUM SDK by default adds [context propagation headers (W3C)](https://opentelemetry.io/docs/concepts/context-propagation/#propagation) to fetch and XHR requests made to the same origin. 
 :::
 
-If you want to propagate these headers to a different origin, it can be configured at initialization. 
+To reach a backend on a different origin, configure the SDK to send the headers, then allow those headers in your backend's CORS policy. Do the first without the second and the browser blocks every call to that origin.
 
-For example, if you want to propagate trace context headers to `https://api.example.com`, the RUM SDK would be initialized as shown below: 
+## Send the trace headers from the browser
+
+Pass the origins you want to propagate to as `propagateTraceHeaderCorsUrls`. To propagate trace context headers to `https://api.example.com`, initialize the SDK like this:
 
 ```javascript
 KloudMateRum.init({
-  endpoint: 'https://otel.kloudmate.dev:4318',
+  endpoint: 'https://otel.kloudmate.com:4318',
   rumAccessToken: '<YOUR_PUBLIC_API_KEY>',
   applicationName: 'my-app',
   version: '1',
   deploymentEnvironment: 'prod',
   sessionRecorder: {
       enabled: true,
-  }
+  },
   instrumentations: {
     fetch: {
-      propagateTraceHeaderCorsUrls: [new RegExp('https://api.example.com.*')]
+      propagateTraceHeaderCorsUrls: [new RegExp('https://api\\.example\\.com.*')]
     },
     xhr: {
-      propagateTraceHeaderCorsUrls: [new RegExp('https://api.example.com.*')]
+      propagateTraceHeaderCorsUrls: [new RegExp('https://api\\.example\\.com.*')]
     }
   }
 });
-
 ```
 
-This will add context propagation headers to backend requests. The backend can then generate its spans using this context. 
+This adds context propagation headers to backend requests. The backend can then generate its spans using this context.
 
 :::note
   You can find examples of context extraction on the backend here: [https://opentelemetry.io/docs/languages/js/propagation/#generic-example](https://opentelemetry.io/docs/languages/js/propagation/#generic-example) 
 :::
+
+## Allow the trace headers in your backend's CORS policy
+
+:::caution
+Skipping this step breaks the requests themselves, not just the tracing.
+:::
+
+`traceparent` isn't a [CORS-safelisted request header](https://developer.mozilla.org/en-US/docs/Glossary/CORS-safelisted_request_header), so adding it turns every cross-origin call into a preflighted one. Your backend has to name it in the `Access-Control-Allow-Headers` response header. If it doesn't, the browser blocks the request before it's ever sent:
+
+```text
+Access to fetch at 'https://api.example.com/orders' from origin 'https://app.example.com'
+has been blocked by CORS policy: Request header field traceparent is not allowed by
+Access-Control-Allow-Headers in preflight response.
+```
+
+Add `traceparent` to the allowed headers, along with `tracestate` and `baggage` if your setup propagates them. With Express and the `cors` middleware:
+
+```javascript
+app.use(cors({
+  origin: 'https://app.example.com',
+  allowedHeaders: ['content-type', 'traceparent', 'tracestate', 'baggage']
+}));
+```
+
+Other stacks set the same header under a different name: `CORS_ALLOW_HEADERS` in django-cors-headers, `allowed_headers` in rack-cors, `Access-Control-Allow-Headers` in an nginx `add_header` directive.
+
+## Troubleshoot a broken correlation
+
+Match what you're seeing in the browser to the fix:
+
+| Symptom | Cause | Fix |
+| --- | --- | --- |
+| Requests succeed, but the browser session and the backend show separate traces | The SDK never attached `traceparent`, so the backend started its own trace | Add the origin to `propagateTraceHeaderCorsUrls` |
+| Requests fail with `Request header field traceparent is not allowed by Access-Control-Allow-Headers` | The SDK attached `traceparent`, but the backend's preflight response rejects it | Add `traceparent` to `Access-Control-Allow-Headers` |
+
+To confirm the header is arriving, log `req.headers.traceparent` on the backend. A value means the trace is stitched: the ID it carries is the same one on the browser span.
 
 **Sample Integration:**
 

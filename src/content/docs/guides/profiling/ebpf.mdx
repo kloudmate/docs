@@ -21,7 +21,7 @@ The project ships a container image, so the fastest path is running it directly 
 docker run --privileged --pid=host \
   -v /sys/kernel/debug:/sys/kernel/debug:ro \
   otel/opentelemetry-ebpf-profiler:latest \
-  -collection-agent=https://otel.kloudmate.dev/v1/profiles/pyroscope \
+  -collection-agent=https://otel.kloudmate.com/v1/profiles/pyroscope \
   -secret-token=YOUR_API_KEY \
   -environment=my-environment
 ```
