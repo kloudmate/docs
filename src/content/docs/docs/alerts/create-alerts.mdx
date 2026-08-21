@@ -130,6 +130,10 @@ Add a **Group by** key (such as host or service) so each entity is scored or for
 
 Anomaly and Forecast are the same detection [Smart Alerts](../smart-alerts/) provisions and maintains automatically for common infrastructure. Both need a plan with anomaly detection; Threshold works on any plan.
 
+:::note
+The **Detection method** toggle appears only for KloudMate metric queries. Anomaly and Forecast rely on the learned baselines KloudMate builds from your metrics, which aren't available for AWS (CloudWatch) or log and trace queries. Those sources use a **Threshold** condition.
+:::
+
 #### Setting up evaluation expressions
 
 Expressions let you apply logic to query results. Reference any query or expression by its letter, such as **A**, **B**, or **C**. An expression can be passed as a parameter only when multiple expressions are configured.
