@@ -54,6 +54,10 @@ A silence suppresses notifications for matching labels for a bounded time window
 
 A single rule can produce multiple alert instances, one per dimension. A rule watching Lambda throttling generates one instance per throttled function.
 
+### Smart alerts
+
+Instead of hand-authoring thresholds, turn on curated detectors and let KloudMate create and maintain the rules for you. Smart Alerts covers common infrastructure with anomaly, forecast, and threshold detection. See [Smart Alerts](./smart-alerts/).
+
 ## The alert workflow
 
 1. A rule retrieves data from its source using queries.
@@ -78,6 +82,7 @@ For how these states transition, and how the pending duration, recovery period, 
 
 <CardGrid>
   <LinkCard title="Create an alert" description="Walk through the alert creation form end to end." href="./create-alerts/" />
+  <LinkCard title="Smart Alerts" description="Turn on curated detectors and let KloudMate maintain the rules." href="./smart-alerts/" />
   <LinkCard title="Lifecycle & states" description="How alerts move through pending, firing, recovering, and resolve." href="./alert-lifecycle/" />
   <LinkCard title="Annotations & severity" description="Add Liquid-templated context to your notifications." href="./annotations-and-severity/" />
   <LinkCard title="Routing rules" description="Send the right alerts to the right channels." href="./routing-rules/" />

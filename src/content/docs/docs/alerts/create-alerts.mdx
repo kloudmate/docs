@@ -114,6 +114,22 @@ Query time ranges support the following:
 - **Supported values:** the same units and keywords used in dashboards
 - **Examples:** `now`, `now-5m`
 
+#### Choose a detection method
+
+In Simple mode, the **Alert when** section sets the firing condition with a **Detection method** toggle:
+
+- **Threshold:** the classic fixed rule. Pick a reduction (such as `mean` or `max`), a comparison, and a value; the alert fires when the reduced value crosses it.
+- **Anomaly:** KloudMate learns the metric's normal range for each entity and alerts when a value moves well outside it, with no threshold to set. Choose a **Sensitivity** (High, Medium, or Low) and a **Direction** (Above, Below, or Both).
+- **Forecast:** KloudMate follows the recent trend and alerts before the value reaches a **Limit**, within an **Alert horizon** of 1, 4, or 7 days. Set the **Direction** toward the max or the min. Good for disks, memory, and quotas.
+
+![The Detection method toggle set to Anomaly, with sensitivity, direction, and a preview of the learned range](./images/detection-method-anomaly.png)
+
+Add a **Group by** key (such as host or service) so each entity is scored or forecast on its own baseline. The preview shows the learned range or the projected trend; click **Preview live data** to pull this workspace's own data.
+
+![The Detection method toggle set to Forecast, with a limit, a horizon, and a projection toward the limit](./images/detection-method-forecast.png)
+
+Anomaly and Forecast are the same detection [Smart Alerts](../smart-alerts/) provisions and maintains automatically for common infrastructure. Both need a plan with anomaly detection; Threshold works on any plan.
+
 #### Setting up evaluation expressions
 
 Expressions let you apply logic to query results. Reference any query or expression by its letter, such as **A**, **B**, or **C**. An expression can be passed as a parameter only when multiple expressions are configured.
