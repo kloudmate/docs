@@ -1,6 +1,6 @@
 ---
 title: "Trace Detail"
-description: "Inspect a single trace in KloudMate — the timeline waterfall, span detail panel, and the Service List, Request Flow, and AI Flow views."
+description: "Inspect a single trace in KloudMate: the timeline waterfall, span detail panel, and the Service List, Request Flow, and AI Flow views."
 sidebar:
   order: 2
 ---
@@ -12,10 +12,10 @@ Open a trace from the [Trace Explorer](/apm-and-tracing/trace-explorer/) to insp
 Until you select a span, the left panel shows the trace summary:
 
 - **Trace ID, date, and total duration** for the request.
-- **Per-service time** — each service in the trace with its share of the request time, so you can see where the request spent most of its time.
-- **Errors** — any errored spans, with a link to jump straight to the span.
+- **Per-service time**: each service in the trace with its share of the request time, so you can see where the request spent most of its time.
+- **Errors**: any errored spans, with a link to jump straight to the span.
 
-When the trace contains GenAI spans, an **AI summary** appears here too — models, model and tool call counts, token usage, and the model-versus-tool time split. See [AI Trace Observability](/llm-observability/ai-trace-observability/).
+When the trace contains GenAI spans, an **AI summary** appears here too: models, model and tool call counts, token usage, and the model-versus-tool time split. See [Agentic Workflow Observability](/llm-observability/ai-trace-observability/).
 
 ## Timeline
 
@@ -31,10 +31,10 @@ Select any row to open its detail in the left panel.
 
 Selecting a span replaces the summary with the span's detail, organized into tabs. The tabs you see depend on the span's type, so you only get what's relevant:
 
-- **Request** and **Response** for HTTP spans — method, route, status, headers, and body.
-- **Database** for database spans — the statement and database attributes.
+- **Request** and **Response** for HTTP spans: method, route, status, headers, and body.
+- **Database** for database spans: the statement and database attributes.
 - **Message** for messaging spans.
-- **Conversation** and **Gen AI** for LLM spans — the prompt and response transcript, token usage, finish reason, and tool calls. See [AI Trace Observability](/llm-observability/ai-trace-observability/).
+- **Conversation** and **Gen AI** for LLM spans: the prompt and response transcript, token usage, finish reason, and tool calls. See [Agentic Workflow Observability](/llm-observability/ai-trace-observability/).
 - **Info** for service, host, Kubernetes, and deployment metadata.
 - **Events** and **Links** when the span has them.
 - **Attributes** for the full attribute set, grouped by semantic-convention prefix.
@@ -44,11 +44,11 @@ Selecting a span replaces the summary with the span's detail, organized into tab
 
 The toggle at the top right switches how the right panel presents the trace:
 
-- **Service List** lists the spans in a table — operation, type, and duration — for a flat, scannable view of everything in the trace.
+- **Service List** lists the spans in a table (operation, type, and duration) for a flat, scannable view of everything in the trace.
 - **Request Flow** draws the trace as a service graph, so you can see how services called each other and where errors propagated.
-- **AI Flow** appears for traces with GenAI spans. It lays out the model and tool steps as a workflow graph. See [AI Trace Observability](/llm-observability/ai-trace-observability/).
+- **AI Flow** appears for traces with GenAI spans. It lays out the model and tool steps as a workflow graph. See [Agentic Workflow Observability](/llm-observability/ai-trace-observability/).
 
-Selecting a span in any view — or in the timeline — keeps the detail panel in sync.
+Selecting a span in any view, or in the timeline, keeps the detail panel in sync.
 
 ## Request logs and assistant
 
@@ -61,4 +61,4 @@ Two shortcuts sit in the trace header:
 
 - [Trace Explorer](/apm-and-tracing/trace-explorer/)
 - [APM Views](/apm-and-tracing/apm-views/)
-- [AI Trace Observability](/llm-observability/ai-trace-observability/)
+- [Agentic Workflow Observability](/llm-observability/ai-trace-observability/)

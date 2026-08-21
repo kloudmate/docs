@@ -5,9 +5,9 @@ sidebar:
   order: 1
 ---
 
-This guide walks you through instrumenting a real LLM application — a small LangChain agent that calls tools — and viewing its traces in KloudMate. By the end you'll see each agent run as a single trace: the model's reasoning, every tool call, token usage per call, and where the time went.
+This guide walks you through instrumenting a real LLM application (a small LangChain agent that calls tools) and viewing its traces in KloudMate. By the end you'll see each agent run as a single trace: the model's reasoning, every tool call, token usage per call, and where the time went.
 
-You'll build a customer-support agent for an online store. The agent answers a question by deciding which tools to call (look up an order, check a return policy), then writing a reply. That back-and-forth is exactly the kind of multi-step flow that's hard to debug from logs alone — and easy to read as a trace.
+You'll build a customer-support agent for an online store. The agent answers a question by deciding which tools to call (look up an order, check a return policy), then writing a reply. That back-and-forth is exactly the kind of multi-step flow that's hard to debug from logs alone, and easy to read as a trace.
 
 OpenLLMetry does the instrumentation. It's an OpenTelemetry-native SDK from Traceloop that auto-instruments LangChain and the underlying model calls, so you add a few lines of setup and change nothing in the agent itself. For the concepts behind it, see [Introduction to OpenLLMetry](/llm-observability/what-is-openllmetry/).
 
@@ -54,12 +54,12 @@ Traceloop.init(
 ```
 
 :::note
-KloudMate authenticates with your API key in the `Authorization` header — the raw key, with no `Bearer` prefix. Keep `disable_batch=True` for local testing so traces show up immediately; remove it in production to batch spans and export them in the background.
+KloudMate authenticates with your API key in the `Authorization` header: the raw key, with no `Bearer` prefix. Keep `disable_batch=True` for local testing so traces show up immediately; remove it in production to batch spans and export them in the background.
 :::
 
 ## Step 3: Build the agent
 
-Create `app.py`. The agent has two tools backed by in-memory data so the example runs without a database. In a real app these would be API or database calls — but the tool *shape* is what matters, because that's what shows up in the trace.
+Create `app.py`. The agent has two tools backed by in-memory data so the example runs without a database. In a real app these would be API or database calls, but the tool *shape* is what matters, because that's what shows up in the trace.
 
 ```python
 import os
@@ -104,7 +104,7 @@ TOOLS = [get_order_status, get_return_policy]
 # --- Agent ---
 SYSTEM_PROMPT = (
     "You are ShopMate, a concise customer-support agent. "
-    "Use the tools to look up real order and policy data — never guess order "
+    "Use the tools to look up real order and policy data. Never guess order "
     "details or refund amounts. Give the customer a short, helpful answer."
 )
 
@@ -134,7 +134,7 @@ if __name__ == "__main__":
 python3 app.py
 ```
 
-The agent answers the question, and OpenLLMetry exports the trace to KloudMate. Behind that one answer, the agent made two model calls and two tool calls — all captured as a single trace.
+The agent answers the question, and OpenLLMetry exports the trace to KloudMate. Behind that one answer, the agent made two model calls and two tool calls, all captured as a single trace.
 
 ## Step 5: View the trace in KloudMate
 
@@ -142,7 +142,7 @@ Open [KloudMate](https://app.kloudmate.com), go to **Traces**, and filter by the
 
 You'll see the full agent run as a waterfall: the `AgentExecutor` at the top, the model calls (`ChatOpenAI.chat`), and the tool calls (`get_order_status`, `get_return_policy`) nested underneath with their durations. Select any model span to read the exact prompt and response, the token usage, and the finish reason.
 
-For a tour of everything KloudMate surfaces on an AI trace — the conversation transcript, token and cache breakdown, tool calls, and the AI Flow graph — see [AI Trace Observability](/llm-observability/ai-trace-observability/).
+For a tour of everything KloudMate surfaces on an agent trace (the conversation transcript, token and cache breakdown, tool calls, and the AI Flow graph), see [Agentic Workflow Observability](/llm-observability/ai-trace-observability/).
 
 ## Step 6: Tag traces with a user and session
 
@@ -167,6 +167,6 @@ A few changes once you move past local testing:
 
 ## Related resources
 
-- [AI Trace Observability](/llm-observability/ai-trace-observability/) — what to look for once your traces land in KloudMate
+- [Agentic Workflow Observability](/llm-observability/ai-trace-observability/), what to look for once your traces land in KloudMate
 - [Introduction to OpenLLMetry](/llm-observability/what-is-openllmetry/)
-- [Instrument a Python App](/guides/opentelemetry/python/) — general OpenTelemetry instrumentation
+- [Instrument a Python App](/guides/opentelemetry/python/), general OpenTelemetry instrumentation

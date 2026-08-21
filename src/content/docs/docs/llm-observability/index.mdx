@@ -1,25 +1,25 @@
 ---
 title: "LLM Observability"
-description: "Trace, debug, and understand LLM and agent applications in KloudMate — prompts, tool calls, token usage, and latency."
+description: "Trace, debug, and understand LLM and agent applications in KloudMate: prompts, tool calls, token usage, and latency."
 sidebar:
   label: "Overview"
   order: 1
 ---
 
-A single answer from an LLM agent can hide several model calls, a handful of tool calls, and a retry or two. When that answer is wrong, slow, or expensive, a flat log line won't tell you why — you need to see the whole chain.
+A single answer from an LLM agent can hide several model calls, a handful of tool calls, and a retry or two. When that answer is wrong, slow, or expensive, a flat log line won't tell you why. You need to see the whole chain.
 
-KloudMate traces LLM and agent applications as part of its OpenTelemetry-based tracing. Each run becomes one distributed trace, so you can read the model's reasoning, every tool call, the tokens each call spent, and where the time went — alongside the rest of your application's traces, in the same place.
+KloudMate traces LLM and agent applications as part of its OpenTelemetry-based tracing. Each run becomes one distributed trace, so you can read the model's reasoning, every tool call, the tokens each call spent, and where the time went, alongside the rest of your application's traces, in the same place.
 
 ## What you can do
 
-- **Read the full conversation** behind a span — system, user, assistant, and tool turns — without reconstructing it from raw attributes.
+- **Read the full conversation** behind a span (system, user, assistant, and tool turns) without reconstructing it from raw attributes.
 - **See token usage** per call and per trace, including cached input tokens, so you can find the calls driving cost.
-- **Follow the agent's tools** — which tools it called, with what arguments, and what they returned.
-- **Catch failures and truncations** — tool errors and abnormal finish reasons (`length`, `content_filter`) are surfaced, not buried.
+- **Follow the agent's tools**: which tools it called, with what arguments, and what they returned.
+- **Catch failures and truncations**: tool errors and abnormal finish reasons (`length`, `content_filter`) are surfaced, not buried.
 - **Read the run as a graph** with AI Flow, which lays out the model and tool steps as a workflow.
 - **Attribute traces to a user or session** when your instrumentation tags them, so you can follow one customer or one conversation.
 
-[AI Trace Observability](./ai-trace-observability/) covers each of these in detail.
+[Agentic Workflow Observability](./ai-trace-observability/) covers each of these in detail.
 
 ## Getting data in
 
@@ -29,5 +29,5 @@ To instrument an app from scratch, follow [Instrument a Python LLM App with Open
 
 ## In this section
 
-- [AI Trace Observability](./ai-trace-observability/) — what KloudMate shows you on an AI trace
-- [Introduction to OpenLLMetry](./what-is-openllmetry/) — how the data is captured
+- [Agentic Workflow Observability](./ai-trace-observability/), what KloudMate shows you on an agent trace
+- [Introduction to OpenLLMetry](./what-is-openllmetry/), how the data is captured

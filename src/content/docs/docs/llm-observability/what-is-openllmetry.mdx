@@ -5,7 +5,7 @@ sidebar:
   order: 3
 ---
 
-LLM applications are built from model calls, tool calls, and framework glue, and their behavior shifts with every prompt. To debug and tune them, you need the same tracing you'd use for any distributed system — adapted to capture model-specific details like prompts, token usage, and tool calls.
+LLM applications are built from model calls, tool calls, and framework glue, and their behavior shifts with every prompt. To debug and tune them, you need the same tracing you'd use for any distributed system, adapted to capture model-specific details like prompts, token usage, and tool calls.
 
 [OpenTelemetry](https://opentelemetry.io/) is the open standard for that tracing. OpenLLMetry extends it to the LLM layer.
 
@@ -23,7 +23,7 @@ OpenLLMetry ships instrumentations for the common pieces of an LLM stack:
 - **Frameworks** such as LangChain and LlamaIndex.
 - **Vector databases** such as Pinecone and Chroma.
 
-When you initialize the SDK, it patches these libraries so each model call, tool call, and chain step emits a span — with attributes for the prompt, response, model, and token usage. Your application logic stays the same; you add the SDK and point it at your backend.
+When you initialize the SDK, it patches these libraries so each model call, tool call, and chain step emits a span, with attributes for the prompt, response, model, and token usage. Your application logic stays the same; you add the SDK and point it at your backend.
 
 ![How OpenLLMetry captures and exports LLM telemetry](./images/openllmetry_-opentelemetry-based-observability-for-llms-1.png)
 
@@ -32,5 +32,5 @@ The SDK exports over OTLP, the OpenTelemetry wire protocol, so sending data to K
 ## Related resources
 
 - [Instrument a Python LLM App with OpenLLMetry](/guides/llm/instrument-python-app-with-openllmetry/)
-- [AI Trace Observability](../ai-trace-observability/)
+- [Agentic Workflow Observability](../ai-trace-observability/)
 - [What Is OpenTelemetry?](../../opentelemetry/what-is-opentelemetry/)
