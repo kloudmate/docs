@@ -14,8 +14,8 @@ When creating or editing any monitor (except Push), click **Test** next to **Sav
 - **Type**: Indicates the monitor type (e.g., HTTP, SSL, DNS, TCP, UDP, gRPC, WebSocket, ICMP, Push).
 - **Target**: Shows the endpoint or host the monitor is targeting (e.g., URL, host\:port, domain).
 - **Frequency**: Displays the check interval and number of monitoring locations used for each check.
-- **Success (24h)**: Shows the success percentage of the monitor over the past 24 hours.
-- **Status**: Indicates the current operational status of the monitor (e.g., Up, Down, Warning).
+- **Success (7D)**: Shows the success percentage of the monitor over the past 7 days.
+- **Status**: Indicates whether the monitor is **Enabled** or **Paused**. The colored dot next to each row shows its current health (up or down), separate from this enabled/paused state.
 
 ![image](./images/monitors-1.png)
 
@@ -41,6 +41,12 @@ Clicking any monitor in the list opens its details page, with full performance a
 
 ![image](./images/monitors-4.png)
 
+
+## Downtime Rules and Flapping Control
+
+Every monitor runs its checks from the **Monitoring Locations** you select. Selecting multiple locations is recommended to reduce false positives caused by an issue local to a single location.
+
+**Downtime Rules** controls when a failing check actually counts as downtime. Set **Failed checks before going down** to the number of consecutive failed checks (about 30 seconds apart) required before the monitor is marked down — for example, "2 checks in a row" means the monitor only goes down after two failures back to back. This filters out flapping, so a single transient blip or timeout doesn't open an incident. Failures that don't reach this threshold are unconfirmed: they're ignored completely and never appear in uptime, response time, or incident history.
 
 ## Core Uptime and Status Metrics
 
