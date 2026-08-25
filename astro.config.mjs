@@ -72,6 +72,29 @@ export default defineConfig({
       //   { icon: 'github', label: 'GitHub', href: 'https://github.com/kloudmate' },
       // ],
       customCss: ['./src/styles/brand.css'],
+      // KloudMate RUM. `init` runs from `onload` so the bundle is fully executed
+      // before it is called; the rolling /v2/ path picks up SDK patches without an
+      // edit here. Session recording is off, so this collects page performance and
+      // errors only.
+      head: [
+        {
+          tag: 'script',
+          attrs: {
+            async: true,
+            crossorigin: 'anonymous',
+            src: 'https://cdn.kloudmate.com/rum/js/v2/km-rum.umd.min.js',
+            onload: `KloudMateRum.init({
+    endpoint: 'https://otel.kloudmate.dev:4318',
+    rumAccessToken: 'pk_ef2d947bd7093beb2f120d79258871de',
+    applicationName: 'KloudMate Docs',
+    deploymentEnvironment: 'prod',
+    version: '',
+    sampleRate: 1.0,
+    sessionRecorder: { enabled: false },
+  })`,
+          },
+        },
+      ],
       components: {
         Header: './src/components/Header.astro',
         // Wraps starlight-llm-actions' Page Actions dropdown in

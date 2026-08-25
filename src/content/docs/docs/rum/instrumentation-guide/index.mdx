@@ -1,0 +1,50 @@
+---
+title: "Instrumentation Guide"
+description: "Set up Real User Monitoring for a website, an Android or iOS app, or a React Native or Expo app."
+sidebar:
+  label: "Overview"
+  order: 1
+---
+
+KloudMate has a RUM SDK for the browser, for native Android and iOS, and for React Native. Every one of them sends to the same collector and lands in the same [RUM interface](../rum-interface/), so a workspace can hold a website and its mobile apps side by side.
+
+## Supported platforms
+
+| Platform | SDK | Installed with | Setup |
+| --- | --- | --- | --- |
+| Web | `@kloudmate/rum-web` | A script tag, or npm | [Web](./web/) |
+| Android | `com.kloudmate.rum:rum-core` | Gradle | [Android](./android/) |
+| iOS | `KloudMateRum` | Swift Package Manager. Requires iOS 12 or later | [iOS](./ios/) |
+| React Native, including Expo | `@kloudmate/rum-react-native` | npm, with autolinking | [React Native](./react-native/) |
+
+The browser SDK works on current versions of Chrome, Edge, Firefox, Safari, and other Chromium-based browsers.
+
+## Add an application
+
+The setup flow is the same whichever platform you are on, and it generates a snippet carrying your key and the current SDK version. Copy that one rather than the examples in these pages, which use placeholders.
+
+1. Open **RUM** and click **Add application**.
+2. Choose the platform: **Website**, **Android**, or **iOS**. Android and iOS then ask whether the app is native or **React Native**.
+3. Identify the application. A website is identified by the origin it sends from; a mobile app by its package name or bundle ID.
+4. Name it. **Application Name**, **Environment**, and **Version** are what you will filter and group by later.
+5. Set **Telemetry sampling** to the share of sessions that send data at all. An unsampled session registers no listeners and makes no requests, so this is the lever on ingest volume.
+6. Turn on **Enable Session Recording** to record sessions for replay, then set **Replay sampling** to the share of those sessions to record.
+7. Copy the generated snippet into your app, following the page for your platform.
+
+The two sampling rates multiply. Telemetry sampling at 25% with replay sampling at 10% records one session in forty, and the modal shows the effective figure as the sliders move.
+
+On web, **Verify Installation** polls for the first session and reports when data arrives.
+
+## Next
+
+- Install and configure the SDK: [Web](./web/), [Android](./android/), [iOS](./ios/), or [React Native](./react-native/).
+- Record what a visitor accomplished, not only how the app behaved: [Send custom events](./custom-events/).
+- Look up an option or an attribute: [SDK reference](./sdk-reference/).
+
+***
+
+## Related Resources
+
+- [What Is Real User Monitoring (RUM)?](../)
+- [RUM Interface](../rum-interface/)
+- [Session Detail](../session-detail/)
