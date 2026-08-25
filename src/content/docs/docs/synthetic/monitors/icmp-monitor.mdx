@@ -25,6 +25,8 @@ The ICMP Monitor performs ping tests to verify basic network connectivity to hos
   Set the maximum time to wait for ping responses before marking the check as failed.
 - **Monitoring Locations**
   Select one or more geographic locations from which ping tests will originate.
+- **Downtime Rules — Failed checks before going down**
+  Set how many consecutive failed checks (about 30 seconds apart) are needed before the monitor counts as down, so a one-off timeout or network blip doesn't open an incident. Unconfirmed failures are ignored completely and never appear in uptime, response time, or incident history.
 
 
 ![image](./images/icmp-monitor-ping-test-for-basic-connectivity-1.png)

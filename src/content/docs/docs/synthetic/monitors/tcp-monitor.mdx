@@ -25,6 +25,8 @@ The TCP Monitor tests the availability and responsiveness of a specific TCP host
   Set the maximum time the monitor will wait for a response before considering the check unsuccessful.
 - **Monitoring Locations**
   Select one or more geographic monitoring locations from which the TCP checks will be performed. 
+- **Downtime Rules — Failed checks before going down**
+  Set how many consecutive failed checks (about 30 seconds apart) are needed before the monitor counts as down, so a one-off timeout or network blip doesn't open an incident. Unconfirmed failures are ignored completely and never appear in uptime, response time, or incident history.
 
 
 ![image](./images/tcp-monitor-test-tcp-port-connectivity-1.png)

@@ -24,8 +24,9 @@ The DNS Monitor helps ensure your domain’s DNS resolution is functioning corre
 - **Timeout**
   Define the maximum amount of time the monitor waits for a DNS response before marking it as failed.
 - **Monitoring Locations**
-  Choose one or multiple locations from which the DNS queries will be executed. This helps test DNS resolution from diverse geographic points.
-
+  Choose one or multiple locations from which the DNS queries will be executed. This helps test DNS resolution from diverse geographic points. Selecting multiple locations is recommended to reduce false positives.
+- **Downtime Rules — Failed checks before going down**
+  Set how many consecutive failed checks (about 30 seconds apart) are needed before the monitor counts as down, so a one-off timeout or network blip doesn't open an incident. Unconfirmed failures are ignored completely and never appear in uptime, response time, or incident history.
 
 ![image](./images/dns-monitor-verify-dns-resolution-and-records-1.png)
 

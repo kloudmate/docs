@@ -25,6 +25,8 @@ The UDP Monitor checks the availability of a specific UDP host and port by sendi
   Define the maximum time the monitor waits for a response before marking the check as failed.
 - **Monitoring Locations**
   Select one or multiple locations from where the UDP checks will be performed.
+- **Downtime Rules — Failed checks before going down**
+  Set how many consecutive failed checks (about 30 seconds apart) are needed before the monitor counts as down, so a one-off timeout or network blip doesn't open an incident. Unconfirmed failures are ignored completely and never appear in uptime, response time, or incident history.
 
 
 ![image](./images/udp-monitor-monitor-udp-port-availability-1.png)

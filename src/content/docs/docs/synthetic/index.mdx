@@ -5,6 +5,9 @@ sidebar:
   label: "Overview"
   order: 1
 ---
+
+import { LinkCard, CardGrid } from '@astrojs/starlight/components';
+
 Synthetic Monitoring can proactively test endpoints and services from multiple regions, to detect issues before they impact users. It supports many monitor types, including **HTTP**, **SSL**, **DNS**, **TCP**, **UDP**, **gRPC**, **WebSocket**, **ICMP**, and **Push** ping tests.
 
 
@@ -33,14 +36,9 @@ If your endpoint or service is behind a firewall or blocks requests from public 
 
 ## Main Components
 
-
-### [Monitors](monitors/)
-
-
-
-### [Synthetic-Incidents](synthetic-incidents/)
-
-
-
-### [Maintenance Windows](maintenance-windows/)
+<CardGrid>
+  <LinkCard title="Monitors" href="monitors/" description="The synthetic monitor types KloudMate supports and how to create them." />
+  <LinkCard title="Synthetic Incidents" href="synthetic-incidents/" description="Review incidents opened when synthetic monitors fail." />
+  <LinkCard title="Maintenance Windows" href="maintenance-windows/" description="Suppress synthetic alerts during planned maintenance with recurring or one-time windows." />
+</CardGrid>
 
