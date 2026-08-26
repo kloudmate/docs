@@ -21,19 +21,35 @@ The browser SDK works on current versions of Chrome, Edge, Firefox, Safari, and 
 
 ## Add an application
 
-The setup flow is the same whichever platform you are on, and it generates a snippet carrying your key and the current SDK version. Copy that one rather than the examples in these pages, which use placeholders.
+Open **RUM** and click **Add application**.
 
-1. Open **RUM** and click **Add application**.
-2. Choose the platform: **Website**, **Android**, or **iOS**. Android and iOS then ask whether the app is native or **React Native**.
-3. Identify the application. A website is identified by the origin it sends from; a mobile app by its package name or bundle ID.
-4. Name it. **Application Name**, **Environment**, and **Version** are what you will filter and group by later.
-5. Set **Telemetry sampling** to the share of sessions that send data at all. An unsampled session registers no listeners and makes no requests, so this is the lever on ingest volume.
-6. Turn on **Enable Session Recording** to record sessions for replay, then set **Replay sampling** to the share of those sessions to record.
-7. Copy the generated snippet into your app, following the page for your platform.
+![The Add Application wizard on the Platform step, with Website, Android, and iOS options](../images/rum-add-application.png)
 
-The two sampling rates multiply. Telemetry sampling at 25% with replay sampling at 10% records one session in forty, and the modal shows the effective figure as the sliders move.
+The last step generates a snippet carrying your key and the current SDK version. Copy that one rather than the examples in these pages, which use placeholders.
 
-On web, **Verify Installation** polls for the first session and reports when data arrives.
+Two things are worth deciding before you click through.
+
+### The name is permanent
+
+Use only letters, digits, and `.`, `_`, or `-`. Anything else gets rewritten on the way in, and the rewritten name then disagrees with the original, which surfaces as panels that go blank.
+
+:::caution
+There is no rename. A RUM application comes into existence when data arrives under a name, so a name you regret cannot be corrected later. Mobile apps set `applicationName` in source and never see this validation, so the same rule applies there by hand.
+:::
+
+Set **Version** here too, or the [Releases](../rum-interface/#releases) tab has nothing to compare.
+
+### Sampling
+
+**Telemetry sampling** is the share of sessions that send data at all. An unsampled session registers no listeners and makes no requests, so this is the lever on ingest volume. **Replay sampling** then decides which of those sessions are recorded.
+
+The two multiply: 25% telemetry and 10% replay records one session in forty.
+
+## The ingest key
+
+RUM sends with a **Frontend** ingest key, which ships in client code where anyone can read it. That is why a frontend key carries a list of **allowed hosts**: data sent from any other origin is rejected. If an application is installed correctly and still reports nothing, check that list first.
+
+Keys live under **Settings → Ingest Keys** in the workspace, where you can also add one, edit its allowed hosts, or delete a key that has leaked. A key is shown once at creation and cannot be retrieved later, so rotating means creating a replacement, swapping it into your app, and then deleting the old one. See [API Keys](../../platform/settings/api-keys/).
 
 ## Next
 

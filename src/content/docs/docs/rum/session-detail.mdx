@@ -12,63 +12,33 @@ Opening a session shows one timeline with the replay and the evidence beside it.
 
 ## Open a session
 
-From the **Sessions** tab, click any row. **Play** on a row opens the same view on the Replay tab.
-
-The tab is part of the URL, so a session link reopens on the tab it was shared from. Sessions also open from outside RUM: a drop-off table in Journeys, an affected session on an issue, a browser span in Traces.
+Click any row on the **Sessions** tab. The tab you land on is part of the URL, so a shared session link reopens where it was shared from. Sessions also open from outside RUM: a drop-off table in Journeys, an affected session on an issue, a browser span in Traces.
 
 ## The session header
 
-The top of the panel says who this was and what went wrong:
+Who this was, what they were on, and badges for the crashes, app hangs, errors, and rage clicks in the session. A session with no identity reads **Anonymous session**; see [Identify the user](../instrumentation-guide/web/#identify-the-user) to fill that in.
 
-- The user's email or ID, or **Anonymous session** when the SDK never received one. See [Identify the user](../instrumentation-guide/web/#identify-the-user) to fill this in.
-- Badges for the crashes, ANRs, errors, and rage clicks in this session, worst first.
-- The browser and OS on web, or the device, OS, and app version on mobile, then the country.
-- The session ID, the start time in the workspace timezone, and how long the session ran.
-
-### Entry page load
-
-Under the header, an **Entry page load** band covers the page the visitor arrived on: **TTFB**, **FCP**, **LCP**, **INP**, and **CLS**. Each one is colored by the [web-vitals](https://github.com/GoogleChrome/web-vitals) rating for that measurement: green for good, amber for needs improvement, red for poor.
+Under it, **Entry page load** gives the web vitals for the page the visitor arrived on: **TTFB**, **FCP**, **LCP**, **INP**, and **CLS**, colored good, needs-improvement, or poor. Mobile sessions get **Start type** and **Time to first frame** instead.
 
 :::note
 These are this session's own measurements, not workspace percentiles. The p75 figures on **Overview** and **Pages** answer a different question, and the two will rarely match.
 :::
 
-Vitals that were never measured are left out rather than shown as zero, and the band disappears entirely when the session recorded none of them. Mobile sessions get **Start type** and **Time to first frame** here instead.
-
 ## The timeline
 
-The bar below the header is the session's timeline, running from 0:00 to the end of the recorded activity. Everything else on the screen moves with it.
+The bar below the header runs from 0:00 to the end of the recorded activity, and everything else on the screen moves with it. Click anywhere on it to move the playhead.
 
-Click anywhere on the track to move the playhead there.
+**Segments** are the views the visitor was on, in order. Clicking one scopes **What happened** to that view, and clicking it again clears the scope.
 
-**Segments** are the views the visitor was on, laid out in the order they appeared. Hover one for its route, how long it was on screen, and how many errors happened on it. Click a segment to scope **What happened** to that view, and click it again to clear the scope. The caption under the track reads **Whole session**, or **Scoped to /checkout** while a segment is selected.
-
-**Markers** flag the moments worth finding: errors, crashes, ANRs, rage clicks, error clicks, dead clicks, and long tasks. Plain clicks and successful requests are not marked, since a mark for every span would fill the track. Hover a marker for its time and what it was, or click it to seek there.
+**Markers** flag the moments worth finding: errors, crashes, app hangs, frustration clicks, and long tasks. Plain clicks and successful requests are not marked, since a mark for every span would fill the track.
 
 ## What happened
 
 The list on the left walks the session in order. Each row carries the time it happened, what kind of event it was, and enough of the detail to recognize it. Clicking a row seeks the replay; playing the replay highlights the row it has reached.
 
-The **Important** / **All** toggle controls how much of the session the list admits. **Important** is the default and keeps:
+**Important**, the default, keeps what explains a session: failures, frustration clicks, long tasks over 200 ms, views, requests, and [custom events](../instrumentation-guide/custom-events/). It drops plain clicks, which are most of a real session and bury the handful of events that matter. **All** shows every span the SDK sent.
 
-- Errors, crashes, and ANRs.
-- Rage, dead, and error clicks.
-- Long tasks over 200 ms, which is the boundary for a good INP score and roughly where a hitch becomes something a person notices.
-- Views, app start, and session end, which are what the rest hangs on.
-- Network requests, successful ones included.
-- Custom events sent through [`addEvent()`](../instrumentation-guide/custom-events/).
-
-Plain clicks are left out. A real session is mostly repeated clicking, and listing all of it buries the handful of events that explain anything. **All** shows every span the SDK sent, including the long tasks under the threshold.
-
-These actions sit on the rows that can use them:
-
-| Action | Appears on | Opens |
-| --- | --- | --- |
-| **View this error** | Errors and crashes that have been grouped into an issue | The issue in Issues |
-| **View full backend trace** | Requests carrying a trace ID | The distributed trace in Traces |
-| **Attributes** | Every row | The span's raw attributes, expanded in place |
-
-To make **View full backend trace** land on real backend spans rather than the browser span alone, see [Correlate RUM traces with OpenTelemetry backends](../correlate-rum-traces-with-opentelemetry-backends/).
+Rows carry an action where there is one to take: an error opens its issue, a request opens its backend trace, and any row expands its raw attributes. For the backend trace to reach past the browser span, see [Correlate RUM traces with OpenTelemetry backends](../correlate-rum-traces-with-opentelemetry-backends/).
 
 ## Frustration signals
 
@@ -94,74 +64,47 @@ The browser SDK decides these at the moment of the click, using what the page di
 
 ## The evidence tabs
 
-The segmented control above the right-hand pane switches between views of the same session: **Replay**, **Console**, **Network**, **Errors**, **Attributes**, and **Raw**. A tab carries a count where it has one, such as `Network (210)` or `Errors (14)`, so a pane worth opening says so before it is opened.
-
-**Widen**, at the right of that row, collapses the event list and gives the whole panel to the evidence pane. The expand icon beside it takes the pane fullscreen.
+The right-hand pane switches between six views of the same session: **Replay**, **Console**, **Network**, **Errors**, **Attributes**, and **Raw**. A tab carries a count where it has one, such as `Network (210)` or `Errors (14)`, so a pane worth opening says so before it is opened.
 
 ### Replay
 
-The replay plays the recording rrweb captured in the browser, at the position the timeline is holding.
+The replay plays the session's recording at the position the timeline is holding, on web and on mobile.
 
-Most sessions do not carry a recording. Those show **No replay for this session** rather than a play button that does nothing, and their **Play** button in the sessions list is disabled with the same explanation. Raising `sessionRecorder.sampleRate` records a larger share. See [Record sessions for replay](../instrumentation-guide/web/#record-sessions-for-replay).
+Most sessions do not carry a recording. Those read **No replay for this session**, and their **Play** button in the sessions list is disabled with the same explanation. Raising `sessionRecorder.sampleRate` records a larger share. See [Record sessions for replay](../instrumentation-guide/web/#record-sessions-for-replay).
 
-The controls under the frame are:
+Playback runs at 1x through 8x, and **Skip inactivity** jumps the quiet stretches, which is most of a long session.
 
-| Control | What it does |
-| --- | --- |
-| Play / Pause | Starts and stops playback. Clicking the frame while it plays pauses it. Playing from the end restarts from the beginning. |
-| **Back 10 seconds** / **Forward 10 seconds** | Steps the playhead, clamped to the start and end of the recording. |
-| Scrub bar | Drag or click to move to any point. The clocks either side show elapsed and total time. |
-| **Skip inactivity** | Skips the quiet stretches, which is most of a long session. |
-| Speed | Cycles playback through 1x, 2x, 4x, and 8x. |
-
-Long sessions load differently. A recording is fetched in parallel rather than a page at a time, and a large one loads only the segment around the playhead instead of the whole thing up front. Seeking into a long session takes about a second. When a seek does have to wait for data, the frame shows a progress bar with a percentage rather than an unbounded spinner.
-
-Seek performance on long sessions depends on the SDK version. See [Keep the SDK current](../instrumentation-guide/web/#keep-the-sdk-current).
+Seeking a long session takes about a second: recordings load in parallel, and a large one loads only the segment around the playhead. How well that works depends on the SDK version. See [Keep the SDK current](../instrumentation-guide/web/#keep-the-sdk-current).
 
 ### Console
 
-Console output the browser produced during this session, with `console.error` and `console.warn` captured by default. Each line shows when it was logged, which method produced it, and the message. Errors are red and warnings amber. Click a line to move the replay to that moment.
-
-Sessions that logged nothing show **No console output recorded for this session**.
-
-To capture more levels, or to turn console capture off, set the `events.console` option. See [Choose what the SDK captures](../instrumentation-guide/web/#choose-what-the-sdk-captures).
+The browser console for this session, capturing `console.error` and `console.warn` by default. To capture more levels, or none, set the `events.console` option. See [Choose what the SDK captures](../instrumentation-guide/web/#choose-what-the-sdk-captures).
 
 ### Network
 
-Every `fetch` and `XMLHttpRequest` the session made, drawn as a waterfall. The summary line at the top gives the shape of it before anything is scanned, naming the request count, how many failed, and the slowest.
+Every `fetch` and `XMLHttpRequest` the session made, drawn as a waterfall, with a summary line giving the request count, how many failed, and the slowest.
 
 ![The Network tab as a waterfall: a GET returning 200 in 99ms and a POST taking 360ms, each with a bar placed against the session](./images/rum-session-network.png)
 
-Each row reads left to right as the request happened:
-
-- **Time**, as an offset from the start of the session.
-- **Method**, when the SDK recorded one.
-- **Target**. Same-origin calls show the path alone, because their host is the one thing on the row that never varies. Third-party calls show host and path. Hover for the full URL.
-- **Status**, green under 400 and red at or above it.
-- **The bar**, positioned against the whole session. Three calls stacked in the same second are what a slow page looks like, and no per-row duration shows that.
-- **Duration**. Red on a failed request, amber over one second.
-
-Failed requests are highlighted along the whole row, bar included. The Method and Status columns disappear when nothing in the session reports them, so a browser session does not carry two empty gutters.
-
-Click any row to move the replay to that request.
+The bar is what makes this a waterfall rather than a list in time order: it places each request against the whole session, so three calls stacked in the same second look like the slow page they are. Same-origin calls show the path alone and third-party calls show host and path, with the full URL on hover. Failed requests are red across the row.
 
 ### Errors
 
-The errors, crashes, and app hangs from this session, in order, each with its type and message. Click one to see what the screen looked like when it happened. A clean session reads **Nothing failed in this session**.
+The errors, crashes, and app hangs from this session, each with its type and message. A clean session reads **Nothing failed in this session**.
 
 ![The Errors tab listing two errors with their times and messages](./images/rum-session-errors.png)
 
 ### Attributes
 
-The environment the session ran in: service name, app version, environment, browser and version, OS and version, device type and model, platform, country, city, IP address, and referrer.
+The environment the session ran in: service, version, browser, OS, device, location, and referrer.
 
 ![The Attributes tab showing service, environment, browser, OS, device type, Screen, Screen Density, platform, and location fields](./images/rum-session-attributes.png)
 
-**Screen** gives the device's screen resolution, such as `1920×1080`, and **Screen Density** the scale factor on displays that have one. A density of 1 is left blank rather than stated. Both are reported for web and mobile, and the same measurement drives the **Screen resolution** breakdown on [Overview](../rum-interface/#overview).
+**Screen** is the device's screen resolution and **Screen Density** the scale factor. Both are reported for web and mobile, and the same measurement drives the **Screen resolution** breakdown on [Overview](../rum-interface/#overview).
 
 ### Raw
 
-Every span the session produced, in order, with its full JSON. This is the place to check an attribute the curated views do not show.
+Every span the session produced, with its full JSON. The place to check an attribute the curated views do not show.
 
 ***
 
