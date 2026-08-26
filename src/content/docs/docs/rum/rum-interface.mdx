@@ -98,18 +98,29 @@ Page views that arrived without a page name are collected in an **Unattributed**
 
 ## Performance
 
-**Performance** covers what the application waits on.
+**Performance** covers what the application waits on, and every panel on it is a way into the sessions behind the number.
 
-![The Performance tab with Core Web Vitals at p75 and cards for response time and DNS lookup at p50 and p90](./images/rum-performance.png)
+On web it opens with **Core Web Vitals**, the same measures Overview reports, at Google's 75th percentile. **TTFB P75** joins them here and names the sample count behind it.
 
-On web it opens with **Core Web Vitals**, the same measures Overview reports, at Google's 75th percentile. **TTFB P75** joins them here and names the sample count behind it. Below that:
+![The Performance tab: Core Web Vitals cards for LCP, INP, CLS, and TTFB above a banded distribution chart for LCP](./images/rum-performance.png)
 
-- **Response time P50**, across `fetch`, XHR, and page loads, with **Response time P90** beside it for the slow tail rather than the typical case.
-- **DNS lookup P50** and **P90**, across the workspace.
+Under the cards, the distribution splits one measure into buckets banded by Google's boundaries, with the share that came out good and poor above it. A p75 on its own cannot tell a tail problem from an everyone problem, and this can. Pick the measure from the menu, and select a bar to open the sessions inside that bucket.
 
-Further down are tables for most-requested resources, slowest resources, and failing requests. Each one names specific URLs rather than aggregates.
+The rest of the tab:
 
-On Android and iOS the same tab shows app start, frame rendering, and the app's own HTTP calls captured through the OkHttp interceptor or `NSURLProtocol`.
+- **Slowest pages by impact** ranks pages by how much load time each one adds in total, so a busy page that is slightly slow outranks a rare one that is much slower. That is a different question from the [Pages](#pages) tab, which ranks by value.
+- **Who is slow** splits one measure by browser, device, OS, or country, against the application's own percentile.
+- **Long tasks** measures blocking time from the 50 ms threshold rather than summing raw durations, so a page full of 55 ms hitches does not outrank one that froze.
+
+**Network** covers the application's own `fetch` and XHR calls.
+
+![The Network section with Requests, Failed, and response time p50 and p90 cards above an endpoints table sorted by p75](./images/rum-performance-network.png)
+
+**Requests** and **Failed** state the volume and the failure rate, and **Response time P50** and **P90** the typical case and the slow tail. The endpoints table puts latency and failure rate together on one row: **Calls**, **P75**, **P95**, and **Failed** per endpoint, sorted by whichever column you pick. Endpoints are grouped without their query string, so one route is one row.
+
+Sites that send browser resource timing also get a **Resources** section for images, scripts, fonts, and stylesheets. Panels an application sends nothing for are left out rather than drawn empty.
+
+On Android and iOS the tab reads **App start** (cold start p50, p90, and p99, with TTFD), **Screen loads**, **Who is slow**, **Rendering** for slow and frozen frames, and the same **Network** section, fed by the OkHttp interceptor or `NSURLProtocol`.
 
 :::note
 This tab was called **Resources** on web and **Performance** on mobile. The two merged, and `/rum/resources` now redirects here, so existing bookmarks keep working.
@@ -132,17 +143,24 @@ Opening an error shows its stack, its attributes, and the sessions it happened i
 
 ## Releases
 
-**Releases** answers whether the version that just shipped made things worse.
+**Releases** answers what the version that just shipped changed. It opens on the current release against the one it replaced, as a sentence rather than two dropdowns, and **Compare** swaps in any other pair.
 
-![The Releases tab with a Web vitals by version section plotting LCP and CLS per app version](./images/rum-releases.png)
+![The Releases tab: What this release changed with per-metric deltas, Who is affected by OS version, and Errors that got worse](./images/rum-releases.png)
 
-The table lists versions with their sessions, crash-free rate, error rate, and the measures that say whether a release went badly, with the current release compared against the one before it. Below it, **Web vitals by version** plots LCP, CLS, and INP with a series per version, so a regression that arrived with a release shows up as a step rather than as a number you have to compare by hand. Web applications only.
+- **What this release changed** states each measure as before, after, and the change: `0.18 to 1.25` on errors per session, `+595%`. The bars diverge from a center line on one shared percent scale, because drawing the values themselves would put 0.31 errors, 0.07 CLS, and 2.97s on three incomparable scales.
+- **Who is affected** gives the share of sessions that hit an error, broken down by browser, OS version, device, or country, with a line marking the release overall. It reports how likely a session on that browser is to fail, not how many people use it.
+- **Errors that got worse** ranks regressions by per-session rate rather than by count, since a release part way through its rollout has lower counts for everything.
+- **New in \<version\>** catches signatures that did not exist before, which is the case **Errors that got worse** cannot see.
+- **Adoption** and **Sessions by version** show how far the rollout has got.
+- **Version history** gives one row per release, led by a verdict.
 
-Release data is counted hourly and kept for 180 days rather than read from raw spans, so a release stays comparable long after its sessions have aged out. That matters because you ask "is 4.2 worse than 4.1" weeks after 4.1 stopped shipping.
+Every delta, version, and error row is a link into the rows behind it, scoped to that version and carrying the window on screen.
 
-:::note
-Crash-free reads 100% on web, because a browser tab does not crash the way a native app does.
+:::caution
+Releases needs the SDK to send a `version`. Without it the tab reads **Version is not configured in the SDK** and has nothing to compare. See the setup snippet for your platform in the [Instrumentation Guide](../instrumentation-guide/).
 :::
+
+Release data is counted hourly and kept for 180 days rather than read from raw spans, so a release stays comparable long after its sessions have aged out. That matters because you ask "is 4.2 worse than 4.1" weeks after 4.1 stopped shipping. A release too new to have enough sessions reads **Too few sessions to compare yet**.
 
 Releases replaced the Deployments tab, and `/rum/deployments` redirects here.
 
@@ -200,7 +218,7 @@ The **Filter** bar above every tab narrows the data by page, browser, version, c
 
 The chip at the right of the bar names what a filter is matching on that tab, because it differs: **Matching whole sessions** on Sessions and Journeys, **Matching error events** on Errors, **Matching individual events** on Overview and Performance, **Matching page views, counted hourly** on Pages, **Matching releases, counted hourly** on Releases. It is the difference between "sessions that visited `/checkout`" and "errors that happened on `/checkout`".
 
-Not every filter applies to every tab. A route filter does nothing on Journeys, for instance, because journeys match whole sessions and a session that opened one page also opened the others on its path. Arriving from another tab with such a filter set is normal, so the bar keeps showing it, struck through and carrying the reason it did nothing, rather than dropping it silently.
+Not every filter applies to every tab. A route filter does nothing on Journeys, for instance, because journeys match whole sessions and a session that opened one page also opened the others on its path. Arriving from another tab with such a filter set is normal, so the bar keeps showing it, struck through and carrying the reason it did nothing, rather than dropping it silently. A filter shown that way is withheld from the tab's queries, so what you see is what the panels actually used.
 
 :::note
 A longer range slows the query down, and the raw RUM data behind Sessions, Journeys, and Raw events is kept for a limited time that varies by workspace.
