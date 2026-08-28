@@ -1,0 +1,67 @@
+---
+title: "iOS"
+description: "Install the KloudMate iOS RUM SDK through Swift Package Manager, opt each URLSession into HTTP capture, and identify users."
+sidebar:
+  order: 4
+---
+
+Add the package in Xcode under **File > Add Package Dependencies**, using `https://github.com/kloudmate/rum-mobile-swift` and the **Up to Next Major** rule. Then initialize once from your `AppDelegate` or your `App` init:
+
+```swift
+import KloudMateRum
+
+let config = KloudMateRumConfig(
+    endpoint: "https://otel.kloudmate.com:4318",
+    rumAccessToken: "YOUR_PUBLIC_API_KEY",
+    applicationName: "MyApp"
+)
+config.deploymentEnvironment = "production"
+config.version = "1.0.0"
+config.sampleRate = 1.0
+config.sessionReplayEnabled = true
+config.replaySampleRate = 0.25
+
+KloudMateRum.shared.doInit(config: config)
+```
+
+Get your key and the rest of the values from **Add application**. See [Add an application](../#add-an-application).
+
+`KloudMateRumConfig` takes either those three arguments or all of them, with nothing in between, so pass the first three and assign the rest. `appId` defaults to the bundle ID.
+
+Screen views, app start, crashes, app hangs, and tap spans are captured from this call on. A screen the SDK cannot see, such as a purely programmatic transition, needs `KloudMateRum.shared.setCurrentScreen(name: "Checkout")`.
+
+## Capture HTTP requests
+
+`URLSession.shared` is instrumented automatically. A session your app builds from its own configuration is not: it consults its own `protocolClasses`, which never contains a globally registered `NSURLProtocol`. Opt each one in:
+
+```swift
+let configuration = URLSessionConfiguration.default
+KloudMateRum.shared.instrument(configuration: configuration)
+let session = URLSession(configuration: configuration)
+```
+
+Most apps build their own session, so skipping this usually means no HTTP spans at all.
+
+## Identify the user
+
+Set the user after sign-in:
+
+```swift
+KloudMateRum.shared.setUser(id: "u123", email: "alice@example.com", extra: [:])
+```
+
+Call `KloudMateRum.shared.endSession()` on sign-out. Nothing else detects it, and a mobile session runs up to four hours, never times out while the app is in the foreground, and survives the process being killed.
+
+## What reads differently from Android
+
+:::note
+App-start time on iOS is measured from `KloudMateRum.init` rather than from process start, so it excludes everything before that and is not comparable to the Android figure. An app-hang stack is sampled just before the main thread blocks, because no supported API reads a blocked thread's stack, so it points near the cause rather than exactly at it. Screen tracking samples the view-controller hierarchy about once a second, so a screen that appears and disappears faster than that is missed.
+:::
+
+***
+
+## Related Resources
+
+- [Send custom events](../custom-events/)
+- [React Native](../react-native/)
+- [RUM Interface](../../rum-interface/)

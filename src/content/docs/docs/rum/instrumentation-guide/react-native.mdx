@@ -1,0 +1,85 @@
+---
+title: "React Native"
+description: "Install the KloudMate React Native RUM SDK, set it up on an Expo development build, and capture HTTP requests."
+sidebar:
+  order: 5
+---
+
+One `init` covers both platforms. Autolinking registers the native module, so there are no manual linking steps:
+
+```bash
+npm install @kloudmate/rum-react-native
+cd ios && pod install   # iOS only
+```
+
+Call `init()` once, at the top of your app entry file:
+
+```javascript
+import { init } from '@kloudmate/rum-react-native';
+
+init({
+  endpoint: 'https://otel.kloudmate.com:4318',
+  rumAccessToken: 'YOUR_PUBLIC_API_KEY',
+  applicationName: 'my-app',
+  deploymentEnvironment: 'production',
+  version: '1.0.0',
+  sampleRate: 1.0,
+  sessionReplayEnabled: true,
+  replaySampleRate: 0.25,
+});
+```
+
+Get your key and the rest of the values from **Add application**. See [Add an application](../#add-an-application).
+
+Screens, taps, app start, crashes, and uncaught JS errors are captured from this call on. `captureJsErrors` turns the JS error handler off if you install your own. Name a screen with `setCurrentScreen()`, send a custom event with [`addEvent()`](../custom-events/), and report a handled error with `reportError()`.
+
+## Expo
+
+The SDK ships native code, so it does not run in Expo Go. Use a [development build](https://docs.expo.dev/develop/development-builds/introduction/).
+
+Add the config plugin to your app config:
+
+```json
+{
+  "expo": {
+    "plugins": ["@kloudmate/rum-react-native"]
+  }
+}
+```
+
+Then create the development build:
+
+```bash
+npx expo prebuild
+npx expo run:android   # or: npx expo run:ios
+```
+
+The plugin registers the native module on Android; iOS needs no extra setup. It works with the New Architecture, and everything else on this page applies unchanged.
+
+## Capture HTTP requests
+
+React Native sends `fetch` and `XMLHttpRequest` through OkHttp on Android, so one native line in `MainApplication.kt` covers both with no JavaScript involved:
+
+```kotlin
+OkHttpClientProvider.setOkHttpClientFactory {
+    OkHttpClient.Builder()
+        .addInterceptor(KloudMateRum.okHttpInterceptor()!!)
+        .build()
+}
+```
+
+:::caution
+React Native on iOS captures no HTTP requests. Requests go through the framework's own `NSURLSession` inside `RCTHTTPRequestHandler`, which offers no injection point, so the `instrument(configuration:)` call a [native iOS](../ios/#capture-http-requests) app makes has nowhere to go. Screens, taps, app start, crashes, and JS errors are captured normally, and the Network tab on those sessions is empty.
+:::
+
+## Identify the user
+
+Set the user after sign-in with `setUser()`, and call `endSession()` on sign-out. A mobile session runs up to four hours and survives the process being killed, so without it a sign-out followed by a different sign-in keeps one session ID across both people.
+
+***
+
+## Related Resources
+
+- [Send custom events](../custom-events/)
+- [Android](../android/)
+- [iOS](../ios/)

@@ -1,0 +1,83 @@
+---
+title: "Android"
+description: "Install the KloudMate Android RUM SDK, capture HTTP requests through OkHttp, and identify users."
+sidebar:
+  order: 3
+---
+
+Add the dependency to your module, then initialize once from `Application.onCreate()`. The generated snippet carries the current version:
+
+```kotlin
+// build.gradle.kts
+implementation("com.kloudmate.rum:rum-core:<version>")
+
+// Application.onCreate()
+KloudMateRum.init(
+    context = this,
+    config = KloudMateRumConfig(
+        endpoint = "https://otel.kloudmate.com:4318",
+        rumAccessToken = "YOUR_PUBLIC_API_KEY",
+        applicationName = "MyApp",
+        deploymentEnvironment = "production",
+        version = "1.0.0",
+        sampleRate = 1.0,
+        sessionReplayEnabled = true,
+        replaySampleRate = 0.25,
+    ),
+)
+```
+
+Get your key and the rest of the values from **Add application**. See [Add an application](../#add-an-application).
+
+`appId` defaults to the package name, so there is no need to pass it.
+
+Screen views, app start, slow and frozen frames, device vitals, ANRs, crashes, and tap spans are captured from this call on.
+
+## Name a Compose screen
+
+Screens come from Activity and Fragment lifecycle, which Compose navigation happens inside, so it is invisible to those callbacks. Wire it up explicitly:
+
+```kotlin
+navController.addOnDestinationChangedListener { _, destination, _ ->
+    KloudMateRum.setCurrentScreen(destination.route ?: "unknown")
+}
+```
+
+## Capture HTTP requests
+
+HTTP capture needs one extra step. OkHttp cannot be patched globally, so add the interceptor to every `OkHttpClient` you build:
+
+```kotlin
+val client = OkHttpClient.Builder()
+    .addInterceptor(KloudMateRum.okHttpInterceptor()!!)
+    .build()
+```
+
+Without it the app reports no HTTP spans at all, and nothing says why.
+
+## Identify the user
+
+Set the user after sign-in:
+
+```kotlin
+KloudMateRum.setUser(id = "u123", email = "alice@example.com")
+```
+
+Call `endSession()` on sign-out. Nothing else detects it, and a mobile session runs up to four hours, never times out while the app is in the foreground, and survives the process being killed. Without it, a sign-out followed by a different sign-in keeps one session ID across both people.
+
+```kotlin
+fun onLogout() {
+    KloudMateRum.endSession()
+    // ... clear your own auth state
+}
+```
+
+Everything `setUser()` set is cleared, values you set with `setGlobalAttributes()` are kept, and the next session starts at the next instrumented event rather than inside the call.
+
+***
+
+## Related Resources
+
+- [Send custom events](../custom-events/)
+- [React Native](../react-native/)
+- [RUM Interface](../../rum-interface/)

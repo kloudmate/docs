@@ -1,0 +1,119 @@
+---
+title: "Web"
+description: "Install the KloudMate browser RUM SDK, identify users, record sessions for replay, and choose what gets captured."
+sidebar:
+  order: 2
+---
+
+Paste the generated script into the `<head>` of your site. `init` runs from the tag's `onload`, so the bundle is fully executed before it is called:
+
+```html
+<script async crossorigin="anonymous"
+  src="https://cdn.kloudmate.com/rum/js/v2/km-rum.umd.min.js"
+  onload="KloudMateRum.init({
+    endpoint: 'https://otel.kloudmate.com:4318',
+    rumAccessToken: 'YOUR_PUBLIC_API_KEY',
+    applicationName: 'my-app',
+    deploymentEnvironment: 'production',
+    sampleRate: 1.0,
+    sessionRecorder: { enabled: true, sampleRate: 0.25 },
+  })"></script>
+```
+
+The `/v2/` path is a rolling one: it carries patches and features but never a major version, so fixes reach your users without an edit here.
+
+If you would rather bundle it, install the package and call `init()` as early as possible in your entry point. Instrumentation only captures what happens after it runs:
+
+```bash
+npm install @kloudmate/rum-web
+```
+
+```javascript
+import { init } from '@kloudmate/rum-web';
+
+init({
+  endpoint: 'https://otel.kloudmate.com:4318',
+  rumAccessToken: 'YOUR_PUBLIC_API_KEY',
+  applicationName: 'my-app',
+  deploymentEnvironment: 'production',
+});
+```
+
+Get your key and the rest of the values from **Add application**. See [Add an application](../#add-an-application).
+
+## Identify the user
+
+Without an ID, every session in the list reads **Anonymous**. Set the current user's ID and email once they are known, usually right after sign-in:
+
+```javascript
+KloudMateRum.setGlobalAttributes({ userId: 'u_123', userEmail: 'john@example.com' })
+```
+
+Clear them on sign-out, so the next session on that browser is not attributed to the person who just left:
+
+```javascript
+KloudMateRum.setGlobalAttributes({ userId: null, userEmail: null })
+```
+
+## Record sessions for replay
+
+Session recording is off until it is turned on, and even then only a share of sessions are recorded. That share is `sessionRecorder.sampleRate`, a fraction between 0 and 1:
+
+```javascript
+KloudMateRum.init({
+  endpoint: 'https://otel.kloudmate.com:4318',
+  rumAccessToken: 'YOUR_PUBLIC_API_KEY',
+  applicationName: 'my-app',
+  sessionRecorder: {
+    enabled: true,
+    // Of the sessions that send telemetry, the share also recorded for replay.
+    sampleRate: 0.1,
+    options: { maskAllInputs: true },
+  },
+});
+```
+
+The rates compose. The top-level `sampleRate` decides whether a session sends anything at all, and `sessionRecorder.sampleRate` then decides whether a session that is already sending is also recorded. At `sampleRate: 0.25` and `sessionRecorder.sampleRate: 0.1`, one session in forty carries a replay.
+
+Sessions without a recording still show their timeline, network waterfall, console output, and errors. The Replay tab reads [No replay for this session](../../session-detail/#replay).
+
+Inputs are masked by default. Add `km-block` to an element's class list to keep it out of the recording entirely, or `km-ignore` to record the element but not what is typed into it.
+
+## Choose what the SDK captures
+
+Console output, navigation, and resource timing are controlled through the `events` option:
+
+```javascript
+KloudMateRum.init({
+  // ...
+  events: {
+    // Defaults to ['error', 'warn'].
+    console: ['error', 'warn', 'info'],
+  },
+});
+```
+
+| Option | Default | What it does |
+| --- | --- | --- |
+| `events.enabled` | `true` | Master switch for automatic event capture. |
+| `events.console` | `['error', 'warn']` | Fills the [Console tab](../../session-detail/#console). Pass an array of levels from `error`, `warn`, `log`, `info`, and `debug` to capture more, or `false` to capture none. |
+| `events.navigation` | `true` | Route changes in a single-page app, and navigation timing on the initial load. |
+| `events.resourceTiming` | `false` | One event per sub-resource. High volume, so opt in deliberately. |
+
+Web vitals are captured regardless of this setting, as spans, since they drive the p75 charts on Pages. [Frustration signals](../../session-detail/#frustration-signals) are always detected too, because rage, dead, and error clicks land as attributes on the click span that already exists.
+
+`captureConsoleErrors` is separate and on by default: it reports `console.error(...)` as a real error rather than only as a console line. Set it to `false` if `console.error` is used for logging that should not be counted against the error rate.
+
+## Keep the SDK current
+
+Upgrading matters most for replay on long sessions. Since `@kloudmate/rum-web` 2.2.4, the recorder writes a full DOM snapshot every 5,000 events instead of relying on the single snapshot taken at the start of the recording. Seeking then rebuilds from the nearest snapshot rather than replaying everything before the target, which is the difference between a jump into minute 20 of a session taking about a second and taking most of a minute.
+
+There is nothing to configure. Loading the current bundle is enough, and the rolling `/v2/` CDN path in the generated snippet picks up patches without any edit.
+
+***
+
+## Related Resources
+
+- [Send custom events](../custom-events/)
+- [SDK reference](../sdk-reference/)
+- [Correlate RUM traces with OpenTelemetry backends](../../correlate-rum-traces-with-opentelemetry-backends/)

@@ -1,0 +1,71 @@
+---
+title: "SDK reference"
+description: "Every init option on the browser RUM SDK, its methods, and the attributes the SDKs collect."
+sidebar:
+  order: 7
+---
+
+## init(options)
+
+Initializes the browser RUM SDK. `options` accepts the following properties:
+
+| Property | Type | Description |
+| --- | --- | --- |
+| `applicationName` | string | The application's name. |
+| `endpoint` | string (required) | KloudMate's collector endpoint: `https://otel.kloudmate.com:4318` |
+| `rumAccessToken` | string (required) | The workspace's Frontend ingest key. See [The ingest key](../#the-ingest-key). |
+| `deploymentEnvironment` | string | The application's environment, such as `dev`, `prod`, or `staging`. |
+| `version` | string | The application's version, such as `0.0.1`. |
+| `globalAttributes` | object | Key-value pairs added to every span. |
+| `sampleRate` | number | Share of sessions that send telemetry at all, from 0 to 1. Defaults to 1. |
+| `sessionRecorder` | object<br />\{ enabled: boolean, sampleRate: number, options: [RRWebRecordConfig](https://github.com/rrweb-io/rrweb/blob/master/guide.md#options) } | Configure session recording. Set `enabled` to `true` to record. Off by default. See [Record sessions for replay](../web/#record-sessions-for-replay). |
+| `events` | object | Which automatic events to capture, including console output. See [Choose what the SDK captures](../web/#choose-what-the-sdk-captures). |
+| `ignoreUrls` | `(string \| RegExp)[]` | URLs to skip instrumenting entirely. No span, and no trace header. |
+| `propagateTraceHeaderCorsUrls` | `(string \| RegExp)[]` | Cross-origin URLs allowed to receive the `traceparent` header. See [Correlate RUM traces with OpenTelemetry backends](../../correlate-rum-traces-with-opentelemetry-backends/). |
+| `excludeBots` | boolean \| function | Skip automated and crawler traffic so it never starts a session. Defaults to `true`. |
+| `captureConsoleErrors` | boolean | Report `console.error(...)` as a real error, not only as a console line. Defaults to `true`. |
+
+## Methods
+
+| Method | Description |
+| --- | --- |
+| `setGlobalAttributes(attributes)` | Add key-value pairs to every subsequent span. See [Identify the user](../web/#identify-the-user). |
+| `getGlobalAttributes()` | Return the current global attributes. |
+| `addEvent(name, attributes)` | Record a custom event. See [Send custom events](../custom-events/). |
+
+The mobile SDKs share one `KloudMateRumConfig` across Android, iOS, and React Native. TypeScript definitions for the full React Native option list ship with the package.
+
+## Data attributes
+
+Some of the important attributes the RUM SDKs collect:
+
+| Attribute | Description |
+| --- | --- |
+| `serviceName` | The RUM application name. |
+| `rumSessionId` | The RUM session's ID. |
+| `origin` | Origin of the instrumented app, such as `https://example.com`. |
+| `route` | Part of the app's URL excluding origin and search. |
+| `search` | Search params of the app's URL. |
+| `component` | The instrumentation that produced the span. |
+| `eventType` | The type of user interaction, such as `click` or `submit`. |
+| `userId` | User's synthetic ID. |
+| `userEmail` | User's email. |
+| `browser` | User's browser name. |
+| `browserVersion` | User's browser version. |
+| `country` | User's country. |
+| `city` | User's city. |
+| `os` | User's operating system. |
+| `osVersion` | User's operating system version. |
+| `device` | User's device. |
+| `deviceType` | User's device type. |
+| `screen.width` | Screen width in logical pixels. Shown as **Screen** in session detail, and behind the **Screen resolution** breakdown on Overview. |
+| `screen.height` | Screen height in logical pixels. |
+| `screen.density` | Display scale factor. Shown as **Screen Density** when it is not 1. |
+
+***
+
+## Related Resources
+
+- [Web setup](../web/)
+- [Send custom events](../custom-events/)
+- [Session Detail](../../session-detail/)

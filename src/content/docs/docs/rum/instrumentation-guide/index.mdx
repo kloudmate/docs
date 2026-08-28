@@ -1,0 +1,66 @@
+---
+title: "Instrumentation Guide"
+description: "Set up Real User Monitoring for a website, an Android or iOS app, or a React Native or Expo app."
+sidebar:
+  label: "Overview"
+  order: 1
+---
+
+KloudMate has a RUM SDK for the browser, for native Android and iOS, and for React Native. Every one of them sends to the same collector and lands in the same [RUM interface](../rum-interface/), so a workspace can hold a website and its mobile apps side by side.
+
+## Supported platforms
+
+| Platform | SDK | Installed with | Setup |
+| --- | --- | --- | --- |
+| Web | `@kloudmate/rum-web` | A script tag, or npm | [Web](./web/) |
+| Android | `com.kloudmate.rum:rum-core` | Gradle | [Android](./android/) |
+| iOS | `KloudMateRum` | Swift Package Manager. Requires iOS 12 or later | [iOS](./ios/) |
+| React Native, including Expo | `@kloudmate/rum-react-native` | npm, with autolinking | [React Native](./react-native/) |
+
+The browser SDK works on current versions of Chrome, Edge, Firefox, Safari, and other Chromium-based browsers.
+
+## Add an application
+
+Open **RUM** and click **Add application**.
+
+![The Add Application wizard on the Platform step, with Website, Android, and iOS options](../images/rum-add-application.png)
+
+The last step generates a snippet carrying your key and the current SDK version. Copy that one rather than the examples in these pages, which use placeholders.
+
+Two things are worth deciding before you click through.
+
+### The name is permanent
+
+Use only letters, digits, and `.`, `_`, or `-`. Anything else gets rewritten on the way in, and the rewritten name then disagrees with the original, which surfaces as panels that go blank.
+
+:::caution
+There is no rename. A RUM application comes into existence when data arrives under a name, so a name you regret cannot be corrected later. Mobile apps set `applicationName` in source and never see this validation, so the same rule applies there by hand.
+:::
+
+Set **Version** here too, or the [Releases](../rum-interface/#releases) tab has nothing to compare.
+
+### Sampling
+
+**Telemetry sampling** is the share of sessions that send data at all. An unsampled session registers no listeners and makes no requests, so this is the lever on ingest volume. **Replay sampling** then decides which of those sessions are recorded.
+
+The two multiply: 25% telemetry and 10% replay records one session in forty.
+
+## The ingest key
+
+RUM sends with a **Frontend** ingest key, which ships in client code where anyone can read it. That is why a frontend key carries a list of **allowed hosts**: data sent from any other origin is rejected. If an application is installed correctly and still reports nothing, check that list first.
+
+Keys live under **Settings → Ingest Keys** in the workspace, where you can also add one, edit its allowed hosts, or delete a key that has leaked. A key is shown once at creation and cannot be retrieved later, so rotating means creating a replacement, swapping it into your app, and then deleting the old one. See [API Keys](../../platform/settings/api-keys/).
+
+## Next
+
+- Install and configure the SDK: [Web](./web/), [Android](./android/), [iOS](./ios/), or [React Native](./react-native/).
+- Record what a visitor accomplished, not only how the app behaved: [Send custom events](./custom-events/).
+- Look up an option or an attribute: [SDK reference](./sdk-reference/).
+
+***
+
+## Related Resources
+
+- [What Is Real User Monitoring (RUM)?](../)
+- [RUM Interface](../rum-interface/)
+- [Session Detail](../session-detail/)

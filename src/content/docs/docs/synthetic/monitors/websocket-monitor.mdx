@@ -25,6 +25,8 @@ The WebSocket Monitor verifies the availability and performance of WebSocket end
   Define the maximum time allowed for the monitor to complete the connection and response validation.
 - **Monitoring Locations**
   Choose one or more geographic locations from which the WebSocket checks will be executed.
+- **Downtime Rules — Failed checks before going down**
+  Set how many consecutive failed checks (about 30 seconds apart) are needed before the monitor counts as down, so a one-off timeout or network blip doesn't open an incident. Unconfirmed failures are ignored completely and never appear in uptime, response time, or incident history.
 
 
 ![image](./images/websocket-monitor-monitor-websocket-connections-1.png)

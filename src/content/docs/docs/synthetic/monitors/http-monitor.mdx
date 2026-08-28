@@ -23,6 +23,10 @@ The HTTP Monitor allows you to keep track of the availability and performance of
   Define how frequently the monitor sends requests to the endpoint to check its status and response.
 - **Timeout**
   Set the maximum amount of time the monitor will wait to receive a response from the endpoint before considering the check unsuccessful.
+- **Monitoring Locations**
+  Choose one or multiple locations from which the checks will be executed. Selecting multiple locations is recommended to reduce false positives.
+- **Downtime Rules — Failed checks before going down**
+  Set how many consecutive failed checks (about 30 seconds apart) are needed before the monitor counts as down, so a one-off timeout or network blip doesn't open an incident. Unconfirmed failures are ignored completely and never appear in uptime, response time, or incident history.
 
 
 ![image](./images/http-monitor-monitor-web-endpoints-and-apis-1.png)
