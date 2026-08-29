@@ -51,23 +51,35 @@ A custom event carries the session, route, and user context of the moment it fir
   </TabItem>
 </Tabs>
 
-Custom events matter more on mobile than on web. A funnel built only from screen names cannot express "added to cart", and there are no URLs to fall back on.
+## Attributes become breakdowns and filters
+
+Every attribute you send with an event can be used as both a group-by key and a filter. For example, `currency` and `items` from the snippet above are immediately available in the [Events](../../rum-interface/#events) tab for [grouping](../../rum-interface/#group-by-a-payload-attribute) and [filtering](../../rum-interface/#filter-on-a-payload-attribute). You don't need to define them ahead of time.
+
+Make sure numeric values are sent as numbers. If you send `4999` as a string, it will be stored as text, so a filter such as `items > 2` won't work as expected.
+
+It's also a good idea to keep attribute names consistent, just like event names. If the attribute key itself changes between events, you end up creating a new key for every event, which makes it impossible to use that attribute effectively for grouping or filtering.
 
 ## Keep the event name constant
 
-Name the event for the thing that happened, never for the thing it happened to. `checkout_completed` is a name; `checkout_user_8f21c` is thousands of them.
+The event name should describe **what happened**, not the specific object or user it happened to.
 
-A workspace can hold only so many distinct event names per day. Past that, the rest are folded into one bucket that the [Events](../../rum-interface/#events) tab labels **Over the daily name limit**, so interpolated names do not give you fine-grained rows, they collapse into a single useless one. Put the varying part in the attributes.
+For example, `checkout_completed` is a good event name. `checkout_user_8f21c` is not: it creates a separate event name for every user.
+
+Each workspace has a daily limit on the number of distinct event names it can store. Once that limit is reached, additional names are grouped into a single bucket that appears as **Over the daily name limit** in the [Events](../../rum-interface/#events) tab. Dynamic event names therefore don't give you more detailed data; they just end up in the same bucket.
+
+If something about the event needs to vary, put that information in an attribute instead.
 
 ## `value` is reserved
 
-An attribute named exactly `value` is the one the platform sums and takes percentiles over. That is what makes revenue-style questions work without a schema per customer: pick **Event value** as the measure on the [Events](../../rum-interface/#events) tab and sum it, or read its p90.
+The `value` attribute has a special meaning. It's the attribute the platform uses for calculations such as sums and percentiles, which makes it useful for things like revenue or transaction values without requiring a separate schema for every customer.
 
-Select one event on that tab to see a [distribution](../../rum-interface/#what-a-distribution-needs) of its values.
+For example, you can select **Event value** as the measure in the [Events](../../rum-interface/#events) tab and calculate a sum or view its p90.
 
-Pass it as a number. Types survive the wire, and a stringified `4999` is not something the query layer can aggregate.
+You can also select an individual event to see a [distribution](../../rum-interface/#what-a-distribution-needs) of its values.
 
-Both rules apply on every platform, and events from all of them land in the same place.
+As with other numeric attributes, `value` must be sent as a number. A string such as `4999` is stored as text and can't be aggregated by the query layer.
+
+These rules apply across all supported platforms. Events from web, mobile, and other platforms are all stored and queried in the same way.
 
 ***
 

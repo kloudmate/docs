@@ -178,9 +178,27 @@ Funnels read raw RUM data, which is kept for a limited time and varies by worksp
 - **Raw events** lists individual events with their payloads. Use it for "which category is added most" or "what did this session do".
 - **Totals** reads the hourly rollup, kept for 400 days. It is the only view that can answer "is signup up on last quarter", since the other two run on raw retention. The rollup carries no payload.
 
-**Over time** draws only the largest groups, so grouping by a field with many values, such as **User**, leaves most of them off the chart.
-
 Custom events are counted per session and per user, and can be used as [funnel](#funnels) steps. An event name over the workspace's daily limit is collected under **Over the daily name limit**, which usually means a name was interpolated. See [Keep the event name constant](../instrumentation-guide/custom-events/#keep-the-event-name-constant).
+
+### Group by a payload attribute
+
+You can group by any attribute your application sends in the event payload, in both Analyze and Raw events. If you send an attribute as a number, it is grouped as a number.
+
+For example, to chart revenue by category over time, select **Event value** as the measure, **sum** as the aggregation, and group by `category`.
+
+Over time charts the 50 largest groups. If you group by an attribute with thousands of distinct values, such as a user ID, most of them won't appear on the chart.
+
+A payload key only exists in the time ranges where your application actually sent it. If you group by a key that isn't present in the selected range, the grouping falls back to event name.
+
+### A group with no value
+
+Events that were sent without the attribute are collected into a single group. When you group by `category`, that group appears as **No category**, and it's often the largest group on the tab.
+
+This group doesn't tell you anything about your categories. It tells you how many events were sent without the attribute at all, so it's really a measure of missing instrumentation.
+
+**Exclude** removes those events from every panel on the tab, which lets you compare the real categories against each other.
+
+Numeric attributes behave differently. A missing number comes back as `0`, so you can't distinguish it from a genuine zero, and there's no separate group to exclude.
 
 ### What a distribution needs
 
@@ -192,13 +210,45 @@ Event value has no fixed scale, so the buckets are calculated from the values in
 
 ## Filter the data
 
-The **Filter** bar narrows every tab by page, browser, version, country, and more.
+The **Filter** bar lets you narrow down the data across the different tabs using things like page, browser, version, country, and more.
 
-Selecting more than one value on a field matches any of them, except with operators that hold a single value, such as **contains**.
+When you select multiple values for the same field, the filter matches **any** of those values. For example, selecting Chrome and Firefox includes data from either browser.
 
-What a filter matches differs by tab, and the bar says which: **Matching whole sessions** on Sessions and Journeys, **Matching error events** on Errors, **Matching page views, counted hourly** on Pages. That is the difference between "sessions that visited `/checkout`" and "errors that happened on `/checkout`".
+The meaning of a filter depends on the tab you're using, and the filter bar tells you what it is matching:
 
-Not every filter applies everywhere. A route filter does nothing on Journeys, since journeys match whole sessions and a session that opened one page also opened the others on its path. A filter that cannot apply is struck through with the reason and withheld from the queries, rather than dropped silently.
+- **Sessions and Journeys:** **Matching whole sessions**
+- **Errors:** **Matching error events**
+- **Pages:** **Matching page views, counted hourly**
+
+This distinction matters. A page filter on Sessions finds sessions that visited `/checkout`, while the same filter on Errors finds errors that occurred on `/checkout`.
+
+Not every filter is applicable to every tab. For example, a route filter doesn't apply to Journeys because Journeys match entire sessions. If a session visited one page in a journey, the other pages in that journey are already part of the session.
+
+When a filter can't be applied to the current tab, it is shown as struck through with an explanation. It is also excluded from the query rather than being silently ignored.
+
+### Filter on a payload attribute
+
+You can filter events using any attribute included in the event payload. Numeric attributes support comparison operators such as `>`, `>=`, `<`, and `<=`. For example, `cart_size > 2` matches events where `cart_size` is greater than 2.
+
+:::note
+Events that were sent without the attribute are excluded from `>`, `>=`, `<`, `<=`, `!=`, **Not in**, and **Not contains**. A missing key isn't treated as zero, so `cart_size < 5` returns only the events that actually carry `cart_size`.
+
+Matching an attribute against an empty value does the opposite. It selects exactly the events that are missing the attribute, which is useful for finding gaps in your instrumentation.
+:::
+
+Payload attribute filters are available on some tabs only:
+
+- **Events** and **Journeys** support payload filters. In a funnel, for example, `cart_value > 100` selects sessions that emitted at least one matching event. Earlier funnel steps are still included for those sessions.
+- **Sessions** supports text attributes only. Numeric attributes such as `cart_size` cannot be used as session filters.
+- **Errors**, **Pages**, and **Releases** don't support payload filters because errors, page views, and releases don't contain event payload attributes.
+
+### Save a filter set as a segment
+
+If you use the same set of filters regularly, you can save them as a **segment** and apply them later from any tab. A segment belongs to a single application.
+
+You can update a segment while it's applied, or save the current filters as a new segment. Only the person who created a segment can delete it.
+
+Applying a segment replaces the filters currently selected, while keeping the selected application unchanged.
 
 :::note
 A longer range slows the query down, and the raw RUM data behind Sessions, Journeys, and Raw events is kept for a limited time that varies by workspace.

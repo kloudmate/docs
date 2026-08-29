@@ -24,6 +24,52 @@ The pattern the user flags most: **announcing a quantity + a vague nominalizatio
 | "Both workflow types are supported." | flat passive announcement | "KloudMate supports both Standard and Express workflows." |
 | "…with three tabs: Executions, Metrics, Configuration." | needless count | "…with tabs for Executions, Metrics, and Configuration." |
 
+### The reference sample
+
+[`src/content/docs/docs/rum/instrumentation-guide/custom-events.mdx`](src/content/docs/docs/rum/instrumentation-guide/custom-events.mdx) and the **Filter the data** section of [`rum-interface.mdx`](src/content/docs/docs/rum/rum-interface.mdx) were rewritten by the maintainer as the model for this repo. Read them before writing a new page and match what they do:
+
+- **Second person, explaining to a competent reader.** "Every attribute you send with an event can be used as both a group-by key and a filter." Not a terse spec line, not a lecture.
+- **"For example," carries the concrete case.** State the rule, then show it: "For example, `checkout_completed` is a good event name."
+- **Complete sentences with the consequence spelled out.** "If you send `4999` as a string, it will be stored as text, so a filter such as `items > 2` won't work as expected."
+- **Contractions throughout:** don't, can't, won't, it's, you've.
+- **Bold for the concept being contrasted,** not for decoration: "The event name should describe **what happened**, not the specific object or user it happened to."
+
+### Don't describe the plumbing
+
+The reader has the product open. Describing what a screen does is fine when it changes how they read the data ("the filter bar tells you what it is matching", "it is shown as struck through with an explanation"). Describing how it is built is not.
+
+Cut on sight:
+
+- **Control plumbing:** "holds the choice in the URL", "URL backed, so a breakdown is shareable", "on the view-switcher row", "sits beside the bar".
+- **Quoted on-screen message strings, and "the tab says so".** State the rule that produces the message. The reader will read the message when they hit it.
+- **Menu geography:** "the **by** menu lists them under **Payload**, next to **Attributes**".
+- **Implementation:** which attribute map a value lands in, what the query compiles to, why the design went that way.
+
+| Don't write | Write instead |
+|---|---|
+| "Each view has its own **by** control and holds the choice in the URL, so a breakdown can be shared." | "You can group by any attribute your application sends in the event payload, in both Analyze and Raw events." |
+| "When nothing in the range carries the key, the tab falls back and says so: `Nothing in this range carries category…`" | "If you group by a key that isn't present in the selected range, the grouping falls back to event name." |
+| "Journeys resolves it over whole sessions through a semi-join." | "In a funnel, `cart_value > 100` selects sessions that emitted at least one matching event." |
+
+### Sentence shape
+
+One idea per sentence, subject first, verb early. Any clause the reader has to unpack reads as machine writing, and so does a technical thing described in literary paraphrase.
+
+| Don't write | Why it reads as AI | Write instead |
+|---|---|---|
+| "Group by anything the events carried." | literary paraphrase where a technical noun exists | "Group by any attribute from the event payload." |
+| "Events that never carried the attribute group under **No category**, not a blank row." | front-loaded relative clause, then an "X, not Y" tail | "Events that were sent without the attribute are collected into a single group. When you group by `category`, that group appears as **No category**." |
+| "…so it marks an instrumentation gap rather than a category." | "X rather than Y", contrasting against something nobody proposed | "It tells you how many events were sent without the attribute at all, so it's really a measure of missing instrumentation." |
+| "Over time charts the 50 largest groups. Group by **User** and most of them are missing." | pronoun with no clear antecedent; "missing" implies a bug | "If you group by an attribute with thousands of distinct values, such as a user ID, most of them won't appear on the chart." |
+| "**Events** and **Journeys** answer it." · "**Errors** cannot answer one." | screens do not answer, know, want, or try; anthropomorphism reads as drama | "**Events** and **Journeys** support payload filters." · "**Errors**, **Pages**, and **Releases** don't support payload filters." |
+| "The group counts missing instrumentation. Exclude it to compare the real values. Every panel on the tab drops it." | telegraphic fragments; plain is not the same as clipped | "Excluding it removes those events from every panel on the tab, which lets you compare the real categories against each other." |
+
+Name things with the term the product and the reader both use. "Anything the events carried" is a phrase; "an attribute from the event payload" is the thing.
+
+Plain does not mean cryptic. Cutting a sentence to four words that the reader then has to decode is a worse failure than the padding it replaced. Write the full sentence, then delete only what carries no meaning.
+
+Detail has a bar too: state the behavior, not its operator-by-operator mechanics. "Selecting more than one value on a field matches any of them" is the rule; "two `=` picks become **In**, two `!=` picks become **Not in**, and a second `>` replaces the first" is a spec dump.
+
 ### Tone (AGENTS.md §2 has the full word lists; these are the repeat offenders)
 
 - **Em dashes for asides** → period, comma, colon, or parentheses.
