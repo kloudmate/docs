@@ -172,11 +172,10 @@ Funnels read raw RUM data, which is kept for a limited time and varies by worksp
 **Events** covers everything sent through [`addEvent()`](../instrumentation-guide/custom-events/). It splits into separate views, because the same events answer different kinds of question:
 
 - **Analyze** is the default: pick a measure, an aggregation, and something to group by, then render it as a table, over time, a top list, or a distribution.
-
-![The Events Analyze view as a top list, with Measure, aggregation, and group-by controls above a ranked list of custom event names](./images/rum-events-analyze.png)
-
 - **Raw events** lists individual events with their payloads. Use it for "which category is added most" or "what did this session do".
 - **Totals** reads the hourly rollup, kept for 400 days. It is the only view that can answer "is signup up on last quarter", since the other two run on raw retention. The rollup carries no payload.
+
+![The Raw events view grouped by category, with an Events by category breakdown beside a list of product_added events and their payloads](./images/rum-events-raw.png)
 
 Custom events are counted per session and per user, and can be used as [funnel](#funnels) steps. An event name over the workspace's daily limit is collected under **Over the daily name limit**, which usually means a name was interpolated. See [Keep the event name constant](../instrumentation-guide/custom-events/#keep-the-event-name-constant).
 
@@ -194,6 +193,8 @@ A payload key only exists in the time ranges where your application actually sen
 
 Events that were sent without the attribute are collected into a single group. When you group by `category`, that group appears as **No category**, and it's often the largest group on the tab.
 
+![Sessions over time grouped by category, with No category as the largest series above home, electronics, and apparel](./images/rum-events-over-time.png)
+
 This group doesn't tell you anything about your categories. It tells you how many events were sent without the attribute at all, so it's really a measure of missing instrumentation.
 
 **Exclude** removes those events from every panel on the tab, which lets you compare the real categories against each other.
@@ -203,6 +204,8 @@ Numeric attributes behave differently. A missing number comes back as `0`, so yo
 ### What a distribution needs
 
 **Distribution** works on **Event value** only, one event at a time. The other measures are counts, and a count has no spread. Only events that carry a [`value`](../instrumentation-guide/custom-events/#value-is-reserved) can be charted this way.
+
+![A Distribution histogram of Event value for order_completed, bucketed from 0-100 up to 800+, with the aggregation and group-by controls disabled](./images/rum-events-distribution.png)
 
 :::caution
 Event value has no fixed scale, so the buckets are calculated from the values in view. Charts from two different ranges are not comparable.
