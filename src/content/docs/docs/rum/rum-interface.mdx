@@ -178,11 +178,23 @@ Funnels read raw RUM data, which is kept for a limited time and varies by worksp
 - **Raw events** lists individual events with their payloads. Use it for "which category is added most" or "what did this session do".
 - **Totals** reads the hourly rollup, kept for 400 days. It is the only view that can answer "is signup up on last quarter", since the other two run on raw retention. The rollup carries no payload.
 
+**Over time** draws only the largest groups, so grouping by a field with many values, such as **User**, leaves most of them off the chart.
+
 Custom events are counted per session and per user, and can be used as [funnel](#funnels) steps. An event name over the workspace's daily limit is collected under **Over the daily name limit**, which usually means a name was interpolated. See [Keep the event name constant](../instrumentation-guide/custom-events/#keep-the-event-name-constant).
+
+### What a distribution needs
+
+**Distribution** works on **Event value** only, one event at a time. The other measures are counts, and a count has no spread. Only events that carry a [`value`](../instrumentation-guide/custom-events/#value-is-reserved) can be charted this way.
+
+:::caution
+Event value has no fixed scale, so the buckets are calculated from the values in view. Charts from two different ranges are not comparable.
+:::
 
 ## Filter the data
 
 The **Filter** bar narrows every tab by page, browser, version, country, and more.
+
+Selecting more than one value on a field matches any of them, except with operators that hold a single value, such as **contains**.
 
 What a filter matches differs by tab, and the bar says which: **Matching whole sessions** on Sessions and Journeys, **Matching error events** on Errors, **Matching page views, counted hourly** on Pages. That is the difference between "sessions that visited `/checkout`" and "errors that happened on `/checkout`".
 

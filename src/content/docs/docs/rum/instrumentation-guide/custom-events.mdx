@@ -61,7 +61,9 @@ A workspace can hold only so many distinct event names per day. Past that, the r
 
 ## `value` is reserved
 
-An attribute named exactly `value` is the one the platform sums and takes percentiles over. That is what makes revenue-style questions work without a schema per customer: pick **value** as the measure on the [Events](../../rum-interface/#events) tab and sum it, or read its p90.
+An attribute named exactly `value` is the one the platform sums and takes percentiles over. That is what makes revenue-style questions work without a schema per customer: pick **Event value** as the measure on the [Events](../../rum-interface/#events) tab and sum it, or read its p90.
+
+Select one event on that tab to see a [distribution](../../rum-interface/#what-a-distribution-needs) of its values.
 
 Pass it as a number. Types survive the wire, and a stringified `4999` is not something the query layer can aggregate.
 
