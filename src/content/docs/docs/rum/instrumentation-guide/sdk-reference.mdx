@@ -29,9 +29,13 @@ Initializes the browser RUM SDK. `options` accepts the following properties:
 
 | Method | Description |
 | --- | --- |
-| `setGlobalAttributes(attributes)` | Add key-value pairs to every subsequent span. See [Identify the user](../web/#identify-the-user). |
+| `setUser(user)` | Set the signed-in user. `id` and `email` map to the `userId` and `userEmail` attributes; any other field is added as an attribute on every span. See [Identify the user](../web/#identify-the-user). |
+| `endSession()` | End the session in every tab on sign-out, clearing everything `setUser()` set. |
+| `setGlobalAttributes(attributes)` | Add key-value pairs to every subsequent span. Set a key to `null` to remove it. |
 | `getGlobalAttributes()` | Return the current global attributes. |
+| `getSessionId()` | Return the session ID, or `null` between `endSession()` and the start of the next session. |
 | `addEvent(name, attributes)` | Record a custom event. See [Send custom events](../custom-events/). |
+| `recordException(error, attributes)` | Report a handled error the automatic capture never sees. Pass an `Error` to keep the stack trace, or a string. |
 
 The mobile SDKs share one `KloudMateRumConfig` across Android, iOS, and React Native. TypeScript definitions for the full React Native option list ship with the package.
 

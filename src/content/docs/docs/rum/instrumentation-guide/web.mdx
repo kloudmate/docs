@@ -43,17 +43,21 @@ Get your key and the rest of the values from **Add application**. See [Add an ap
 
 ## Identify the user
 
-Without an ID, every session in the list reads **Anonymous**. Set the current user's ID and email once they are known, usually right after sign-in:
+Without an ID, every session in the list reads **Anonymous**. Set the user once they are known, usually right after sign-in:
 
 ```javascript
-KloudMateRum.setGlobalAttributes({ userId: 'u_123', userEmail: 'john@example.com' })
+KloudMateRum.setUser({ id: 'u_123', email: 'john@example.com' })
 ```
 
-Clear them on sign-out, so the next session on that browser is not attributed to the person who just left:
+`id` and `email` become the `userId` and `userEmail` attributes the session list shows and filters on. Any other field is added as an attribute on every span, so `plan: 'pro'` tags the session with the plan. Calling it on every page load to restore a remembered sign-in is fine; the current session keeps running.
+
+Call `endSession()` on sign-out. Without it, a sign-out followed by a different sign-in keeps one session across both people:
 
 ```javascript
-KloudMateRum.setGlobalAttributes({ userId: null, userEmail: null })
+KloudMateRum.endSession()
 ```
+
+Everything `setUser()` set is cleared, extra fields included. Attributes set with `setGlobalAttributes()` are kept, so use that for values not tied to the person, such as an A/B variant. The next session starts at the next instrumented event rather than inside the call.
 
 ## Record sessions for replay
 

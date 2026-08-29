@@ -75,7 +75,8 @@ export default defineConfig({
       // KloudMate RUM. `init` runs from `onload` so the bundle is fully executed
       // before it is called; the rolling /v2/ path picks up SDK patches without an
       // edit here. Session recording is off, so this collects page performance and
-      // errors only.
+      // errors only. The `km-rum-ready` event lets UserNav.astro attach the
+      // signed-in user's userId/userEmail even though this bundle loads async.
       head: [
         {
           tag: 'script',
@@ -91,7 +92,7 @@ export default defineConfig({
     version: '',
     sampleRate: 1.0,
     sessionRecorder: { enabled: false },
-  })`,
+  }); document.dispatchEvent(new Event('km-rum-ready'))`,
           },
         },
       ],

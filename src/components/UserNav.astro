@@ -1,0 +1,132 @@
+---
+/**
+ * Account button for the header: "Log in" by default, "Go to Dashboard" when a
+ * KloudMate session exists.
+ *
+ * The docs share the platform's HTTP-only session cookie (scoped to
+ * `.kloudmate.com`), so `GET https://api.<domain>/users/me` with credentials
+ * resolves the signed-in user without any auth flow here. The API's CORS
+ * allowlist already reflects any `*.<domain>` origin with credentials.
+ * The same result is attached to RUM spans as `userId` / `userEmail`, which is
+ * what the RUM sessions UI reads (anonymous sessions otherwise).
+ *
+ * Off-domain (localhost, previews) there is no shared cookie, so the script
+ * skips the network call and keeps the static logged-out default.
+ */
+---
+
+<a class="user-cta" data-user-cta href="https://app.kloudmate.com/login">Log in</a>
+
+<script>
+  const CACHE_KEY = 'km-docs-user';
+  // Per-tab cache so plain page navigation doesn't refetch /users/me.
+  const RESULT_TTL = 15 * 60 * 1000;
+  const ERROR_TTL = 5 * 60 * 1000;
+
+  // The API and app live on the docs' own parent domain. No match means no
+  // shared cookie, so don't call the API at all.
+  const parentDomain = ['kloudmate.com', 'kloudmate.dev'].find(
+    (domain) => location.hostname === domain || location.hostname.endsWith(`.${domain}`)
+  );
+  const appOrigin = `https://app.${parentDomain ?? 'kloudmate.com'}`;
+
+  function readCache() {
+    try {
+      const cached = JSON.parse(sessionStorage.getItem(CACHE_KEY) ?? '');
+      if (cached && Date.now() - cached.t < (cached.err ? ERROR_TTL : RESULT_TTL)) {
+        return cached;
+      }
+    } catch {
+      // Absent or malformed cache: fall through to a fresh fetch.
+    }
+    return null;
+  }
+
+  async function fetchUser() {
+    let user = null;
+    let err = false;
+    try {
+      const res = await fetch(`https://api.${parentDomain}/users/me`, {
+        credentials: 'include',
+      });
+      if (res.ok) {
+        const profile = await res.json();
+        if (profile?.id) {
+          user = { id: profile.id, name: profile.name ?? '', email: profile.email ?? '' };
+        }
+      } else if (res.status !== 401 && res.status !== 403) {
+        // 401/403 definitively means logged out; anything else may be transient,
+        // so cache it for a shorter time.
+        err = true;
+      }
+    } catch {
+      err = true;
+    }
+    try {
+      sessionStorage.setItem(CACHE_KEY, JSON.stringify({ t: Date.now(), user, err }));
+    } catch {
+      // Storage full or blocked: skip caching, the next page just refetches.
+    }
+    return user;
+  }
+
+  function render(user) {
+    const cta = document.querySelector<HTMLAnchorElement>('[data-user-cta]');
+    if (!cta) return;
+    if (user) {
+      cta.textContent = 'Go to Dashboard';
+      cta.href = `${appOrigin}/`;
+    } else {
+      cta.textContent = 'Log in';
+      cta.href = `${appOrigin}/login`;
+    }
+  }
+
+  // The RUM bundle loads async from the CDN, so it may not exist yet when the
+  // user resolves. `km-rum-ready` is dispatched by the init snippet in
+  // astro.config.mjs right after KloudMateRum.init(). setUser maps id/email to
+  // the userId/userEmail span attributes the RUM sessions UI reads.
+  function tagRum(user) {
+    if (!user) return;
+    const apply = () =>
+      (window as any).KloudMateRum?.setUser({ id: user.id, email: user.email });
+    if ((window as any).KloudMateRum) {
+      apply();
+    } else {
+      document.addEventListener('km-rum-ready', apply, { once: true });
+    }
+  }
+
+  const cached = readCache();
+  if (cached) {
+    render(cached.user);
+    tagRum(cached.user);
+  } else if (parentDomain) {
+    fetchUser().then((user) => {
+      render(user);
+      tagRum(user);
+    });
+  }
+</script>
+
+<style>
+  .user-cta {
+    display: inline-flex;
+    align-items: center;
+    background-color: var(--sl-color-bg-accent);
+    color: var(--sl-color-text-invert);
+    font-size: var(--sl-text-sm);
+    font-weight: 600;
+    line-height: 1;
+    padding: 0.5rem 0.75rem;
+    border-radius: 0.375rem;
+    text-decoration: none;
+    white-space: nowrap;
+    transition: background-color 0.15s ease;
+  }
+
+  .user-cta:hover,
+  .user-cta:focus-visible {
+    background-color: color-mix(in srgb, var(--sl-color-bg-accent) 85%, black);
+  }
+</style>
