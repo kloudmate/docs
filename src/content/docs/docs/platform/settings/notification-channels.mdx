@@ -86,6 +86,18 @@ Optionally, you can download the KloudMate logo from the link provided on the sc
 
 ![image](./images/webhooks-1.png)
 
+#### Customize the Request Body and Headers
+
+By default, a webhook sends KloudMate's standard JSON payload, which some receivers reject. Google Chat, for example, accepts only a message object like `{"text": "..."}`, with its auth token in the webhook URL, so no header or secret is needed. The same `{"text": ...}` body also works for Slack incoming webhooks and Microsoft Teams. A webhook channel can rewrite its outgoing body and add headers to match.
+
+In the webhook channel editor, click **Customize request body and headers** to expand the options.
+
+**Request body** takes JSON with Liquid `{{ }}` placeholders inside string values, filled from the event. Leave it empty to send the default payload. The **Examples** menu fills it with a starter template, and [Notification Payloads](#notification-payloads) lists the fields each event type exposes.
+
+**Custom headers** are key/value pairs sent with every request. `Content-Type` and `X-KM-Signature` are reserved and set automatically.
+
+**Test** previews the rendered body against a sample event. The **Event type** list picks which event to sample.
+
 #### Webhook Signature Validation
 
 When KloudMate sends a webhook to your configured URL, it includes an `X-KM-Signature` HTTP header. This signature is an HMAC-SHA256 hash generated using the payload body and the **Secret** you provided during configuration.
@@ -152,18 +164,32 @@ Here are examples of how to perform this validation in common programming langua
 
 #### Notification Payloads
 
-Every webhook is delivered as a single `POST` with a JSON body and `Content-Type: application/json`. The body you receive is exactly the bytes that were HMAC-signed (see above), so verify the signature against the raw body before parsing.
+Every webhook is a single `POST` with a JSON body and `Content-Type: application/json`. Without a custom request body, this is what KloudMate sends, and a template reads its fields from the same payload. Receivers that verify the signature should hash the raw body before parsing it.
 
-The payload shape depends on which KloudMate feature triggered the notification:
+Each notification has an event type. The **Event type** picker in the channel editor lists all of them, and a template can reference any field from the matching payload.
 
-- **Alert group** notifications carry a top-level `event` field (`opened`, `appended`, `resolved`, or `rca_completed`) that identifies the lifecycle stage.
-- The other payloads have no `event` field — identify them by their distinctive top-level keys: `slo_name` (SLO burn rate), `monitor_id` (synthetic monitor), `serviceName` (new issue), and `investigationId` (AI investigation).
+| Event type | Payload |
+| --- | --- |
+| `alarm_group.opened` | Alert group, `event` is `opened` |
+| `alarm_group.appended` | Alert group, `event` is `appended` |
+| `alarm_group.resolved` | Alert group, `event` is `resolved` |
+| `alarm_group.rca_completed` | Alert group, `event` is `rca_completed` |
+| `issue.created` | New issue |
+| `slo.burn_rate.firing` | SLO burn rate |
+| `slo.burn_rate.resolved` | SLO burn rate |
+| `synthetics.incident.created` | Synthetic monitor |
+| `synthetics.incident.resolved` | Synthetic monitor |
+| `investigation.completed` | AI investigation |
 
-The tabs below show one representative example of each payload, with notes on how the variants differ.
+The alarm group payload sets a top-level `event` field to the lifecycle stage. The other payloads carry no `event` field. A receiver tells them apart by their distinctive top-level keys: `slo_name` for SLO burn rate, `monitor_id` for a synthetic monitor, `serviceName` for a new issue, and `investigationId` for an AI investigation.
+
+The tabs below show one representative example of each payload, the fields most useful in a template, and notes on how the variants differ.
 
 <Tabs>
   <TabItem label="Alert group">
-    Sent when an [alert group](../../../alerts/) opens, appends new alerts, resolves, or completes a root-cause analysis. The `event` field tells you which one. `workspace` identifies the workspace (tenant) the alert belongs to. `group` carries the group's id, title, state, severity, `labels`, `annotations`, and its link in KloudMate. `rules` lists each alarm rule in the group; each rule's `instances` array holds every matched instance with its own `labels`, `annotations`, and `state`, and `commonLabels`/`commonAnnotations` are the values shared by all of them. `totals` and each rule's `counts` are keyed by state: `Firing`, `Resolved`, `No Data`, `Error`, `Normal`. `group.mode` is `"group"` for a correlated group or `"standalone"` for a single alarm rule.
+    **Event types:** `alarm_group.opened`, `alarm_group.appended`, `alarm_group.resolved`, `alarm_group.rca_completed`. **Fields for templates:** `group.title`, `group.severity`, `group.state`, `group.url`, `group.opened_at`, `totals.Firing`, `rca.summary`, `rules[0].alarm_name`, `rules[0].instances[0].labels.<key>`.
+
+    Sent when an [alert group](../../../alerts/) opens, appends new alerts, resolves, or completes a root-cause analysis. The `event` field names which one. `workspace` identifies the workspace (tenant) the alert belongs to. `group` carries the group's id, title, state, severity, `labels`, `annotations`, and its link in KloudMate. `rules` lists each alarm rule in the group; each rule's `instances` array holds every matched instance with its own `labels`, `annotations`, and `state`, and `commonLabels`/`commonAnnotations` are the values shared by all of them. `totals` and each rule's `counts` are keyed by state: `Firing`, `Resolved`, `No Data`, `Error`, `Normal`. `group.mode` is `"group"` for a correlated group or `"standalone"` for a single alarm rule.
 
     ```json
     {
@@ -237,6 +263,8 @@ The tabs below show one representative example of each payload, with notes on ho
     ```
   </TabItem>
   <TabItem label="New issue">
+    **Event type:** `issue.created`. **Fields for templates:** `subject`, `serviceName`, `severity`, `errorMessage`, `occurrence`, `lastOccurrenceAt`, `actionUrl`, and `actionLabel`.
+
     Sent when a new [issue](../../../issues/) is created for a service.
 
     ```json
@@ -253,6 +281,8 @@ The tabs below show one representative example of each payload, with notes on ho
     ```
   </TabItem>
   <TabItem label="SLO burn rate">
+    **Event types:** `slo.burn_rate.firing`, `slo.burn_rate.resolved`. **Fields for templates:** `subject`, `slo_name`, `severity_tier`, `threshold`, `short_window`, `long_window`, `observed_short_burn`, `observed_long_burn`, `status_line`, and `actionUrl`.
+
     Sent when an [SLO burn-rate alert](../../../reliability/burn-rate-alerts/) starts firing or resolves. `threshold` and the observed burn rates are formatted with a trailing `×` (an infinite rate renders as `∞`); windows render as `5m`, `1h`, etc.
 
     ```json
@@ -275,6 +305,8 @@ The tabs below show one representative example of each payload, with notes on ho
     On resolve, `subject` becomes `"✅ SLO burn-rate resolved: Checkout availability"` and `status_line` becomes a duration, e.g. `"Fired for 17 minutes"`. `severity_tier` is one of `critical`, `high`, `medium`, or `low`.
   </TabItem>
   <TabItem label="Synthetic monitor">
+    **Event types:** `synthetics.incident.created`, `synthetics.incident.resolved`. **Fields for templates:** `subject`, `name`, `target`, `cause`, `start_time`, `duration`, `monitor_id`, `actionUrl`, and `actionLabel`.
+
     Sent when a [synthetic monitor](../../../synthetic/) goes down or recovers.
 
     ```json
@@ -294,6 +326,8 @@ The tabs below show one representative example of each payload, with notes on ho
     On recovery, `subject` becomes `"🟢 Monitor is UP: API health"`, `duration` is populated (e.g. `"15 minutes"`), and an `end_time` field is added.
   </TabItem>
   <TabItem label="AI investigation">
+    **Event type:** `investigation.completed`. **Fields for templates:** `subject`, `title`, `rootCauseAnalysisText`, `completedAt`, `actionUrl`, and `actionLabel`.
+
     Sent when an [AI investigation](../../../kloudmate-assistant/investigations/) completes. `rootCauseAnalysisText` is plain text, truncated to 8000 characters.
 
     ```json

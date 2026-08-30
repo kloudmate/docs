@@ -5,11 +5,11 @@ sidebar:
   order: 5
 ---
 
-Connect a request from your web app to the backend trace behind it, so a slow call in a session opens onto the service that made it slow.
+Connect a request from your web app to the backend trace behind it, so you can follow a slow call in a session through to the service that made it slow.
 
-The SDK already adds [W3C context propagation headers](https://opentelemetry.io/docs/concepts/context-propagation/#propagation) to `fetch` and XHR requests made to the same origin, so those are stitched with no work.
+The SDK already adds [W3C context propagation headers](https://opentelemetry.io/docs/concepts/context-propagation/#propagation) to `fetch` and XHR requests made to the same origin, so those are stitched together with no setup.
 
-To reach a backend on a different origin, configure the SDK to send the headers, then allow those headers in your backend's CORS policy. Do the first without the second and the browser blocks every call to that origin.
+To reach a backend on a different origin, configure the SDK to send the headers, then allow those headers in your backend's CORS policy. If you do the first without the second, the browser blocks every call to that origin.
 
 ## Send the trace headers from the browser
 
@@ -29,7 +29,7 @@ KloudMateRum.init({
 });
 ```
 
-This adds context propagation headers to those requests. The backend can then generate its spans using this context.
+This adds context propagation headers to those requests. The backend can then create its spans from that context.
 
 :::note
   You can find examples of context extraction on the backend here: [https://opentelemetry.io/docs/languages/js/propagation/#generic-example](https://opentelemetry.io/docs/languages/js/propagation/#generic-example) 
@@ -41,7 +41,7 @@ This adds context propagation headers to those requests. The backend can then ge
 Skipping this step breaks the requests themselves, not just the tracing.
 :::
 
-`traceparent` isn't a [CORS-safelisted request header](https://developer.mozilla.org/en-US/docs/Glossary/CORS-safelisted_request_header), so adding it turns every cross-origin call into a preflighted one. Your backend has to name it in the `Access-Control-Allow-Headers` response header. If it doesn't, the browser blocks the request before it's ever sent:
+`traceparent` isn't a [CORS-safelisted request header](https://developer.mozilla.org/en-US/docs/Glossary/CORS-safelisted_request_header), so adding it turns every cross-origin call into a preflighted one. Your backend must name it in the `Access-Control-Allow-Headers` response header. If it doesn't, the browser blocks the request before it's sent:
 
 ```text
 Access to fetch at 'https://api.example.com/orders' from origin 'https://app.example.com'
@@ -69,17 +69,17 @@ Match what you're seeing in the browser to the fix:
 | Requests succeed, but the browser session and the backend show separate traces | The SDK never attached `traceparent`, so the backend started its own trace | Add the origin to `propagateTraceHeaderCorsUrls` |
 | Requests fail with `Request header field traceparent is not allowed by Access-Control-Allow-Headers` | The SDK attached `traceparent`, but the backend's preflight response rejects it | Add `traceparent` to `Access-Control-Allow-Headers` |
 
-To confirm the header is arriving, log `req.headers.traceparent` on the backend. A value means the trace is stitched: the ID it carries is the same one on the browser span.
+To confirm the header is arriving, log `req.headers.traceparent` on the backend. If it has a value, the trace is stitched, and the ID it carries is the same one on the browser span.
 
-Once it is stitched, **View full backend trace** on a request row in [What happened](../session-detail/#what-happened) opens the distributed trace behind that call.
+After that, **View full backend trace** on a request row in [What happened](../session-detail/#what-happened) opens the distributed trace behind that call.
 
-**Sample Integration:**
+## Example
 
-1. Once the RUM and backend are integrated you can view the corresponding backend trace of a frontend request
+With RUM and the backend both instrumented, a request row in a session opens the backend trace behind it:
 
 ![image](./images/correlate-rum-traces-with-opentelemetry-backends-1.png)
 
-2\. You can identify the same in APM traces
+The same trace is available from APM:
 
 ![image](./images/correlate-rum-traces-with-opentelemetry-backends-2.png)
 

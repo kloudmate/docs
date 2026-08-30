@@ -11,6 +11,8 @@ import starlightConfig from 'virtual:starlight/user-config';
 import options from 'virtual:starlight-theme-nova/user-config';
 import MobileMenuToggle from 'starlight-theme-nova/components/MobileMenuToggle.astro';
 
+import UserNav from './UserNav.astro';
+
 const route = Astro.locals.starlightRoute;
 const currentPath = normalizePath(Astro.url.pathname);
 const siteTitleHref = withBase(route.siteTitleHref);
@@ -200,6 +202,7 @@ function getI18nText(value, activeRoute) {
     <Search />
   </div>
   <div class="hidden items-center gap-2 md:flex print:hidden">
+    <UserNav />
     <SocialIcons />
     <LanguageSelect />
     <ThemeSelect />
