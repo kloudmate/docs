@@ -26,13 +26,13 @@ KloudMateRum.shared.doInit(config: config)
 
 Get your key and the rest of the values from **Add application**. See [Add an application](../#add-an-application).
 
-`KloudMateRumConfig` takes either those three arguments or all of them, with nothing in between, so pass the first three and assign the rest. `appId` defaults to the bundle ID.
+`KloudMateRumConfig` accepts either those three arguments or the full set, with nothing in between, so pass the first three and assign the rest as properties. `appId` defaults to the bundle ID.
 
-Screen views, app start, crashes, app hangs, and tap spans are captured from this call on. A screen the SDK cannot see, such as a purely programmatic transition, needs `KloudMateRum.shared.setCurrentScreen(name: "Checkout")`.
+Screen views, app start, crashes, app hangs, and tap spans are captured from this call on. For a screen the SDK can't detect, such as a purely programmatic transition, name it yourself with `KloudMateRum.shared.setCurrentScreen(name: "Checkout")`.
 
 ## Capture HTTP requests
 
-`URLSession.shared` is instrumented automatically. A session your app builds from its own configuration is not: it consults its own `protocolClasses`, which never contains a globally registered `NSURLProtocol`. Opt each one in:
+`URLSession.shared` is instrumented automatically. A session your app builds from its own configuration is not, because it only consults the `protocolClasses` on that configuration. Opt each one in:
 
 ```swift
 let configuration = URLSessionConfiguration.default
@@ -50,12 +50,16 @@ Set the user after sign-in:
 KloudMateRum.shared.setUser(id: "u123", email: "alice@example.com", extra: [:])
 ```
 
-Call `KloudMateRum.shared.endSession()` on sign-out. Nothing else detects it, and a mobile session runs up to four hours, never times out while the app is in the foreground, and survives the process being killed.
+Call `KloudMateRum.shared.endSession()` on sign-out. Nothing else detects a sign-out, and a mobile session runs for up to four hours, never times out while the app is in the foreground, and survives the process being killed.
 
-## What reads differently from Android
+## How iOS differs from Android
 
 :::note
-App-start time on iOS is measured from `KloudMateRum.init` rather than from process start, so it excludes everything before that and is not comparable to the Android figure. An app-hang stack is sampled just before the main thread blocks, because no supported API reads a blocked thread's stack, so it points near the cause rather than exactly at it. Screen tracking samples the view-controller hierarchy about once a second, so a screen that appears and disappears faster than that is missed.
+
+- App-start time is measured from `KloudMateRum.init`, not from process start, so it leaves out everything before that and isn't comparable to the Android figure.
+- An app-hang stack is sampled just before the main thread blocks, so it points near the cause rather than exactly at it.
+- Screen tracking samples the view-controller hierarchy about once a second, so a screen that appears and disappears faster than that is missed.
+
 :::
 
 ***

@@ -7,9 +7,9 @@ sidebar:
 
 import { Tabs, TabItem } from '@astrojs/starlight/components';
 
-`addEvent()` records something the SDK cannot infer on its own: a signup, a checkout, a plan upgrade. Everything else RUM collects describes how the app behaved, and these describe what the visitor accomplished.
+`addEvent()` records something the SDK can't work out on its own: a signup, a checkout, a plan upgrade. The rest of RUM tells you how the app behaved. Custom events tell you what the visitor got done.
 
-A custom event carries the session, route, and user context of the moment it fired, which is what lets it work as a [funnel](../../rum-interface/#funnels) step and show up on the session's own timeline. Events are counted per session and per user, rolled up hourly, and kept for 400 days, so they answer questions about last quarter long after the raw sessions have aged out.
+Every event carries the session, route, and user it fired in, so it can be used as a [funnel](../../rum-interface/#funnels) step and appears on that session's timeline. Events are counted per session and per user, rolled up hourly, and kept for 400 days, so you can still compare this quarter against last quarter after the raw sessions have aged out.
 
 <Tabs syncKey="rum-platform">
   <TabItem label="Web">

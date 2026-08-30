@@ -20,7 +20,7 @@ Initializes the browser RUM SDK. `options` accepts the following properties:
 | `sampleRate` | number | Share of sessions that send telemetry at all, from 0 to 1. Defaults to 1. |
 | `sessionRecorder` | object<br />\{ enabled: boolean, sampleRate: number, options: [RRWebRecordConfig](https://github.com/rrweb-io/rrweb/blob/master/guide.md#options) } | Configure session recording. Set `enabled` to `true` to record. Off by default. See [Record sessions for replay](../web/#record-sessions-for-replay). |
 | `events` | object | Which automatic events to capture, including console output. See [Choose what the SDK captures](../web/#choose-what-the-sdk-captures). |
-| `ignoreUrls` | `(string \| RegExp)[]` | URLs to skip instrumenting entirely. No span, and no trace header. |
+| `ignoreUrls` | `(string \| RegExp)[]` | URLs to skip instrumenting entirely. No span is created and no trace header is added. |
 | `propagateTraceHeaderCorsUrls` | `(string \| RegExp)[]` | Cross-origin URLs allowed to receive the `traceparent` header. See [Correlate RUM traces with OpenTelemetry backends](../../correlate-rum-traces-with-opentelemetry-backends/). |
 | `excludeBots` | boolean \| function | Skip automated and crawler traffic so it never starts a session. Defaults to `true`. |
 | `captureConsoleErrors` | boolean | Report `console.error(...)` as a real error, not only as a console line. Defaults to `true`. |
@@ -35,13 +35,13 @@ Initializes the browser RUM SDK. `options` accepts the following properties:
 | `getGlobalAttributes()` | Return the current global attributes. |
 | `getSessionId()` | Return the session ID, or `null` between `endSession()` and the start of the next session. |
 | `addEvent(name, attributes)` | Record a custom event. See [Send custom events](../custom-events/). |
-| `recordException(error, attributes)` | Report a handled error the automatic capture never sees. Pass an `Error` to keep the stack trace, or a string. |
+| `recordException(error, attributes)` | Report a handled error that automatic capture never sees. Pass an `Error` to keep the stack trace, or a string. |
 
 The mobile SDKs share one `KloudMateRumConfig` across Android, iOS, and React Native. TypeScript definitions for the full React Native option list ship with the package.
 
 ## Data attributes
 
-Some of the important attributes the RUM SDKs collect:
+The attributes you're most likely to group or filter on:
 
 | Attribute | Description |
 | --- | --- |

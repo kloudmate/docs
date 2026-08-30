@@ -5,7 +5,7 @@ sidebar:
   order: 2
 ---
 
-Paste the generated script into the `<head>` of your site. `init` runs from the tag's `onload`, so the bundle is fully executed before it is called:
+Paste the generated script into the `<head>` of your site. `init` runs from the tag's `onload`, so the bundle has finished loading before it's called:
 
 ```html
 <script async crossorigin="anonymous"
@@ -20,9 +20,9 @@ Paste the generated script into the `<head>` of your site. `init` runs from the 
   })"></script>
 ```
 
-The `/v2/` path is a rolling one: it carries patches and features but never a major version, so fixes reach your users without an edit here.
+The `/v2/` path rolls forward with patches and new features, but never with a breaking major version, so fixes reach your users without you editing this tag.
 
-If you would rather bundle it, install the package and call `init()` as early as possible in your entry point. Instrumentation only captures what happens after it runs:
+To bundle it instead, install the package and call `init()` as early as you can in your entry point. Nothing that happens before that call is captured:
 
 ```bash
 npm install @kloudmate/rum-web
@@ -43,13 +43,13 @@ Get your key and the rest of the values from **Add application**. See [Add an ap
 
 ## Identify the user
 
-Without an ID, every session in the list reads **Anonymous**. Set the user once they are known, usually right after sign-in:
+Without an ID, sessions are listed as **Anonymous**. Set the user once they're known, usually right after sign-in:
 
 ```javascript
 KloudMateRum.setUser({ id: 'u_123', email: 'john@example.com' })
 ```
 
-`id` and `email` become the `userId` and `userEmail` attributes the session list shows and filters on. Any other field is added as an attribute on every span, so `plan: 'pro'` tags the session with the plan. Calling it on every page load to restore a remembered sign-in is fine; the current session keeps running.
+`id` and `email` become the `userId` and `userEmail` attributes that the session list displays and filters on. Any other field is added as an attribute on every span, so `plan: 'pro'` tags the whole session with the plan. Calling `setUser()` on every page load to restore a remembered sign-in is fine, and the current session keeps running.
 
 Call `endSession()` on sign-out. Without it, a sign-out followed by a different sign-in keeps one session across both people:
 
@@ -57,11 +57,11 @@ Call `endSession()` on sign-out. Without it, a sign-out followed by a different 
 KloudMateRum.endSession()
 ```
 
-Everything `setUser()` set is cleared, extra fields included. Attributes set with `setGlobalAttributes()` are kept, so use that for values not tied to the person, such as an A/B variant. The next session starts at the next instrumented event rather than inside the call.
+Everything `setUser()` set is cleared, extra fields included. Attributes set with `setGlobalAttributes()` are kept, so use those for values that aren't tied to a person, such as an A/B variant. The next session starts at the next instrumented event.
 
 ## Record sessions for replay
 
-Session recording is off until it is turned on, and even then only a share of sessions are recorded. That share is `sessionRecorder.sampleRate`, a fraction between 0 and 1:
+Session recording is off by default, and even once it's on only a share of sessions are recorded. `sessionRecorder.sampleRate` sets that share, as a fraction between 0 and 1:
 
 ```javascript
 KloudMateRum.init({
@@ -77,9 +77,9 @@ KloudMateRum.init({
 });
 ```
 
-The rates compose. The top-level `sampleRate` decides whether a session sends anything at all, and `sessionRecorder.sampleRate` then decides whether a session that is already sending is also recorded. At `sampleRate: 0.25` and `sessionRecorder.sampleRate: 0.1`, one session in forty carries a replay.
+The two rates multiply. The top-level `sampleRate` decides whether a session sends anything at all, and `sessionRecorder.sampleRate` then decides whether a session that is already sending is also recorded. At `sampleRate: 0.25` and `sessionRecorder.sampleRate: 0.1`, one session in forty carries a replay.
 
-Sessions without a recording still show their timeline, network waterfall, console output, and errors. The Replay tab reads [No replay for this session](../../session-detail/#replay).
+Sessions without a recording still show their timeline, network waterfall, console output, and errors. Only the [Replay](../../session-detail/#replay) tab is empty.
 
 Inputs are masked by default. Add `km-block` to an element's class list to keep it out of the recording entirely, or `km-ignore` to record the element but not what is typed into it.
 
@@ -104,15 +104,15 @@ KloudMateRum.init({
 | `events.navigation` | `true` | Route changes in a single-page app, and navigation timing on the initial load. |
 | `events.resourceTiming` | `false` | One event per sub-resource. High volume, so opt in deliberately. |
 
-Web vitals are captured regardless of this setting, as spans, since they drive the p75 charts on Pages. [Frustration signals](../../session-detail/#frustration-signals) are always detected too, because rage, dead, and error clicks land as attributes on the click span that already exists.
+Web vitals are captured as spans whatever you set here, because they feed the p75 charts on Pages. [Frustration signals](../../session-detail/#frustration-signals) are always detected too.
 
-`captureConsoleErrors` is separate and on by default: it reports `console.error(...)` as a real error rather than only as a console line. Set it to `false` if `console.error` is used for logging that should not be counted against the error rate.
+`captureConsoleErrors` is a separate option, on by default. It reports `console.error(...)` as a real error rather than only as a console line. Set it to `false` if you use `console.error` for logging that shouldn't count against your error rate.
 
 ## Keep the SDK current
 
-Upgrading matters most for replay on long sessions. Since `@kloudmate/rum-web` 2.2.4, the recorder writes a full DOM snapshot every 5,000 events instead of relying on the single snapshot taken at the start of the recording. Seeking then rebuilds from the nearest snapshot rather than replaying everything before the target, which is the difference between a jump into minute 20 of a session taking about a second and taking most of a minute.
+Upgrading matters most for replay on long sessions. From `@kloudmate/rum-web` 2.2.4 the recorder writes a full DOM snapshot every 5,000 events, so seeking rebuilds the page from the nearest snapshot instead of replaying everything before it. Jumping to minute 20 of a session takes about a second on a current SDK, against most of a minute on an older one.
 
-There is nothing to configure. Loading the current bundle is enough, and the rolling `/v2/` CDN path in the generated snippet picks up patches without any edit.
+There's nothing to configure. Loading the current bundle is enough, and the `/v2/` CDN path in the generated snippet picks up patches on its own.
 
 ***
 

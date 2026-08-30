@@ -6,43 +6,43 @@ sidebar:
   order: 3
 ---
 
-The RUM interface is where you read what your instrumented apps sent. The tabs run in roughly the order the questions come up: whether anything is wrong, which pages and releases it is wrong on, and what a single visitor actually experienced.
+The RUM interface is where you read the data your instrumented apps send. Start on **Overview** to see whether anything is wrong, then work down to the pages, releases, and individual sessions behind it.
 
 To send data in the first place, see the [Instrumentation Guide](../instrumentation-guide/).
 
 ## Pick an application first
 
-Opening **RUM** lands on the applications index, which lists every web, Android, and iOS application reporting to the workspace. Choose one to open its tabs. Each application is a `serviceName`, set as `applicationName` when the SDK initializes.
+Open **RUM** to see every web, Android, and iOS application reporting to your workspace, then select one to open its tabs. An application is identified by its `serviceName`, which you set as `applicationName` when the SDK initializes.
 
 ![The RUM applications index listing web and mobile apps with sessions, users, crash rate, and cold start p90](./images/rum-applications-index.png)
 
-Each row shows the numbers that matter for its platform: **LCP P75** and **Error Rate** on web, **Crash Rate** and **Cold Start P90** on mobile. **Add application** starts the setup flow in the [Instrumentation Guide](../instrumentation-guide/).
+Each row carries the headline numbers for its platform: **LCP P75** and **Error Rate** on web, **Crash Rate** and **Cold Start P90** on mobile. **Add application** starts the setup flow described in the [Instrumentation Guide](../instrumentation-guide/).
 
-The tab set is the same on every platform, but the contents follow the application. A browser app has Core Web Vitals and no crash rate; a native app has crashes, app hangs, and app-start timings, and **Pages** is titled **Screens**.
+Every platform gets the same tabs, but what's inside them depends on the application. A browser app has Core Web Vitals and no crash rate. A native app has crashes, app hangs, and app-start timings, and **Pages** is titled **Screens**.
 
-| Tab | Answers |
+| Tab | What it shows |
 | --- | --- |
-| [Overview](#overview) | Is anything wrong right now |
-| [Sessions](#sessions) | What did one visitor experience |
+| [Overview](#overview) | Whether anything needs attention right now |
+| [Sessions](#sessions) | What one visitor experienced |
 | [Pages](#pages) | Which pages are slow or failing |
-| [Performance](#performance) | What is the app waiting on |
-| [Errors](#errors) | What is breaking, and how often |
-| [Releases](#releases) | Did the last release make things worse |
-| [Journeys](#journeys) | Where do people go, and where do they give up |
-| [Events](#events) | What are the custom events doing |
+| [Performance](#performance) | What the app spends its time waiting on |
+| [Errors](#errors) | What's breaking, and how often |
+| [Releases](#releases) | Whether the last release made things worse |
+| [Journeys](#journeys) | Where people go, and where they give up |
+| [Events](#events) | What your custom events are doing |
 
 ## Overview
 
-Start on **Overview** to find out whether anything needs attention right now. It runs top to bottom from the findings worth acting on, through the headline numbers and what is happening over time, to where it is happening and to whom.
+Start on **Overview** to find out whether anything needs attention right now.
 
 ![The RUM Overview tab: a Needs attention list of findings above Core Web Vitals cards for LCP, INP, CLS, page views, and error rate](./images/rum-overview.png)
 
-- **Needs attention** leads with the findings worth acting on, each stating its evidence, such as `70 errors in this window, 3.7x the norm of 19 for the previous 7 days`, and the action that follows from it.
-- **Core Web Vitals** gives LCP, INP, and CLS at p75 with the boundary each is judged against, plus page views and error rate. Web applications only.
-- **Release health** gives the crash-free rate, on applications that can crash.
+- **Needs attention** lists what changed, with the evidence behind each finding: `70 errors in this window, 3.7x the norm of 19 for the previous 7 days`.
+- **Core Web Vitals** reports LCP, INP, and CLS at p75 with the boundary each is judged against, plus page views and error rate. Web applications only.
+- **Release health** reports the crash-free rate, on applications that can crash.
 - **Volume and failures** plots sessions, page views, and errors over the range.
-- **Worst pages by impact**, **Recent errors**, and **Delivery** each link through to the tab that owns them.
-- **Audience** breaks sessions down by browser or device, version, **Screen resolution**, and country. Counts are distinct sessions, so one long session firing a thousand spans stays one visit.
+- **Worst pages by impact**, **Recent errors**, and **Delivery** each link through to the tab they come from.
+- **Audience** breaks sessions down by browser or device, version, **Screen resolution**, and country. Counts are distinct sessions, so a long session that fired a thousand spans still counts once.
 
 ![The Audience row with Browser, Browser version, Screen resolution, and Country breakdowns](./images/rum-overview-audience.png)
 
@@ -64,82 +64,84 @@ INP replaced First Input Delay as a Core Web Vital in March 2024, and the RUM vi
 
 ![The Sessions tab listing sessions with client, date, ANR signal badges, errors, screens, duration, and a Play button](./images/rum-sessions-list.png)
 
-Two columns are worth knowing about. **Signals** badges the crashes, ANRs, and frustration clicks in a session, worst first and with counts, so a session worth opening says so from the list. See [Frustration signals](../session-detail/#frustration-signals). **Play** is disabled where there is no recording, which is the common case.
+**Signals** badges the crashes, ANRs, and frustration clicks in each session, worst first and with counts, so you can tell which sessions are worth opening without opening them. See [Frustration signals](../session-detail/#frustration-signals).
+
+**Play** is disabled on sessions with no recording, which is most of them. See [Record sessions for replay](../instrumentation-guide/web/#record-sessions-for-replay).
 
 Click any row to open the session. See [Session Detail](../session-detail/) for what is inside.
 
 ## Pages
 
-**Pages** ranks the individual pages of a web app, or the screens of a mobile app, on the measures that decide whether they feel fast.
+**Pages** ranks the pages of a web app, or the screens of a mobile app, by how fast they load and how often they fail.
 
 ![The Pages tab with Views, Errors, Loading P75, LCP P75, INP P75, and CLS P75 columns, and a grouped /product/{param} row](./images/rum-pages.png)
 
-Each row gives a page's views, errors, and its load time, LCP, INP, and CLS at p75, banded good, needs-improvement, or poor. Sort by a column to bring the worst to the top, then open a page for its own trend and its errors.
+Each row carries a page's views and errors, plus its load time, LCP, INP, and CLS at p75, banded good, needs-improvement, or poor. Sort by any column to bring the worst to the top, then open a page to see its own trend and the errors on it.
 
-**Group similar pages** collapses parameterized URLs, so `/orders/1041` and `/orders/1042` read as one `/product/{param}` row rather than as thousands. **Manage groups** turns a local tweak into a workspace rule. Screens are class names rather than paths, so this is web only.
+**Group similar pages** collapses parameterized URLs, so `/orders/1041` and `/orders/1042` become one `/orders/{param}` row instead of thousands. Use **Manage groups** to save a grouping rule for the whole workspace. Mobile screens are class names rather than paths, so grouping is web only.
 
-Page views that arrived without a page name collect in an **Unattributed** row below the table.
+Page views that arrived without a page name are collected into an **Unattributed** row below the table.
 
 ## Performance
 
-**Performance** covers what the application waits on, and every panel on it is a way into the sessions behind the number.
+**Performance** covers what the application spends its time waiting on. Every panel links through to the sessions behind the number.
 
-On web it opens with **Core Web Vitals**, the same measures Overview reports, at Google's 75th percentile. **TTFB P75** joins them here and names the sample count behind it.
+On web it opens with **Core Web Vitals**, the same measures Overview reports, at Google's 75th percentile. **TTFB P75** appears here too, with the number of samples behind it.
 
 ![The Performance tab: Core Web Vitals cards for LCP, INP, CLS, and TTFB above a banded distribution chart for LCP](./images/rum-performance.png)
 
-The distribution below the cards splits one measure into buckets banded by Google's boundaries. A p75 on its own cannot tell a tail problem from an everyone problem, and this can; selecting a bar opens the sessions inside that bucket.
+The distribution below the cards splits one measure into buckets, banded by Google's boundaries. A p75 on its own can't tell you whether a handful of visitors had a terrible experience or everyone had a mediocre one. The distribution can, and selecting a bar opens the sessions inside that bucket.
 
-- **Slowest pages by impact** ranks pages by how much load time each adds in total, so a busy page that is slightly slow outranks a rare one that is much slower. That is a different question from [Pages](#pages), which ranks by value.
-- **Who is slow** splits a measure by browser, device, OS, or country against the application's own percentile.
-- **Long tasks** measures blocking time from the 50 ms threshold rather than summing raw durations, so a page full of 55 ms hitches does not outrank one that froze.
+- **Slowest pages by impact** ranks pages by the total load time each one contributes, so a busy page that is slightly slow outranks a rarely visited page that is much slower. [Pages](#pages) ranks by the measurement itself, which is a different question.
+- **Who is slow** breaks a measure down by browser, device, OS, or country, compared against the application's own percentile.
+- **Long tasks** counts only the time past the 50 ms threshold rather than the full duration of each task, so a page with many 55 ms tasks doesn't outrank a page that blocked for two seconds.
 
 **Network** covers the application's own `fetch` and XHR calls.
 
 ![The Network section with Requests, Failed, and response time p50 and p90 cards above an endpoints table sorted by p75](./images/rum-performance-network.png)
 
-The endpoints table puts latency and failure rate on one row, grouped without the query string so one route is one row. Sites that send browser resource timing also get a **Resources** section. Panels an application sends nothing for are left out rather than drawn empty.
+The endpoints table puts latency and failure rate on the same row, grouped without the query string so that one route is one row. A **Resources** section appears as well if the application sends browser resource timing. Panels with no data behind them aren't drawn at all.
 
-On Android and iOS the tab reads **App start**, **Screen loads**, **Who is slow**, **Rendering**, and the same **Network** section. Cold start and **TTFD** are separate measures there: cold start is the launch, time to fully drawn runs until the first screen is usable, and it is far longer.
+On Android and iOS the tab has **App start**, **Screen loads**, **Who is slow**, **Rendering**, and the same **Network** section. Cold start and **TTFD** measure different things. Cold start covers the launch itself, while time to fully drawn runs until the first screen is usable, so it's the larger of the two.
 
 :::note
-This tab was called **Resources** on web and **Performance** on mobile. The two merged, and `/rum/resources` now redirects here, so existing bookmarks keep working.
+**Performance** covers web and mobile alike, and the older `/rum/resources` URL redirects here, so existing bookmarks keep working.
 :::
 
 ## Errors
 
-**Errors** lists every error, crash, and app hang the SDKs reported, with a facet rail for narrowing and an error-volume chart above the list.
+**Errors** lists every error, crash, and app hang your SDKs reported, with a facet rail for narrowing the list and a volume chart above it.
 
 ![The RUM Errors tab with All errors, Crashes, and App Hangs toggles, a Narrow by facet rail, an error volume chart, and a grouped error list](./images/rum-errors.png)
 
-**All errors**, **Crashes**, and **App Hangs** split the list by kind, with **ANRs** in place of App Hangs on Android. **Grouped by issue** collapses identical errors into one row with its counts and first and last seen; switch to **Raw events** when the question is about one specific failure rather than a pattern.
+**All errors**, **Crashes**, and **App Hangs** split the list by kind, with **ANRs** in place of App Hangs on Android. **Grouped by issue** collapses identical errors into a single row with its count and its first and last occurrence. Switch to **Raw events** when you're chasing one specific failure rather than a pattern.
 
-Opening an error shows its stack, its attributes, and the sessions it happened in, so the error and the session that produced it are one click apart.
+Opening an error shows its stack trace, its attributes, and the sessions it happened in.
 
 ## Releases
 
-**Releases** answers what the version that just shipped changed. It opens on the current release against the one it replaced, and **Compare** swaps in any other pair.
+**Releases** shows what changed when the current version shipped. It opens on that version against the one it replaced, and **Compare** swaps in any other pair.
 
 ![The Releases tab: What this release changed with per-metric deltas, Who is affected by OS version, and Errors that got worse](./images/rum-releases.png)
 
-- **What this release changed** states each measure as before, after, and the change: `0.18 to 1.25` errors per session, `+595%`.
-- **Who is affected** gives the share of sessions that hit an error by browser, OS version, device, or country. It reports how likely a session on that browser is to fail, not how many people use it.
-- **Errors that got worse** ranks regressions by per-session rate rather than by count, since a release part way through its rollout has lower counts for everything. **New in \<version\>** catches the signatures that did not exist before.
+- **What this release changed** gives each measure as before, after, and the change: `0.18 to 1.25` errors per session, `+595%`.
+- **Who is affected** breaks the share of sessions that hit an error down by browser, OS version, device, or country. It measures how likely a session on that browser is to fail, which is not the same as how many people use it.
+- **Errors that got worse** ranks regressions by per-session rate rather than by raw count, because a release partway through its rollout has lower counts for everything. **New in \<version\>** picks out the error signatures that didn't exist before.
 - **Adoption**, **Sessions by version**, and **Version history** cover the rollout itself.
 
-Every number on the tab links into the rows behind it, scoped to that version.
+Every number on the tab opens the rows behind it, scoped to that version.
 
 :::caution
-Releases needs the SDK to send a `version`. Without it the tab reads **Version is not configured in the SDK** and has nothing to compare. See the setup snippet for your platform in the [Instrumentation Guide](../instrumentation-guide/).
+Releases needs the SDK to send a `version`. Without one there's nothing to compare. Set it in the init call for your platform, in the [Instrumentation Guide](../instrumentation-guide/).
 :::
 
-Release data is counted hourly and kept for 180 days rather than read from raw spans, so a release stays comparable long after its sessions have aged out. That matters because you ask "is 4.2 worse than 4.1" weeks after 4.1 stopped shipping. A release too new to have enough sessions reads **Too few sessions to compare yet**.
+Release data is counted hourly and kept for 180 days. You can still compare 4.2 against 4.1 weeks later, after the raw sessions behind both have aged out. A release that hasn't collected enough sessions yet isn't compared at all.
 
-Releases replaced the Deployments tab, and `/rum/deployments` redirects here.
+The older `/rum/deployments` URL redirects here.
 
 ## Journeys
 
-**Journeys** covers where people go through the app and where they stop. Both views work on one application at a time, so set an **Application** filter in the filter bar first. A path across two sites is two unrelated graphs drawn on top of each other.
+**Journeys** shows the routes people take through the app and where they stop. Both views work on one application at a time, so set an **Application** filter first. Without it you get two unrelated graphs drawn on top of each other.
 
 ### Pathways
 
@@ -147,9 +149,9 @@ Pathways draws the routes visitors actually took, as a left-to-right graph. Each
 
 ![The Journeys Pathways graph showing sessions flowing from the home page through category, search, product, cart, and checkout](./images/rum-journeys-pathways.png)
 
-Click a page to start the graph from there, and set how many steps forward it follows and how many sessions a path needs before it is drawn. Pages are grouped the same way as the [Pages](#pages) tab.
+Click a page to redraw the graph starting from it. You can also set how many steps forward it follows, and how many sessions a path needs before it's drawn at all. Pages are grouped the same way as on the [Pages](#pages) tab.
 
-Clicking a node opens its **Sessions**, the share who **Left here**, and the share who **Hit an error**. A high **Left here** mid-path is where people are giving up.
+Clicking a node opens its **Sessions**, along with the share who **Left here** and the share who **Hit an error**. A high **Left here** in the middle of a path is where people are giving up.
 
 ### Funnels
 
@@ -157,27 +159,27 @@ Funnels measure conversion across up to five steps. A step is either a **route**
 
 ![A Checkout flow funnel with Conversion, Biggest drop, and Time to convert cards above four event steps and their drop-off rates](./images/rum-journeys-funnels.png)
 
-**Conversion**, **Biggest drop**, and **Time to convert** sit above the chart, and each step gives its sessions and how many dropped off there.
+**Conversion**, **Biggest drop**, and **Time to convert** sit above the chart, and each step reports its session count and how many people dropped off there.
 
-**Complete within** sets how long a session has to get from the first step to the last; steps further apart than that do not count as a conversion. **Compare to previous period** reports the change in percentage points against the preceding window.
+**Complete within** sets how long a session has to get from the first step to the last. Steps further apart than that don't count as a conversion. **Compare to previous period** reports the change in percentage points against the preceding window.
 
 Clicking a step opens the sessions that stalled there, with the errors they hit and a **Play** button on every row. Save a funnel to track its conversion over time.
 
 :::caution
-Funnels read raw RUM data, which is kept for a limited time and varies by workspace. A range longer than that retention covers fewer sessions than the dates suggest, and the tab says so when the selected range is long enough for it to matter.
+Funnels read raw RUM data, which is kept for a limited time that varies by workspace. If you select a range longer than your retention, the funnel covers fewer sessions than the dates suggest.
 :::
 
 ## Events
 
-**Events** covers everything sent through [`addEvent()`](../instrumentation-guide/custom-events/). It splits into separate views, because the same events answer different kinds of question:
+**Events** covers everything sent through [`addEvent()`](../instrumentation-guide/custom-events/). The same events are presented in separate views:
 
-- **Analyze** is the default: pick a measure, an aggregation, and something to group by, then render it as a table, over time, a top list, or a distribution.
-- **Raw events** lists individual events with their payloads. Use it for "which category is added most" or "what did this session do".
-- **Totals** reads the hourly rollup, kept for 400 days. It is the only view that can answer "is signup up on last quarter", since the other two run on raw retention. The rollup carries no payload.
+- **Analyze** is the default. Pick a measure, an aggregation, and something to group by, then render it as a table, over time, a top list, or a distribution.
+- **Raw events** lists individual events with their payloads. Use it when you want to see exactly what one session sent.
+- **Totals** reads an hourly rollup that is kept for 400 days, so it's the only view that reaches back further than raw retention. The rollup doesn't carry payload attributes.
 
 ![The Raw events view grouped by category, with an Events by category breakdown beside a list of product_added events and their payloads](./images/rum-events-raw.png)
 
-Custom events are counted per session and per user, and can be used as [funnel](#funnels) steps. An event name over the workspace's daily limit is collected under **Over the daily name limit**, which usually means a name was interpolated. See [Keep the event name constant](../instrumentation-guide/custom-events/#keep-the-event-name-constant).
+Custom events are counted per session and per user, and can be used as [funnel](#funnels) steps. Event names past the workspace's daily limit are collected under **Over the daily name limit**, which usually means a value was interpolated into the name. See [Keep the event name constant](../instrumentation-guide/custom-events/#keep-the-event-name-constant).
 
 ### Group by a payload attribute
 

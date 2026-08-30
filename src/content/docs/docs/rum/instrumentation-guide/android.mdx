@@ -29,13 +29,13 @@ KloudMateRum.init(
 
 Get your key and the rest of the values from **Add application**. See [Add an application](../#add-an-application).
 
-`appId` defaults to the package name, so there is no need to pass it.
+`appId` defaults to the package name, so you don't need to pass it.
 
 Screen views, app start, slow and frozen frames, device vitals, ANRs, crashes, and tap spans are captured from this call on.
 
 ## Name a Compose screen
 
-Screens come from Activity and Fragment lifecycle, which Compose navigation happens inside, so it is invisible to those callbacks. Wire it up explicitly:
+Screen names come from Activity and Fragment lifecycle callbacks. Compose navigation happens inside a single Activity, so those callbacks never fire for it. Report the screen yourself:
 
 ```kotlin
 navController.addOnDestinationChangedListener { _, destination, _ ->
@@ -53,7 +53,7 @@ val client = OkHttpClient.Builder()
     .build()
 ```
 
-Without it the app reports no HTTP spans at all, and nothing says why.
+Without the interceptor, the app reports no HTTP spans at all.
 
 ## Identify the user
 
@@ -63,7 +63,7 @@ Set the user after sign-in:
 KloudMateRum.setUser(id = "u123", email = "alice@example.com")
 ```
 
-Call `endSession()` on sign-out. Nothing else detects it, and a mobile session runs up to four hours, never times out while the app is in the foreground, and survives the process being killed. Without it, a sign-out followed by a different sign-in keeps one session ID across both people.
+Call `endSession()` on sign-out. Nothing else detects a sign-out, and a mobile session runs for up to four hours, never times out while the app is in the foreground, and survives the process being killed. Without the call, a sign-out followed by a different sign-in keeps one session ID across both people.
 
 ```kotlin
 fun onLogout() {
@@ -72,7 +72,7 @@ fun onLogout() {
 }
 ```
 
-Everything `setUser()` set is cleared, values you set with `setGlobalAttributes()` are kept, and the next session starts at the next instrumented event rather than inside the call.
+Everything `setUser()` set is cleared, values set with `setGlobalAttributes()` are kept, and the next session starts at the next instrumented event.
 
 ***
 

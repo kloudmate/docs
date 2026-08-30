@@ -31,11 +31,11 @@ init({
 
 Get your key and the rest of the values from **Add application**. See [Add an application](../#add-an-application).
 
-Screens, taps, app start, crashes, and uncaught JS errors are captured from this call on. `captureJsErrors` turns the JS error handler off if you install your own. Name a screen with `setCurrentScreen()`, send a custom event with [`addEvent()`](../custom-events/), and report a handled error with `reportError()`.
+Screens, taps, app start, crashes, and uncaught JS errors are captured from this call on. Set `captureJsErrors` to `false` if you install your own JS error handler. Name a screen with `setCurrentScreen()`, send a custom event with [`addEvent()`](../custom-events/), and report a handled error with `reportError()`.
 
 ## Expo
 
-The SDK ships native code, so it does not run in Expo Go. Use a [development build](https://docs.expo.dev/develop/development-builds/introduction/).
+The SDK ships native code, so it doesn't run in Expo Go. Use a [development build](https://docs.expo.dev/develop/development-builds/introduction/).
 
 Add the config plugin to your app config:
 
@@ -54,11 +54,11 @@ npx expo prebuild
 npx expo run:android   # or: npx expo run:ios
 ```
 
-The plugin registers the native module on Android; iOS needs no extra setup. It works with the New Architecture, and everything else on this page applies unchanged.
+The plugin registers the native module on Android, and iOS needs no extra setup. It works with the New Architecture, and everything else on this page applies unchanged.
 
 ## Capture HTTP requests
 
-React Native sends `fetch` and `XMLHttpRequest` through OkHttp on Android, so one native line in `MainApplication.kt` covers both with no JavaScript involved:
+On Android, React Native sends both `fetch` and `XMLHttpRequest` through OkHttp, so one change in `MainApplication.kt` covers both:
 
 ```kotlin
 OkHttpClientProvider.setOkHttpClientFactory {
@@ -69,12 +69,12 @@ OkHttpClientProvider.setOkHttpClientFactory {
 ```
 
 :::caution
-React Native on iOS captures no HTTP requests. Requests go through the framework's own `NSURLSession` inside `RCTHTTPRequestHandler`, which offers no injection point, so the `instrument(configuration:)` call a [native iOS](../ios/#capture-http-requests) app makes has nowhere to go. Screens, taps, app start, crashes, and JS errors are captured normally, and the Network tab on those sessions is empty.
+React Native on iOS captures no HTTP requests. Requests go through the framework's own `NSURLSession` inside `RCTHTTPRequestHandler`, which has no injection point, so the `instrument(configuration:)` call a [native iOS](../ios/#capture-http-requests) app makes has nothing to attach to. Screens, taps, app start, crashes, and JS errors are captured normally, and the Network tab on those sessions is empty.
 :::
 
 ## Identify the user
 
-Set the user after sign-in with `setUser()`, and call `endSession()` on sign-out. A mobile session runs up to four hours and survives the process being killed, so without it a sign-out followed by a different sign-in keeps one session ID across both people.
+Set the user after sign-in with `setUser()`, and call `endSession()` on sign-out. A mobile session runs for up to four hours and survives the process being killed, so without that call a sign-out followed by a different sign-in keeps one session ID across both people.
 
 ***
 

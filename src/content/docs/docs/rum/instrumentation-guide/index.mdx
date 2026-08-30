@@ -6,7 +6,7 @@ sidebar:
   order: 1
 ---
 
-KloudMate has a RUM SDK for the browser, for native Android and iOS, and for React Native. Every one of them sends to the same collector and lands in the same [RUM interface](../rum-interface/), so a workspace can hold a website and its mobile apps side by side.
+KloudMate has a RUM SDK for the browser, for native Android and iOS, and for React Native. They all send to the same collector and appear in the same [RUM interface](../rum-interface/), so one workspace can hold a website and its mobile apps side by side.
 
 ## Supported platforms
 
@@ -25,31 +25,29 @@ Open **RUM** and click **Add application**.
 
 ![The Add Application wizard on the Platform step, with Website, Android, and iOS options](../images/rum-add-application.png)
 
-The last step generates a snippet carrying your key and the current SDK version. Copy that one rather than the examples in these pages, which use placeholders.
-
-Two things are worth deciding before you click through.
+The last step generates a snippet with your key and the current SDK version already in it. Copy that snippet rather than the examples on these pages, which use placeholders.
 
 ### The name is permanent
 
-Use only letters, digits, and `.`, `_`, or `-`. Anything else gets rewritten on the way in, and the rewritten name then disagrees with the original, which surfaces as panels that go blank.
+Use only letters, digits, and `.`, `_`, or `-`. Any other character is rewritten during ingest, and the rewritten name no longer matches the one you configured, which shows up as panels with no data in them.
 
 :::caution
-There is no rename. A RUM application comes into existence when data arrives under a name, so a name you regret cannot be corrected later. Mobile apps set `applicationName` in source and never see this validation, so the same rule applies there by hand.
+There is no rename. An application is created the moment data arrives under a name, so you can't correct a name later. Mobile apps set `applicationName` in source and never go through this validation, so check the name yourself before you ship.
 :::
 
 Set **Version** here too, or the [Releases](../rum-interface/#releases) tab has nothing to compare.
 
 ### Sampling
 
-**Telemetry sampling** is the share of sessions that send data at all. An unsampled session registers no listeners and makes no requests, so this is the lever on ingest volume. **Replay sampling** then decides which of those sessions are recorded.
+**Telemetry sampling** is the share of sessions that send data at all. A session that isn't sampled registers no listeners and makes no requests, so this is what controls your ingest volume. **Replay sampling** then decides which of those sessions are also recorded.
 
 The two multiply: 25% telemetry and 10% replay records one session in forty.
 
 ## The ingest key
 
-RUM sends with a **Frontend** ingest key, which ships in client code where anyone can read it. That is why a frontend key carries a list of **allowed hosts**: data sent from any other origin is rejected. If an application is installed correctly and still reports nothing, check that list first.
+RUM sends with a **Frontend** ingest key, which ships in client code where anyone can read it. Because of that, a frontend key carries a list of **allowed hosts**, and data sent from any other origin is rejected. If an application is installed correctly and still reports nothing, check that list first.
 
-Keys live under **Settings → Ingest Keys** in the workspace, where you can also add one, edit its allowed hosts, or delete a key that has leaked. A key is shown once at creation and cannot be retrieved later, so rotating means creating a replacement, swapping it into your app, and then deleting the old one. See [API Keys](../../platform/settings/api-keys/).
+Keys live under **Settings → Ingest Keys**, where you can add one, edit its allowed hosts, or delete a key that has leaked. A key is shown once when it's created and can't be retrieved later, so rotating one means creating a replacement, swapping it into your app, and then deleting the old key. See [API Keys](../../platform/settings/api-keys/).
 
 ## Next
 
