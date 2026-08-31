@@ -10,6 +10,8 @@ import starlightAutoDrafts from 'starlight-auto-drafts';
 import starlightDotMd from 'starlight-dot-md';
 import starlightLlmActions from 'starlight-llm-actions';
 
+import { redirects } from './redirects.mjs';
+
 
 const deploymentOrigin = process.env.DOCS_SITE_URL ?? 'https://docs.kloudmate.com';
 const deploymentBasePath = normalizeBasePath(process.env.DOCS_BASE_PATH ?? '/');
@@ -29,6 +31,7 @@ function normalizeBasePath(pathname) {
 export default defineConfig({
   site: deploymentOrigin,
   base: deploymentBasePath,
+  redirects,
   integrations: [
     starlight({
       plugins: [
