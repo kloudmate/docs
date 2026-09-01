@@ -9,15 +9,15 @@ The KloudMate Agent is managed centrally from the web UI, so there is no need to
 
 ## Agents Overview
 
-The KloudMate agent's landing page lets you view, add, and manage agents. After an agent is integrated, you can view its details:
+The KloudMate agent's landing page lets you view, add, and manage agents. After an agent is integrated, it appears in the table:
 
 ![image](./images/managing-kloudmate-agents-3.png)
 
-- **Hostname:** The agent's host machine name.
-- **Platform:** The operating system or environment of the agent.
-- **Status:** Current running status of the agent.
+- **Host:** The agent's host machine name, with its platform and architecture underneath (for example, `Linux · amd64`).
+- **Status:** The agent's current reachability, such as **Healthy** or **Unreachable**, plus a **Restart pending** tag while a restart is in progress.
+- **Mode:** Whether the agent is in **Managed** or **Manual** configuration mode. See [Managed and manual mode](#managed-and-manual-mode).
 - **Agent Version:** Version of the KloudMate agent used during integration.
-- **Updated At:** The last time the collector configuration was updated.
+- **Last Seen:** How long ago the agent last checked in.
 
 ## Adding a New Agent
 
@@ -25,32 +25,31 @@ The KloudMate agent's landing page lets you view, add, and manage agents. After 
 
 ![image](./images/managing-kloudmate-agents-1.png)
 
-2. Select an agent from the available integrations list.
+2. Choose where you want to install the agent.
 
 ![image](./images/managing-kloudmate-agents-2.png)
 
 :::note
-  After selecting an agent, refer to the corresponding installation guide:
+  After choosing a platform, refer to the corresponding installation guide:
 
-  [Linux](../installation/linux-agent/) | [Docker](../installation/docker-agent/) | [Windows](../installation/windows-agent/) | [Kubernetes](../installation/kubernetes-agent/)
+  [Linux](../installation/linux-agent/) | [Docker](../installation/docker-agent/) | [Windows](../installation/windows-agent/) | [Kubernetes](../installation/kubernetes-agent/) | [Amazon ECS](../installation/ecs-agent/)
 :::
 
-## Remote Configuration Editor
+## Configuring an Agent
 
-The agent watches for remote configuration changes over a secure connection and updates itself automatically. 
+The agent watches for remote configuration changes over a secure connection and updates itself automatically.
 
 :::danger
   **Do not hand-edit local files in managed mode.**
-  In managed mode, KloudMate regenerates the collector configuration from your toggles, so manual edits to ConfigMaps or local configuration files will be overwritten. Always use the **KloudMate Agent Config Editor** in the web UI.
+  In managed mode, KloudMate regenerates the collector configuration from your toggles, so manual edits to ConfigMaps or local configuration files will be overwritten. Always use the **Configure** action in the web UI.
 :::
 
-From the KloudMate platform, you can update the collector configuration for any agent:
+Open the actions menu (⋮) for an agent to manage it:
 
 ![image](./images/managing-kloudmate-agents-4.png)
 
-- **Collector Configuration:** Open the web-based YAML editor to change the collector settings. Updates apply automatically wherever the agent is installed.
-- **APM Configuration:** Configure the applications running on your Kubernetes cluster (applicable only for Kubernetes agents).
-- **Restart Collector:** Restart the collector service when needed.
+- **Configure:** Opens the agent's Configuration page, with tabs for **APM**, **Databases**, **Logs**, **Processes**, and **Collector config**. Updates apply automatically wherever the agent is installed.
+- **Restart agent:** Restart the agent when needed.
 - **Delete:** Remove the agent from the KloudMate Agent landing page and clear all of its configuration.
 
 :::caution
