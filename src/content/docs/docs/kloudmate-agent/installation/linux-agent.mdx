@@ -25,6 +25,7 @@ Key capabilities:
 - Tracking performance trends over time
 - Detecting resource bottlenecks
 - Collecting and analyzing system and application logs
+- Monitoring Docker containers on the host, when Docker is present
 - Visualizing data with dashboards
 - Creating alerts for critical conditions
 
@@ -80,6 +81,16 @@ By default, the KloudMate Agent collects host metrics. It does not collect syste
 To collect your own application log **files**, use log monitoring. In the agent's **Logs** tab, point the agent at a folder and file-name pattern, then choose how to parse each line: plain text, JSON, or a regular expression. Multiline grouping, for stack traces or pretty-printed JSON, works on top of any format. You can preview the parsed records before you save. See [Log monitoring](../../log-monitoring/).
 
 For a hand-written `filelog` receiver in manual mode, see [Collect File Logs with KloudMate Agent](../../../logs/collect-file-logs/).
+
+## Monitor Docker containers on the host
+
+If the host runs Docker, the agent finds the Docker socket and starts collecting **container metrics and container logs** on its own, the same telemetry a Docker-mode agent collects. This happens as soon as the agent starts, before and independent of application tracing. To turn it off, set `KM_DOCKER_STATS=false` for metrics or `KM_DOCKER_LOGS=false` for logs.
+
+Each container also shows up in **Discovered Services**, where you can turn on per-container tracing. Most containers offer **Off** or **eBPF**: eBPF captures RED metrics and trace spans in the kernel, with no code change and no restart. There's no in-process **SDK** option for them, because the agent can't change a running container's start-time environment. Host processes that aren't containerized still offer **Off**, **eBPF**, or **SDK**.
+
+PHP containers are the exception: they can take an **SDK** option that injects the tracer and reloads the web server (Apache or php-fpm), with no redeploy and no container restart. On a Linux host this is opt-in. Set `KM_CONTAINER_INSTRUMENT_ENABLED=true`, and PHP containers start offering **SDK** in Discovered Services. In Docker mode that option is on by default.
+
+For monitoring containers, a Linux service and a Docker-mode agent are equivalent. Choose between them by how you want to run the agent, not by what they can see. See [Docker mode vs the Linux agent](../../platform-notes/docker/#docker-mode-vs-the-linux-agent).
 
 ## Configuration and next checks
 

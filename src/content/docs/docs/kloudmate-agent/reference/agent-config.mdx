@@ -61,6 +61,17 @@ Add any of the settings below on their own line to change the agent's behavior, 
 | `docker-endpoint` | `KM_DOCKER_ENDPOINT` | Docker default socket | The Docker API endpoint the agent uses in Docker mode. |
 | `fargate-mode` | `KM_FARGATE_MODE` | `false` | Runs the agent as a slim ECS Fargate collector sidecar, with no host receivers, eBPF, or discovery. The [ECS tooling](../../installation/ecs-agent/) sets this; do not set it by hand. |
 
+## Container monitoring
+
+On any host with a Docker socket, the agent collects per-container metrics and logs automatically, whether it runs as a Linux service or in Docker mode. This is independent of application tracing (APM) and turns on when the agent starts. Container metrics and logs are both on by default; set `KM_DOCKER_STATS=false` or `KM_DOCKER_LOGS=false` to opt out.
+
+| Environment variable | Default | Description |
+|---|---|---|
+| `KM_DOCKER_STATS` | `true` | Per-container CPU, memory, network, and block-I/O metrics, read from the Docker socket. Collected when a Docker socket is present. Set `false` to turn container metrics off. |
+| `KM_DOCKER_LOGS` | `true` | Per-container stdout and stderr, read from the container log files. Collected when a Docker socket is present. Set `false` to turn container logs off. |
+| `KM_DOCKER_LOGS_PATH` | `/var/lib/docker/containers/*/*-json.log` | The container-log glob. Set it when Docker uses a non-default data-root. |
+| `KM_CONTAINER_INSTRUMENT_ENABLED` | On in Docker mode; off on a host agent | Enable the PHP-container SDK path, so PHP containers offer an **SDK** option that injects the tracer and reloads the web server, with no redeploy. On by default in Docker mode. On a host (systemd) agent, set `true` to turn it on. To instrument PHP containers without the per-service UI selection, use `KM_CONTAINER_INSTRUMENT_ALL`, `KM_CONTAINER_INSTRUMENT_NAMES`, or `KM_CONTAINER_INSTRUMENT_IMAGES`. See [Docker platform notes](../../platform-notes/docker/). |
+
 ## eBPF opt-out toggles
 
 eBPF monitoring has two independent parts, and each has its own opt-out toggle. Both are on by default. They are separate switches: turning one off leaves the other running, and there is no single eBPF on/off setting.

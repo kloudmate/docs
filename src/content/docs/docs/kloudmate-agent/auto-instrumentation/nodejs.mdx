@@ -43,7 +43,7 @@ On Amazon ECS, the agent injects the Node.js instrumentation into the services y
 
 ## On Docker
 
-When the agent runs in Docker mode, eBPF traces your Node.js containers per service through the **Off / eBPF** toggle in Discovered Services, with no code change and no restart.
+When the agent monitors Docker containers, whether in Docker mode or as a Linux service on a Docker host, eBPF traces your Node.js containers per service through the **Off / eBPF** toggle in Discovered Services, with no code change and no restart.
 
 The agent can't inject the in-process SDK into a running container, so SDK mode isn't offered for containers. For full SDK depth, add OpenTelemetry to your image yourself and point it at the KloudMate agent's OTLP endpoint. See [Docker platform notes](../../platform-notes/docker/) for the endpoint addresses. On systemd, Kubernetes, or Amazon ECS, the agent injects the instrumentation for you instead.
 

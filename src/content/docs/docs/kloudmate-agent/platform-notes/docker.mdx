@@ -15,35 +15,49 @@ Running in Docker mode, the agent covers your host and containers without touchi
 
 - **Infrastructure, metrics, and logs:** host and container metrics and container logs, from the containerized collector. See [Host metrics and logs](../../baseline/host-metrics-and-logs/).
 
+Container monitoring isn't unique to Docker mode. A [Linux agent](../../installation/linux-agent/) on a Docker host collects the same per-container metrics and logs automatically, because it reads the host's Docker socket. The section below covers when to pick each.
+
+## Docker mode vs the Linux agent
+
+For monitoring containers, the two are equivalent. A Linux (systemd) agent on a Docker host and a containerized Docker-mode agent both collect container metrics and logs automatically, and both trace containers per service with eBPF (**Off** or **eBPF**). Pick between them by how you want to run the agent, not by what they can see:
+
+- **Host processes.** The Linux agent also instruments the host's own non-containerized processes with the OpenTelemetry SDK, through systemd. A Docker-mode agent is itself a container, so it can't do that, and the host's processes are traced with eBPF only.
+- **PHP containers.** A PHP container can offer an **SDK** option that injects the tracer with no redeploy. That option is on by default in Docker mode. On the Linux agent it's opt-in: set `KM_CONTAINER_INSTRUMENT_ENABLED=true`.
+- **How the agent runs.** Docker mode runs the agent as a container and needs the Docker socket mounted, plus a privileged container with host access for eBPF. The Linux agent runs as a systemd service on the host and already has that access.
+
 ## Application traces
 
-Application tracing — Rate, Errors, and Duration (RED) metrics and trace spans — is **not** automatic. The agent lists every host process and container it finds under **Discovered Services**, and for each one you choose how it is traced:
+Application tracing (Rate, Errors, and Duration metrics and trace spans) is **not** automatic. The agent lists every host process and container it finds under **Discovered Services**, and for each one you choose how it's traced:
 
-- **Off** — not traced. This is the default, so nothing is traced (and nothing costs) until you turn it on — which matters on a host running many containers.
-- **eBPF** — RED metrics and trace spans, captured in the host kernel with no code change and no restart.
+- **Off:** not traced. This is the default, so nothing is traced (and nothing costs) until you turn it on, which matters on a host running many containers.
+- **eBPF:** RED metrics and trace spans, captured in the host kernel with no code change and no restart.
+- **SDK:** offered for PHP containers. It injects the tracer and reloads the web server, so tracing starts with no redeploy and no container restart. See [Instrument PHP containers](#instrument-php-containers).
 
-**SDK injection is not offered on Docker.** The in-process OpenTelemetry SDK — the deep-span option on a Linux host — reads its configuration from the process's start-time environment, which can't change without recreating the container, too invasive for the agent to do automatically. So a container's choice is **Off or eBPF**, the same as Go on a Linux host. For full SDK depth, add OpenTelemetry to the app yourself (below), or run it on a [Linux host](../../installation/linux-agent/) or [Amazon ECS](../../installation/ecs-agent/), where the agent injects it for you.
+The in-process OpenTelemetry SDK can't be injected into a running container, because it reads its configuration from the process's start-time environment, and that can't change without recreating the container. So Java, Node.js, Python, .NET, and Go containers offer **Off** or **eBPF** only. For full SDK depth on those runtimes, add OpenTelemetry to the app yourself (below), or run it on a [Linux host](../../installation/linux-agent/) or [Amazon ECS](../../installation/ecs-agent/), where the agent injects it for you.
 
 | Runtime | In Discovered Services | Full SDK depth |
 |---|---|---|
-| Java, Node.js, Python, .NET | **Off / eBPF** — RED + spans, opt-in, no restart | Not injectable on Docker; [add OpenTelemetry yourself](#send-full-opentelemetry-traces-from-your-containers), or run on Linux / ECS |
-| Go | **Off / eBPF** | eBPF only — Go is a static binary with no runtime to attach |
-| PHP 7 and 8 | Auto-injected in place — see below | Automatic, no redeploy |
-
-PHP is the exception: the agent can reload the SAPI without a restart, so it instruments PHP containers in place. That is controlled by environment variables, not the per-service toggle.
+| Java, Node.js, Python, .NET | **Off / eBPF**: RED and spans, opt-in, no restart | Not injectable on Docker. [Add OpenTelemetry yourself](#send-full-opentelemetry-traces-from-your-containers), or run on Linux or ECS. |
+| Go | **Off / eBPF** | eBPF only. Go is a static binary with no runtime to attach. |
+| PHP 7 and 8 | **Off / eBPF / SDK**: SDK injects the tracer, no redeploy | Covered by the SDK option, no redeploy |
 
 ## Instrument PHP containers
 
-In Docker mode, the agent instruments your PHP containers automatically and reloads the web server.
+A PHP container offers an **SDK** option in **Discovered Services**. Turn it on for a container and the agent injects the tracer, matches it to the container's PHP build, and reloads the web server (an Apache graceful reload or a php-fpm reload). Tracing starts with no redeploy and no container restart.
 
-**Narrow or turn it off** with environment variables on the agent:
+The SDK option appears whenever the PHP-container instrumentation path is enabled. It's on by default in Docker mode. On a [Linux host agent](../../installation/linux-agent/) it's opt-in: set `KM_CONTAINER_INSTRUMENT_ENABLED=true`.
+
+For automated or immutable deployments, instrument PHP containers without picking each one:
 
 ```bash
-# Limit instrumentation to specific containers (default: every PHP container)
+# Instrument every PHP container, with no per-service selection
+KM_CONTAINER_INSTRUMENT_ALL=true
+
+# Or restrict the automatic set to specific containers or images
 KM_CONTAINER_INSTRUMENT_NAMES=app1,app2
 KM_CONTAINER_INSTRUMENT_IMAGES=wordpress,my-php-app
 
-# Turn PHP container instrumentation off entirely
+# Turn the PHP-container SDK path off entirely
 KM_CONTAINER_INSTRUMENT_ENABLED=false
 ```
 
@@ -54,9 +68,9 @@ KM_CONTAINER_INSTRUMENT_ENABLED=false
 
 The agent cannot instrument a container that serves requests from the **PHP built-in server** (`php -S`), because that server does not reload configuration without a full restart. The official Adminer image is one example. Alpine (musl) images are also a problem, because the bundled tracer assets target glibc.
 
-### PHP containers are configured by environment, not the per-service toggle
+### How PHP-container tracing is selected
 
-PHP container instrumentation is controlled by the environment variables above, not the **Off / eBPF** toggle in **Discovered Services**. A PHP container can still appear in that list, but its in-place tracer — not the toggle — is what gives it full traces. Narrow or disable it with the variables above.
+By default, a PHP container is traced when you set it to **SDK** in **Discovered Services**, the same per-service choice as any other service. The environment variables above override that for automated rollouts: `KM_CONTAINER_INSTRUMENT_ALL`, `KM_CONTAINER_INSTRUMENT_NAMES`, or `KM_CONTAINER_INSTRUMENT_IMAGES` instrument a fixed set with no UI step, and [autonomous mode](../../advanced-configuration/) instruments every PHP container. Setting `KM_CONTAINER_INSTRUMENT_ENABLED=false` turns the SDK path off, so PHP containers fall back to **Off** or **eBPF**.
 
 ## Send full OpenTelemetry traces from your containers
 

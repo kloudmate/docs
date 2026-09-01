@@ -19,7 +19,9 @@ When you instrument a PHP service, the agent adds a config file for the target's
 
 ## On Docker
 
-In Docker mode, the agent instruments PHP containers automatically, in place, and matches the container's PHP build. It reloads the SAPI (Apache graceful or php-fpm) with no redeploy, so this is separate from the **Off / eBPF** toggle. Narrow or turn it off with the `KM_CONTAINER_INSTRUMENT_*` environment variables. The instrumented application sends traces to the agent through the container's host gateway.
+A PHP container offers an **SDK** option in Discovered Services. Turn it on and the agent injects the tracer, matches it to the container's PHP build, and reloads the web server (Apache graceful or php-fpm) with no redeploy and no container restart. The instrumented application sends traces to the agent through the container's host gateway.
+
+This SDK option is on by default in Docker mode. On a Linux host agent it's opt-in: set `KM_CONTAINER_INSTRUMENT_ENABLED=true`. To instrument PHP containers automatically without picking each one, use `KM_CONTAINER_INSTRUMENT_ALL`, `KM_CONTAINER_INSTRUMENT_NAMES`, or `KM_CONTAINER_INSTRUMENT_IMAGES`.
 
 The built-in PHP server (`php -S`) and Alpine (musl) images aren't supported: the built-in server has no graceful reload, and the bundled tracer assets target glibc. For the details, including the PHP 7 build-time recipe, see [Docker platform notes](../../platform-notes/docker/).
 
