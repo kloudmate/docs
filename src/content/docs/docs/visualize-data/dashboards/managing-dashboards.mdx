@@ -12,6 +12,14 @@ To make any changes to a dashboard, including editing panels, updating settings,
 
 Click **Exit edit** to return to view mode without saving, or **Save** to save your changes.
 
+## Adding Sections to a Dashboard
+
+Sections group related panels under a collapsible header, so long dashboards stay easy to scan. In edit mode, click **Add**, then select **Add section**.
+
+![image](./images/managing-dashboards-3.png)
+
+Click the section header to expand or collapse the panels underneath it, and drag panels into it to organize them.
+
 ## Dashboard Settings
 
 Click the **Settings** icon in the toolbar while in edit mode to open the Dashboard Settings panel. From here you can:
@@ -48,3 +56,19 @@ You can add and manage variables in your dashboards. Variables are placeholders 
 4. Click **Save**.
 
 Once the variable has been added, you can use it by selecting the created variable in the panel query box and saving the new query.
+
+### Variable values from attribute values, filtered by metric
+
+Populating a variable from OTel attribute values adds these fields:
+
+- **OTel Dataset:** Choose the dataset (e.g., Metrics) to pull attribute values from.
+- **OTel Attribute Key:** Choose the attribute whose values populate the variable, such as `host_name`.
+- **Metric (optional):** Reads the attribute off this metric's series, so a label can come from a metric that carries it even when the panels chart a different one. Leave empty to look across every metric. The dropdown lists any existing template variables alongside the available metrics with their type (Gauge, Sum, and so on).
+- **Filters:** Click **Add filter** to narrow the values further by other attributes.
+- **Regex (optional):** Enter a regular expression, such as `/^prod-(.*)/`, to match only values that fit the pattern.
+
+![image](./images/managing-dashboards-4.png)
+
+Turn on **Multi Values** to let viewers select more than one value at once, and **Show All option** to add an **All** choice to the variable dropdown.
+
+The **Preview of values** list updates as you adjust these fields, showing exactly what viewers will see in the variable dropdown.
