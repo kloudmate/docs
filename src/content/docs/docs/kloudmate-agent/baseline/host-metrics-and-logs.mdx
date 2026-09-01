@@ -11,13 +11,14 @@ Host metrics and logs are what the agent collects automatically, with no setup. 
 
 ## What flows automatically
 
-What the agent collects depends on the deployment mode, because each platform exposes host telemetry differently.
+What the agent collects depends on the deployment mode, because each platform exposes host telemetry differently. Container telemetry is the exception: on any host with a Docker socket, container metrics and logs are collected automatically, whether the agent runs as a Linux service or in Docker mode.
 
 <Tabs>
 <TabItem label="Linux">
 
 - **Host metrics:** CPU, memory, disk, network, and process metrics.
 - **Logs:** none are collected from the host automatically. Add application log files with [log monitoring](../../log-monitoring/), or the systemd journal with a [custom config override](../../custom-config-override/).
+- **Docker containers:** if the host runs Docker, per-container metrics and logs are collected automatically, the same as in Docker mode. See [Monitor Docker containers on the host](../../installation/linux-agent/#monitor-docker-containers-on-the-host).
 
 </TabItem>
 <TabItem label="Windows">

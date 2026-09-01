@@ -24,6 +24,8 @@ When eBPF monitoring is active, the agent collects:
 
 Because eBPF observes traffic in the kernel, it can trace a service with no code change and no restart — including Go and other services no language agent can inject. eBPF RED metrics and trace spans are a per-service choice you turn on (the **eBPF** APM mode); the network topology map and database activity monitoring run automatically. When a service also runs application APM, its eBPF spans and the application spans share the same trace, so hops you haven't put on the SDK still appear in end-to-end traces. See the [Application APM overview](../auto-instrumentation/overview/).
 
+On a host running Docker, the agent reads each container's name and listen ports from the Docker socket, so a container can be traced with eBPF the same way a host process can, whether the agent runs as a Linux service or in Docker mode. In **Discovered Services** a container offers **Off** or **eBPF**, because the agent can't attach an in-process SDK to a running container. PHP containers can also offer an **SDK** option that injects a tracer with no redeploy. See [Docker platform notes](../platform-notes/docker/).
+
 ## Deployment modes and requirements
 
 eBPF applies on **Linux, Kubernetes, and Docker**. It does **not** apply on **Windows**, which has no eBPF equivalent; on Windows the agent provides a comparable monitoring through Event Tracing for Windows (ETW) instead. See [Windows platform notes](../platform-notes/windows/).
