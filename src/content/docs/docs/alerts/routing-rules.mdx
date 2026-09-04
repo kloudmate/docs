@@ -33,7 +33,7 @@ A routing rule has these parts:
 | **Priority** | Lower numbers win. When an alert matches multiple rules, the highest-priority (lowest-numbered) rule routes it. |
 | **Matchers** | Label conditions that pick which alerts this rule applies to. |
 | **Group-by** | In **Static** grouping, whether and how matched alerts correlate. Leave it empty (or set only `alarm_id`) for **one notification per alert rule**, with no grouping. Add a real label key (for example `service`) to **correlate** matching alerts that share that value into one [Alert Group](../alert-groups/). `severity` can't be used here. This field is ignored when the rule uses **Auto (AI)** grouping. |
-| **Cadence** | `group_wait` (how long to wait after the first alert before sending the first notification) and `group_interval` (how often to re-notify on an open group). |
+| **Notification timing** | When the first notification goes out (**Group wait**), the minimum gap between notifications when the group changes (**Group interval**), and how often to re-send while the group stays open and unchanged (**Repeat interval**). |
 | **Destination channels** | One or more notification channels that receive the dispatched payload. |
 
 Optional:
@@ -86,14 +86,35 @@ The editor enforces two constraints:
 
 You can combine keys (for example, `service` + `env`) to scope each group tightly. Pick keys by which dimension changes the most: aggressive grouping (only `service`) reduces notification noise but sacrifices precision in the group title.
 
-### Cadence
+### Notification timing
 
-- **group_wait:** default `30s`. The grouping engine waits this long after a group opens before sending the first notification, so closely related alerts have time to fold in.
-- **group_interval:** default `5m`. Once a group is open, KloudMate re-notifies at this cadence if new alerts continue to arrive.
+The **Notification timing** section of the rule editor decides when the first notification goes out and how often the rule follows up. Enter each setting as duration text, such as `30s`, `5m`, or `4h`.
+
+| Setting | Default | What it controls |
+|---|---|---|
+| **Group wait** | `30s` | How long to wait before the first notification, so alerts that fire together share one message. |
+| **Group interval** | `5m` | The minimum gap between notifications when the group **changes**, such as a new alert joining or an instance recovering. It's driven by those changes, so it never fires on its own. |
+| **Repeat interval** | `0` (off) | How often to re-send while the group stays open and **nothing about it changes**. |
+
+#### Repeat interval
+
+Group interval only fires when the group changes, so a group whose instances keep firing goes quiet after the first notification. An alert that starts at 02:00 and is still firing at 09:00 has produced exactly one message, seven hours earlier.
+
+Set a **Repeat interval** and the rule re-sends the notification at that cadence for as long as the group stays open. Every rule starts at `0`, which is off, so nothing changes until you set a value. A blank field reads as off too. The shortest cadence you can set is `5m`, and the form rejects anything shorter unless it's `0`.
+
+Reminders stop on their own when the group resolves. A [silenced](../silences/) group doesn't get them, and it doesn't build up a backlog to deliver once the silence ends. A group that opened while it was already silenced was never announced, so it gets no reminders at all.
+
+Slack, email, Microsoft Teams, [webhook](../../platform/settings/notification-channels/#webhooks), and [SNS](../../platform/settings/notification-channels/#sns) deliver reminders. [Jira](../../platform/settings/notification-channels/#jira) and [KloudMate Incidents](../../platform/settings/notification-channels/#kloudmate-incidents) don't. The ticket or the incident is already a standing record that the alert is open, so a comment on it every few hours would only add noise. A rule that routes only to those two sends nothing extra when a reminder is due.
+
+In Slack, the reminder posts as a reply in the alert's existing thread and is broadcast to the channel, so you see it in the channel instead of buried under an hours-old parent message.
+
+:::caution[Check your webhook receivers first]
+A reminder is delivered with `"event": "repeat"` in the payload. Everything else about it matches an `appended` notification: the same `totals`, the same `rules`. A receiver that treats every incoming `POST` as a new alert will raise a duplicate every time a reminder fires. Handle or ignore `repeat` explicitly before you turn this on. See [Notification Payloads](../../platform/settings/notification-channels/#notification-payloads).
+:::
 
 ## The default passthrough rule
 
-Every workspace has a default passthrough rule pinned to the bottom of the list. It matches everything that didn't match a higher-priority rule. You can edit its destination channels and cadence, but you can't delete it or change its matchers.
+Every workspace has a default passthrough rule pinned to the bottom of the list. It matches everything that didn't match a higher-priority rule. You can edit its destination channels and notification timing, but you can't delete it or change its matchers.
 
 For a clean "everything else goes to Slack" path, point the default passthrough at your fallback Slack channel.
 
@@ -108,7 +129,7 @@ For a clean "everything else goes to Slack" path, point the default passthrough 
 
 4. **Choose how alerts group.** Leave **Alert grouping** on **Static** and set group-by keys: empty to notify once per alert rule, or a real label key (start with `service`) to correlate matching alerts into one group (`severity` isn't allowed here). Or switch to **Auto (AI)** to let the correlation engine group related alerts for you, with no keys to set.
 
-5. **Tune cadence.** Leave the defaults (`30s` wait, `5m` interval) for most cases. Tighten them for time-sensitive notifications, or loosen them for digest-style summaries.
+5. **Set the notification timing.** Leave the defaults (`30s` group wait, `5m` group interval) for most cases. Tighten them for time-sensitive notifications, or loosen them for digest-style summaries. Set a **Repeat interval** such as `1h` to be reminded while the alert stays open, or leave it at `0` for no reminders.
 
 6. **Pick destination channels.** Add one or more channels. If you don't have a [KloudMate Incidents](../../platform/settings/notification-channels/#kloudmate-incidents) channel yet, use the inline **+ Add KloudMate Incidents channel** link in the picker.
 
@@ -138,7 +159,7 @@ Each suggestion shows:
 - A title describing the proposed grouping (for example, "Group by service + env").
 - A short rationale: how much notification noise the rule would have collapsed over the lookback window.
 - A **preview matches** count for that window.
-- **Accept** opens the create-rule form pre-filled with the suggestion's matchers, group-by keys, and cadence, under a name derived from what the rule targets. **Dismiss** drops the card.
+- **Accept** opens the create-rule form pre-filled with the suggestion's matchers, group-by keys, and notification timing, under a name derived from what the rule targets. **Dismiss** drops the card.
 
 Some suggestions are grouping-only: they propose group-by keys with no matchers. Accepting one starts the rule as a catch-all that groups everything by those keys. Add matchers before saving to scope it to a subset of alerts.
 

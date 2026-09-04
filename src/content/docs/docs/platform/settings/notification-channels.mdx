@@ -172,6 +172,7 @@ Each notification has an event type. The **Event type** picker in the channel ed
 | --- | --- |
 | `alarm_group.opened` | Alert group, `event` is `opened` |
 | `alarm_group.appended` | Alert group, `event` is `appended` |
+| `alarm_group.repeat` | Alert group, `event` is `repeat` |
 | `alarm_group.resolved` | Alert group, `event` is `resolved` |
 | `alarm_group.rca_completed` | Alert group, `event` is `rca_completed` |
 | `issue.created` | New issue |
@@ -187,9 +188,9 @@ The tabs below show one representative example of each payload, the fields most 
 
 <Tabs>
   <TabItem label="Alert group">
-    **Event types:** `alarm_group.opened`, `alarm_group.appended`, `alarm_group.resolved`, `alarm_group.rca_completed`. **Fields for templates:** `group.title`, `group.severity`, `group.state`, `group.url`, `group.opened_at`, `totals.Firing`, `rca.summary`, `rules[0].alarm_name`, `rules[0].instances[0].labels.<key>`.
+    **Event types:** `alarm_group.opened`, `alarm_group.appended`, `alarm_group.repeat`, `alarm_group.resolved`, `alarm_group.rca_completed`. **Fields for templates:** `group.title`, `group.severity`, `group.state`, `group.url`, `group.opened_at`, `totals.Firing`, `rca.summary`, `rules[0].alarm_name`, `rules[0].instances[0].labels.<key>`.
 
-    Sent when an [alert group](../../../alerts/) opens, appends new alerts, resolves, or completes a root-cause analysis. The `event` field names which one. `workspace` identifies the workspace (tenant) the alert belongs to. `group` carries the group's id, title, state, severity, `labels`, `annotations`, and its link in KloudMate. `rules` lists each alarm rule in the group; each rule's `instances` array holds every matched instance with its own `labels`, `annotations`, and `state`, and `commonLabels`/`commonAnnotations` are the values shared by all of them. `totals` and each rule's `counts` are keyed by state: `Firing`, `Resolved`, `No Data`, `Error`, `Normal`. `group.mode` is `"group"` for a correlated group or `"standalone"` for a single alarm rule.
+    Sent when an [alert group](../../../alerts/) opens, appends new alerts, repeats while it stays open, resolves, or completes a root-cause analysis. The `event` field names which one. `workspace` identifies the workspace (tenant) the alert belongs to. `group` carries the group's id, title, state, severity, `labels`, `annotations`, and its link in KloudMate. `rules` lists each alarm rule in the group; each rule's `instances` array holds every matched instance with its own `labels`, `annotations`, and `state`, and `commonLabels`/`commonAnnotations` are the values shared by all of them. `totals` and each rule's `counts` are keyed by state: `Firing`, `Resolved`, `No Data`, `Error`, `Normal`. `group.mode` is `"group"` for a correlated group or `"standalone"` for a single alarm rule.
 
     ```json
     {
@@ -251,6 +252,7 @@ The tabs below show one representative example of each payload, the fields most 
     **Variants by `event`:**
     - `opened` — the group's first notification. `state` is `"Open"`; `resolved_at` and `rca` are `null`.
     - `appended` — new activity on an open group. Each instance shows its current `state`.
+    - `repeat` — a reminder that the group is still open, sent on the cadence set by the routing rule's [Repeat interval](../../../alerts/routing-rules/#repeat-interval). The body is identical to an `appended`: the same `totals`, the same `rules`. Only the `event` field tells them apart.
     - `resolved` — the group has cleared. `state` is `"Resolved"`, `resolved_at` is set, and instances show their final state (`Resolved`, `Normal`, `No Data`, or `Error`).
     - `rca_completed` — a root-cause investigation finished. The group's state does not change; `rca` is filled in instead of `null`:
 
