@@ -6,11 +6,13 @@ The Text Panel lets you add custom text, descriptions, or notes directly to your
 
 When the panel type is set to Text, the following settings are available under the **General** tab:
 
-![image](./images/text-panel-1.jpeg)
+![image](./images/text-panel-2.jpeg)
 
 ### Panel
 - **Name:** Enter a name for your panel. This appears as the panel title on the dashboard.
 - **Description:** Enter a description to provide additional context about what the panel displays.
 
 ### Content
-Use the text editor to enter the content you want to display in the panel. Markdown syntax is supported, allowing you to format your content with headers, lists, links, and more.
+Use the text editor to enter the content you want to display in the panel. Markdown is supported, including GitHub-flavored tables, so you can format your content with headers, lists, links, and tabular data.
+
+Type `${` to insert a query value, a variable, or the time range, with a live preview as you type. Format inline with `${value:bytes}` or `${value:number(1)}`, and set a fallback with `${value ?? "—"}`. Loop over a query's series with `${#each A.series} … ${/each}` (`${item.value.text}`).

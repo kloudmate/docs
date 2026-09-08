@@ -9,32 +9,43 @@ When the panel type is set to Bar Chart, the following settings are available un
 ![image](./images/bar-chart-panel-1.jpeg)
 
 ### Panel
+
 - **Name:** Enter a name for your panel. This appears as the panel title on the dashboard.
 - **Description:** Enter a description to provide additional context about what the panel displays.
+- **Links:** Click **Add link** to connect the panel to related resources, such as a runbook or an external dashboard.
+- **Repeat options:** Set **Repeat by variable** to render one copy of this panel for each value of the selected variable. Only the first 20 values are used, and the copies show on the dashboard, not in this editor.
 
-![image](./images/bar-chart-panel-2.jpeg)
-
-![image](./images/bar-chart-panel-3.jpeg)
+![image](./images/bar-chart-panel-4.png)
 
 ### Display
+
 Control how the bar chart is visually rendered.
 
 - **Orientation:** Choose between Vertical or Horizontal bar layout.
 - **Stacking:** Choose between Stacked (bars stacked on top of each other) or Grouped (bars placed side by side) to control how multiple series are displayed.
 
+![image](./images/bar-chart-panel-2.jpeg)
+
 ### Axes
+
 Configure how data is represented on each axis of the chart.
 
 - **X-Axis:** Use the Date Style dropdown to choose from various date formats for the horizontal axis of the chart.
 - **Y-Axis:** Use the Format dropdown to choose the unit of data displayed, such as Number, Percentage, or Duration. You can also set decimal places, multiply values by a number, and add a prefix or suffix.
 
 ### Legend
+
 Choose between Table or List mode to control how query results are displayed. Use the Values selector to pick aggregate functions to show alongside each legend entry.
 
+Switching **Orientation** to Horizontal renders the bars sideways, useful when category labels are long or when you have many categories to compare.
+
+![image](./images/bar-chart-panel-3.jpeg)
+
 ### Time Range
+
 Configure time range behavior for this panel independently from the dashboard.
 
 - **Override Dashboard Time Range:** Individual panels can use their own time range configuration. Enable this to override the time range set at the dashboard level.
-- **Time Shift:** Shift the panel’s start and end time by a specified time shift expression. Use the minus (`-`) operator to subtract time, with the same units supported by the dashboard time range expressions. 
+- **Time Shift:** Shift the panel's start and end time by a specified time shift expression. Use the minus (`-`) operator to subtract time, with the same units supported by the dashboard time range expressions.
 
 Refer to [Time Range Expressions and Settings](../time-range-expressions-and-settings/) for supported units and syntax.
