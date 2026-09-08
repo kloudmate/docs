@@ -1,0 +1,121 @@
+---
+title: "Kafka Prometheus ServiceMonitor Integration"
+description: "Monitor a Kafka cluster on Kubernetes (for example, Bitnami) by reusing the metrics an existing Prometheus ServiceMonitor already scrapes."
+sidebar:
+  order: 3.6
+---
+
+Use this integration when a Kafka cluster (for example, a Bitnami Helm release) runs in Kubernetes and an existing Prometheus setup already scrapes it through a `ServiceMonitor`. Instead of standing up a new scrape path, you point the KloudMate Agent's Prometheus receiver at the same metrics endpoints.
+
+## Prerequisites
+
+1. The [KloudMate Agent](../../../kloudmate-agent/) deployed and running in the cluster.
+2. The scrape details from the `ServiceMonitor`(s) already collecting Kafka metrics.
+
+## Step 1: Gather Details from the Existing ServiceMonitor
+
+```
+kubectl get servicemonitor -n <kafka-namespace> -o yaml
+```
+
+From the output, note:
+
+1. `spec.selector.matchLabels` → identifies which Service it targets.
+2. `spec.endpoints[].port` or `targetPort` → the metrics port (Bitnami defaults: `5556` for the JMX exporter, `9308` for kafka-exporter).
+3. `spec.endpoints[].path` → usually `/metrics`.
+4. `spec.endpoints[].interval` → match this in your scrape config to stay consistent with the existing setup.
+5. `spec.namespaceSelector` → confirms the namespace to target.
+
+## Step 2: Define the Prometheus Receiver
+
+Go to **Settings → Agents**, select the Kubernetes agent, and click **Configure**.
+
+- If the agent runs in managed mode, add the configuration below through the [custom config override](../../../kloudmate-agent/custom-config-override/) section for the deployment collector.
+- If the agent runs in manual mode, add the configuration as-is.
+
+```yaml
+receivers:
+  prometheus:
+    config:
+      scrape_configs:
+        - job_name: 'kafka-jmx'
+          scrape_interval: 30s          # match the ServiceMonitor's interval
+          metrics_path: /metrics
+          static_configs:
+            - targets: ['<release>-kafka-metrics.<kafka-namespace>.svc.cluster.local:5556']
+              labels:
+                cluster: '<cluster-name>'
+
+        - job_name: 'kafka-exporter'
+          scrape_interval: 30s
+          metrics_path: /metrics
+          static_configs:
+            - targets: ['<release>-kafka-exporter.<kafka-namespace>.svc.cluster.local:9308']
+              labels:
+                cluster: '<cluster-name>'
+service:
+  pipelines:
+    metrics/kafka:
+      receivers: [prometheus]
+      processors: [batch]
+      exporters: [otlphttp]
+```
+
+Replace `<release>`, `<kafka-namespace>`, and `<cluster-name>` with your own values, and adjust the ports and interval if your `ServiceMonitor` differs from the Bitnami defaults.
+
+## Step 3: Restart the Agent
+
+If you edited the configuration directly instead of using a custom config override, restart whichever workload runs the agent:
+
+```bash
+kubectl rollout restart deployment <km-agent> -n <kafka-namespace>
+```
+
+or
+
+```bash
+kubectl rollout restart daemonset <km-agent> -n <kafka-namespace>
+```
+
+## Step 4: Validate in KloudMate
+
+After the agent restarts:
+
+- Open [Explore](../../../visualize-data/explore/) in KloudMate.
+- Query one of the scraped metrics, for example:
+
+```
+kafka_server_brokertopicmetrics_messagesin_total
+
+kafka_server_replicamanager_leadercount
+
+kafka_consumergroup_lag
+```
+
+- Build dashboards or alerts once the data is visible.
+
+## Standard Kafka Dashboards
+
+To import and start using a template, follow the steps described in [Importing a Dashboard](../../../visualize-data/dashboards/#importing-a-dashboard). Alternatively, use [From Template](../../../visualize-data/dashboards/create-a-dashboard/#from-template) when creating a new dashboard to pick from KloudMate's built-in templates.
+
+## Metrics Collected
+
+This integration collects:
+
+- Kafka broker metrics
+- Kafka topic metrics
+- Kafka consumer group metrics
+- Kafka Exporter metrics
+- JVM metrics
+- Broker health metrics
+- Replication metrics
+- Network metrics
+- Request metrics
+- Controller metrics
+
+## Related
+
+- [Kafka Integration](../kafka-integration/) — connecting directly over the Kafka protocol instead of reusing an existing ServiceMonitor.
+- [Kafka JMX Exporter Integration](../kafka-jmx-exporter-integration/) — the Strimzi-native equivalent of this setup.
+- [Custom config override](../../../kloudmate-agent/custom-config-override/) — how to apply this configuration to a managed agent.
+- [Explore](../../../visualize-data/explore/) — where to query the collected metrics.
