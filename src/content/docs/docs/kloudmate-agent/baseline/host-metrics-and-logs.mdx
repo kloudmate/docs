@@ -24,8 +24,8 @@ What the agent collects depends on the deployment mode, because each platform ex
 <TabItem label="Windows">
 
 - **Host metrics:** CPU, memory, disk, and network usage.
-- **IIS traffic:** server spans and request-duration metrics for every request Internet Information Services (IIS) serves, collected through Event Tracing for Windows (ETW) with no injection. See [Windows platform notes](../../platform-notes/windows/#etw-monitoring).
 - **Logs:** none are collected from the host automatically, including the Windows Event Log. Add application log files or Event Log channels with [log monitoring](../../log-monitoring/).
+- **Application traces:** none are collected until you turn on tracing for a service, the same as on Linux. Internet Information Services (IIS) traffic is traced through Event Tracing for Windows (ETW) once you enable it for an application pool. See [Windows platform notes](../../platform-notes/windows/#etw-monitoring).
 
 </TabItem>
 <TabItem label="Kubernetes">

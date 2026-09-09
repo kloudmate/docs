@@ -1,6 +1,6 @@
 ---
 title: "Windows"
-description: "Install the KloudMate agent on Windows Server to collect host metrics, IIS traffic, and application logs."
+description: "Install the KloudMate agent on Windows Server to collect host metrics, application logs, and IIS traces."
 sidebar:
   order: 6
 ---
@@ -18,8 +18,8 @@ If your outbound traffic is restricted, see [Before you start](../before-you-sta
 Once installed, the Windows Agent collects:
 
 - **Host metrics:** CPU, memory, disk, and network usage
-- **IIS traffic:** server spans and request-duration metrics for every request IIS serves, through Event Tracing for Windows (ETW)
 - **Logs:** log files and Windows Event Log channels that you configure with [log monitoring](../../log-monitoring/). Nothing is collected until you add a source
+- **IIS traces:** server spans and request-duration metrics through Event Tracing for Windows (ETW), for each application pool you turn tracing on for
 - **Alerts:** Configure thresholds on host metrics to notify on critical events
 - **Dashboards:** Pre-built and custom dashboards to visualize Windows host metrics and logs
 
@@ -96,9 +96,9 @@ For a hand-written `filelog` receiver in manual mode, see [Collect File Logs wit
 
 ## Configuration and next checks
 
-The agent installs as a Windows service running as Local System. It needs that privilege level to read Internet Information Services (IIS) configuration and Windows Management Instrumentation (WMI). New agents start in managed mode. See the [configuration model](../../concepts/config-model/).
+The agent installs as a Windows service running as Local System. It needs that privilege level to read Internet Information Services (IIS) configuration and to query the Service Control Manager. New agents start in managed mode. See the [configuration model](../../concepts/config-model/).
 
-- Host metrics and IIS traffic start flowing automatically. Logs don't, so add a source if you want them. See [Host metrics and logs](../../baseline/host-metrics-and-logs/).
+- Host metrics start flowing automatically. Logs and traces don't, so turn on the ones you want. See [Host metrics and logs](../../baseline/host-metrics-and-logs/).
 - eBPF does not apply on Windows. The agent gives you equivalent monitoring through Event Tracing for Windows (ETW). See [Windows platform notes](../../platform-notes/windows/).
 - To add distributed tracing to .NET applications, see [.NET application APM](../../auto-instrumentation/dotnet/).
 
