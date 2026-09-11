@@ -11,7 +11,7 @@ Each query or expression has a unique letter (A, B, C, and so on). In an express
 
 ## Expression operations
 
-Alert expressions support three operations:
+Alert expressions support these operations:
 
 - Math expression
 - Reduce
@@ -124,7 +124,7 @@ A condition expression takes the time series or numbers returned by queries or e
 
 ![image](./images/expressions-7.png)
 
-The reduction function is applied to the query or expression to produce a single value, which is then compared against the threshold using the condition you chose. When the input is a collection of time series or numbers, the reduction function is applied to each element individually, each reduced output is evaluated against the condition, and the outputs are combined with AND.
+KloudMate reduces the query or expression to a single value, then compares it against the threshold using the condition you chose. When the input is a collection of time series or numbers, it reduces each element individually, evaluates each reduced output against the condition, and combines the results with AND.
 
 Add more conditions with the **Add condition** button, and choose how they combine with the **AND** or **OR** operators.
 
@@ -134,7 +134,7 @@ Nodes represent the individual queries or expressions used to build alerts and d
 
 ![image](./images/expressions-8.png)
 
-Nodes serve as reference points, so you can identify and evaluate specific queries or expressions during analysis.
+You reference a node by its letter in other queries and expressions.
 
 ![image](./images/expressions-9.png)
 

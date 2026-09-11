@@ -8,9 +8,9 @@ sidebar:
 
 import { LinkCard, CardGrid } from '@astrojs/starlight/components';
 
-A threshold alert can only judge the datapoints that arrive. It has nothing to say when the datapoints stop. **Alert when an instance stops reporting** covers that case: turn it on for a rule and KloudMate remembers every instance the rule has seen, then alerts when any of them goes silent.
+A threshold alert only evaluates the datapoints that arrive. When the datapoints stop, it has nothing to evaluate. **Alert when an instance stops reporting** covers that case: turn it on for a rule and KloudMate remembers every instance the rule has seen, then alerts when any of them goes silent.
 
-An **instance** is a unique series identified by its distinct labels. A heartbeat metric grouped by `host_name` produces one instance per host; group by `serviceName` and `pod_name` and you get one per pod. Absence detection tracks each instance individually: it has its own state, its own history, its own row on the **Instances** tab, and its own dismissal.
+An **instance** is a unique series identified by its distinct labels. A heartbeat metric grouped by `host_name` produces one instance per host; group by `serviceName` and `pod_name` and you get one per pod. Absence detection tracks each instance individually: it has its own state, its own history, and its own dismissal.
 
 The setting is off by default and opt-in per rule, so existing rules don't change until you enable it. It works with any datasource, whether the data comes from the KloudMate agent or not.
 
@@ -32,9 +32,9 @@ Routing itself works as usual, since each instance carries its own labels.
 3. Optionally set **Auto-close after**: how long a silent instance stays tracked, and firing, before it closes on its own, which happens only while other instances are still reporting. Leave it blank to inherit the folder default, or the system default of 24 hours. It accepts durations from `5m` to `72h`, for example `30m` or `48h`.
 4. Save the rule.
 
-Turning the toggle on also sets **Alert state if No data** to **Firing**. Both are needed for absence detection, so the form does it in one step. Turning the toggle off leaves the No-data state alone, in case you still want the rule to fire when the whole query returns nothing.
+Turning the toggle on also sets **Alert state if No data** to **Firing**, since absence detection needs both. Turning the toggle off leaves the No-data state alone, in case you still want the rule to fire when the whole query returns nothing.
 
-Both settings inherit from [folders](../folders/) exactly like the other evaluation defaults: the rule's own value wins, a blank field falls back to the folder default, and the system default applies last. The folder edit dialog carries the matching fields, **Instance stops reporting** (**Alert** / **Don't alert**) and **Auto-close after**.
+Both settings inherit from [folders](../folders/) exactly like the other evaluation defaults: the rule's own value wins, a blank field falls back to the folder default, and the system default applies last. Folders expose the same two settings, **Instance stops reporting** (**Alert** / **Don't alert**) and **Auto-close after**.
 
 ## Make the query window longer than the reporting interval
 
@@ -67,15 +67,13 @@ That's about eight minutes after the last datapoint: the 5-minute window plus th
 
 ## The Instances tab
 
-The alert detail page's **Instances** tab shows every tracked instance with a **Last seen** column: a relative time, with the absolute timestamp on hover. It records when the instance last appeared in query results, so with a lookback window it can read up to one window later than the instance's final datapoint. While an instance is firing for absence, its row shows the reason `instance stopped reporting; last seen <timestamp>`.
+The **Instances** tab lists every tracked instance and when each was **Last seen**. Last seen records when the instance last appeared in query results, so with a lookback window it can read up to one window later than the instance's final datapoint. While an instance is firing for absence, its reason is `instance stopped reporting; last seen <timestamp>`.
 
 ### Dismiss an instance that was terminated on purpose
 
-Autoscalers scale in and hosts get decommissioned. When an instance went away on purpose, close its alert with one click instead of waiting out the auto-close window. Admins see a **Dismiss** action on any instance that stopped reporting; the confirmation reads:
+Autoscalers scale in and hosts get decommissioned. When an instance went away on purpose, close its alert instead of waiting out the auto-close window. Admins can **Dismiss** any instance that stopped reporting.
 
-> Stop tracking this instance? Its alert closes and it won't fire again unless it reports again. Use this when the instance was terminated on purpose.
-
-Dismissal forgets the instance; it isn't a mute. If the instance ever reports again, tracking resumes automatically, so a dismissal can't permanently hide a live host. The instance's alert closes right away, and the alert group and any linked ticket close within one evaluation interval. Dismissing an instance that's already gone shows "Already dismissed." and changes nothing.
+Dismissal forgets the instance; it isn't a mute. If the instance ever reports again, tracking resumes automatically, so a dismissal can't permanently hide a live host. The instance's alert closes right away, and the alert group and any linked ticket close within one evaluation interval. Dismissing an instance that's already been dismissed changes nothing.
 
 If the instance is coming back later, after planned maintenance or a reboot, use a [silence](../silences/) or [maintenance window](../maintenance-windows/) instead. Both apply to absence alerts like any other: the instance keeps its state, notifications are withheld, and it recovers on its own when it reports again.
 

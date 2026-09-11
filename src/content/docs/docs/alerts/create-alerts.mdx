@@ -13,7 +13,7 @@ Open the **Alerts** section from the left navigation.
 
 ![Alerts list](./images/setting-up-kloudmate-alarms-1.png)
 
-The **Alerts** screen lists your alert rules with their current state, name, and description. A summary at the top shows how many rules you have, and how many are currently **Firing** or **Pending**. You can group rules into [Folders](../folders/), which appear as collapsible header rows.
+The **Alerts** screen lists your alert rules with their current state, name, and description. You can group rules into [Folders](../folders/).
 
 From the **more options (⋯)** icon on any rule, you can:
 
@@ -26,13 +26,13 @@ From the **more options (⋯)** icon on any rule, you can:
 
 ![Alert row actions](./images/setting-up-kloudmate-alarms-1.jpeg)
 
-**Pause Notifications** creates a temporary [silence](../silences/) scoped to this alert: the rule keeps evaluating, but KloudMate suppresses its notifications until the silence expires. While it's paused, the rule shows a **Silenced** badge on the alerts list and its detail page; view or end the pause from **Alerts → Silences**. Add matchers to limit it to specific instances.
+**Pause Notifications** creates a temporary [silence](../silences/) scoped to this alert: the rule keeps evaluating, but KloudMate suppresses its notifications until the silence expires. While it's paused, the rule is marked **Silenced**; view or end the pause from **Alerts → Silences**. Add matchers to limit it to specific instances.
 
 For the key concepts, see the [Alerts Overview](../).
 
 ## Creating a new alert
 
-Click the **Create Alert** button at the top right of the **Alerts** screen. A dialog appears with three ways to create an alert:
+Click **Create Alert**. A dialog appears with three ways to create an alert:
 
 ![Create Alert dialog](./images/create-alarm-dialog.png)
 
@@ -72,9 +72,9 @@ To build a fully custom alert, select **From Scratch** in the **Create Alert** d
 
 This opens the alert creation form, where you choose a data source, configure the metric or query to monitor, and define the alert condition on a single page.
 
-Create more queries and expressions with the **Add Query** and **Add Expression** buttons. KloudMate assigns each one a letter, such as **A**, **B**, or **C**, and you can duplicate any block with the copy icon at its top right.
+Create more queries and expressions with the **Add Query** and **Add Expression** buttons. KloudMate assigns each one a letter, such as **A**, **B**, or **C**, and you can duplicate any block with its copy icon.
 
-To reach advanced options such as **Math expressions**, **Reduce**, and **Condition expressions**, click **Advanced mode** at the top of the form.
+To reach advanced options such as **Math expressions**, **Reduce**, and **Condition expressions**, click **Advanced mode**.
 
 ![Advanced mode options](./images/advanced-mode-options.png)
 
@@ -152,7 +152,7 @@ To avoid the **NoData** issue when a single alert uses multiple queries, use the
 
 ### 2. Configure evaluation settings
 
-This step opens with a **Folder** dropdown. Select an existing folder, or type a new name to create one inline, to organize the rule and inherit shared defaults. The folder's `interval_seconds`, `no_data_state`, and `eval_error_state` flow into the rule as defaults you can override per field. See [Folders](../folders/).
+Pick a **Folder** to organize the rule and inherit shared defaults: select an existing folder, or type a new name to create one inline. The folder's **Evaluate every**, **No data state**, and **Eval error state** flow into the rule as defaults you can override per field. See [Folders](../folders/).
 
 ![Evaluation settings](./images/setting-up-kloudmate-alarms-4.png)
 
@@ -175,7 +175,7 @@ For the full lifecycle, and how **Pending duration**, **Recovery period**, and t
 Click **Preview alerts** to run the query immediately and check the result.
 
 :::tip
-If the rule belongs to a folder with shared defaults, **Evaluate every**, **Alert state if No data**, and **Alert state if Error** show placeholder values inherited from the folder. Leave them blank to keep inheriting, or type a value to override. A small **Reset to folder default** link appears under any field you've overridden.
+If the rule belongs to a folder with shared defaults, **Evaluate every**, **Alert state if No data**, and **Alert state if Error** show placeholder values inherited from the folder. Leave them blank to keep inheriting, or type a value to override. **Reset to folder default** returns an overridden field to inheriting.
 :::
 
 ### 3. Add alarm details
@@ -187,7 +187,7 @@ Set the alert's name and description, then fill in the responder context:
 - **Alert name:** a name for the alert.
 - **Description:** a short description of the alert's purpose.
 
-**Responder context** is a labeled section that holds the annotations responders see when the notification lands. The hint above it reads, for example, *"Help on-call responders understand the alarm and act quickly."*
+**Responder context** holds the annotations responders see when the notification lands.
 
 - **Severity:** free-form severity (for example, `sev1`, `critical`, or `p1`). Supports Liquid templates, so severity can depend on the firing value.
 - **Summary:** multiline message included in notifications. Supports templates.
@@ -195,7 +195,7 @@ Set the alert's name and description, then fill in the responder context:
 - **Panel:** when you pick a dashboard, narrows the link to a specific panel.
 - **Playbook URL:** optional runbook URL.
 
-**Custom annotations** is a collapsed accordion at the bottom. Open it to add your own key-value pairs (for example, `service_owner` or `region`). Values support Liquid templates. See [Annotations & Severity](../annotations-and-severity/).
+Open **Custom annotations** to add your own key-value pairs (for example, `service_owner` or `region`). Values support Liquid templates. See [Annotations & Severity](../annotations-and-severity/).
 
 ### 4. Notifications
 

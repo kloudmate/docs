@@ -7,15 +7,15 @@ sidebar:
 
 Auto-RCA hands an [Alert Group](../alert-groups/) to KloudMate's AI investigator the moment it opens, so by the time you open the group there's already a root-cause summary waiting. You enable it per [Routing Rule](../routing-rules/); every group the rule produces gets investigated.
 
-Auto-RCA is the automatic trigger: it runs on every group a rule opens, without anyone asking. You can also start an investigation manually on any group with the **Run RCA** button. Once an investigation attaches, the button becomes **View RCA** and opens it in a side drawer. See [Run RCA and View RCA](../alert-groups/#run-rca-and-view-rca).
+Auto-RCA is the automatic trigger: it runs on every group a rule opens, without anyone asking. You can also start an investigation manually on any group with **Run RCA**, and open a finished one with **View RCA**. See [Run RCA and View RCA](../alert-groups/#run-rca-and-view-rca).
 
 ## How it works
 
-When a routing rule with Auto-RCA enabled opens a group, KloudMate schedules an investigation after the configurable **Auto-RCA delay** (default: 5 minutes). The delay gives related alerts time to fold into the group so the investigation sees the full picture, not only the first alert.
+When a routing rule with Auto-RCA enabled opens a group, KloudMate schedules an investigation after the configurable **Auto-RCA delay** (default: 5 minutes). The delay gives related alerts time to fold into the group, so the investigation covers them all, not only the first alert.
 
 When the investigation completes, its summary attaches to the group:
 
-- On the group detail page, the header's RCA button becomes **View RCA**. Opening it shows the root-cause summary and a **View full investigation** link. See [Run RCA and View RCA](../alert-groups/#run-rca-and-view-rca).
+- You can open the summary from the group with **View RCA**, which also links to the full investigation. See [Run RCA and View RCA](../alert-groups/#run-rca-and-view-rca).
 - The notifications dispatched from the group include the investigation summary, where the channel format supports it: a Slack thread reply, a KloudMate Incidents comment, and so on.
 
 :::note[One investigation per group]
@@ -40,6 +40,6 @@ Auto-RCA works best on rules that group related alerts: a spike after a deploy, 
 
 ## Related
 
-- [Routing Rules](../routing-rules/): where the Auto-RCA toggle lives.
-- [Alert Groups](../alert-groups/): where the investigation surfaces.
+- [Routing Rules](../routing-rules/): enable Auto-RCA per rule.
+- [Alert Groups](../alert-groups/): how an investigation attaches to a group.
 - [KloudMate Assistant](../../kloudmate-assistant/): the broader investigator surface.
