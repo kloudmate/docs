@@ -11,11 +11,11 @@ Silences cap at 30 days. The cap keeps a silence from being forgotten and quietl
 
 ## Where to find silences
 
-Open **Alerts → Silences** in the left navigation. Silences are ad-hoc; for recurring quiet windows, use [Maintenance Windows](../maintenance-windows/) instead.
+Open **Alerts → Silences**. Silences are ad-hoc; for recurring quiet windows, use [Maintenance Windows](../maintenance-windows/) instead.
 
 ![Silences list](./images/silences-list.png)
 
-The list has tabs with live counts: **Active (N)** (default), **Expired (N)**, and **All (N)**. Columns: **Matchers** (chips, with an overflow tooltip), **Expires** (a countdown such as *"In 4h"* or *"Expired 12m ago"*), **Scope** (a `Standalone` or `Group-bound` chip), **Reason**, and **Created by**.
+Silences are grouped into **Active**, **Expired**, and **All** tabs.
 
 ## Anatomy of a silence
 
@@ -24,7 +24,7 @@ The list has tabs with live counts: **Active (N)** (default), **Expired (N)**, a
 | **Matchers** | Label conditions that pick which alerts the silence applies to. Same operator set as [Routing Rules](../routing-rules/#matchers): Equals, Not equals, Matches regex, Doesn't match regex. |
 | **Expires at** | Date and time the silence stops. Capped at 30 days from creation. |
 | **Reason** | Free-form text; recommended so others know why the silence exists. |
-| **Scope** | Either **Group-bound** (auto-expires when a specific [Alert Group](../alert-groups/) resolves) or **Standalone** (lives until its `expires_at`). |
+| **Scope** | Either **Group-bound** (auto-expires when a specific [Alert Group](../alert-groups/) resolves) or **Standalone** (lives until it expires). |
 
 ## Create a silence
 
@@ -34,23 +34,22 @@ Create a silence from the Silences page, an alert group, or an alert's Pause Not
 
 1. Open **Alerts → Silences** and click **New silence**.
 2. Add one or more matcher rows. For each, pick a label key, an operator, and a value.
-3. Pick an **Expires at** date and time. The form caps duration at 30 days and disables submit otherwise.
+3. Pick an **Expires at** date and time, up to 30 days out.
 4. Add a **Reason** describing why this silence exists.
-5. Click **Save**. The silence appears in the **Active** tab.
+5. Click **Save**.
 
 ### From an Alert Group
 
 On any [Alert Group](../alert-groups/) detail page, click **Silence this group**. The silence creator opens pre-filled with:
 
 - The group's labels populated as matchers.
-- A hidden `auto_expire_group_id` set to the current group, so the silence stops automatically when the group resolves.
-- A banner above the form that reads something like "This silence will auto-expire when group `<title>` resolves."
+- A binding to the group, so the silence stops automatically when the group resolves.
 
-Save it from here. The silence shows up as **Group-bound** on the list.
+Save it; this creates a **Group-bound** silence.
 
 ### From an alert's Pause Notifications
 
-On an alert rule's **more options (⋯) → Pause Notifications**, KloudMate creates a silence scoped to that alert (an `alarm_id` matcher) with an expiry: the alert keeps evaluating, and only its notifications are suppressed. While paused, the rule is marked **Silenced** on the alerts list and its detail page, and the silence appears here in the **Active** tab, where you view or end it. Add matchers to narrow the pause to specific instances.
+On an alert rule's **more options (⋯) → Pause Notifications**, KloudMate creates a silence scoped to that alert (an `alarm_id` matcher) with an expiry: the alert keeps evaluating, and only its notifications are suppressed. While paused, the rule is marked **Silenced**; view or end the pause from **Alerts → Silences**. Add matchers to narrow the pause to specific instances.
 
 ## Silence vs. maintenance window
 
@@ -59,15 +58,15 @@ Both features are a **notification gate, not a state change**: the alert still e
 - **Silences** are ad-hoc, label-matcher driven, capped at 30 days, and can be auto-bound to a specific alert group so they expire when the group resolves.
 - **Maintenance Windows** are scheduled: one-time (RFC3339 start/end) or recurring (`DAILY` / `WEEKLY` / `MONTHLY` with a timezone-aware time-of-day).
 
-Both use the same four label-matcher operators (**Equals**, **Not equals**, **Matches regex**, **Doesn't match regex**), matched against alert rule labels and alert instance labels.
+Both use the same label-matcher operators (**Equals**, **Not equals**, **Matches regex**, **Doesn't match regex**), matched against alert rule labels and alert instance labels.
 
-Both leave the alert evaluating. Suppressed state transitions are marked with `silenced_at` and `silenced_by_*` columns on the alert state history, so you can always tell after the fact whether a quiet stretch was a real recovery or a suppressed notification.
+Both leave the alert evaluating. Suppressed state transitions are recorded in the alert's history, so you can always tell after the fact whether a quiet stretch was a real recovery or a suppressed notification.
 
 Pick a silence for a reactive, one-off suppression you'll re-evaluate within 30 days. Pick a [Maintenance Window](../maintenance-windows/) for planned downtime, recurring quiet hours, or anything that needs a calendar schedule.
 
 ## Viewing and ending a silence
 
-Each row's kebab menu has **View** and **End silence**. Ending an active silence removes suppression for matching alerts immediately; new firings notify as normal.
+From a row's kebab menu, select **End silence** (or **View**). Ending an active silence removes suppression for matching alerts immediately; new firings notify as normal.
 
 ## Related
 

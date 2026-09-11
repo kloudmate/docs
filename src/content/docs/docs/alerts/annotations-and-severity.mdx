@@ -14,22 +14,22 @@ Annotation values support **Liquid templating**, so you can pull live data from 
 
 ## Where to find annotations
 
-Annotations live in the **Responder context** section of the alert rule editor (inside the **Add alarm details** step). The pre-defined annotation keys render as labeled form fields:
+Annotations live in the **Responder context** section of the alert rule editor. The pre-defined annotation keys are:
 
 - **Severity:** free-form severity string, for example `sev1`, `critical`, or `p1`. Plain text or a Liquid template.
-- **Summary:** multiline text, shown as the alert headline in notifications. Supports templates.
+- **Summary:** the alert headline in notifications. Supports templates.
 - **Dashboard:** pick a workspace dashboard to link from the notification.
 - **Panel:** when a dashboard is picked, narrows the link to a specific panel.
 - **Playbook URL:** link to the runbook responders should follow. Supports templates.
 
-Any other key is a **custom annotation**. Custom annotations live under a collapsible **Custom annotations** accordion below the fixed fields. Click **Add Annotation** to create a new key-value row.
+Any other key is a **custom annotation**. Click **Add Annotation** to add one.
 
 ## Add a custom annotation
 
 <Steps>
-1. **Open the rule editor.** Scroll to **Responder context** and expand the **Custom annotations** accordion.
+1. **Open the rule editor.** Scroll to **Responder context** and expand **Custom annotations**.
 
-2. **Click Add Annotation.** A new key-value row appears.
+2. **Click Add Annotation.**
 
 3. **Provide a key.** Use any string, for example `service_owner`, `region`, or `runbook_section`.
 
@@ -71,7 +71,7 @@ You can interpolate live alert data into any annotation value with the `{{ }}` s
 - `{{ state.values.A }}`, `{{ state.values.B }}`: raw outputs of each query or expression node (by node ID).
 - `{{ state.current_state }}`: `Alerting`, `Normal`, and so on.
 - `{{ state.resolved }}`: boolean, useful in `{% if state.resolved %}…{% endif %}` branches.
-- `{{ rule.name }}`, `{{ rule.id }}`: the alert rule's name and id. Prefer these over `labels.alarm_id` / `labels.alarm_name`; those internal keys are stripped before render.
+- `{{ rule.name }}`, `{{ rule.id }}`: the alert rule's name and id. Prefer these over `labels.alarm_id` / `labels.alarm_name`, which aren't available at render time.
 
 ### Example: contextual summary
 
@@ -84,13 +84,13 @@ When the alert fires for `web-server-01` at 95%, the notification reads: *Host w
 
 ## Testing a template
 
-Every templated value field has a **Test template** icon to its right. Click it to open a side drawer:
+Click **Test template** on any templated value field to preview how it renders:
 
-- The drawer pre-loads the Monaco editor with your current template.
-- A **Sample context** panel lets you tweak the labels / state / rule JSON the template renders against.
-- Click **Test** to see the rendered output below. Parse errors surface inline so you can fix them before saving.
+- It opens with your current template loaded.
+- Edit the sample labels, state, and rule JSON the template renders against.
+- Click **Test** to preview the rendered output. Any parse errors are shown so you can fix them before saving.
 
-The drawer is opt-in; KloudMate doesn't validate templates on save. If a template can't render at notification time, KloudMate falls back to the raw template string rather than dropping the notification.
+Testing is optional; KloudMate doesn't validate templates on save. If a template can't render at notification time, KloudMate falls back to the raw template string rather than dropping the notification.
 
 ### Failure mode
 

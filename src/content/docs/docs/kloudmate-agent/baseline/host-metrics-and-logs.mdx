@@ -1,6 +1,6 @@
 ---
 title: "Host metrics and logs"
-description: "What the KloudMate agent collects automatically after install: host metrics on Linux, Windows, Kubernetes, and Docker, plus the system, container, or pod logs each platform exposes — with no configuration."
+description: "What the KloudMate agent collects automatically after install: host metrics on Linux, Windows, Kubernetes, and Docker, plus container and pod logs on Docker and Kubernetes. No configuration needed."
 sidebar:
   order: 1
 ---
@@ -23,9 +23,9 @@ What the agent collects depends on the deployment mode, because each platform ex
 </TabItem>
 <TabItem label="Windows">
 
-- **Host metrics:** CPU, memory, disk, and network usage, collected from Windows performance counters.
-- **Windows Event Log:** the System, Application, and Security channels.
-- **Internet Information Services (IIS) metrics** and **Windows service status**, where those roles are present.
+- **Host metrics:** CPU, memory, disk, and network usage.
+- **Logs:** none are collected from the host automatically, including the Windows Event Log. Add application log files or Event Log channels with [log monitoring](../../log-monitoring/).
+- **Application traces:** none are collected until you turn on tracing for a service, the same as on Linux. Internet Information Services (IIS) traffic is traced through Event Tracing for Windows (ETW) once you enable it for an application pool. See [Windows platform notes](../../platform-notes/windows/#etw-monitoring).
 
 </TabItem>
 <TabItem label="Kubernetes">

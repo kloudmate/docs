@@ -5,7 +5,7 @@ sidebar:
   order: 9
 ---
 
-A Maintenance Window is a scheduled period during which matching alerts keep evaluating but their notifications are suppressed. State changes are still recorded in alert history (marked with `silenced_at` / `silenced_by_*` so you can audit what happened), but no notification fires. Like a [Silence](../silences/), a maintenance window is a **notification gate**: it mutes notifications for the matching alerts but never changes their state or resolves them.
+A Maintenance Window is a scheduled period during which matching alerts keep evaluating but their notifications are suppressed. State changes are still recorded in alert history, so you can audit what happened, but no notification fires. Like a [Silence](../silences/), a maintenance window is a **notification gate**: it mutes notifications for the matching alerts but never changes their state or resolves them.
 
 Use a maintenance window when you have a calendar-driven quiet period: a planned deployment, a recurring batch job window, or a vendor outage you've been told to expect. For one-off, ad-hoc suppression in the moment, use [Silences](../silences/) instead.
 
@@ -17,7 +17,7 @@ Use a maintenance window when you have a calendar-driven quiet period: a planned
 
 ## Overview page
 
-The overview page lists every maintenance window with these details:
+Each maintenance window shows:
 
 - **Name:** name of the maintenance window.
 - **Type:** whether the window is **One Time** or **Recurring**.
@@ -25,8 +25,6 @@ The overview page lists every maintenance window with these details:
 - **Matching labels:** labels assigned to the maintenance window.
 - **Schedule:** start and end time for the maintenance window.
 - **Status:** whether the maintenance window is active or paused.
-
-Each row also has an **Actions** menu for further row-level controls.
 
 ![Maintenance window overview](./images/maintenance-window-1.png)
 

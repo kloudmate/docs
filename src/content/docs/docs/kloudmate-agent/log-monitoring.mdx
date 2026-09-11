@@ -141,7 +141,7 @@ On Windows, a log source can collect **Windows Event Log channels** instead of f
   include: [ "Microsoft-Windows-PowerShell/Operational" ]
 ```
 
-Only new events are collected, with no historical backfill. The System, Application, and Security logs are already collected by default (see [Host metrics and logs](../baseline/host-metrics-and-logs/)), so use `eventlog` sources for other channels. Event Log sources are Windows-only.
+Only new events are collected, with no historical backfill. No channel is collected until you add a source for it, so add `System`, `Application`, and `Security` the same way if you want them. Event Log sources are Windows-only.
 
 ## Manual configuration
 

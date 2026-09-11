@@ -1,6 +1,6 @@
 ---
 title: "Windows"
-description: "Install the KloudMate agent on Windows Server to collect host metrics, Windows Event Logs, and application logs."
+description: "Install the KloudMate agent on Windows Server to collect host metrics, application logs, and IIS traces."
 sidebar:
   order: 6
 ---
@@ -18,10 +18,9 @@ If your outbound traffic is restricted, see [Before you start](../before-you-sta
 Once installed, the Windows Agent collects:
 
 - **Host metrics:** CPU, memory, disk, and network usage
-- **Service monitoring:** Status of critical Windows services (optional, if configured)
-- **Windows Event Logs:** System, Application, and Security logs
-- **Application logs:** Logs from installed applications (if configured)
-- **Alerts:** Configure thresholds for host metrics or service status to notify on critical events
+- **Logs:** log files and Windows Event Log channels that you configure with [log monitoring](../../log-monitoring/). Nothing is collected until you add a source
+- **IIS traces:** server spans and request-duration metrics through Event Tracing for Windows (ETW), for each application pool you turn tracing on for
+- **Alerts:** Configure thresholds on host metrics to notify on critical events
 - **Dashboards:** Pre-built and custom dashboards to visualize Windows host metrics and logs
 
 This allows you to monitor Windows hosts, troubleshoot issues, and correlate logs with metrics for performance insights.
@@ -33,7 +32,7 @@ View all collected data in these KloudMate sections:
 **1. Infrastructure Monitoring**
 
 - Monitor Windows host metrics (CPU, memory, disk, network)
-- Track service status and host availability
+- Track host availability
 - Monitor uptime and performance trends
 
 [Infrastructure Monitoring](../../../infrastructure/)
@@ -47,7 +46,7 @@ View all collected data in these KloudMate sections:
 
 **3. Log Explorer**
 
-- Access Windows Event Logs (System, Application, Security)
+- Read the log files and Windows Event Log channels you configured with log monitoring
 - Search and filter logs by source, severity, or timestamp
 - Correlate logs with host metrics to troubleshoot performance issues
 
@@ -87,28 +86,28 @@ The service installs and starts the same as the interactive install. Replace `km
 
 ## **Log Integration**
 
-By default, the KloudMate Agent collects basic system logs (the Windows Event Log).
+The agent doesn't collect any logs from the host on its own, and that includes the Windows Event Log. You choose what it reads.
 
 To collect your own application log **files**, use log monitoring. In the agent's **Logs** tab, point the agent at a folder and file-name pattern, then choose how to parse each line: plain text, JSON, or a regular expression. Multiline grouping, for stack traces or pretty-printed JSON, works on top of any format. You can preview the parsed records before you save. See [Log monitoring](../../log-monitoring/).
 
-Log monitoring can also collect **additional Windows Event Log channels** and read log-source files placed in `C:\ProgramData\kmagent\logs.d`. See [Windows Event Log channels](../../log-monitoring/#windows-event-log-channels) and [Local file sources](../../log-monitoring/#local-file-sources).
+Log monitoring also collects **Windows Event Log channels**, such as `System` and `Application`, and reads log-source files placed in `C:\ProgramData\kmagent\logs.d`. See [Windows Event Log channels](../../log-monitoring/#windows-event-log-channels) and [Local file sources](../../log-monitoring/#local-file-sources).
 
 For a hand-written `filelog` receiver in manual mode, see [Collect File Logs with KloudMate Agent](../../../logs/collect-file-logs/).
 
 ## Configuration and next checks
 
-The agent installs as a Windows service running as Local System. It needs that privilege level to read Internet Information Services (IIS) configuration and Windows Management Instrumentation (WMI). New agents start in managed mode. See the [configuration model](../../concepts/config-model/).
+The agent installs as a Windows service running as Local System. It needs that privilege level to read Internet Information Services (IIS) configuration and to query the Service Control Manager. New agents start in managed mode. See the [configuration model](../../concepts/config-model/).
 
-- Host metrics and the Windows Event Log start flowing automatically. See [Host metrics and logs](../../baseline/host-metrics-and-logs/).
+- Host metrics start flowing automatically. Logs and traces don't, so turn on the ones you want. See [Host metrics and logs](../../baseline/host-metrics-and-logs/).
 - eBPF does not apply on Windows. The agent gives you equivalent monitoring through Event Tracing for Windows (ETW). See [Windows platform notes](../../platform-notes/windows/).
 - To add distributed tracing to .NET applications, see [.NET application APM](../../auto-instrumentation/dotnet/).
 
 ## **Next Steps**
 
-- Open **Infrastructure Monitoring** to see host metrics and service status
+- Open **Infrastructure Monitoring** to see host metrics
 - Go to **Dashboards** to visualize host performance and logs
-- Use **Log Explorer** to investigate Windows Event Logs and application logs
-- Configure **alerts** for host or service thresholds
+- Set up [log monitoring](../../log-monitoring/), then use **Log Explorer** to investigate the logs it collects
+- Configure **alerts** for host metric thresholds
 
 ## Uninstall Agent
 

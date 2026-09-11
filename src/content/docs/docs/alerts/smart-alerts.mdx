@@ -25,7 +25,7 @@ Smart Alerts rules are ordinary alert rules. They move through the same [lifecyc
 
 ## Detection methods
 
-There are 3 different detector methods:
+Each detector uses one of these methods:
 
 | Method | Fires when | Best for |
 |---|---|---|
@@ -37,7 +37,7 @@ There are 3 different detector methods:
 
 An anomaly detector learns what normal looks like for each entity from its own recent history, then fires when a reading lands well outside that range. There's no threshold to set. The one knob is **Sensitivity**: **High** catches small deviations, **Low** reacts only to large ones, and **Medium** (the default) suits most metrics.
 
-A brand-new entity has no history to learn from yet. Until enough builds up, it runs on a provisional range and does not fire; its reason reads `collecting baseline`. That's deliberate. A young or flat series would otherwise score an ordinary warm-up ramp as a wild anomaly, and pod names churn on every deploy. Genuine saturation is still caught while a baseline forms, by the [Threshold](#threshold) nets below.
+A brand-new entity has no history to learn from yet. Until enough builds up, it runs on a provisional range and does not fire; its reason reads `collecting baseline`. That's deliberate. A young or flat series would otherwise score an ordinary warm-up ramp as a wild anomaly, and pod names churn on every deploy. The [Threshold](#threshold) detectors below still catch genuine saturation while a baseline forms.
 
 ### Forecast
 
@@ -47,7 +47,7 @@ Forecasting holds until a series has enough history to tell a real trend from a 
 
 ### Threshold
 
-A threshold detector is a plain ceiling for a state that's wrong at any scale. It needs no history and fires the moment the value crosses the line: a disk at least 95% full, a container at 95% of its memory limit (OOM risk), a Kubernetes node not Ready, or Kafka partitions under their minimum in-sync replicas. Each threshold ships with a sensible default and is overridable per workspace.
+A threshold detector is a plain ceiling for a state that's wrong at any scale. It needs no history and fires the moment the value crosses the line: a disk at least 95% full, a container at 95% of its memory limit (OOM risk), a Kubernetes node not Ready, or Kafka partitions under their minimum in-sync replicas. Each threshold ships with a sensible default that you can override per workspace.
 
 ## Browse and enable detectors
 
@@ -99,15 +99,15 @@ Smart Alerts won't fire on a single spike. A breach has to hold across several e
 
 Adjust a detector in place from the Smart Alerts page: **Sensitivity** for an anomaly detector, the **horizon** for a forecast, or the **threshold** value for a threshold detector. KloudMate applies the change and keeps managing the rule.
 
-Edit the rule's query or condition in the alert builder and it becomes yours. The rule detaches from Smart Alerts, which stops updating it, and its detail page notes:
+Changing how often the rule runs keeps it managed too. Edit **Evaluate every**, **Pending duration**, or **Recovery period** on the rule and KloudMate keeps those values instead of resetting them to the detector's defaults.
 
-> Managed by Smart Alerts. Editing the query or condition converts it to a custom alert that you own.
+Editing the rule's **query**, **threshold**, or **condition** takes it over. The rule detaches from Smart Alerts, is labeled **Customized**, and leaves the **Smart Alerts** folder. From then on it behaves like any alert you wrote by hand: KloudMate stops sending it template updates and no longer manages its lifecycle. Its anomaly or forecast detection keeps running; taking a rule over doesn't turn detection off.
 
-To stop a managed alert without taking it over, turn its detector off on the Smart Alerts page. Deleting one directly is blocked, since Smart Alerts would recreate it. KloudMate disables it instead and points you to the detector toggle to remove it for good.
+To quiet a managed rule without taking it over, pause it from its row menu with **Pause Evaluation**. The pause holds: saving another Smart Alert won't resume it. To remove a managed rule for good, turn its detector off on the Smart Alerts page. You can't delete a managed rule directly, since Smart Alerts would recreate it. KloudMate disables it instead and points you to the detector toggle.
 
 ## Plan availability
 
-Anomaly and forecast detection is a paid-plan capability. You can browse the detector catalog on any plan, and detectors light up as your data arrives, but turning on automatic monitoring, along with adding anomaly or forecast conditions to an alert you build by hand, needs a plan with anomaly detection. Plain threshold alerting isn't gated: you can always [create a threshold alert](../create-alerts/) yourself. When the capability is off, the page shows an upgrade prompt with a **View plans** link.
+Anomaly and forecast detection needs a paid plan, both for turning on automatic monitoring and for adding an anomaly or forecast condition to an alert you build by hand. You can browse the detector catalog on any plan, and plain threshold alerting works everywhere: you can always [create a threshold alert](../create-alerts/) yourself.
 
 ## Related
 

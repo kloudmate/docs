@@ -17,15 +17,15 @@ Routing rules replace the older **Notification Policies** flow. If you previousl
 
 ## Where to find them
 
-Open **Alerts → Routing rules** in the left navigation. Rules are evaluated in priority order (lowest number wins). The first rule an alert matches decides which channels notify and how often, and whether the alert notifies on its own or correlates with others into one [Alert Group](../alert-groups/).
+Open **Alerts → Routing rules**. Rules are evaluated in priority order (lowest number wins). The first rule an alert matches decides which channels notify and how often, and whether the alert notifies on its own or correlates with others into one [Alert Group](../alert-groups/).
 
 ![Routing Rules list](./images/routing-rules-list.png)
 
-The list shows every routing rule in the workspace, sorted by priority (lower wins). The **default passthrough rule** sits at the bottom. It matches everything that didn't already match a higher-priority rule, and it can't be deleted.
+Rules are sorted by priority, lowest number first. The **default passthrough rule** matches everything no higher-priority rule caught, and it can't be deleted.
 
 ## Anatomy of a rule
 
-A routing rule has these parts:
+A routing rule has these fields:
 
 | Field | What it does |
 |---|---|
@@ -46,12 +46,12 @@ Each matcher is one label condition: a label key, an operator, and a value. An a
 
 The available operators:
 
-| Operator | Wire format | Meaning |
-|---|---|---|
-| Equals | `equals` | Label value matches the string exactly. |
-| Not equals | `not_equals` | Label value differs from the string (also matches alerts that don't carry the label at all). |
-| Matches regex | `matches_regex` | Label value matches the regular expression. |
-| Doesn't match regex | `not_matches_regex` | Label value doesn't match the regex (also matches alerts without the label). |
+| Operator | Meaning |
+|---|---|
+| Equals | Label value matches the string exactly. |
+| Not equals | Label value differs from the string (also matches alerts that don't carry the label at all). |
+| Matches regex | Label value matches the regular expression. |
+| Doesn't match regex | Label value doesn't match the regex (also matches alerts without the label). |
 
 A matcher value is always a single string. To match any of several values, use a regex alternation. For example, `service` **Matches regex** `api|web` matches either service. (There's no `in`/`not_in` operator; the regex form replaces it.)
 
@@ -62,11 +62,9 @@ As you add or edit matchers, the editor shows a live **Affected Alert Instances*
 Each rule has an **Alert grouping** control, and it defaults to **Static**.
 
 - **Static** groups matching alerts by the label keys you choose, the deterministic behavior described under [Group-by keys](#group-by-keys) below. Alerts that share those key values fold into one group.
-- **Auto (AI)** hands grouping to the correlation engine. It correlates related alerts from this rule into a single incident on its own, and learns which alerts tend to fire together over time. In this mode the Group-by keys picker is hidden, so you don't pick grouping keys at all.
+- **Auto (AI)** hands grouping to the correlation engine. It correlates related alerts from this rule into a single incident on its own, and learns which alerts tend to fire together over time. In this mode you don't choose grouping keys at all.
 
-In-product, the Auto option reads: *"AI and ML automatically correlate related alerts from this rule into a single incident, learning which alerts tend to fire together over time. No grouping keys needed."*
-
-Leave a rule on **Static** when you want predictable grouping along keys you control. Switch it to **Auto (AI)** when related alerts don't share a clean label to group on, or when you'd rather let the engine find the connections. Either mode produces the same [Alert Group](../alert-groups/); that page shows what the grouped incident looks like and how an Auto-correlated group explains itself.
+Leave a rule on **Static** when you want predictable grouping along keys you control. Switch it to **Auto (AI)** when related alerts don't share a clean label to group on, or when you'd rather let the engine find the connections. Either mode produces the same [Alert Group](../alert-groups/).
 
 For how each mode decides what belongs together, including why one rule firing on many hosts stays a single Auto group, see [How Alert Grouping Works](../how-alert-grouping-works/).
 
@@ -79,7 +77,7 @@ Group-by keys apply in **Static** mode. They decide **whether** matched alerts c
 - **Leave it empty, or set only `alarm_id`,** and the rule doesn't correlate anything: each alert rule notifies on its own, one notification per rule. These notifications surface through the normal alerts UI, not the [Alert Groups](../alert-groups/) page.
 - **Add a real label key** and matching alerts that share that key's value fold into a single alert group. The editor suggests common keys (`service`, `env`, `host`, `region`, `team`, `issue_id`, `check_id`, `alarm_rule_folder_id`), and you can type any other label key.
 
-The editor enforces two constraints:
+The editor enforces these constraints:
 
 - If you add a real dimension alongside `alarm_id`, KloudMate drops the `alarm_id` automatically. Pinning each group to a single alert rule would defeat the correlation.
 - `severity` can't be a grouping dimension. It's a per-instance property fixed when the group opens, not an axis to group on.
@@ -88,7 +86,7 @@ You can combine keys (for example, `service` + `env`) to scope each group tightl
 
 ### Notification timing
 
-The **Notification timing** section of the rule editor decides when the first notification goes out and how often the rule follows up. Enter each setting as duration text, such as `30s`, `5m`, or `4h`.
+**Notification timing** decides when the first notification goes out and how often the rule follows up. Enter each setting as duration text, such as `30s`, `5m`, or `4h`.
 
 | Setting | Default | What it controls |
 |---|---|---|
@@ -114,7 +112,7 @@ A reminder is delivered with `"event": "repeat"` in the payload. Everything else
 
 ## The default passthrough rule
 
-Every workspace has a default passthrough rule pinned to the bottom of the list. It matches everything that didn't match a higher-priority rule. You can edit its destination channels and notification timing, but you can't delete it or change its matchers.
+Every workspace has a default passthrough rule. It matches everything that didn't match a higher-priority rule. You can edit its destination channels and notification timing, but you can't delete it or change its matchers.
 
 For a clean "everything else goes to Slack" path, point the default passthrough at your fallback Slack channel.
 
@@ -135,7 +133,7 @@ For a clean "everything else goes to Slack" path, point the default passthrough 
 
 7. **Optionally enable Auto-RCA.** Toggle Auto-RCA on and set the delay (default 5 minutes after group open). See [Auto-RCA](../auto-rca/).
 
-8. **Save.** The rule appears in the list at its assigned priority.
+8. **Save.**
 </Steps>
 
 ## Row actions
@@ -150,7 +148,7 @@ The **Enabled** toggle disables a rule without deleting it. Use it to stage a ru
 
 ## Suggest rules
 
-The list header has a **Suggest rules** button (visible to admins only). It opens a drawer with up to five AI-suggested rules based on your workspace's recent alert traffic.
+Admins can open **Suggest rules** to get up to five AI-suggested rules based on your workspace's recent alert traffic.
 
 ![Suggest rules drawer](./images/routing-rules-suggest.png)
 
