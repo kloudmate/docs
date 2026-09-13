@@ -51,6 +51,36 @@ Cut on sight:
 | "When nothing in the range carries the key, the tab falls back and says so: `Nothing in this range carries category…`" | "If you group by a key that isn't present in the selected range, the grouping falls back to event name." |
 | "Journeys resolves it over whole sessions through a semi-join." | "In a funnel, `cart_value > 100` selects sessions that emitted at least one matching event." |
 
+### Trust the reader
+
+The reader is competent and has the product open. Anything they can see on screen, work out for themselves, or would never have assumed otherwise is not worth a sentence. Three habits that keep coming back:
+
+**Don't describe what a control displays.** Give the instruction or the rule. The reader will read the button.
+
+| Don't write | Write instead |
+|---|---|
+| "Click **Import**. The button shows the number it will create, for example **Import 4 alerts**." | "Click **Import**." |
+| "It reads **None** when nothing matches, and `—` for an expired silence." | (cut it) |
+| "Paste the JSON. The dialog checks it as you paste and lists the alerts it found by name." | "Paste the exported JSON." |
+| "Either way a dialog shows the JSON. Click **Copy JSON**, then paste it into the destination." | "Copy the JSON into the destination workspace." |
+
+**Don't announce a list before showing it.** A lead-in that only says "a list is coming" is throat-clearing. Delete it and let the list or table do the work.
+
+| Don't write | Write instead |
+|---|---|
+| "It leaves out everything that can't survive the move." (above a table of what's dropped) | (cut it) |
+| "The silence creator opens pre-filled with:" (above two bullets) | "The silence creator opens with matchers derived from the group and a binding to it." |
+
+**Don't justify what the reader can infer.** State the fact and stop. Reasoning that only leads back to the fact is padding.
+
+| Don't write | Write instead |
+|---|---|
+| "the rules import **paused**, so they don't fire against an account they can't read" | "the rules import **paused**" |
+| "The rule's ID and folder are dropped, because both belong to the source workspace." | "Imported rules land ungrouped." |
+| "The rules appear in the Alerts list right away." | (cut it) |
+
+The test: delete the sentence and ask whether a competent reader does anything differently. If not, it stays deleted.
+
 ### Sentence shape
 
 One idea per sentence, subject first, verb early. Any clause the reader has to unpack reads as machine writing, and so does a technical thing described in literary paraphrase.
@@ -68,6 +98,21 @@ Name things with the term the product and the reader both use. "Anything the eve
 
 Plain does not mean cryptic. Cutting a sentence to four words that the reader then has to decode is a worse failure than the padding it replaced. Write the full sentence, then delete only what carries no meaning.
 
+The maintainer rewrote this opening as the model for how a sentence should be built. Match it:
+
+> **Drafted:** "Alert rules move between workspaces as JSON. Export a rule or a whole folder, then paste it into another workspace to run the same rules in staging and production, or to set up a new workspace from one you already have."
+>
+> **Rewritten:** "Alert rules can be exported as JSON and moved between workspaces. Export a single rule or an entire folder, then paste it into another workspace to reuse the same rules across staging and production, or quickly create a new workspace from an existing setup."
+
+What changed, and what to copy:
+
+- **Name the capability outright.** "can be exported as JSON and moved between workspaces" states both actions in the order the reader performs them. "move between workspaces as JSON" compresses them into a clause the reader has to unpack, and buries the verb ("export") they're searching for.
+- **Keep full determiners.** "a single rule or an entire folder", not "a rule or a whole folder". Clipping articles and quantifiers reads as note-taking, not prose.
+- **Use the verb that names the reader's goal.** "reuse the same rules across staging and production" and "create a new workspace", not the vaguer "run" and "set up".
+- **No vague pronoun tails.** "from an existing setup", not "from one you already have". The same applies to "one", "ones", and "them" standing in for a noun the reader then has to resolve: "pick the destination's after importing" becomes "select a dashboard in the destination after importing".
+
+Trimming fluff (the section above) and writing complete sentences are not in tension. Cut the sentence that carries nothing; write the sentences that remain in full.
+
 Detail has a bar too: state the behavior, not its operator-by-operator mechanics. "Selecting more than one value on a field matches any of them" is the rule; "two `=` picks become **In**, two `!=` picks become **Not in**, and a second `>` replaces the first" is a spec dump.
 
 ### Tone (AGENTS.md §2 has the full word lists; these are the repeat offenders)
@@ -76,6 +121,7 @@ Detail has a bar too: state the behavior, not its operator-by-operator mechanics
 - **No drama or voiceover:** rhetorical build-ups ("X is the answer"), trailing tags ("…, which it is"), figurative labels ("delivery vehicle"), cutesy asides ("the same treatment for your Lambda functions"). Write the plain fact.
 - **No reflexive benefit-tails:** don't glue "…, so you can [vague upside]" onto every sentence. Keep it only when the cause and effect is real and specific.
 - **No hype or filler:** powerful, seamless, robust, effortless; leverage/utilize → use, via → with, "in order to" → to, "simply/just/easily".
+- **Jargon in context is fine; ornamental vocabulary is not.** `matcher`, `group-by key`, `eBPF`, and `alarm_id` are the real names for real things, so use them. What reads as AI is the decorative register around them: "the button narrows to **Retry**", "the reliable check", "everything that can't survive the move". Write the word a colleague would say out loud.
 
 ### Do this
 
