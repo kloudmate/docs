@@ -18,11 +18,13 @@ KloudMate supports the following notification channels:
 - Jira
 - KloudMate Incidents — bridges alerts and synthetic checks into [Incident Management](../../../incident-management/)
 
+A Slack or Jira channel can reuse an account you've already connected instead of asking for its own credential. The channel form lists the [connections](../connections/) carrying the **Notifications** capability, and offers to connect a new one inline. Reusing one means a single place to rotate the credential when it changes.
+
 :::info
 In the case of multiple workspaces and AWS accounts, you must set up notifications for each account in their respective **Settings**.
 :::
 
-Navigate to **Settings** > **Notification Channels**. The screen displays all existing channels with their name, type, and address.
+Navigate to **Settings** > **Notification Channels**. The screen displays all existing channels with their name, type, and address. A channel whose last delivery failed is marked **Error**, with the reason and the time it happened shown in place of its address.
 
 ![Notification Channels list, showing each channel's name, type, and address](./images/notification-channels-list.png)
 
@@ -49,11 +51,14 @@ Below are the configuration steps for each specific channel type:
 
 KloudMate uses a single unified Slack app for both notifications and IM ChatOps. Installing it once gives you threaded notifications, message attribution, and the ability to acknowledge or resolve incidents directly from Slack.
 
-1. Select **Slack** from the dropdown menu, then click the **Add to Slack** button.
-2. You will be redirected to Slack's OAuth flow. Pick the channel KloudMate should post into and approve the bot scopes.
-3. On approval, KloudMate creates the channel row and the Slack integration is also visible under **Incidents → Settings → ChatOps**.
+1. Select **Slack** from the dropdown menu.
+2. Pick a connected **Slack account**. If none is connected yet, click **Connect Slack** and approve the install in the popup that opens.
+3. Enter a **Channel name** for the KloudMate side, then pick the **Slack channel** to post into. The list searches your Slack workspace's public and private channels through the connected bot, so type to narrow it.
+4. Click **Create channel**.
 
-![Slack channel form](./images/slack-1.png)
+![The Slack notification channel form: the Slack account picker with a Connect another Slack account link, then Channel name and a searchable Slack channel list](./images/slack-1.png)
+
+The same Slack install appears under [Settings → Connections](../connections/) and under **Incidents → Settings → ChatOps**. Connect it once and reuse it for every Slack channel you create here.
 
 ### MS Teams
 
@@ -85,6 +90,8 @@ Optionally, you can download the KloudMate logo from the link provided on the sc
 4. Click **Submit**.
 
 ![image](./images/webhooks-1.png)
+
+A webhook channel is also how an alert reaches a [workflow](../../../workflows/). Point the URL at the workflow's own hook URL, attach the channel to a routing rule, and each notification starts a run with the alert group payload as its body. See [Triggers](../../../workflows/triggers/#start-a-workflow-from-an-alert).
 
 #### Customize the Request Body and Headers
 
@@ -370,26 +377,27 @@ To wire it into the alert flow, add the channel as a destination on a [Routing R
 
 ### Jira
 
-1. Select **Jira** from the dropdown menu and click the **Connect Jira** button.
+1. Select **Jira** from the dropdown menu, then pick a connected **Jira account**. If none is connected yet, click **Connect Jira**.
 
-![image](./images/jira-1.png)
+2. Approve access in the popup that opens.
 
-2. You will be redirected to the Jira authorization page. Click **Accept** to authorize the integration between KloudMate and your Atlassian account.
+![The Atlassian authorization page, with the Accept button to grant KloudMate access](./images/jira-2.png)
 
-![image](./images/jira-2.png)
+3. Back on the channel form, enter a **Channel name** and fill in the rest:
 
-3. You will be redirected back to the Jira Notification Channel configuration page in KloudMate. 
+![The Jira notification channel form: the Jira account picker with a Connect another Jira account link, then Channel name, Site, Project, and Issue type](./images/jira-3.png)
 
-![image](./images/jira-3.png)
-
-Enter a **Channel Name** and select the following:
 - **Site**: your Jira site
 - **Project**: the Jira project to link
-- **Issue Type:** the type of issue to create (e.g., Task)
-- **Status for Open state:** the Jira status that corresponds to an open ticket (e.g., To Do, In Progress)
-- **Status for Closed state:** the Jira status that corresponds to a closed ticket (e.g., Done)
+- **Issue type**: the type of issue to create, for example Task
+- **Status that maps to Open**: the Jira status for an open ticket, for example To Do
+- **Status that maps to Closed**: the Jira status for a closed ticket, for example Done
 
-4. Click **Submit** to complete the integration.
+Each list loads from the one above it, so changing the site clears the project, and changing the project clears the three below it.
+
+4. Click **Create channel**.
+
+If the Jira authorization has expired, the form says so and offers **Reconnect Jira**.
 
 :::info
 The Jira integration is one-way. Status changes in KloudMate are reflected in Jira, but changes made in Jira are not reflected in KloudMate.

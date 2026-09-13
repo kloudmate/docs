@@ -27,3 +27,7 @@ Explore the following guides to set up and configure your Azure integrations:
 - **[Manual Integration of Azure Monitor](./manual-integration-of-azure-monitor/)**: Instructions for manually configuring a KloudMate Agent to scrape Azure Monitor when you need full control.
 - **[Enable Service Principal Azure](./enable-service-principal-azure/)**: A prerequisite guide on how to create the Service Principal needed for authenticated Azure Monitor collection.
 - **[Azure Application Gateway Log Monitoring](./azure-application-gateway-log-monitoring/)**: A guide for streaming Azure logs into KloudMate through Azure Event Hubs.
+
+## Acting on Azure, not just reading it
+
+Everything above is read-only telemetry. To have a [workflow](../workflows/) act on an Azure resource or run a script on a VM, connect Azure separately under [Settings → Connections](/platform/settings/connections/). That connection uses its own service principal, so you can grant it the RBAC roles automation needs without widening the read-only one used for monitoring.
