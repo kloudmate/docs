@@ -24,7 +24,7 @@ Silences are grouped into **Active**, **Expired**, and **All** tabs.
 | **Matchers** | Label conditions that pick which alerts the silence applies to. Same operator set as [Routing Rules](../routing-rules/#matchers): Equals, Not equals, Matches regex, Doesn't match regex. |
 | **Expires at** | Date and time the silence stops. Capped at 30 days from creation. |
 | **Reason** | Free-form text; recommended so others know why the silence exists. |
-| **Scope** | Either **Group-bound** (auto-expires when a specific [Alert Group](../alert-groups/) resolves) or **Standalone** (lives until it expires). |
+| **Ends** | **At expiry**, or **When the group resolves** for a silence bound to an [Alert Group](../alert-groups/). The binding sets when the silence ends, never which alerts it mutes. |
 
 ## Create a silence
 
@@ -40,16 +40,34 @@ Create a silence from the Silences page, an alert group, or an alert's Pause Not
 
 ### From an Alert Group
 
-On any [Alert Group](../alert-groups/) detail page, click **Silence this group**. The silence creator opens pre-filled with:
+On any [Alert Group](../alert-groups/) detail page, click **Silence this group**. The silence creator opens with matchers derived from the group and a binding to it.
 
-- The group's labels populated as matchers.
-- A binding to the group, so the silence stops automatically when the group resolves.
+:::caution[A group binding sets when the silence ends, not what it mutes]
+The binding does one thing: when the bound group resolves, the silence's expiry moves to that moment and it lifts early. Matching never looks at it, so the silence mutes every alert in the workspace whose labels match its matchers, group member or not.
+:::
 
-Save it; this creates a **Group-bound** silence.
+**How the matchers are filled in.** They come from the routing rule's group-by keys, taking the value the group carries or the value every live member shares. A rule that groups by nothing falls back to `alarm_id`, so most groups pre-fill with a single matcher such as `alarm_id = alm_7f3c2b`.
+
+**When the group's alerts share no label.** A silence is a set of label matchers that all have to hold, so it can't pick out an arbitrary list of alerts. A group whose alerts share nothing pre-fills no matchers. Instead, the form offers the labels those alerts do carry as one-click chips, each showing how many of the group's alerts it covers, such as `10/17`.
+
+#### Adding every offered label doesn't scope the silence to the group
+
+Building a silence out of the group's own labels fails in both directions.
+
+- **It mutes less than the group.** An alert has to match every matcher, so adding a key that only some members carry drops the rest. On a 17-alert group, a folder label present on 10 of them takes the match from 17 down to 10, and the other 7 keep notifying.
+- **It still mutes outside the group.** Two multi-valued keys accept every combination of the two, not just the pairs the group holds. Three rules across seven hosts makes 21 combinations. The group holds 17 alerts.
+
+Use the **Alerts this silence will mute** preview on the create form instead. It counts every alert instance the current matchers would mute, before you save.
 
 ### From an alert's Pause Notifications
 
 On an alert rule's **more options (⋯) → Pause Notifications**, KloudMate creates a silence scoped to that alert (an `alarm_id` matcher) with an expiry: the alert keeps evaluating, and only its notifications are suppressed. While paused, the rule is marked **Silenced**; view or end the pause from **Alerts → Silences**. Add matchers to narrow the pause to specific instances.
+
+## See what a silence is muting
+
+The Silences list carries an **Alerts muted** column: how many alert rules each active silence is muting. Expand a row to list those rules, each marked with a chip such as `3 firing` when its instances are firing. The silence detail page shows the same list, along with a link to the group the silence is bound to.
+
+In the other direction, the **Silenced** badge links to the silence or maintenance window muting that alert. When more than one is muting it, the badge opens a menu listing all of them.
 
 ## Silence vs. maintenance window
 

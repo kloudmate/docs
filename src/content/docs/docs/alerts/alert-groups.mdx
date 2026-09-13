@@ -62,7 +62,7 @@ Click any row to open the group detail page.
 - **Title:** set by the first alert and can't be changed.
 - **Run RCA / View RCA:** starts or opens a root-cause investigation for the group. See [Run RCA and View RCA](#run-rca-and-view-rca).
 - **Ask KloudMate Assistant:** opens the assistant chat panel with the group's labels, state, alert and instance counts, and routing rule pre-loaded into the prompt, so you can start investigating without retyping context.
-- **Silence this group:** opens the silence creator pre-filled with the group's labels as matchers, bound to the group so the silence expires when it resolves.
+- **Silence this group:** opens the silence creator with matchers derived from the group, bound to the group so the silence lifts when the group resolves. The binding sets when the silence ends, not what it mutes: the silence covers any alert in the workspace whose labels match its matchers, group member or not. See [From an Alert Group](../silences/#from-an-alert-group).
 
 ### Firing instances
 
