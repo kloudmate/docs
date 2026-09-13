@@ -1,0 +1,63 @@
+---
+title: "Export and Import Alerts"
+description: "Copy alert rules into another workspace by exporting them as JSON and pasting them in."
+sidebar:
+  order: 2.8
+---
+
+Alert rules can be exported as JSON and moved between workspaces. Export a single rule or an entire folder, then paste it into another workspace to reuse the same rules across staging and production, or quickly create a new workspace from an existing setup.
+
+Importing creates new rules, so it requires the same permission as creating an alert rule by hand.
+
+## Export a rule or a folder
+
+To export a single rule, open the **more options (⋯)** menu on its row and select **Export as JSON**.
+
+To export an entire folder, switch the Alerts list to **Folder view**, open the folder header's kebab menu, and select **Export alerts as JSON**. The export includes every rule in the folder, including any that the search box or state filter is hiding.
+
+## What is not copied
+
+The export carries the rule's definition: name, description, queries, condition, evaluation and recovery periods, tags, and annotations. Some parts of a rule belong to the workspace it came from and are not copied:
+
+- **The folder.** Imported rules arrive ungrouped.
+- **The Dashboard and Panel links.** They point at a dashboard in the source workspace, so select a dashboard in the destination after importing.
+- **Smart Alerts ownership.** A rule exported from [Smart Alerts](../smart-alerts/) imports as an ordinary rule, and the detector that created it no longer manages the copy.
+
+A rule that inherited its evaluation interval, no-data state, or eval-error state from a folder continues to inherit after the import. Until it's moved into a folder in the destination workspace, it falls back to the system defaults. See [Folders](../folders/#inheritance-and-overrides).
+
+A rule that was paused when it was exported stays paused after the import.
+
+## Import rules into a workspace
+
+1. Open **Alerts** in the destination workspace.
+2. Click **Import JSON** and paste the exported JSON.
+3. If the rules query AWS, select an account.
+4. Click **Import**.
+
+The import doesn't check for rules that already exist in the destination, so importing the same JSON twice creates a duplicate of every rule.
+
+### AWS queries need an account in the destination
+
+An AWS account connects to KloudMate exactly once, so the account an exported rule refers to will never exist in the destination workspace. Rules that query CloudWatch have to be pointed at an account in the workspace they're imported into:
+
+- **One account in the workspace:** the rules are bound to it automatically.
+- **Several accounts:** select which one to use before importing.
+- **No account connected:** the rules are imported **paused**. Connect an account, point each rule at it, then resume evaluation.
+
+Region, namespace, and dimensions are copied unchanged, so they still refer to resources in the source account. Review and update them after importing.
+
+### Retry a partial import
+
+An import that fails partway through keeps the rules it already created, and a retry sends only the ones that failed. The usual cause is the plan's alert rule limit, in which case the rules that fit are created and the rest are reported by name.
+
+## Edit the JSON before importing
+
+The export is plain text, so you can edit it before importing. Delete entries from the `alerts` array to import a subset, or rename rules to avoid name collisions with rules already in the destination. The import also accepts a bare array of alerts or a single alert object, so a fragment copied from a larger export works on its own.
+
+An export created by a newer version of KloudMate can't be imported.
+
+## Related
+
+- [Creating Alerts](../create-alerts/): building a rule from scratch, from a template, or with AI.
+- [Folders](../folders/): grouping imported rules and giving them shared defaults.
+- [Smart Alerts](../smart-alerts/): curated detectors that create and maintain rules for you.
