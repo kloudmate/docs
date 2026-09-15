@@ -9,7 +9,7 @@ sidebar:
 On-call schedules decide who's on call when an incident needs a person. Rather than wiring a specific name into an escalation policy, you point the policy — or a [routing rule](../routing-rules/) — at a schedule, and KloudMate resolves it to whoever is on call at that exact moment.
 
 :::note[Availability]
-On-Call Schedules are a paid Incident Management feature. If **On-Call Schedules** isn't in your Incident Management navigation, your plan doesn't include it yet — contact your account team to turn it on.
+On-call schedules are a paid Incident Management feature. If you don't see an **On-call** tab in **Incidents**, your plan doesn't include it yet. Contact your account team to turn it on.
 :::
 
 ## How a schedule decides who's on call
@@ -42,18 +42,18 @@ When two rotations' coverage windows overlap, both current responders are on cal
 
 ## See who's on call
 
-The **On-call** section has two tabs:
+Open **Incidents → On-call** and switch between these views:
 
 - **My on-call** — your personal, cross-schedule view: whether you're on call right now and your upcoming shifts across *every* schedule you belong to. This is the page to check before you log off for the day.
 - **Schedules** — a compact list of every schedule, each showing who's on call now, a roughly two-week coverage timeline, and the timezone the times are shown in. Use it to scan coverage at a glance and spot windows where no one is rostered.
 
-![On-call section with My on-call and Schedules tabs](./images/oncall-schedules-tab.png)
+![Schedules and My on-call views in the On-call tab](./images/oncall-schedules-tab.png)
 
 ## Mind the gaps
 
 Because rotations are additive rather than a fallback stack, **custom coverage windows can leave moments with no rotation active — and so nobody on call**. If an incident fires during such a gap, an escalation step that targets the schedule has no one to reach.
 
-For any schedule an escalation policy depends on, keep at least one **24/7 rotation** (or make sure your rotations' windows tile the clock with no gap). The **Schedules** tab's coverage timeline is the quickest way to spot an uncovered window before you rely on the schedule. See [Rotations and coverage](./rotations-and-coverage/) for worked examples.
+For any schedule an escalation policy depends on, keep at least one **24/7 rotation** (or make sure your rotations' windows tile the clock with no gap). The coverage timeline in the **Schedules** view is the quickest way to spot an uncovered window before you rely on the schedule. See [Rotations and coverage](./rotations-and-coverage/) for worked examples.
 
 ## How schedules connect to incidents
 

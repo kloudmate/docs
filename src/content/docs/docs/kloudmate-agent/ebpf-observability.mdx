@@ -24,7 +24,7 @@ When eBPF monitoring is active, the agent collects:
 
 Because eBPF observes traffic in the kernel, it can trace a service with no code change and no restart — including Go and other services no language agent can inject. eBPF RED metrics and trace spans are a per-service choice you turn on (the **eBPF** APM mode); the network topology map and database activity monitoring run automatically. When a service also runs application APM, its eBPF spans and the application spans share the same trace, so hops you haven't put on the SDK still appear in end-to-end traces. See the [Application APM overview](../auto-instrumentation/overview/).
 
-On a host running Docker, the agent reads each container's name and listen ports from the Docker socket, so a container can be traced with eBPF the same way a host process can, whether the agent runs as a Linux service or in Docker mode. In **Discovered Services** a container offers **Off** or **eBPF**, because the agent can't attach an in-process SDK to a running container. PHP containers can also offer an **SDK** option that injects a tracer with no redeploy. See [Docker platform notes](../platform-notes/docker/).
+On a host running Docker, the agent reads each container's name and listen ports from the Docker socket, so a container can be traced with eBPF the same way a host process can, whether the agent runs as a Linux service or in Docker mode. In the **Application instrumentation** card on the agent's **APM** tab, a container offers **Off** or **eBPF**, because the agent can't attach an in-process SDK to a running container. PHP containers can also offer an **SDK** option that injects a tracer with no redeploy. See [Docker platform notes](../platform-notes/docker/).
 
 ## Deployment modes and requirements
 
@@ -46,7 +46,7 @@ Whether eBPF turns on, and how much of it, depends on the host's kernel version,
 
 - **Supported host:** eBPF turns on automatically.
 - **Kernel 4.14 to 5.8, or no BTF:** eBPF runs with reduced features.
-- **Unsupported host** (kernel older than 4.14, `debugfs` not mounted, or missing privileges): eBPF is skipped, and KloudMate shows the reason, for example "eBPF unavailable: kernel 4.9". The host still gets host metrics and logs.
+- **Unsupported host** (kernel older than 4.14, `debugfs` not mounted, or missing privileges): eBPF is skipped, and the agent writes the reason to its log on the host, for example `kernel 4.9 < 4.14`. The host still gets host metrics and logs.
 
 If eBPF cannot load on a host that should support it, the host keeps its metrics and logs and KloudMate reports why.
 
@@ -124,7 +124,7 @@ Once the agent is collecting eBPF telemetry, confirm it in these views:
 
 ## Troubleshooting
 
-- **No eBPF metrics or service map:** check the host detail page for an "eBPF unavailable" reason. The most common causes are a kernel older than 4.14, `debugfs` not mounted, or missing privileges.
+- **No eBPF metrics or service map:** check the agent's log for `eBPF baseline not enabled`, which gives the reason. On a Linux host, run `journalctl -u kmagent | grep "eBPF baseline"`. The most common causes are a kernel older than 4.14, `debugfs` not mounted, or missing privileges.
 - **Metrics are present but sparse:** the host may be on a kernel between 4.14 and 5.8, or without BTF, so eBPF is running with reduced features. Host metrics and logs are unaffected.
 - **Confirm the agent's own view:** the agent reports whether eBPF loaded through its self-health metrics, and surfaces load errors through its self-logs. See [Agent health metrics](../self-observability/health-metrics/) and [Troubleshooting](../troubleshooting/).
 

@@ -31,7 +31,7 @@ A personal key carries your access to every workspace you belong to, so the conn
 
 You'll need:
 
-- **A KloudMate Personal API Key.** From the account menu (top-right), open **API keys** and click **Create Key**. It's tied to your account and reads whatever you can read. Copy it when it's shown (it's shown only once) and keep it handy for your client's config. Any signed-in user can create one; no admin role needed. See [API Keys](../../platform/settings/api-keys/#personal-api-keys) for the full walkthrough.
+- **A KloudMate Personal API Key.** From the account menu (top-right), open **API keys** and click **Create Key**. It's tied to your account and reads whatever you can read. Copy it when it's shown (it's shown only once) and keep it handy for your client's config. Any signed-in user can create one; you don't need the **Developer** role. See [API Keys](../../platform/settings/api-keys/#personal-api-keys) for the full walkthrough.
 - **The workspace ID** you want to query. Find it in the workspace's URL in the KloudMate app; it goes in the `x-workspace-id` header.
 - **An MCP-capable client.** Any tool that supports remote MCP servers over Streamable HTTP with custom headers works. The steps below cover Claude Code, Cursor, VS Code, and Claude Desktop.
 
@@ -234,7 +234,7 @@ A few things worth keeping in mind:
 
 <CardGrid>
   <LinkCard title="API Keys" description="Create the personal key the MCP server authenticates with, and manage ingest keys." href="../../platform/settings/api-keys/#personal-api-keys" />
-  <LinkCard title="Assistant Settings" description="Connect external MCP servers and tools into the KloudMate Assistant." href="../settings/#mcp-integrations" />
+  <LinkCard title="MCP Integrations" description="Connect external MCP servers and tools into the KloudMate Assistant." href="../settings/#mcp-integrations" />
   <LinkCard title="Investigations" description="Run AI-assisted root cause analysis inside KloudMate." href="../investigations/" />
   <LinkCard title="KloudMate Assistant" description="The in-app AI assistant for monitoring, dashboards, and RCA." href="../" />
 </CardGrid>

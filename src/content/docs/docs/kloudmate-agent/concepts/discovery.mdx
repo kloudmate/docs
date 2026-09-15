@@ -18,9 +18,9 @@ The agent finds two kinds of things:
 
 For each service, discovery records how it is managed and which ports it listens on.
 
-## The Discovered Services list
+## Where discovered services appear
 
-Discovery shows its inventory as a **Discovered Services** list on the host detail page in the web interface. Each entry shows:
+To see what discovery found, go to **Settings → Agents**, open the agent's actions menu (⋮), and select **Configure**. Application services are listed in the **Application instrumentation** card on the **APM** tab, and databases on the **Databases** tab. Discovery reports these details for each service:
 
 - **Name** and **runtime** (for example, `checkout` running Java).
 - **Runtime version**, where it affects a decision (for example, the PHP major and minor version, or whether a .NET app runs on .NET Framework or .NET Core).
@@ -30,14 +30,14 @@ Discovery shows its inventory as a **Discovered Services** list on the host deta
 - **Instrumentable** flag: whether the agent has a way to attach application tracing to that runtime.
 
 :::note
-The `instrumentable` flag shows whether the agent can inject tracing into that runtime. Java, .NET, Node.js, and Python are instrumentable. PHP is instrumentable when a tracer is available for the detected version. Go is not injected: it is covered by eBPF monitoring instead, so it appears as covered rather than instrumentable.
+The `instrumentable` flag shows whether the agent can inject tracing into that runtime. Java, .NET, Node.js, and Python are instrumentable. PHP is instrumentable when a tracer is available for the detected version. Go isn't injected. eBPF monitoring covers it instead, so a Go service offers **Off** and **eBPF** but no **SDK** option.
 :::
 
 ![The Application instrumentation panel on a host, showing the instrumentable difference: .NET, Java, Node.js, Python, and PHP services offer Off / eBPF / SDK, while Go services and other system services offer only Off / eBPF.](./images/discovery-services-list.png)
 
 ## Stable service identity
 
-Each discovered service gets a **stable identity** that survives restarts and process-ID changes. This is what lets an **Instrument** choice keep applying after a service restarts: you instrument `checkout`, not a process that will be gone after the next deploy.
+Each discovered service gets a **stable identity** that survives restarts and process-ID changes. This is what lets a tracing choice keep applying after a service restarts: you instrument `checkout`, not a process that will be gone after the next deploy.
 
 ## Privacy and safety
 
@@ -48,10 +48,10 @@ Discovery keeps sensitive data on the host:
 
 ## How discovery powers the rest of the agent
 
-The Discovered Services list is the entry point for the opt-in features:
+Discovered services are the entry point for the opt-in features:
 
-- **Application APM:** each instrumentable service has an **Instrument** toggle that starts tracing for that service. See [Application APM](../../auto-instrumentation/overview/).
-- **Database monitoring:** a discovered database starts the monitoring wizard, which prefills the engine and endpoint. See [Database monitoring](../../database-monitoring/overview/).
+- **Application APM:** on the **APM** tab, choose **Off**, **eBPF**, or **SDK** for each service, then click **Apply**. **SDK** is offered only for instrumentable services. See [Application APM](../../auto-instrumentation/overview/).
+- **Database monitoring:** on the **Databases** tab, click **Monitor** next to a discovered database to start the monitoring wizard, which prefills the engine and endpoint. See [Database monitoring](../../database-monitoring/overview/).
 
 ## Next steps
 

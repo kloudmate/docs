@@ -29,12 +29,12 @@ A routing rule has these fields:
 
 | Field | What it does |
 |---|---|
-| **Name** | How the rule appears in the list and audit log. |
+| **Rule name** | How the rule appears in the list and audit log. |
 | **Priority** | Lower numbers win. When an alert matches multiple rules, the highest-priority (lowest-numbered) rule routes it. |
 | **Matchers** | Label conditions that pick which alerts this rule applies to. |
-| **Group-by** | In **Static** grouping, whether and how matched alerts correlate. Leave it empty (or set only `alarm_id`) for **one notification per alert rule**, with no grouping. Add a real label key (for example `service`) to **correlate** matching alerts that share that value into one [Alert Group](../alert-groups/). `severity` can't be used here. This field is ignored when the rule uses **Auto (AI)** grouping. |
+| **Group by** | In **Static** grouping, whether and how matched alerts correlate. Leave it empty (or set only `alarm_id`) for **one notification per alert rule**, with no grouping. Add a real label key (for example `service`) to **correlate** matching alerts that share that value into one [Alert Group](../alert-groups/). `severity` can't be used here. This field is ignored when the rule uses **Auto (AI)** grouping. |
 | **Notification timing** | When the first notification goes out (**Group wait**), the minimum gap between notifications when the group changes (**Group interval**), and how often to re-send while the group stays open and unchanged (**Repeat interval**). |
-| **Destination channels** | One or more notification channels that receive the dispatched payload. |
+| **Destinations** | One or more notification channels that receive the dispatched payload. |
 
 Optional:
 
@@ -55,27 +55,27 @@ The available operators:
 
 A matcher value is always a single string. To match any of several values, use a regex alternation. For example, `service` **Matches regex** `api|web` matches either service. (There's no `in`/`not_in` operator; the regex form replaces it.)
 
-As you add or edit matchers, the editor shows a live **Affected Alert Instances** preview: the alert instances this rule currently matches, with a running count, so you can confirm the rule's scope before saving.
+In **Static** mode, the editor shows a live **Alerts this rule matches** preview as you add or edit matchers: the alert instances this rule currently matches, with a running count, so you can confirm the rule's scope before saving. A higher-priority rule may handle some of those alerts first.
 
 ### Alert grouping: Static or Auto (AI)
 
-Each rule has an **Alert grouping** control, and it defaults to **Static**.
+Each rule has an **Alert grouping** control. New rules start in **Auto (AI)**, and a saved rule keeps the mode it was saved with.
 
 - **Static** groups matching alerts by the label keys you choose, the deterministic behavior described under [Group-by keys](#group-by-keys) below. Alerts that share those key values fold into one group.
 - **Auto (AI)** hands grouping to the correlation engine. It correlates related alerts from this rule into a single incident on its own, and learns which alerts tend to fire together over time. In this mode you don't choose grouping keys at all.
 
-Leave a rule on **Static** when you want predictable grouping along keys you control. Switch it to **Auto (AI)** when related alerts don't share a clean label to group on, or when you'd rather let the engine find the connections. Either mode produces the same [Alert Group](../alert-groups/).
+Switch a rule to **Static** when you want predictable grouping along keys you control. Keep it on **Auto (AI)** when related alerts don't share a clean label to group on, or when you'd rather let the engine find the connections. Either mode produces the same [Alert Group](../alert-groups/).
 
 For how each mode decides what belongs together, including why one rule firing on many hosts stays a single Auto group, see [How Alert Grouping Works](../how-alert-grouping-works/).
 
-![Routing rule editor with Alert grouping set to Auto (AI) and no Group-by keys picker shown](./images/routing-rules-alert-grouping.png)
+![Routing rule editor with Alert grouping set to Auto (AI), which hides the Group by keys and the Alerts this rule matches preview](./images/routing-rules-alert-grouping.png)
 
 ### Group-by keys
 
 Group-by keys apply in **Static** mode. They decide **whether** matched alerts correlate and, if so, along **which** dimension:
 
 - **Leave it empty, or set only `alarm_id`,** and the rule doesn't correlate anything: each alert rule notifies on its own, one notification per rule. These notifications surface through the normal alerts UI, not the [Alert Groups](../alert-groups/) page.
-- **Add a real label key** and matching alerts that share that key's value fold into a single alert group. The editor suggests common keys (`service`, `env`, `host`, `region`, `team`, `issue_id`, `check_id`, `alarm_rule_folder_id`), and you can type any other label key.
+- **Add a real label key** and matching alerts that share that key's value fold into a single alert group. The picker offers the label keys seen on your recent alerts, plus **Alert folder**, which groups alerts from rules in the same folder. You can also type any other label key.
 
 The editor enforces these constraints:
 
@@ -102,6 +102,8 @@ Set a **Repeat interval** and the rule re-sends the notification at that cadence
 
 Reminders stop on their own when the group resolves. A [silenced](../silences/) group doesn't get them, and it doesn't build up a backlog to deliver once the silence ends. A group that opened while it was already silenced was never announced, so it gets no reminders at all.
 
+Reminders count only firing instances that aren't muted, so a [maintenance window](../maintenance-windows/) that mutes all of a group's firing instances stops them too. Turning off the rule's **Enabled** toggle stops them as well. There's no acknowledge step for a group, so to stop reminders on a group that's still firing, silence it. Any other notification the group sends, such as one for a newly firing instance, restarts the reminder clock.
+
 Slack, email, Microsoft Teams, [webhook](../../platform/settings/notification-channels/#webhooks), and [SNS](../../platform/settings/notification-channels/#sns) deliver reminders. [Jira](../../platform/settings/notification-channels/#jira) and [KloudMate Incidents](../../platform/settings/notification-channels/#kloudmate-incidents) don't. The ticket or the incident is already a standing record that the alert is open, so a comment on it every few hours would only add noise. A rule that routes only to those two sends nothing extra when a reminder is due.
 
 In Slack, the reminder posts as a reply in the alert's existing thread and is broadcast to the channel, so you see it in the channel instead of buried under an hours-old parent message.
@@ -112,7 +114,7 @@ A reminder is delivered with `"event": "repeat"` in the payload. Everything else
 
 ## The default passthrough rule
 
-Every workspace has a default passthrough rule. It matches everything that didn't match a higher-priority rule. You can edit its destination channels and notification timing, but you can't delete it or change its matchers.
+Every workspace has a default passthrough rule. It matches everything that didn't match a higher-priority rule. Its matchers and priority are locked, and it can't be deleted. You can edit everything else, including its grouping, notification timing, and destinations.
 
 For a clean "everything else goes to Slack" path, point the default passthrough at your fallback Slack channel.
 
@@ -125,15 +127,15 @@ For a clean "everything else goes to Slack" path, point the default passthrough 
 
 3. **Add matchers.** Pick a label key, an operator, and a value. Add as many rows as needed; all matchers combine with AND.
 
-4. **Choose how alerts group.** Leave **Alert grouping** on **Static** and set group-by keys: empty to notify once per alert rule, or a real label key (start with `service`) to correlate matching alerts into one group (`severity` isn't allowed here). Or switch to **Auto (AI)** to let the correlation engine group related alerts for you, with no keys to set.
+4. **Choose how alerts group.** New rules start in **Auto (AI)**, which lets the correlation engine group related alerts for you, with no keys to set. To group by label keys instead, switch **Alert grouping** to **Static**, then set the **Group by** keys: leave them empty to notify once per alert rule, or add a real label key (start with `service`) to correlate matching alerts into one group (`severity` isn't allowed here). To get keys based on your alert history, click **Suggest keys**. See [Get suggested group-by keys](#get-suggested-group-by-keys).
 
 5. **Set the notification timing.** Leave the defaults (`30s` group wait, `5m` group interval) for most cases. Tighten them for time-sensitive notifications, or loosen them for digest-style summaries. Set a **Repeat interval** such as `1h` to be reminded while the alert stays open, or leave it at `0` for no reminders.
 
-6. **Pick destination channels.** Add one or more channels. If you don't have a [KloudMate Incidents](../../platform/settings/notification-channels/#kloudmate-incidents) channel yet, use the inline **+ Add KloudMate Incidents channel** link in the picker.
+6. **Pick destination channels.** Add one or more channels under **Destinations**. If the workspace doesn't have a [KloudMate Incidents](../../platform/settings/notification-channels/#kloudmate-incidents) channel yet, click **Add a KloudMate Incidents channel** to create one. That link leaves the rule editor, and anything you haven't saved is lost.
 
-7. **Optionally enable Auto-RCA.** Toggle Auto-RCA on and set the delay (default 5 minutes after group open). See [Auto-RCA](../auto-rca/).
+7. **Optionally enable Auto-RCA.** Turn on **Enable Auto-RCA** and set the **Delay** (default 5 minutes after the group opens). See [Auto-RCA](../auto-rca/).
 
-8. **Save.**
+8. **Save the rule.** Click **Create rule**, or **Save rule** when you're editing an existing rule.
 </Steps>
 
 ## Row actions
@@ -146,22 +148,21 @@ The kebab menu on each row offers:
 
 The **Enabled** toggle disables a rule without deleting it. Use it to stage a rule before it goes live.
 
-## Suggest rules
+## Get suggested group-by keys
 
-Admins can open **Suggest rules** to get up to five AI-suggested rules based on your workspace's recent alert traffic.
+In **Static** mode, click **Suggest keys** in the rule editor's **Group by** section. KloudMate looks at which alerts fired together in your workspace over the **Lookback** window and proposes up to five groupings. The lookback is 7, 14, or 30 days, and it starts at 14.
 
-![Suggest rules drawer](./images/routing-rules-suggest.png)
+![Suggested routing rules drawer with the Lookback selector and suggestion cards](./images/routing-rules-suggest.png)
 
 Each suggestion shows:
 
-- A title describing the proposed grouping (for example, "Group by service + env").
-- A short rationale: how much notification noise the rule would have collapsed over the lookback window.
-- A **preview matches** count for that window.
-- **Accept** opens the create-rule form pre-filled with the suggestion's matchers, group-by keys, and notification timing, under a name derived from what the rule targets. **Dismiss** drops the card.
+- A title naming the proposed keys (for example, "Group by service + env").
+- A short rationale: how many alert instances it would have collapsed into how few groups.
+- How many instances it would have matched over the lookback window.
 
-Some suggestions are grouping-only: they propose group-by keys with no matchers. Accepting one starts the rule as a catch-all that groups everything by those keys. Add matchers before saving to scope it to a subset of alerts.
+**Accept** fills in the rule you're editing with the suggested group-by keys and notification timing. It replaces your matchers only when the suggestion has matchers of its own, and it names the rule only if the name is still blank. **Dismiss** hides the suggestion.
 
-Suggestions don't persist; closing the drawer discards them. Re-run the suggester whenever you want fresh proposals.
+Suggestions aren't saved. Closing the drawer discards them, and reopening it runs the analysis again.
 
 ## Related
 
@@ -169,3 +170,4 @@ Suggestions don't persist; closing the drawer discards them. Re-run the suggeste
 - [Silences](../silences/): temporarily suppress matching alerts.
 - [Notification Channels](../../platform/settings/notification-channels/): set up Slack, KloudMate Incidents, email, and more.
 - [Auto-RCA](../auto-rca/): automatic investigations on group open.
+- [Workflows](../../workflows/): run an automated response when an alert notifies. Attach a webhook channel pointed at the workflow, and see [Triggers](../../workflows/triggers/#start-a-workflow-from-an-alert).

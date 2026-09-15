@@ -6,11 +6,13 @@ sidebar:
 ---
 Investigations is your primary workspace for diagnosing issues, exploring anomalies, and uncovering insights. You can ask questions across metrics, logs, and traces, and iteratively troubleshoot problems in a conversational flow.
 
-When you land on the Investigations page, the main area presents three quick-access cards to help you get started:
+Opening **Assistant** lands you on the **Investigations** tab, which lists past and active investigations. Click **New investigation** to start one. The new investigation opens with quick-access cards to help you get started:
 
-- **Previous Investigations:** Opens the full list of past investigations so you can find and revisit completed or in-progress RCA reports.
-- **Integration Hub:** Takes you to the SDK and integration guide for connecting external systems to the Assistant.
-- **Skills:** Opens the Skills configuration page where you can create and edit agent skills.
+- **Previous investigations:** Returns you to the **Investigations** tab, where you can find and revisit completed or in-progress RCA reports.
+- **Integration hub:** Opens the **MCP Integrations** tab, where you connect external systems to the Assistant.
+- **Skills:** Opens the **Skills** tab, where you can create and edit agent skills.
+
+![The page New investigation opens: quick-access cards for Previous investigations, Integration hub, and Skills above the investigation chat input](./images/investigations-2.jpeg)
 
 ## Adding Context to a Message
 
@@ -51,13 +53,11 @@ The Assistant analyzes the full context, including stack traces, attributes, and
 
 ## Investigations List
 
-![image](./images/investigations-2.jpeg)
+Open **Assistant → Investigations** to see the full investigations list.
 
-Clicking **Previous Investigations** from the main Investigations page opens the full investigations list.
+![The investigations list with Title, Status, Time Range, Created, and Created By columns](./images/investigations-1.png)
 
-![image](./images/investigations-1.png)
-
-This shows all past and active investigations in your workspace. Each row in the list displays the following information:
+The list shows all past and active investigations in your workspace. Each row displays the following information:
 
 - **Title:** A brief summary or auto-generated description of the investigation.
 - **Status:** The current state of the investigation, typically shown as Completed or In Progress.
@@ -67,7 +67,7 @@ This shows all past and active investigations in your workspace. Each row in the
 
 ## Starting a New Investigation
 
-To start a new investigation, click the **New Investigation** button in the top-right corner of the Investigations page. This brings you to the Investigations chat interface where you can describe the issue or symptom you want analyzed in the input bar at the bottom of the screen. The KloudMate Investigator collects your description and begins a background RCA workflow.
+To start a new investigation, open **Assistant → Investigations** and click **New investigation**. In the chat that opens, describe the issue or symptom you want analyzed. The KloudMate Investigator collects your description and begins a background RCA workflow.
 
 ## Viewing an Investigation
 

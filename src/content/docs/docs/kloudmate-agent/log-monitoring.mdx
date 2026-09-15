@@ -13,7 +13,7 @@ It applies to Linux and Windows virtual machine (VM) hosts and to Docker. It is 
 
 ## How it fits
 
-Log monitoring is a managed-mode feature. You configure sources from the agent's **Configuration** page, on the **Logs** tab. See the [configuration model](../concepts/config-model/) for how managed mode works.
+Log monitoring is a managed-mode feature. To configure sources, go to **Settings → Agents**, open the agent's actions menu (⋮), select **Configure**, and open the **Logs** tab. See the [configuration model](../concepts/config-model/) for how managed mode works.
 
 - **Managed mode only.** The Logs tab is available when the agent is in managed mode. If the agent is in manual mode, the tab prompts you to switch. You can still add a `filelog` receiver by hand in manual mode: see [Manual configuration](#manual-configuration).
 - **Independent sources.** Each source is isolated, so one badly configured source cannot affect the others or your host system logs.
@@ -25,7 +25,7 @@ You add each source through the wizard on the Logs tab.
 
 <Steps>
 
-1. **Open the Logs tab.** Go to the agent's Configuration page and select **Logs**. The agent must be in managed mode.
+1. **Open the Logs tab.** In **Settings → Agents**, open the agent's actions menu (⋮), select **Configure**, and then select **Logs**. The agent must be in managed mode.
 
 2. **Name the source.** The name identifies the source and is stamped on every record it collects (as the `km.log.source` attribute), so give it something you will recognize in the Log Explorer.
 

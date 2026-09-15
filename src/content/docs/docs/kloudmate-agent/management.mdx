@@ -48,7 +48,7 @@ Open the actions menu (⋮) for an agent to manage it:
 
 ![image](./images/managing-kloudmate-agents-4.png)
 
-- **Configure:** Opens the agent's Configuration page, with tabs for **APM**, **Databases**, **Logs**, **Processes**, and **Collector config**. Updates apply automatically wherever the agent is installed.
+- **Configure:** Opens the agent's Configuration page, with tabs for **APM**, **Databases**, **Logs**, **Processes**, **Runbook scripts**, and **Collector config**. Updates apply automatically wherever the agent is installed.
 - **Restart agent:** Restart the agent when needed.
 - **Delete:** Remove the agent from the KloudMate Agent landing page and clear all of its configuration.
 
@@ -68,6 +68,14 @@ You can switch an agent between modes. Switching from manual to managed replaces
 ### Rolling back a change
 
 To undo a managed change, turn the toggle back. There is no separate history or rollback button. Switching an agent from manual to managed mode saves your hand-edited YAML first, so you never lose it. See the [configuration model](../concepts/config-model/).
+
+### Runbook scripts
+
+The **Runbook scripts** tab decides whether a [workflow](../../workflows/) can run its scripts on this host with the [Run Command on Host](../../workflows/actions/#run-command-on-host) step. Scripts are off until someone with the **Developer** role turns on **Allow runbook scripts on this host**, and the change reaches the agent within a minute. Only Linux host agents have this setting.
+
+Scripts run as root and can reach anything the host can already reach, such as a kubeconfig, a cloud instance profile, or an SSH key on disk. Allow them only on hosts where that's acceptable.
+
+To block scripts on a host whatever the workspace setting says, set `job-types` to `none` in the host's `agent.yaml`. See [Runbook scripts](../reference/agent-config/#runbook-scripts) in the agent configuration reference.
 
 ### Common Configurations
 

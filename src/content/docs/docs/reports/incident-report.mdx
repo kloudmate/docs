@@ -1,44 +1,41 @@
 ---
 title: "Incident Report"
-description: "Analyze incident statistics for services and responders to track resolution efficiency and performance."
+description: "Measure how quickly incidents are acknowledged and resolved, by service and by responder."
 sidebar:
   order: 5
 ---
-An Incident Report provides detailed statistics about incidents associated with services and responders in the Incident Management module, offering insights into performance and resolution efficiency over a selected time range.
+An Incident report shows how many incidents were triggered in the report period and how quickly your team acknowledged and resolved them. The tabs follow the **Report type** you chose when you [created the report](../create-report/#choose-a-source): **Services**, **Responders**, or both for **Services & Responders**.
 
-Each report shows its **Source**, **Schedule**, **Format**, and whether it is **Active**, plus buttons to **Send Report now**, **View Generated Reports**, or **Edit** the report. Use the time range control (for example, **Last 1 Day**) to change the window the statistics below cover.
+Every count covers incidents **triggered** in the report period, whenever they were acknowledged or resolved. For example, an incident triggered at 11:00 PM on Monday and resolved at 1:00 AM on Tuesday counts in a report for Monday. If that report runs before the incident is resolved, the incident counts toward **Total Incidents** but not **Resolved**.
 
-The report is split into two tabs; Services and Responders.
+## Services
 
-### Services
+The **Services** tab has one row per service. If you picked services in **Services (Optional)**, the report includes only those services, and the Responders tab counts only their incidents.
 
-The **Services** tab focuses on incidents related to specific services. 
+![Services tab of an Incident report with the Covers period in the header, and incident counts, MTTA, and MTTR for each service](./images/incident-report-1.png)
 
-![image](./images/incident-report-1.png)
-
-It displays the following details:
-
-- **Service:** The name of the service.
-- **Owner:** The owner responsible for the service.
-- **Total Incidents:** The total number of incidents triggered during the selected time range.
-- **Acknowledged:** The number of incidents acknowledged during the selected time range.
-- **Resolved:** The number of incidents resolved during the selected time range.
-- **Repeated Incidents:** The number of recurring incidents for the service within the time range.
-- **MTTA (Mean Time to Acknowledge):** The average time taken to acknowledge incidents after they are triggered.
-- **MTTR (Mean Time to Resolve):** The average time taken to resolve incidents after they are triggered.
+- **Service:** the name of the service.
+- **Owner:** the owner responsible for the service.
+- **Total Incidents:** the number of incidents triggered in the period.
+- **Acknowledged:** how many of those incidents have been acknowledged.
+- **Resolved:** how many of those incidents have been resolved.
+- **Repeated Incidents:** how many of those incidents recurred.
+- **MTTA (Mean Time to Acknowledge):** the average time from trigger to acknowledgment.
+- **MTTR (Mean Time to Resolve):** the average time from trigger to resolution.
 
 :::tip
-Reliability tracking has moved to SLOs. The SLA Target, SLA Achieved, and SLA Status columns are no longer part of the Incident Report — see [Reliability](../../reliability/) to set up service-level objectives, or the [SLO Compliance report](../../reliability/slo-compliance-report/) for a scheduled rollup.
+The Incident report doesn't include SLA Target, SLA Achieved, or SLA Status columns. To track reliability targets, [set up SLOs](../../reliability/), or schedule an [SLO Compliance report](../../reliability/slo-compliance-report/).
 :::
 
-### Responders
+## Responders
 
-The **Responders** tab evaluates the performance of responders assigned to incidents. It displays the following details:
+The **Responders** tab lists the people on the escalation policies of the services in the report. Someone who isn't on one of those escalation policies doesn't appear, even if they acknowledged an incident. If you picked people in **Responders (Optional)**, only those people appear.
 
-- **Name:** The name of the responder.
-- **Assigned Incidents:** The number of incidents assigned to the responder during the selected time range.
-- **Acknowledged:** The number of incidents acknowledged by the responder.
-- **Resolved:** The number of incidents resolved by the responder.
-- **MTTA (Mean Time to Acknowledge):** The average time taken by the responder to acknowledge assigned incidents.
-- **MTTR (Mean Time to Resolve):** The average time taken by the responder to resolve assigned incidents.
+- **Name:** the name of the responder.
+- **Assigned Incidents:** the number of incidents the responder was assigned.
+- **Acknowledged:** the number of incidents the responder acknowledged.
+- **Resolved:** the number of incidents the responder resolved.
+- **MTTA (Mean Time to Acknowledge):** the average time from trigger to this responder's acknowledgment.
+- **MTTR (Mean Time to Resolve):** the average time from trigger to this responder's resolution.
 
+To send the report outside its schedule or download earlier files, see [Send a report now](../#send-a-report-now) and [Download generated reports](../#download-generated-reports).

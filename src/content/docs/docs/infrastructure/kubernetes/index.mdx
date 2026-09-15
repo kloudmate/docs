@@ -7,7 +7,7 @@ sidebar:
 ---
 Kubernetes Monitoring in KloudMate gives you visibility into cluster health, workload availability, resource usage, pod behavior, and related telemetry collected by the KloudMate Agent.
 
-KloudMate organizes Kubernetes data into views for clusters, nodes, namespaces, pods, and workloads so you can move from fleet-level health to pod-level troubleshooting quickly.
+KloudMate organizes Kubernetes data into tabs for clusters, nodes, namespaces, pods, storage, workloads, and jobs, so you can move from fleet-level health to pod-level troubleshooting quickly.
 
 ## What This Covers
 
@@ -61,7 +61,7 @@ The **Clusters** tab lists every connected cluster, with overall health, capacit
 
 The **Nodes** tab lists every node across your clusters, showing node health and infrastructure-level resource usage: allocatable CPU and memory alongside current usage for each. Use it to spot nodes running hot before they affect scheduling.
 
-![Nodes tab in Kubernetes Monitoring, showing CPU and memory allocatable capacity and usage per node](./images/kubernetes-nodes-tab.png)
+![Nodes tab in Kubernetes, showing CPU and memory allocatable capacity and usage per node](./images/kubernetes-nodes-tab.png)
 
 ### Namespaces
 
@@ -73,15 +73,25 @@ The **Pods** tab lists every pod across your clusters, with its performance, res
 
 ### Storage
 
-The **Storage** tab lists Persistent Volume Claims (PVCs) across your clusters, with their status, claim, storage class, and capacity. Use it to see what's provisioned and bound without checking each cluster individually.
+The **Storage** tab lists Persistent Volumes across your clusters, with their status, claim, storage class, and capacity. Use it to see what's provisioned and bound without checking each cluster individually. To list Persistent Volume Claims instead, select **Persistent Volume Claim** as the storage type.
 
-![Storage tab in Kubernetes Monitoring, listing Persistent Volumes with their cluster, status, claim, storage class, and capacity](./images/kubernetes-storage-tab.png)
+![Storage tab in Kubernetes, listing Persistent Volumes with their cluster, status, claim, storage class, and capacity](./images/kubernetes-storage-tab.png)
 
 ### Workloads
 
 The **Workloads** tab lists deployments, daemonsets, statefulsets, and other workload types across your clusters, showing their health and availability alongside pod counts and CPU and memory requests and limits. Filter by workload type, namespace, or cluster to narrow the list.
 
-![Workloads tab in Kubernetes Monitoring, listing deployments with pod counts and CPU/memory request and limit values](./images/kubernetes-workloads-tab.png)
+![Workloads tab in Kubernetes, listing deployments with pod counts and CPU/memory request and limit values](./images/kubernetes-workloads-tab.png)
+
+### Jobs
+
+The **Jobs** tab lists Jobs across your clusters, with their status, completions (succeeded out of desired, the same count `kubectl` shows), and active, failed, and parallelism counts. Filter by cluster, namespace, or status to find Jobs that failed or haven't completed. To list CronJobs instead, select **CronJob** as the job type. Each CronJob shows its cluster, namespace, and number of active jobs.
+
+## Find resources that stopped reporting
+
+Every tab includes a **Last seen** column. A resource stays in the list for seven days after it last reported, and its **Last seen** dot turns from green to gray once it has gone 15 minutes without reporting. If a resource reported nothing in the selected time range, its metric cells show a dash.
+
+Set the **Reporting** filter to **Reporting now** to list only live resources, or to **Stopped reporting** to find resources that stopped sending data. When the filter is empty, the pod, ReplicaSet, and Job lists show only resources that are reporting now, and every other list shows everything seen in the last seven days.
 
 ## Validation Checklist
 

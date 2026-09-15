@@ -12,11 +12,11 @@ A threshold alert only evaluates the datapoints that arrive. When the datapoints
 
 An **instance** is a unique series identified by its distinct labels. A heartbeat metric grouped by `host_name` produces one instance per host; group by `serviceName` and `pod_name` and you get one per pod. Absence detection tracks each instance individually: it has its own state, its own history, and its own dismissal.
 
-The setting is off by default and opt-in per rule, so existing rules don't change until you enable it. It works with any datasource, whether the data comes from the KloudMate agent or not.
+The setting is off by default and opt-in, per rule or per folder, so existing rules don't change until you enable it. It works with any datasource, whether the data comes from the KloudMate agent or not.
 
 ## How it works
 
-On every evaluation, KloudMate compares the query results against the set of instances the rule has seen. An instance missing from the results is evaluated as if the query had returned no data for it, and it moves through the normal [lifecycle](../alert-lifecycle/): **Pending** for the pending duration, then **Firing**, with the reason `instance stopped reporting; last seen <timestamp>`. The moment the instance reports again, it recovers through the usual path, including any recovery period.
+On every evaluation, KloudMate compares the query results against the set of instances the rule has seen. An instance missing from the results is evaluated as if the query had returned no data for it, and it moves through the normal [lifecycle](../alert-lifecycle/): **Pending** for the pending duration, then **Firing**. From **Pending** onward, its reason is `instance stopped reporting; last seen <timestamp>`. The moment the instance reports again, it recovers through the usual path, including any recovery period.
 
 Absence detection changes what fires, not how notifications are threaded. Threading comes from the [routing rule](../routing-rules/) that matches, through its **Group-by** keys, exactly as it does for threshold alerts:
 
@@ -27,14 +27,14 @@ Routing itself works as usual, since each instance carries its own labels.
 
 ## Turn it on
 
-1. Create or edit an alert rule and go to **Configure evaluation settings**.
+1. Create or edit an alert rule and go to **Configure evaluation settings** (**Evaluation settings** in Simple mode).
 2. Turn on **Alert when an instance stops reporting**.
 3. Optionally set **Auto-close after**: how long a silent instance stays tracked, and firing, before it closes on its own, which happens only while other instances are still reporting. Leave it blank to inherit the folder default, or the system default of 24 hours. It accepts durations from `5m` to `72h`, for example `30m` or `48h`.
 4. Save the rule.
 
-Turning the toggle on also sets **Alert state if No data** to **Firing**, since absence detection needs both. Turning the toggle off leaves the No-data state alone, in case you still want the rule to fire when the whole query returns nothing.
+Absence detection runs only while **Alert state if No data** is **Firing**, so turning the toggle on sets that field to **Firing** as well. If you later change **Alert state if No data** to another state, absence detection stops. Turning the toggle off leaves the No-data state alone, in case you still want the rule to fire when the whole query returns nothing.
 
-Both settings inherit from [folders](../folders/) exactly like the other evaluation defaults: the rule's own value wins, a blank field falls back to the folder default, and the system default applies last. Folders expose the same two settings, **Instance stops reporting** (**Alert** / **Don't alert**) and **Auto-close after**.
+Both settings inherit from [folders](../folders/): the rule's own value wins, a blank field falls back to the folder default, and the system default applies last. Folders expose the same two settings, **Instance stops reporting** (**Alert** / **Don't alert**) and **Auto-close after**. A folder set to **Alert** also needs **No data state** set to **Alerting**, either on the folder or on each rule. A new rule starts with **Alert state if No data** set to **No Data**, which overrides the folder, so click **Reset to folder default** on that field to use the folder's setting.
 
 ## Make the query window longer than the reporting interval
 
@@ -58,8 +58,8 @@ Say every host emits a heartbeat metric once a minute, and you want to know when
 Here's what happens when `web-7` drops off the network at 10:03, right after its last heartbeat:
 
 - Until about 10:08, the 5-minute window still contains datapoints from `web-7`, so it counts as reporting.
-- At 10:09 the window is empty for `web-7`, and the instance enters **Pending**.
-- At 10:11, after the 2-minute pending duration, `web-7` starts **Firing** with the reason `instance stopped reporting; last seen 2026-08-03T10:08:12Z`. With a routing rule that doesn't group, the rule's notification thread lists `host_name=web-7`.
+- At 10:09 the window is empty for `web-7`, and the instance enters **Pending** with the reason `instance stopped reporting; last seen 2026-08-03T10:08:12Z`.
+- At 10:11, after the 2-minute pending duration, `web-7` starts **Firing**. With a routing rule that doesn't group, the rule's notification thread lists `host_name=web-7`.
 - If `web-9` goes quiet at 10:20, it fires the same way. It joins the same thread under that ungrouped rule, or opens its own under a rule grouped by `host_name`.
 - When `web-7` comes back, its instance resolves automatically. Nothing to clean up.
 
@@ -67,13 +67,13 @@ That's about eight minutes after the last datapoint: the 5-minute window plus th
 
 ## The Instances tab
 
-The **Instances** tab lists every tracked instance and when each was **Last seen**. Last seen records when the instance last appeared in query results, so with a lookback window it can read up to one window later than the instance's final datapoint. While an instance is firing for absence, its reason is `instance stopped reporting; last seen <timestamp>`.
+The **Instances** tab lists every tracked instance and when each was **Last seen**. Last seen records when the instance last appeared in query results, so with a lookback window it can read up to one window later than the instance's final datapoint. While an instance is pending or firing for absence, its reason is `instance stopped reporting; last seen <timestamp>`.
 
 ### Dismiss an instance that was terminated on purpose
 
-Autoscalers scale in and hosts get decommissioned. When an instance went away on purpose, close its alert instead of waiting out the auto-close window. Admins can **Dismiss** any instance that stopped reporting.
+Autoscalers scale in and hosts get decommissioned. When an instance went away on purpose, close its alert instead of waiting out the auto-close window. With the **Developer** role, you can **Dismiss** any instance that stopped reporting, including one that's still **Pending**.
 
-Dismissal forgets the instance; it isn't a mute. If the instance ever reports again, tracking resumes automatically, so a dismissal can't permanently hide a live host. The instance's alert closes right away, and the alert group and any linked ticket close within one evaluation interval. Dismissing an instance that's already been dismissed changes nothing.
+Dismissal forgets the instance; it isn't a mute. If the instance ever reports again, tracking resumes automatically, so a dismissal can't permanently hide an instance that comes back. Dismiss removes the instance right away, and the instance leaves its alert group within one evaluation interval. The group and any linked ticket resolve only if nothing else in the group is still firing. Dismissing an instance that's already been dismissed changes nothing.
 
 If the instance is coming back later, after planned maintenance or a reboot, use a [silence](../silences/) or [maintenance window](../maintenance-windows/) instead. Both apply to absence alerts like any other: the instance keeps its state, notifications are withheld, and it recovers on its own when it reports again.
 
@@ -89,9 +89,9 @@ Every transition lands in the alert's **History** tab with a reason:
 
 | Reason | What happened |
 |---|---|
-| `instance stopped reporting; last seen <timestamp>` | The instance went silent and started firing. |
+| `instance stopped reporting; last seen <timestamp>` | The instance went silent and moved to **Pending** or **Firing**. |
 | `auto-closed: instance silent past absence retention` | The instance stayed silent past the **Auto-close after** window while other instances kept reporting, and closed on its own. |
-| `dismissed: instance deregistered by user` | An admin dismissed the instance. |
+| `dismissed: instance deregistered by user` | Someone dismissed the instance. |
 
 ## Other behaviors you might notice
 

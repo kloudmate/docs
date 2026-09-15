@@ -1,0 +1,219 @@
+---
+title: "The action catalog"
+description: "Every step a workflow can run: HTTP requests, sandboxed code, AI prompts, AWS and Azure calls, Slack and Jira, MCP tools, and host commands."
+sidebar:
+  label: "Action catalog"
+  order: 6
+---
+
+An action is one unit of work: post a message, call an endpoint, run an API operation, transform a payload. The palette groups them under **Apps**, **AI**, and **Utilities**, with [control-flow steps](../control-flow/) on their own tab.
+
+Most actions return the provider's own response, unchanged. A Slack post returns Slack's response; a Jira create returns the issue Jira created. Later steps therefore read fields by the provider's own names, so to learn the shape, test the step once and read the output. See [Test a workflow](../test-a-workflow/).
+
+## Apps
+
+The **Apps** tab lists the products a step can talk to. Pick the app, then its action.
+
+### Notifications
+
+These send through a [notification channel](../../platform/settings/notification-channels/) you've already set up, so the destination is configured once and reused.
+
+| Action | What it does |
+|---|---|
+| **Send Slack Message** | Post text or Block Kit blocks to a configured Slack channel. |
+| **Send Teams Message** | Post an adaptive card to a configured Microsoft Teams channel. |
+| **Send to Webhook** | POST a JSON body to a configured webhook channel. |
+| **Publish to SNS** | Publish a message to a configured Amazon SNS channel. |
+| **Send Email** | Email an address directly. |
+
+**Send Email** takes a typed address instead of a channel. Because it can reach anyone, it's capped at 20 recipients per step and 200 sends per workspace per hour.
+
+### Slack
+
+Slack actions bind a [Slack connection](/platform/settings/connections/providers/) rather than a channel, so the workflow chooses where the message goes.
+
+| Action | What it does |
+|---|---|
+| **Post Message** | Post to a channel or a person, optionally as a thread reply. |
+| **Update Message** | Edit a message the workflow posted. |
+| **Send Direct Message** | Message a person directly, as the bot. |
+| **Add Reaction** | React to a message. |
+| **Get Thread Replies** | Read a thread's replies. |
+| **Create Channel** | Create a channel, public or private. |
+| **Invite to Channel** | Invite people to a channel. |
+| **Set Channel Topic** | Set a channel's topic. |
+| **Look Up User** | Turn a Slack user id into a person. |
+| **Find User by Email** | Turn an email address into a Slack user. |
+
+Use **Send Slack Message** when the destination is fixed. Use **Slack: Post Message** when the workflow decides the channel, replies in a thread, or needs the posted message back so a later step can edit it.
+
+:::caution
+Some of these need permissions the first Slack install didn't ask for. Looking up users needs profile access, and the channel actions need channel management. If a step answers `missing_scope`, reconnect the Slack connection. Everything else on that connection keeps working in the meantime.
+:::
+
+### Jira Cloud
+
+| Action | What it does |
+|---|---|
+| **Create Issue** | Create an issue in a project. |
+| **Update Issue** | Change the summary, description, or any other field. |
+| **Get Issue** | Read an issue with all its fields. |
+| **Search Issues** | Find issues with JQL, up to 100 at a time. |
+| **Add Comment** | Comment on an issue. |
+| **List Comments** | Read an issue's comments, newest first. |
+| **Transition Issue** | Move an issue to another status. |
+| **Assign Issue** | Set who an issue is assigned to. |
+| **Link Issues** | Link an issue to another with one of the site's link types. |
+| **Find User** | Find users by email or name, to assign or mention them. |
+
+Every Jira action opens with a site picker, because one credential can reach several Atlassian sites. **Transition Issue** resolves the target against the transitions the issue currently offers, so a status its workflow doesn't allow fails instead of being forced.
+
+### AWS API Call
+
+Calls any AWS service operation through a connected AWS account. Pick the service, then the action, and the parameter form is built from the real API model of that operation. **Region** overrides the connection's default; leave it blank to use the default.
+
+Changing the service clears the action and the parameters; changing the action clears the parameters.
+
+The IAM policy on the credential decides what the step is allowed to do. There's no second permission list here, so narrow the role itself, and put an [approval](../approvals-and-input/) in front of anything that changes a resource.
+
+### Azure
+
+**Azure Resource Manager** acts on an Azure resource through a connected Azure account: pick the operation, fill in the details, and optionally override the subscription. The output carries `completed`, `status`, `result` when there's a resource body, and `operation_url` for a long-running operation.
+
+**Run Script on Azure VM** runs a script on a VM through the Azure VM extension.
+
+Both need an RBAC role assigned to the service principal.
+
+### MCP Tool Call
+
+Calls a tool on a connected MCP server. The tool list comes from the connection, and the argument form is built from that tool's own input schema. A server that publishes no schema falls back to a raw JSON editor, so a schema-less tool is still callable.
+
+**The output is a single `result` field**, so templates read:
+
+```text
+{{ steps.<id>.output.result.<field> }}
+```
+
+`result` holds the tool's structured content if it returns any, otherwise the JSON carried in its text response, otherwise that text as it came. A tool that reports an error fails the step with the tool's own message rather than handing that message on as output.
+
+## AI
+
+### AI Prompt
+
+Sends a prompt to a model and gets text back.
+
+:::caution
+Templating untrusted data into **AI Prompt** hands part of the prompt to whoever wrote that data. A Slack message body, a webhook payload, or an issue description can all steer the model. Use **AI Extract** instead when the input isn't yours.
+:::
+
+### AI Extract
+
+Pulls structured fields out of text. Reach for it whenever the input isn't yours: the source is kept separate from the instruction, and the answer is validated against a schema, so even a steered model can't add a field or change one the schema forbids.
+
+- **Instruction** says what to extract.
+- **Source** is what to read. Pass a whole object, for example `{{ trigger.body }}`, and name the fields you want in the instruction. Assembling a labeled text string by hand does the same job with more effort, and it silently drops any field the payload gains later.
+- **Output fields** lists what you want back. Each row is a name, a type, and optionally a description and whether it's required. KloudMate composes the schema the model is held to from those rows, so you never write JSON Schema yourself.
+
+The rows are checked when you publish, against these rules:
+
+- **`required` defaults to true.** Uncheck it to make a field optional.
+- **A name must be a letter or underscore followed by letters, digits, or underscores.** A name outside that pattern is extracted but can't be read back from `{{ steps.<id>.output.<name> }}`.
+- **An enum field needs at least one option.**
+- **An object field can hold nested fields.** Leave them empty to accept any object.
+
+Leave **Output fields** empty and the instruction describes the shape instead.
+
+The extracted fields sit at the top level of the step output, so a later step reads `{{ steps.extract.output.severity }}`. Because their shape comes from your own rows, the variable picker has nothing to offer until the step has been tested once.
+
+## Utilities
+
+Built-ins that need no connection.
+
+| Action | What it does |
+|---|---|
+| **Transform** | Extract a value from an earlier step's output with a JSONPath expression. |
+| **CSV** | Parse CSV text into rows, or format rows back into CSV. |
+| **XML** | Parse XML text into a JSON object. |
+| **Parse URL** | Split a URL into protocol, host, path, query object, and hash. |
+| **Look Up a Host or Resource** | Find the host or resource that a name or a set of labels points at. |
+| **Storage** | Read and write values that outlive a run. See [Storage](../storage/). |
+
+### HTTP Request
+
+Calls any URL. Set the method, headers, and body. **Body type** decides how the body is sent: JSON, form-encoded, raw, or none.
+
+Authentication goes one of two ways:
+
+- **An OAuth 2.0 connection**, which is the better option. The access token is sent as a bearer and refreshed for you, and the credential never enters the workflow definition.
+- **The step's own auth fields.** Pick Bearer or Basic and fill them in. The value is saved with the workflow and appears in an export.
+
+Either way, a header you set yourself under the same name wins. Credential-looking values are masked as `••••` in the recorded input and in the Test panel.
+
+Timing and error handling:
+
+- **Timeout (ms)** is the request timeout, 10 seconds by default. The step's own timeout bounds each attempt on top of it.
+- **Treat as success** accepts statuses that aren't 2xx, so a `404` can be a valid answer rather than a failure.
+- **Retry on** names the statuses a retry should fire for.
+
+### Look Up a Host or Resource
+
+Turns a name or a set of labels into a resource KloudMate already knows about. That's how an alert payload becomes an instance id a cloud API can act on.
+
+Labels are more reliable than a name. A name matches as a substring, so `web-01` also matches `web-011`, and the step reports more than one match rather than picking one. Paste labels straight in:
+
+```text
+{{ trigger.body.rules[0].instances[0].labels }}
+```
+
+### Run Code
+
+Runs JavaScript in a sandbox and uses what it returns.
+
+```js
+function main(input) {
+  const rows = input.rows || [];
+  return { count: rows.length, names: rows.map((r) => r.name) };
+}
+```
+
+Data reaches `main` through the separate **Input** field, not through the code. The code is stored and run exactly as written and is never templated, so it can contain `{{` safely.
+
+Both of these trip people up:
+
+- **Return the object, not a string.** A `JSON.stringify` on the way out means every later step reads one opaque value, and `{{ steps.x.output.output.id }}` resolves to nothing. The step still succeeds, which is what makes the mistake hard to see.
+- **`fetch(url, opts)` blocks, so don't use `await`.** `const r = fetch(url)` is the whole idiom, and `main` stays an ordinary synchronous function. Requests go one at a time.
+
+The output carries `output` (the return value) and `logs` (the captured `console.log` lines), so a later step reads `{{ steps.<id>.output.output.count }}`.
+
+Run Code never retries, because the code can POST. Make `main` safe to call twice if a caller might re-run the workflow.
+
+### Run Command on Host
+
+Runs a shell command on a Linux host through its KloudMate agent. Both of these have to be true before the Host picker shows anything:
+
+1. The [KloudMate agent](../../kloudmate-agent/installation/linux-agent/) is installed on the host and reporting.
+2. Runbook scripts are allowed on that host. See [Allow runbook scripts on a host](#allow-runbook-scripts-on-a-host).
+
+**Commands run as root** and reach everything the host can already reach, such as a kubeconfig, a cloud instance profile, or an SSH key on disk. Put an [approval](../approvals-and-input/) in front of any command that changes something.
+
+#### Allow runbook scripts on a host
+
+Runbook scripts are off on every host until someone with the **Developer** role allows them, one host at a time:
+
+1. Open **Settings → Agents**.
+2. Open the host's actions menu (⋮), select **Configure**, and open the **Runbook scripts** tab.
+3. Turn on **Allow runbook scripts on this host** and confirm.
+
+The change reaches the agent within a minute. Only Linux host agents have this setting, so Docker, Amazon ECS, Kubernetes, and Windows agents can't run runbook scripts.
+
+To keep scripts off a host no matter what the workspace setting says, set `job-types` to `none` in the host's `agent.yaml` (or set `KM_JOB_TYPES=none`), then restart the agent. See [agent configuration](../../kloudmate-agent/reference/agent-config/#runbook-scripts).
+
+## Retries and failures
+
+Every action step carries the settings covered in [Build a workflow](../build-a-workflow/#step-settings). The one difference between actions is retries: anything that changes external state never retries and doesn't offer the setting, so a failed write is never silently repeated.
+
+## Related
+
+- [Templating and variables](../templating/) for reaching an earlier step's output.
+- [Connections](/platform/settings/connections/) for the credentials these actions bind.
+- [Storage](../storage/) for the `store.*` actions.
