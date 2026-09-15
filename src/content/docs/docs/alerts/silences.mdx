@@ -36,7 +36,7 @@ Create a silence from the Silences page, an alert group, or an alert's Pause Not
 2. Add one or more matcher rows. For each, pick a label key, an operator, and a value.
 3. Pick an **Expires at** date and time, up to 30 days out.
 4. Add a **Reason** describing why this silence exists.
-5. Click **Save**.
+5. Click **Create silence**.
 
 ### From an Alert Group
 
@@ -67,14 +67,16 @@ On an alert rule's **more options (⋯) → Pause Notifications**, KloudMate cre
 
 The Silences list carries an **Alerts muted** column: how many alert rules each active silence is muting. Expand a row to list those rules, each marked with a chip such as `3 firing` when its instances are firing. The silence detail page shows the same list, along with a link to the group the silence is bound to.
 
-In the other direction, the **Silenced** badge links to the silence or maintenance window muting that alert. When more than one is muting it, the badge opens a menu listing all of them.
+To find what's muting a particular alert, check the alert's row on the **Rules** tab, its expanded instance rows, or its detail page. Each links to the silence or maintenance window that's muting the alert. When more than one applies, you can pick which one to open. A group's **Instances** panel marks muted instances but doesn't name the silence.
+
+A new silence shows up in the **Alerts muted** count and on the alerts it mutes after those alerts are next evaluated. An expired silence clears from them the same way.
 
 ## Silence vs. maintenance window
 
-Both features are a **notification gate, not a state change**: the alert still evaluates on its schedule and its state transitions are still recorded in history; only the notification is withheld. Silencing every firing instance of an alert group keeps the group **Open** (shown as **Muted**); it does **not** resolve the group, and muting never emits a *resolved* notification. The differences between the two are operational, not behavioral:
+Both features are a **notification gate, not a state change**: the alert still evaluates on its schedule and its state transitions are still recorded in history; only the notification is withheld. Silencing every firing instance of an alert group keeps the group **Firing** (marked **Muted**); it does **not** resolve the group, and muting never emits a *resolved* notification. The differences between the two are operational, not behavioral:
 
 - **Silences** are ad-hoc, label-matcher driven, capped at 30 days, and can be auto-bound to a specific alert group so they expire when the group resolves.
-- **Maintenance Windows** are scheduled: one-time (RFC3339 start/end) or recurring (`DAILY` / `WEEKLY` / `MONTHLY` with a timezone-aware time-of-day).
+- **Maintenance Windows** are scheduled: **One Time**, with a start and end, or **Recurring**, repeating **Daily**, **Weekly**, or **Monthly** at a set time of day in the window's timezone.
 
 Both use the same label-matcher operators (**Equals**, **Not equals**, **Matches regex**, **Doesn't match regex**), matched against alert rule labels and alert instance labels.
 
@@ -85,6 +87,8 @@ Pick a silence for a reactive, one-off suppression you'll re-evaluate within 30 
 ## Viewing and ending a silence
 
 From a row's kebab menu, select **End silence** (or **View**). Ending an active silence removes suppression for matching alerts immediately; new firings notify as normal.
+
+Silences can't be edited. To change the matchers or extend the expiry, end the silence and create a new one.
 
 ## Related
 

@@ -12,6 +12,10 @@ Alerts tell you when something needs attention: an error-rate spike, a service g
 
 This page covers the concepts behind the Alerts module. The rest of this section covers each feature in detail.
 
+## Navigate the Alerts module
+
+**Alerts** opens on the **Groups** tab, where related alerts are collected into [alert groups](./alert-groups/). The **Rules** tab lists your alert rules and their [folders](./folders/), and **History** records every alert state change in the workspace. The other tabs control how alerting behaves: [Routing rules](./routing-rules/) decide where notifications go, [Silences](./silences/) and [Maintenance](./maintenance-windows/) windows suppress notifications for a set period, and [Smart Alerts](./smart-alerts/) creates and maintains rules for common infrastructure.
+
 ## Key concepts
 
 ### Alert rule
@@ -28,15 +32,15 @@ Expressions transform query output with math, reductions, or conditions. They re
 
 ### Alert labels
 
-Labels are key-value pairs attached to each firing alert. They come from query dimensions and any folder the rule lives in, and they're what [Routing Rules](./routing-rules/) match against to decide where notifications go. KloudMate generates labels automatically. You don't enter them by hand.
+Labels are key-value pairs attached to each firing alert. They come from query dimensions, the labels you add to the rule with **Add label**, and any folder the rule lives in. [Routing Rules](./routing-rules/) match against them to decide where notifications go.
 
 ### Annotations and severity
 
-Annotations carry human-readable context (summary, runbook URL, dashboard link) into each notification. Values support Liquid templates, so you can interpolate live label and state data into the message. The reserved `severity` annotation key drives downstream routing and incident severity. See [Annotations & Severity](./annotations-and-severity/).
+Annotations carry human-readable context (title, summary, runbook URL, dashboard link) into each notification. Values support Liquid templates, so you can interpolate live label and state data into the message. The reserved `severity` annotation key drives downstream routing and incident severity. See [Annotations & Severity](./annotations-and-severity/).
 
 ### Folders
 
-Folders group related alert rules and let member rules inherit shared defaults: evaluation interval, no-data state, and eval-error state. See [Folders](./folders/).
+Folders group related alert rules and let member rules inherit shared defaults: evaluation interval, no-data state, eval-error state, whether to alert when an instance stops reporting, and how long a silent instance stays tracked. See [Folders](./folders/).
 
 ### Alert groups
 
@@ -65,7 +69,7 @@ Instead of hand-authoring thresholds, turn on curated detectors and let KloudMat
 3. The condition is evaluated; if it holds for the pending duration, the rule fires.
 4. The firing alert is tagged with labels and annotations and sent into the grouping engine.
 5. The grouping engine matches the alert against [Routing Rules](./routing-rules/), opens or appends to an [Alert Group](./alert-groups/), and dispatches notifications to the rule's destination channels.
-6. Active [Silences](./silences/) and [Maintenance Windows](./maintenance-windows/) can suppress the outbound notification at this step. The rule keeps evaluating in the background and the state change still lands in history.
+6. Active [Silences](./silences/) and [Maintenance Windows](./maintenance-windows/) can suppress the outbound notification at this step. The rule keeps evaluating in the background, and the state change is still recorded on the **History** tab.
 
 ## Alert states
 
@@ -77,6 +81,10 @@ Instead of hand-authoring thresholds, turn on curated detectors and let KloudMat
 - **No Data:** the query returned no data for the configured window.
 
 For how these states transition, and how the pending duration, recovery period, and no-data or error settings shape them, see [Alert Lifecycle & States](./alert-lifecycle/).
+
+## Review alert history
+
+The **History** tab lists every alert state change in the workspace, newest first, with the reason for each change. Filter by state or search by alert name to narrow the list. For example, select **Firing** and search for `checkout` to see each time a checkout alert moved to **Firing**. Select an alert's name to open its rule.
 
 ## Next steps
 

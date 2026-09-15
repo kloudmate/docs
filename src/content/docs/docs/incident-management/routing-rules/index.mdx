@@ -11,11 +11,11 @@ import { Steps } from '@astrojs/starlight/components';
 Routing rules decide what happens to an alert the moment it reaches Incident Management: which **service** the incident opens against, which **escalation policy** pages, what **severity** it gets, and whether to suppress it, add responders, or notify an on-call schedule.
 
 :::caution[Two features share this name]
-This page is about **incident routing inside IM** — turning an incoming alert into the right incident. It is *not* the same as [**Alerts → Routing Rules**](../../alerts/routing-rules/), which routes alert *notifications* to channels like Slack. If you're trying to control which Slack channel gets pinged, you want that page instead.
+This page is about **incident routing inside IM**: turning an incoming alert into the right incident. It is *not* the same as [**Alerts → Routing rules**](../../alerts/routing-rules/), which routes alert *notifications* to channels like Slack. If you're trying to control which Slack channel gets pinged, you want that page instead.
 :::
 
 :::note[Availability]
-Routing Rules are a paid Incident Management feature. If you don't see **Routing Rules** in the Incident Management navigation, your plan doesn't include it yet — contact your account team to turn it on.
+Routing rules are a paid Incident Management feature. If you don't see a **Routing rules** tab in **Incidents**, your plan doesn't include it yet. Contact your account team to turn it on.
 :::
 
 ## What a routing rule decides
@@ -106,7 +106,7 @@ Use it to confirm a new rule does what you expect — and that it doesn't accide
 ## Create a routing rule
 
 <Steps>
-1. Open **Incident Management → Routing Rules** and click **Create rule**.
+1. Open **Incidents → Routing rules** and click **Add Rule**.
 
 2. Name the rule, set its **scope** (workspace-wide or a single service), and set a **priority** (lower wins).
 
@@ -121,8 +121,8 @@ Use it to confirm a new rule does what you expect — and that it doesn't accide
 
 ## Related
 
-- [Alert Sources](../integrations/) — where alerts enter IM.
-- [Services](../services/) — the routing target and its default escalation policy.
-- [Escalation Policies](../escalation-policy/) — what a rule assigns.
-- [On-Call Schedules](../oncall/) — what "Notify on-call schedules" pages.
-- [Alerts → Routing Rules](../../alerts/routing-rules/) — the different feature that routes alert notifications to channels.
+- [Alert Sources](../integrations/): where alerts enter IM.
+- [Services](../services/): the routing target and its default escalation policy.
+- [Escalation Policies](../escalation-policy/): what a rule assigns.
+- [On-Call Schedules](../oncall/): what "Notify on-call schedules" pages.
+- [Alerts → Routing rules](../../alerts/routing-rules/): the different feature that routes alert notifications to channels.

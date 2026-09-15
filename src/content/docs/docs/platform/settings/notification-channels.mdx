@@ -24,7 +24,7 @@ A Slack or Jira channel can reuse an account you've already connected instead of
 In the case of multiple workspaces and AWS accounts, you must set up notifications for each account in their respective **Settings**.
 :::
 
-Navigate to **Settings** > **Notification Channels**. The screen displays all existing channels with their name, type, and address. A channel whose last delivery failed is marked **Error**, with the reason and the time it happened shown in place of its address.
+Navigate to **Settings** > **Notification Channels**. The screen displays all existing channels with their name, type, and address. A channel whose last delivery failed is marked **Error**, with the reason and the time it happened shown under its address.
 
 ![Notification Channels list, showing each channel's name, type, and address](./images/notification-channels-list.png)
 
@@ -58,7 +58,7 @@ KloudMate uses a single unified Slack app for both notifications and IM ChatOps.
 
 ![The Slack notification channel form: the Slack account picker with a Connect another Slack account link, then Channel name and a searchable Slack channel list](./images/slack-1.png)
 
-The same Slack install appears under [Settings → Connections](../connections/) and under **Incidents → Settings → ChatOps**. Connect it once and reuse it for every Slack channel you create here.
+The same Slack install appears under [Settings → Connections](../connections/) and under **Incidents → Chat Ops**. Connect it once and reuse it for every Slack channel you create here.
 
 ### MS Teams
 
@@ -85,11 +85,12 @@ Optionally, you can download the KloudMate logo from the link provided on the sc
 ### Webhooks
 
 1. Select **Webhook** from the dropdown menu.
-2. Enter a **Webhook Name** and the **Webhook URL** in their respective fields.
-3. Under **Secret**, provide a secure key. This secret is used to generate an HMAC-SHA256 signature for each webhook payload, allowing you to verify that the request came from KloudMate.
-4. Click **Submit**.
+2. Enter a **Webhook Name** and the **Webhook Url** in their respective fields.
+3. Click **Create channel**.
 
 ![image](./images/webhooks-1.png)
+
+KloudMate generates a secret for the channel and uses it to sign every request with an HMAC-SHA256 signature, so you can verify that a request came from KloudMate. With the **Developer** role, you can copy the secret from the channel list with **Copy Secret**.
 
 A webhook channel is also how an alert reaches a [workflow](../../../workflows/). Point the URL at the workflow's own hook URL, attach the channel to a routing rule, and each notification starts a run with the alert group payload as its body. See [Triggers](../../../workflows/triggers/#start-a-workflow-from-an-alert).
 
@@ -105,9 +106,11 @@ In the webhook channel editor, click **Customize request body and headers** to e
 
 **Test** previews the rendered body against a sample event. The **Event type** list picks which event to sample.
 
+Saving runs the same check as **Test**, so a channel with invalid JSON, invalid Liquid, or a reserved header won't save. If a custom body still fails to render when a notification goes out, the channel is marked **Error** and that delivery isn't retried.
+
 #### Webhook Signature Validation
 
-When KloudMate sends a webhook to your configured URL, it includes an `X-KM-Signature` HTTP header. This signature is an HMAC-SHA256 hash generated using the payload body and the **Secret** you provided during configuration.
+When KloudMate sends a webhook to your configured URL, it includes an `X-KM-Signature` HTTP header. This signature is an HMAC-SHA256 hash generated using the payload body and the channel's secret.
 
 To ensure the webhook is genuinely from KloudMate, you should compute the hash on your server and compare it with the `X-KM-Signature` header.
 
@@ -364,7 +367,7 @@ KloudMate Incidents is the channel type that bridges into [Incident Management](
 
 1. Select **KloudMate Incidents** from the dropdown menu.
 2. Pick the IM service you want to bridge into from the **Linked IM service** dropdown. If you don't have any services yet, KloudMate prompts you to create one first.
-3. Click **Submit**.
+3. Click **Create channel**.
 
 KloudMate automatically creates two rows:
 

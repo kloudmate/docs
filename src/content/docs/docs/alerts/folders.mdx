@@ -7,21 +7,22 @@ sidebar:
 
 Folders organize related alert rules and let member rules inherit shared evaluation defaults, the same grouping pattern dashboards use.
 
-On the **Alerts** list, switch between a flat **List view** and a grouped **Folder view**. In Folder view, rules are grouped under their folder; rules without one appear under **Ungrouped**.
+On **Alerts → Rules**, switch between a flat **List view** and a grouped **Folder view**. In Folder view, rules are grouped under their folder, and rules without one appear under **Ungrouped**. Rules that [Smart Alerts](../smart-alerts/) manages appear under **Smart Alerts** until you move them into a folder.
 
-![Alerts list in folder view](./images/alerts-folder-view.png)
+![The Rules tab in Folder view, with rules grouped under their folders](./images/alerts-folder-view.png)
 
-There's no separate Folders page or sidebar entry; everything happens from the Alerts list.
+There's no separate Folders page. You manage folders from the **Rules** tab and the rule editor.
 
 ## Create a folder
 
 You create folders inline from the alert rule editor's **Folder** picker; there's no separate "New folder" button.
 
 1. Open an alert rule (create a new one or edit an existing one).
-2. In the **Configure evaluation settings** section, click the **Folder** dropdown.
+2. In **Configure evaluation settings** (**Evaluation settings** in Simple mode), click the **Folder** dropdown.
 3. Type a new folder name, then select the `+ Create "<name>"` option that appears.
 4. KloudMate creates the folder and assigns the current rule to it.
-5. To set folder-level defaults (interval, no-data state, eval-error state), switch to **Folder view** on the Alerts list, open the folder's kebab menu, and select **Edit folder**.
+5. Save the rule. A folder appears in Folder view only after it contains at least one saved rule.
+6. To set folder defaults, switch to **Folder view** on the **Rules** tab, open the folder's kebab menu, and select **Edit folder**.
 
 ## Edit folder defaults
 
@@ -34,17 +35,19 @@ In Folder view, each folder header row has a kebab menu with **Edit folder**, **
 | **Name** | Required, unique within the workspace. |
 | **Description** | Optional. |
 | **Evaluate every** | Default evaluation interval (for example `60s`, `1m`, or `2h`). Members inherit when blank. |
-| **No data state** | Default state when queries return no data. Options: `Normal`, `Alerting`, `NoData`. |
-| **Eval error state** | Default state when evaluation errors out. Options: `Normal`, `Alerting`, `Error`. |
+| **No data state** | Default state when queries return no data. Options: **Alerting**, **Normal**, **No Data**, or **Error**. |
+| **Eval error state** | Default state when evaluation errors out. Options: **Alerting**, **Normal**, **No Data**, or **Error**. |
+| **Instance stops reporting** | Whether members alert when an instance stops reporting. Options: **Alert** or **Don't alert**. **Alert** also needs **No data state** set to **Alerting**, on the folder or on each member rule. See [Instance Absence Detection](../instance-absence-detection/). |
+| **Auto-close after** | How long a silent instance stays tracked before it closes on its own, from `5m` to `72h` (for example `30m` or `24h`). |
 
 Member alerts inherit these defaults unless they set their own value. Leave a folder's fields blank to make it organizational-only.
 
 ## Move rules into a folder
 
-Move rules from the rule editor, or in bulk from the list:
+You move rules one at a time, from the **Rules** tab or from the rule editor:
 
-- **From the rule editor:** open the rule and pick the folder from the **Folder** dropdown in the **Configure evaluation settings** section.
-- **Bulk-move from the list:** select rules with the checkboxes (a toolbar appears with the selection count). Click **Move to folder…**, select a destination from the radio list (existing folders or **Ungrouped**), and confirm.
+- **From the Rules tab:** open the rule's more options (⋯) menu and select **Move to folder…**. Choose a folder or **Ungrouped**, then click **Move**.
+- **From the rule editor:** open the rule, pick the folder from the **Folder** dropdown in the **Configure evaluation settings** section, and save the rule.
 
 Moving a rule does **not** rewrite its own **Evaluate every**, **No data state**, or **Eval error state** values. Whatever the rule had before the move stays. The folder defaults only apply where the rule's field is blank.
 
@@ -61,8 +64,10 @@ A rule's evaluation fields resolve like this:
 
 **Reset to folder default** clears an overridden field so it inherits again. A blank field keeps inheriting, so when the folder default later changes, the rule picks up the new value automatically.
 
+New rules start with **Evaluate every** set to `1m`, **Alert state if No data** set to **No Data**, and **Alert state if Error** set to **Firing**, and those values override the folder's defaults. To inherit the folder's value instead, click **Reset to folder default** on the field. Existing and duplicated rules keep inheriting wherever a field is blank. **Alert when an instance stops reporting** and **Auto-close after** inherit from the folder on every rule, new ones included, until you set them.
+
 :::tip
-To detach a rule from its folder entirely, set its **Folder** to the ungrouped option. The rule keeps its stored evaluation values and stops inheriting.
+To detach a rule from its folder entirely, set its **Folder** to **None (ungrouped)**. The rule keeps its stored evaluation values and stops inheriting.
 :::
 
 ## Delete a folder

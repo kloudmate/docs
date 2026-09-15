@@ -11,13 +11,13 @@ import { Steps } from '@astrojs/starlight/components';
 The fastest way to understand on-call schedules is to build the common one: a single rotation that hands the on-call duty between a few people every week. This page walks that end to end through the template picker and the calendar editor, then covers each rotation field so you can adjust it.
 
 :::note[Availability]
-On-Call Schedules are a paid Incident Management feature. If you don't see **On-Call Schedules** in the Incident Management navigation, your plan doesn't include it yet — contact your account team to turn it on.
+On-call schedules are a paid Incident Management feature. If you don't see an **On-call** tab in **Incidents**, your plan doesn't include it yet. Contact your account team to turn it on.
 :::
 
 ## Create a schedule
 
 <Steps>
-1. Open **Incident Management → On-Call Schedules** and click **New schedule**.
+1. Open **Incidents → On-call** and click **New schedule**.
 
 2. Pick a starting point from the **Quick start** template picker (see below). For a single weekly rotation, choose **Weekly handoff**.
 
@@ -115,7 +115,7 @@ Every rotation has the same fields. The defaults below are what a fresh rotation
 
 The calendar is the quickest check that a schedule does what you meant. It lays out who's on call across the coming weeks — every rotation's shifts, color-coded per person, with the exact handoff moments. Where two rotations overlap, you'll see both responders on the calendar at once — the additive default. If you gave one rotation a higher **priority**, the lower one drops out of the overlap instead, so a shift can disappear from the calendar on purpose.
 
-If a handoff lands on the wrong day or the wrong person leads, open the rotation, fix the handoff weekday or the member order, and watch the calendar update before you save. The **Schedules** tab's coverage timeline is also where you confirm there are no gaps with nobody on call.
+If a handoff lands on the wrong day or the wrong person leads, open the rotation, fix the handoff weekday or the member order, and watch the calendar update before you save. The coverage timeline in the **Schedules** view is also where you confirm there are no gaps with nobody on call.
 
 ![On-call schedule calendar preview](./images/schedule-calendar-preview.png)
 

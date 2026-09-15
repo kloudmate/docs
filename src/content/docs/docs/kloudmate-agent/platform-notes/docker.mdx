@@ -27,7 +27,7 @@ For monitoring containers, the two are equivalent. A Linux (systemd) agent on a 
 
 ## Application traces
 
-Application tracing (Rate, Errors, and Duration metrics and trace spans) is **not** automatic. The agent lists every host process and container it finds under **Discovered Services**, and for each one you choose how it's traced:
+Application tracing (Rate, Errors, and Duration metrics and trace spans) is **not** automatic. The agent lists every host process and container it finds in the **Application instrumentation** card on the agent's **APM** tab, and for each one you choose how it's traced:
 
 - **Off:** not traced. This is the default, so nothing is traced (and nothing costs) until you turn it on, which matters on a host running many containers.
 - **eBPF:** RED metrics and trace spans, captured in the host kernel with no code change and no restart.
@@ -35,7 +35,7 @@ Application tracing (Rate, Errors, and Duration metrics and trace spans) is **no
 
 The in-process OpenTelemetry SDK can't be injected into a running container, because it reads its configuration from the process's start-time environment, and that can't change without recreating the container. So Java, Node.js, Python, .NET, and Go containers offer **Off** or **eBPF** only. For full SDK depth on those runtimes, add OpenTelemetry to the app yourself (below), or run it on a [Linux host](../../installation/linux-agent/) or [Amazon ECS](../../installation/ecs-agent/), where the agent injects it for you.
 
-| Runtime | In Discovered Services | Full SDK depth |
+| Runtime | On the APM tab | Full SDK depth |
 |---|---|---|
 | Java, Node.js, Python, .NET | **Off / eBPF**: RED and spans, opt-in, no restart | Not injectable on Docker. [Add OpenTelemetry yourself](#send-full-opentelemetry-traces-from-your-containers), or run on Linux or ECS. |
 | Go | **Off / eBPF** | eBPF only. Go is a static binary with no runtime to attach. |
@@ -43,7 +43,7 @@ The in-process OpenTelemetry SDK can't be injected into a running container, bec
 
 ## Instrument PHP containers
 
-A PHP container offers an **SDK** option in **Discovered Services**. Turn it on for a container and the agent injects the tracer, matches it to the container's PHP build, and reloads the web server (an Apache graceful reload or a php-fpm reload). Tracing starts with no redeploy and no container restart.
+A PHP container offers an **SDK** option on the agent's **APM** tab. Turn it on for a container and the agent injects the tracer, matches it to the container's PHP build, and reloads the web server (an Apache graceful reload or a php-fpm reload). Tracing starts with no redeploy and no container restart.
 
 The SDK option appears whenever the PHP-container instrumentation path is enabled. It's on by default in Docker mode. On a [Linux host agent](../../installation/linux-agent/) it's opt-in: set `KM_CONTAINER_INSTRUMENT_ENABLED=true`.
 
@@ -70,7 +70,7 @@ The agent cannot instrument a container that serves requests from the **PHP buil
 
 ### How PHP-container tracing is selected
 
-By default, a PHP container is traced when you set it to **SDK** in **Discovered Services**, the same per-service choice as any other service. The environment variables above override that for automated rollouts: `KM_CONTAINER_INSTRUMENT_ALL`, `KM_CONTAINER_INSTRUMENT_NAMES`, or `KM_CONTAINER_INSTRUMENT_IMAGES` instrument a fixed set with no UI step, and [autonomous mode](../../advanced-configuration/) instruments every PHP container. Setting `KM_CONTAINER_INSTRUMENT_ENABLED=false` turns the SDK path off, so PHP containers fall back to **Off** or **eBPF**.
+By default, a PHP container is traced when you set it to **SDK** on the **APM** tab, the same per-service choice as any other service. The environment variables above override that for automated rollouts: `KM_CONTAINER_INSTRUMENT_ALL`, `KM_CONTAINER_INSTRUMENT_NAMES`, or `KM_CONTAINER_INSTRUMENT_IMAGES` instrument a fixed set with no UI step, and [autonomous mode](../../advanced-configuration/) instruments every PHP container. Setting `KM_CONTAINER_INSTRUMENT_ENABLED=false` turns the SDK path off, so PHP containers fall back to **Off** or **eBPF**.
 
 ## Send full OpenTelemetry traces from your containers
 

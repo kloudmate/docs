@@ -189,12 +189,24 @@ Run Code never retries, because the code can POST. Make `main` safe to call twic
 
 ### Run Command on Host
 
-Runs a shell command on a host through its KloudMate agent. Both of these have to be true before the Host picker shows anything:
+Runs a shell command on a Linux host through its KloudMate agent. Both of these have to be true before the Host picker shows anything:
 
-1. The [KloudMate agent](../../kloudmate-agent/) is installed on the host and reporting.
-2. An admin has enabled runbook scripts for that host.
+1. The [KloudMate agent](../../kloudmate-agent/installation/linux-agent/) is installed on the host and reporting.
+2. Runbook scripts are allowed on that host. See [Allow runbook scripts on a host](#allow-runbook-scripts-on-a-host).
 
-**Commands run as root** and reach everything the host can already reach. Put an [approval](../approvals-and-input/) in front of any command that changes something.
+**Commands run as root** and reach everything the host can already reach, such as a kubeconfig, a cloud instance profile, or an SSH key on disk. Put an [approval](../approvals-and-input/) in front of any command that changes something.
+
+#### Allow runbook scripts on a host
+
+Runbook scripts are off on every host until someone with the **Developer** role allows them, one host at a time:
+
+1. Open **Settings → Agents**.
+2. Open the host's actions menu (⋮), select **Configure**, and open the **Runbook scripts** tab.
+3. Turn on **Allow runbook scripts on this host** and confirm.
+
+The change reaches the agent within a minute. Only Linux host agents have this setting, so Docker, Amazon ECS, Kubernetes, and Windows agents can't run runbook scripts.
+
+To keep scripts off a host no matter what the workspace setting says, set `job-types` to `none` in the host's `agent.yaml` (or set `KM_JOB_TYPES=none`), then restart the agent. See [agent configuration](../../kloudmate-agent/reference/agent-config/#runbook-scripts).
 
 ## Retries and failures
 

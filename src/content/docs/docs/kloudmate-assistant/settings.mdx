@@ -1,39 +1,37 @@
 ---
-title: "Settings"
-description: "Configure what appears in the Assistant experience and manage its capabilities and integrations."
+title: "Prompts, Skills, and MCP Integrations"
+description: "Create quickstart prompts and skills for the Assistant, and connect external systems with MCP integrations."
 sidebar:
   order: 3
 ---
-Assistant Settings lets you configure what appears in the Assistant experience and what the Assistant is permitted to do. 
-
-Settings are organized into three sections: Prompts, Skills, and MCP Integrations.
+Prompts, skills, and MCP integrations control what appears in the Assistant experience and what the Assistant is allowed to do. Each one has its own tab in **Assistant**.
 
 ## Prompts
 
-Quickstart prompts are suggested questions displayed in the chat interface to help users get immediate value. Clicking a prompt inserts its text directly into the chat input, saving users from having to type common queries from scratch.
+Quickstart prompts are suggested questions displayed in the chat interface to help users get immediate value. Clicking a prompt inserts its text directly into the chat input, saving users from having to type common queries from scratch. Open **Assistant → Prompts** to create and manage them.
 
-![image](./images/prompts-1.png)
+![The Prompts tab under Assistant: a list of prompts with Name, Prompt, Visibility, and Enabled columns, and the Create Prompt button](./images/prompts-1.png)
 
 The prompts list displays each prompt’s name, a preview of the prompt text, its visibility (Private or Shared), and whether it is currently enabled. The list can be filtered by All, Private, or Shared to quickly locate what you are looking for.
 
-To create a new prompt, click the **Create Prompt** button in the top-right corner. 
+To create a new prompt, click **Create Prompt**.
 
-![image](./images/prompts-1.jpeg)
+![The Create Prompt dialog with Title, Prompt, Private, and Enabled fields](./images/prompts-1.jpeg)
 
 A dialog will appear with the following fields:
 
-- **Title:** A short, scannable label for the prompt 
+- **Title:** A short, scannable label for the prompt
 - **Prompt:** The actual text that gets inserted into the chat input when the prompt is selected. This field is required.
 - **Private:** When enabled, only you can see and use the prompt. Disable it to share the prompt with everyone in the workspace.
 - **Enabled:** Controls whether the prompt is active and visible in the chat interface. You can disable a prompt when it is outdated or seasonal without deleting it.
 
-Once you have filled in the required fields, click **Create** to save the prompt.
+After you fill in the required fields, click **Create** to save the prompt.
 
 ## Skills
 
-Skills are reusable instructions the Assistant can follow. They are useful for standardizing investigations, codifying runbooks, and enabling repeatable workflows across your team.
+Skills are reusable instructions the Assistant can follow. They are useful for standardizing investigations, codifying runbooks, and enabling repeatable workflows across your team. Open **Assistant → Skills** to create, import, and manage skills.
 
-![image](./images/skills-1.png)
+![The Skills tab under Assistant: a list of skills with Title, Content, Visibility, and Enabled columns](./images/skills-1.png)
 
 Each skill is defined by the following properties:
 
@@ -46,38 +44,38 @@ The skills list can be filtered by All, Private, or Shared to help you quickly l
 
 ### Creating a New Skill
 
-To create a skill from scratch, click the **New Skill** button in the top-right corner. 
+To create a skill from scratch, click **New skill**.
 
-![image](./images/skills-1.jpeg)
+![The Skills tab with the New skill button highlighted](./images/skills-1.jpeg)
 
-This opens the skill editor screen, which shows a **Title** field at the top and a **Content** editor below it. The content editor comes pre-populated with a structured template, it includes a metadata block at the top where you fill in the skill name and description, followed by a content section where you describe the steps the Assistant should follow in detail. 
+This opens the skill editor screen, which shows a **Title** field at the top and a **Content** editor below it. The content editor comes pre-populated with a structured template, it includes a metadata block at the top where you fill in the skill name and description, followed by a content section where you describe the steps the Assistant should follow in detail.
 
-![image](./images/skills-2.png)
+![The skill editor with a Title field, a Content editor pre-filled with the skill template, and the Private toggle](./images/skills-2.png)
 
 Fill in the title, replace the template placeholders with your actual skill instructions, configure the **Private** toggle as needed, then click **Save** to create the skill.
 
 ### Importing a Skill from a Template
 
-To get started quickly from a pre-built starting point, click **Browse Templates** in the top-right corner. 
+To start from a pre-built template, click **Browse templates**.
 
-![image](./images/skills-2.jpeg)
+![The Import Skill Template dialog listing skill templates, each with an Import button](./images/skills-2.jpeg)
 
 This opens the Import Skill Template dialog, which lists a set of curated templates ready to import. Click **Import** next to any template to add it to your skills list. Once imported, you can open and customize the skill to suit your specific environment and workflows.
 
 ## MCP Integrations
 
-**MCP (Model Context Protocol) integrations** connect the Assistant to external systems such as OAuth providers or your own custom MCP servers. After connecting an integration, you configure which of its tools are enabled and whether the Assistant must request approval before running any of them.
+**MCP (Model Context Protocol) integrations** connect the Assistant to external systems such as OAuth providers or your own custom MCP servers. Open **Assistant → MCP Integrations** to connect and manage them. After connecting an integration, you configure which of its tools are enabled and whether the Assistant must request approval before running any of them.
 
-![image](./images/mcp-integrations-1.png)
+![The MCP Integrations tab under Assistant: Connected integrations with Name, Visibility, and Status columns, and Available integrations with Connect buttons](./images/mcp-integrations-1.png)
 
 ### Connected Integrations
 
-The Connected Integrations section lists all integrations you have already configured. For each integration, you can see its display name, whether it is scoped privately to your account or shared across the workspace, and its current connection status. 
+The Connected Integrations section lists all integrations you have already configured. For each integration, you can see its display name, whether it is scoped privately to your account or shared across the workspace, and its current connection status.
 
 :::info
   A status of **Error** indicates the integration requires attention. Use the **Validate** button to re-test the connection, or the menu to edit or remove the integration.
 
-  If you see a **Reconnect Required status**, the integration’s authorization has expired and needs to be refreshed. Click the validate or reconnect option to re-authenticate.
+  If you see a **Reconnect required** status, the integration’s authorization has expired and needs to be refreshed. Click **Reconnect** to re-authenticate.
 :::
 
 ### Available Integrations
@@ -88,33 +86,32 @@ Click **Connect** next to any provider to begin the connection flow.
 
 ### Connecting a Custom MCP Server
 
-To connect an MCP server that is not listed among the available providers, click **Connect Custom Server** in the top-right corner. 
+To connect an MCP server that is not listed among the available providers, click **Connect custom server**.
 
-![image](./images/mcp-integrations-1.jpeg)
+![The Connect Custom MCP Server dialog with Integration name, MCP server URL, Headers, Visibility, and Status fields](./images/mcp-integrations-1.jpeg)
 
 This opens the **Connect Custom MCP Server** dialog where you configure the following:
 
-- **Integration Name:** A friendly label for the integration.
-- **MCP Server URL:** The publicly accessible endpoint for your MCP server. This field is only required when connecting a custom server; for managed OAuth providers, it is pre-filled.
-- **Headers (optional):** Additional HTTP headers to be sent with every MCP request. Use this for API key or token-based authentication, tenant or workspace routing, or any other custom metadata the server requires.
-- **Private:** When enabled, only you can use the integration. When disabled, it is shared across the workspace. Keep integrations private for personal credentials, testing environments, or dev and staging connections, and share them when they are organization-managed and intended for the whole team.
-- **Enable Integration:** The master on/off switch for the integration. Disable it during incidents, provider outages, security reviews, or when you want to deprecate the integration without permanently deleting it.
-- **Agent Access:** Select which agents are permitted to use this integration. You must choose at least one. The available options are **KloudMate Assistant** , **KloudMate Builder** , and **KloudMate Investigator**. Narrow the scope for sensitive or high-impact integrations where only specific agents should have access.
+- **Integration name:** A friendly label for the integration.
+- **MCP server URL:** The publicly accessible endpoint for your MCP server. You enter it only for a custom server. Managed providers don't ask for a URL.
+- **Headers:** Optional HTTP headers to be sent with every MCP request. Use this for API key or token-based authentication, tenant or workspace routing, or any other custom metadata the server requires.
+- **Visibility:** Choose **Private** so only you can use the integration, or **Shared** to share it across the workspace. Keep integrations private for personal credentials, testing environments, or dev and staging connections, and share them when they are organization-managed and intended for the whole team.
+- **Status:** The master on/off switch for the integration. Set it to **Disabled** during incidents, provider outages, security reviews, or when you want to deprecate the integration without permanently deleting it.
 
-After completing the form, click **Connect** to save the integration.
+After completing the form, click **Save** to connect the integration.
 
 ### Tool-Level Settings
 
-After connecting an integration, you can configure each of its individual tools. For every tool exposed by the integration, you can control two things:
+After connecting an integration, you can configure each of its individual tools. For every tool exposed by the integration, you can control:
 
 - **Enabled:** Determines whether the Assistant is allowed to call the tool at all. Disable individual tools you do not need to reduce the Assistant’s scope of action.
-- **Approval Mode:** Determines whether the Assistant must ask for confirmation before running the tool. Setting it to **Default** uses the platform’s built-in behavior. Setting it to **Ask Before Run** requires the Assistant to confirm with you every time it wants to invoke the tool. Setting it to **Auto Approve** allows the tool to run without any confirmation prompt.
+- **Approval mode:** Determines whether the Assistant must ask for confirmation before running the tool. Setting it to **Default** uses the platform’s built-in behavior. Setting it to **Ask before run** requires the Assistant to confirm with you every time it wants to invoke the tool. Setting it to **Auto approve** allows the tool to run without any confirmation prompt.
 
-Tools may also carry labels that hint at their behavior. 
+Tools may also carry labels that hint at their behavior.
 
-- A **Read** label indicates the tool is intended to be read-only and carries lower risk. 
-- A **Write** label indicates the tool may perform destructive or state-changing actions and should be used with care. 
+- A **Read** label indicates the tool is intended to be read-only and carries lower risk.
+- A **Write** label indicates the tool may perform destructive or state-changing actions and should be used with care.
 
 :::info
-  When deciding on approval mode, it is advisable to apply stricter settings such as Ask Before Run for Write tools and for any tool with access to sensitive or production systems.
+  When deciding on approval mode, it is advisable to apply stricter settings such as **Ask before run** for Write tools and for any tool with access to sensitive or production systems.
 :::

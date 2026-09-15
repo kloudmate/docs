@@ -60,7 +60,7 @@ The list shows who set each one, when the **value** last changed, and, for secre
 
 A secret never enters a workflow definition and never enters run history. It's substituted into the step's inputs at the last moment, after everything has been recorded, so run detail shows `secret: stripe_key` where the value would be. If a step's output comes back carrying the secret, it's rewritten to `••••` before that output is recorded or read downstream, and the step still succeeds.
 
-That protects against passive reading: run history, exports, and someone looking over your shoulder. It does not protect against the person writing the workflow, who can bind a secret to an HTTP step pointed at their own server. A [connection](/platform/settings/connections/) has the same boundary, which is why both are admin-only.
+That protects against passive reading: run history, exports, and someone looking over your shoulder. It does not protect against the person writing the workflow, who can bind a secret to an HTTP step pointed at their own server. A [connection](/platform/settings/connections/) has the same boundary, which is why both need the **Developer** role.
 
 The output rewrite skips values under 8 characters, so don't rely on it for a short secret.
 
@@ -76,7 +76,7 @@ The output rewrite skips values under 8 characters, so don't rely on it for a sh
 
 ### Reveal a secret
 
-**Reveal value** shows the plaintext to whoever created it, or to an organization owner. Any other workspace admin can't, even though they can rotate or delete it. Each reveal is recorded, along with who read it.
+**Reveal value** shows the plaintext to whoever created it, or to an organization **Owner**. Other users with the **Developer** role can't, even though they can rotate or delete it. Each reveal is recorded, along with who read it.
 
 ### Publishing checks the names
 

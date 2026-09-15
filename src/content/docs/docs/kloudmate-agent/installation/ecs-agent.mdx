@@ -97,7 +97,7 @@ Instrumenting a service runs a task-definition injection step. This happens on e
 
 **Step 1:** Go to **Settings → Agents** in your KloudMate account.
 
-**Step 2:** Select **Amazon ECS** from the list of available integrations.
+**Step 2:** Click **Add Agent**, select **Amazon ECS**, and click **Continue**. On the **API key** step, click **Create backend key**, or select **Use existing key** and paste your backend ingest key. Then click **Continue**.
 
 **Step 3:** Copy the command for your launch type and run it from a machine with AWS credentials.
 
@@ -230,7 +230,7 @@ kmagent ecs instrument \
 The two launch types appear differently in KloudMate:
 
 - **EC2 daemon:** each container instance appears in **Settings → Agents** as **Amazon ECS**, one row per instance. Its **APM** tab has no per-service toggle. Instead, it points you to the `kmagent ecs discover` and `instrument` commands and explains the language-aware split (SDK for Java/Node/Python/.NET, eBPF for the rest).
-- **Fargate tasks are autonomous:** each collector sidecar ships telemetry on its own and **does not appear as an agent row**. Find that data in **APM**, **Log Explorer**, and **Infrastructure** keyed by service name. The install flow's verify step accounts for this, so it won't wait for a Fargate check-in that never comes.
+- **Fargate tasks are autonomous:** each collector sidecar ships telemetry on its own and **does not appear as an agent row**. Find that data in **APM & Services** and **Logs**, keyed by service name. Fargate tasks don't appear in **Hosts**. The install flow's verify step accounts for this, so it won't wait for a Fargate check-in that never comes.
 
 ## Log Integration
 
@@ -244,9 +244,9 @@ To collect additional application log files with the agent, see [Collect File Lo
 
 ## Next Steps
 
-- Open **Infrastructure Monitoring** to see your container instances, tasks, and their metrics
-- Use **APM & Tracing** to follow requests across your instrumented services
-- Investigate container and application logs in **Log Explorer**
+- Open **Hosts** to see your EC2 container instances and their metrics
+- Use **APM & Services** to check service health, and **Traces** to follow requests across your instrumented services
+- Investigate container and application logs in **Logs**
 - Configure **alerts** for cluster, task, or service thresholds
 - If an agent looks unhealthy, check its own error logs: see [See the agent's own errors](../../management/#see-the-agents-own-errors)
 

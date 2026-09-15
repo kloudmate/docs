@@ -60,7 +60,7 @@ View all data in these KloudMate sections:
 
 **Step 1:** Navigate to the **Settings → Agents** section in your KloudMate account.
 
-**Step 2:** Select **Linux** from the list of available integrations.
+**Step 2:** Click **Add Agent**, select **Linux**, and click **Continue**. On the **API key** step, click **Create backend key**, or select **Use existing key** and paste your backend ingest key. Then click **Continue**.
 
 **Step 3:** Copy and run the Linux agent install command in your terminal to download and install the agent.
 
@@ -86,9 +86,9 @@ For a hand-written `filelog` receiver in manual mode, see [Collect File Logs wit
 
 If the host runs Docker, the agent finds the Docker socket and starts collecting **container metrics and container logs** on its own, the same telemetry a Docker-mode agent collects. This happens as soon as the agent starts, before and independent of application tracing. To turn it off, set `KM_DOCKER_STATS=false` for metrics or `KM_DOCKER_LOGS=false` for logs.
 
-Each container also shows up in **Discovered Services**, where you can turn on per-container tracing. Most containers offer **Off** or **eBPF**: eBPF captures RED metrics and trace spans in the kernel, with no code change and no restart. There's no in-process **SDK** option for them, because the agent can't change a running container's start-time environment. Host processes that aren't containerized still offer **Off**, **eBPF**, or **SDK**.
+Each container also shows up in the **Application instrumentation** card on the agent's **APM** tab, where you can turn on per-container tracing. Most containers offer **Off** or **eBPF**: eBPF captures RED metrics and trace spans in the kernel, with no code change and no restart. There's no in-process **SDK** option for them, because the agent can't change a running container's start-time environment. Host processes that aren't containerized still offer **Off**, **eBPF**, or **SDK**.
 
-PHP containers are the exception: they can take an **SDK** option that injects the tracer and reloads the web server (Apache or php-fpm), with no redeploy and no container restart. On a Linux host this is opt-in. Set `KM_CONTAINER_INSTRUMENT_ENABLED=true`, and PHP containers start offering **SDK** in Discovered Services. In Docker mode that option is on by default.
+PHP containers are the exception: they can take an **SDK** option that injects the tracer and reloads the web server (Apache or php-fpm), with no redeploy and no container restart. On a Linux host this is opt-in. Set `KM_CONTAINER_INSTRUMENT_ENABLED=true`, and PHP containers start offering **SDK** on the agent's **APM** tab. In Docker mode that option is on by default.
 
 For monitoring containers, a Linux service and a Docker-mode agent are equivalent. Choose between them by how you want to run the agent, not by what they can see. See [Docker mode vs the Linux agent](../../platform-notes/docker/#docker-mode-vs-the-linux-agent).
 
@@ -102,13 +102,13 @@ After the agent is running, confirm what it collects and explore what it found:
 
 - Host metrics and logs start flowing automatically. See [Host metrics and logs](../../baseline/host-metrics-and-logs/).
 - On a supported Linux kernel (4.14 or newer), [eBPF monitoring](../../ebpf-observability/) turns on automatically and adds RED metrics and a service map.
-- Open the **Discovered Services** list for the host to see what the agent found and instrument a service. See [Discovery](../../concepts/discovery/).
+- To see what the agent found and instrument a service, go to **Settings → Agents**, open the agent's actions menu (⋮), and select **Configure**. See [Discovery](../../concepts/discovery/).
 
 ## Next Steps
 
-- Open **Infrastructure Monitoring** to confirm your Linux hosts are visible
+- Open **Hosts** to confirm your Linux hosts are visible
 - Go to **Dashboards** to review system performance
-- Use **Log Explorer** to start investigating logs
+- Use **Logs** to start investigating logs
 - Set up **alerts and notifications** for critical events
 
 ## Uninstall Agent

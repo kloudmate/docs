@@ -17,21 +17,22 @@ Annotation values support **Liquid templating**, so you can pull live data from 
 Annotations live in the **Responder context** section of the alert rule editor. The pre-defined annotation keys are:
 
 - **Severity:** free-form severity string, for example `sev1`, `critical`, or `p1`. Plain text or a Liquid template.
-- **Summary:** the alert headline in notifications. Supports templates.
 - **Dashboard:** pick a workspace dashboard to link from the notification.
 - **Panel:** when a dashboard is picked, narrows the link to a specific panel.
+- **Title:** the notification headline, in place of the automatic title. Plain text or a Liquid template. See [Set a custom notification title](#set-a-custom-notification-title).
+- **Summary:** body text included in notifications. Supports templates.
 - **Playbook URL:** link to the runbook responders should follow. Supports templates.
 
-Any other key is a **custom annotation**. Click **Add Annotation** to add one.
+Any other key is a **custom annotation**. Custom annotations are available only in Advanced mode, where you add them with **Add annotation**.
 
 ## Add a custom annotation
 
 <Steps>
-1. **Open the rule editor.** Scroll to **Responder context** and expand **Custom annotations**.
+1. **Open the rule in Advanced mode.** Editing an existing rule opens it in Advanced mode. For a new rule, click **Advanced mode** first. In **Add alert details**, expand **Custom annotations**.
 
-2. **Click Add Annotation.**
+2. **Click Add annotation.**
 
-3. **Provide a key.** Use any string, for example `service_owner`, `region`, or `runbook_section`.
+3. **Provide a key.** Use any key except the pre-defined ones, for example `service_owner`, `region`, or `runbook_section`.
 
 4. **Provide a value.** This can be static text (`payments-team`) or a Liquid template (`{{ labels.service }} is degraded`).
 
@@ -47,7 +48,7 @@ You can interpolate live alert data into any annotation value with the `{{ }}` s
   "labels": {
     "service": "checkout-api",
     "env": "prod"
-    // ...plus any user-defined label keys from query dimensions or folders
+    // ...the rule's labels plus the series labels from the query
   },
   "state": {
     "current_state": "Alerting",
@@ -63,6 +64,8 @@ You can interpolate live alert data into any annotation value with the `{{ }}` s
   }
 }
 ```
+
+`labels` holds the rule's own labels merged with the labels on the series. If both use the same key, the series value wins.
 
 ### Common references
 
@@ -84,21 +87,42 @@ When the alert fires for `web-server-01` at 95%, the notification reads: *Host w
 
 ## Testing a template
 
-Click **Test template** on any templated value field to preview how it renders:
+To preview how a template renders, click the edit icon in any templated field. The template editor opens with your current template loaded.
 
-- It opens with your current template loaded.
-- Edit the sample labels, state, and rule JSON the template renders against.
-- Click **Test** to preview the rendered output. Any parse errors are shown so you can fix them before saving.
+1. Edit the sample labels, state, and rule JSON the template renders against.
+2. Click **Test** to preview the rendered output. Any parse errors are shown so you can fix them before saving.
+3. Click **Save** to put the template back in the field, then save the rule.
 
-Testing is optional; KloudMate doesn't validate templates on save. If a template can't render at notification time, KloudMate falls back to the raw template string rather than dropping the notification.
+Testing is optional; KloudMate doesn't validate templates on save. If a template can't render at notification time, KloudMate uses the raw template string instead, so the notification still goes out. **Title** is the exception, as described below.
 
 ### Failure mode
 
 - A broken template stays in the value field as-is when you save.
 - At render time, a parse failure makes that single annotation surface the raw template text instead of an evaluated value.
 - Other annotations on the same alert keep rendering normally.
+- **Title** doesn't fall back to raw text. If it renders empty, or still contains `{{` or `{%`, the notification uses the automatic title.
 
 This fail-soft behavior is intentional: a typo shouldn't silence a real incident.
+
+## Set a custom notification title
+
+A custom title gives the alert a readable headline in every channel. **Title** is an optional field in **Responder context**, in both Simple and Advanced mode, and it takes plain text or a Liquid template.
+
+The title replaces the automatic title in the email subject, the Slack and Microsoft Teams message, the Jira summary and heading, the SNS subject, the KloudMate Incidents incident title, and the webhook payload's `group.title`. It also names the group on **Alerts → Groups**, set when the group opens. When a notification covers more than one instance, the instance count is added to the end, for example `· 3 instances`.
+
+The title is used only when it renders the same for every instance in the group, and every rule in the group has the same title. Build it from labels that are the same across the group, such as a service or a namespace. A value that differs between instances, such as a pod name, a host name, or `state.value`, gives each instance a different title. Notifications then use the automatic title, and the group on **Alerts → Groups** keeps the alert's name.
+
+For example, with a [routing rule](../routing-rules/) that groups by `k8s_namespace_name`, set **Title** to:
+
+```liquid
+Memory pressure in {{ labels.k8s_namespace_name }}
+```
+
+When three instances in the `payments` namespace are firing, the title reads `Memory pressure in payments · 3 instances`.
+
+The template can use `labels.*` (the rule's labels plus the series labels), `state.value`, `state.values.*`, `rule.name`, and `rule.description`. If it renders empty, or still contains `{{` or `{%` because the template didn't render, the automatic title is used.
+
+The automatic title for a single rule is the alert name with its shared label values. For several rules grouped by labels, it's the group-by values with alert and instance counts. For an auto-correlated group, it's the correlation title with the instance count.
 
 ## Dynamic severity
 
@@ -124,7 +148,7 @@ At notification time, KloudMate evaluates the template against the firing alert'
 
 Earlier versions of KloudMate routed by **notification tags** on the rule. Tags are gone now, replaced by:
 
-- **Labels:** auto-derived from query dimensions and folders. These are what [Routing Rules](../routing-rules/) match against.
+- **Labels:** the labels you add to the rule with **Add label**, plus labels from query dimensions and folders. These are what [Routing Rules](../routing-rules/) match against.
 - **Annotations:** human-readable context that flows into the notification.
 - **Severity:** the reserved annotation key, free-form, optionally Liquid-templated.
 

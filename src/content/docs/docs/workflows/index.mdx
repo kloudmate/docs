@@ -15,7 +15,7 @@ A disk-space alert is a good first workflow. It reads the host out of the alert,
 ## What a workflow can do
 
 - **Act on cloud resources**: call any AWS service operation or Azure Resource Manager operation through a connected account, or run a script on an Azure VM.
-- **Run a command on a host**: execute a shell command through the KloudMate agent, on any host where an admin has enabled runbook scripts.
+- **Run a command on a host**: execute a shell command through the KloudMate agent, on any Linux host where someone with the **Developer** role has [allowed runbook scripts](./actions/#allow-runbook-scripts-on-a-host).
 - **Work in your tools**: post and edit Slack messages, create and transition Jira issues, call a tool on an MCP server, or send an HTTP request to anything else.
 - **Notify**: send through an existing Slack, Teams, webhook, or SNS channel, or email an address directly.
 - **Transform and decide**: extract a value with JSONPath, parse CSV and XML, run sandboxed JavaScript, or have a model pull structured fields out of a payload.
@@ -45,7 +45,7 @@ The [KloudMate Assistant](../kloudmate-assistant/) is for the investigation you'
 
 ## Before you start
 
-- **Creating, editing, publishing, and deleting a workflow needs the workspace admin role.** Members can read workflows and run history, and can start a run by hand when the workflow permits it.
+- **Creating, editing, publishing, and deleting a workflow needs the Developer role.** Anyone in the workspace can read workflows and run history, and can start a run by hand when the workflow permits it.
 - **Any step or trigger that reaches another account binds a [connection](/platform/settings/connections/).** AWS, Azure, Slack, Jira, and MCP servers all need one. The **Connections** tab in Workflows lists the ones a workflow can use, so you don't have to go to Settings to add one.
 - **Workflow automation is part of the Pro and Business plans.** See [Limits](./limits/).
 

@@ -9,14 +9,14 @@ import { Steps } from '@astrojs/starlight/components';
 
 Creating an SLO is a **two-step wizard**: pick the signal you want to measure (the SLI) and configure it, then set the target and window. A live preview on the right shows the projected compliance and error budget before you save.
 
-Workspace **admin** is required. Non-admins don't see the Create SLO button.
+You need the **Developer** role to create an SLO. With the **Viewer** role, **Create SLO** isn't available.
 
 ## Where to start the wizard
 
 Four entry points lead to the same wizard at `/<workspaceId>/slos/create`:
 
-- **Reliability Overview → Create SLO** (top-right).
-- **Reliability Overview → Quick start → Create an SLO** card.
+- **Create SLO** on any **Reliability** tab.
+- The **Create an SLO** card in **Quick start** on **Reliability → Overview**.
 - **Service detail → Reliability tab → Create SLO** — deep-links with `?service_id=…`, which pre-selects the **Incident availability** kind and prefills that service in the SLI (since the service lives inside the SLI, not on the SLO).
 - **Alert detail → Define an SLO** action — opens the wizard with no prefill.
 
@@ -76,7 +76,7 @@ The Edit form uses the same layout as Create, with both steps open at once. Diff
 - The **preview still runs**, showing the effect of your *unsaved* edits before you save.
 - **Save only writes the fields you changed.**
 
-You can reach Edit from the SLO detail page header or via the row menu on the [SLOs list](../slo-detail/).
+You can reach Edit from the SLO detail page header or from the row menu in **Reliability → SLOs**.
 
 ## Deleting an SLO
 
