@@ -11,7 +11,7 @@ The **Schema** tab lists the tables in the database with their size and structur
 
 The **Schema** tab is available for PostgreSQL, MySQL, MariaDB, SQL Server, and Oracle. It shows the newest schema scan from the last 24 hours, and needs the **Schema catalog** coverage turned on for the instance in the agent's database monitoring settings.
 
-![The Schema tab of a PostgreSQL instance, listing tables with their type, estimated row count, total size, and table size.](./images/schema.png)
+![The Schema tab of a PostgreSQL instance, with the public.users table expanded to show its columns, its primary key index, and its primary key constraint.](./images/schema.png)
 
 Each table shows its type, an estimated row count, its total size including indexes, and its table size. The row estimate comes from the database's optimizer statistics, so it can lag behind the real count until the statistics are refreshed.
 
