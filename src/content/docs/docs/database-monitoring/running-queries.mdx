@@ -9,7 +9,7 @@ The **Running queries** tab shows the sessions that were active on the database,
 
 The tab is available for PostgreSQL, MySQL, MariaDB, SQL Server, Oracle, and MongoDB. Session snapshots need the **Query performance (samples + top queries)** coverage turned on for the instance. See [Engines and coverages](../../kloudmate-agent/database-monitoring/engines-and-coverages/).
 
-![The Running queries tab of a PostgreSQL instance, with the Sessions by Wait Type chart above a session snapshot table.](./images/running-queries.png)
+![The Running queries tab of a PostgreSQL instance during lock contention, with the Sessions by Wait Type chart dominated by Lock waits, a banner reporting 8 blocked sessions and 3 root blockers, and the start of the blocking chain.](./images/running-queries.png)
 
 ## What sessions were waiting on
 
@@ -27,14 +27,28 @@ The tab loads the newest 500 session rows in the time range. If a busy database 
 
 When a snapshot contains blocked sessions, a banner counts the blocked sessions and the root blockers, and the **Blocking chain** graph draws who's waiting on whom:
 
-- A **root blocker** is holding a lock and isn't waiting on anyone else. It's usually the session to investigate first.
+![A blocking chain with three root blockers at the top, each holding up a chain of UPDATE sessions that are waiting on a lock.](./images/running-queries-blocking-chain.png)
+
+- A **root blocker** is holding a lock and isn't waiting on anyone else. It's usually the session to investigate first. Root blockers are often sessions that are idle in a transaction: they still hold the locks they took, but aren't running anything, so their wait shows as **Client**.
 - Each blocking session shows how many sessions it blocks, what it's waiting on, and the relation it's waiting for.
-- A blocker that isn't in the snapshot, for example because it's idle in a transaction, is drawn with a dashed outline.
+- A blocker that wasn't captured in the snapshot is drawn with a dashed outline.
+
+Click a session in the graph to read its full query text.
 
 On SQL Server, some blockers aren't user sessions. These are shown by name, such as an orphaned distributed transaction or a deferred recovery transaction.
 
 Turn on **Blocking only** to hide the sessions that aren't part of a blocking chain.
 
-## Add blocking columns
+## Add blocking columns to the table
 
-Use the columns button to add **Blocked by**, **Blocking hierarchy**, **Root blocker**, **Blocked count**, and **Blocked (all levels)** to the table. Your choice is saved in your browser.
+Use the **Columns** button to add the blocking columns to the session table. They're hidden by default, and your choice is saved in your browser.
+
+![The session table with every column turned on, showing idle-in-transaction root blockers marked Root, and the sessions they block with their blockers, blocking hierarchy, and blocked counts.](./images/running-queries-sessions.png)
+
+| Column | Shows |
+|---|---|
+| **Blocked by** | The session directly blocking this one. |
+| **Blocking hierarchy** | The whole chain of sessions above this one, starting from the root blocker. |
+| **Root blocker** | Marks the sessions at the top of a chain. |
+| **Blocked count** | How many sessions this one blocks directly. |
+| **Blocked (all levels)** | How many sessions this one blocks directly or through other sessions. |
