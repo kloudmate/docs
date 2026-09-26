@@ -1,57 +1,51 @@
 ---
-title: "Database Monitoring"
-description: "Compare KloudMate's database monitoring approaches and choose the right setup for your environment."
+title: "Database monitoring"
+description: "Track the health, query performance, sessions, and replication topology of your databases from the Databases page."
 sidebar:
   label: "Overview"
   order: 1
 ---
 
-The KloudMate Agent provides three approaches to database monitoring, from zero-configuration kernel-level profiling to deep SQL-level query analytics, so you can choose the right level of visibility for your environment.
+import { LinkCard, CardGrid } from '@astrojs/starlight/components';
 
-:::tip
-To collect server-side database metrics and logs, the KloudMate Agent can wire up database receivers for you through a guided wizard. See [Agent database monitoring](../kloudmate-agent/database-monitoring/overview/).
-:::
+The **Databases** page lists every database the KloudMate agent monitors, with its status, health, query load, and connections. Open an instance to see its metrics, the queries that take the most time, the sessions that are blocking each other, the services that call it, and where it sits in its replication cluster.
 
-:::note
-  Which approach should I use?
+## Get your databases onto the page
 
-  **eBPF (DAM)** is the fastest way to get started, zero configuration, no database credentials needed. For deep query analytics with execution plans and schema discovery, use **Direct Database Monitoring** . **OpenTelemetry** is ideal when your application already uses OTel SDKs, and you want database spans as part of your distributed traces.
-:::
+A database appears on the **Databases** page after you set up monitoring for it in the KloudMate agent. You do this through a wizard: pick the engine, choose what to collect, and give the agent a monitoring user's credentials. See [Database monitoring overview](../kloudmate-agent/database-monitoring/overview/) for the setup, and [Engines and coverages](../kloudmate-agent/database-monitoring/engines-and-coverages/) for what each engine can collect.
 
-## Monitoring Approaches
+What you see on an instance depends on the **coverages** you turned on for it in the wizard. For example, **Top queries** and **Query patterns** need the **Query performance (samples + top queries)** coverage, and **Topology** needs **Replication topology & lag**. When a tab has no data because a coverage is off, the tab tells you which coverage to turn on.
 
-### [Database Activity Monitoring (DAM)](database-activity-monitoring-dam/)
+Some panels also need **Collect all optional metrics**, a setting on the database in the same wizard. Panels that depend on it are marked on the page.
 
-eBPF-powered, zero-configuration database profiling at the kernel level. Includes DAM-specific workflows such as the ML classifier deployment guide.
+The **Calling services** tab works from traces rather than from the database. It lists the services whose database calls appear as spans, whether those spans come from [eBPF monitoring](../kloudmate-agent/ebpf-observability/) or from OpenTelemetry instrumentation in your application.
 
-### [OpenTelemetry Database Monitoring](opentelemetry-database-monitoring/)
+## Supported engines
 
-Use OpenTelemetry SDK instrumentation for rich database query tracing with custom attributes.
+Every instance has an **Overview**, a **Metrics** dashboard, and a **Calling services** tab. The other tabs depend on the engine:
 
-### [Direct Database Monitoring](direct-database-monitoring/)
+| Engine | Additional tabs |
+|---|---|
+| PostgreSQL, MySQL, MariaDB | Top queries, Query patterns, Running queries, Schema, Sensitive data, Topology |
+| SQL Server | Top queries, Query patterns, Running queries, Schema, Sensitive data, Agent jobs, Topology |
+| Oracle | Top queries, Query patterns, Running queries, Schema, Sensitive data, AWR, Topology |
+| MongoDB | Top queries, Query patterns, Running queries, Collections, Sensitive data |
+| Redis, ClickHouse | Topology |
+| Elasticsearch, SAP HANA, MongoDB Atlas, Snowflake | None |
 
-SQL-based setup with a dedicated monitoring user for deep query metrics, execution plans, and schema discovery.
+MariaDB instances are shown and handled the same way as MySQL.
 
-## Supported Databases
+## Explore the Databases page
 
-| Database       | eBPF (DAM) | OpenTelemetry | Direct (SQL Setup) |
-| -------------- | ---------- | ------------- | ------------------ |
-| **MySQL**      | ✅          | ✅             | ✅                  |
-| **PostgreSQL** | ✅          | ✅             | ✅                  |
-| **Redis**      | ✅          | ✅             | —                  |
-| **MongoDB**    | —          | ✅             | —                  |
-
-## Comparison
-
-| **Feature** | **eBPF (DAM)** | **OpenTelemetry** | **Direct (SQL Setup)** |
-| ------------------------------------ | ------------------ | --------------------- | -------------------------- |
-| **Setup complexity**                 | None               | SDK integration       | SQL scripts + agent config |
-| **Database credentials**             | Not required       | Not required          | Required                   |
-| **Query text**                       | ✅                  | ✅ (sanitized)         | ✅                          |
-| **Execution plans (EXPLAIN)**        | —                  | —                     | ✅                          |
-| **Wait event analysis**              | —                  | —                     | ✅                          |
-| **Schema discovery**                 | —                  | —                     | ✅                          |
-| **Distributed trace context**        | —                  | ✅                     | —                          |
-| **Custom span attributes**           | —                  | ✅                     | —                          |
-| **Works on managed DBs (RDS, etc.)** | ✅                  | ✅                     | ✅                          |
-| **Linux kernel requirement** | ≥ 5.8 | None | None |
+<CardGrid>
+  <LinkCard title="The Databases list" href="databases-list/" description="Status, health, filters, and adding a database." />
+  <LinkCard title="Instance details and Overview" href="instance-overview/" description="The instance header, its tabs, and the Overview tab." />
+  <LinkCard title="Metrics dashboards" href="metrics/" description="The prebuilt dashboard for each engine." />
+  <LinkCard title="Query performance" href="query-performance/" description="Top queries, query patterns, and explain plans." />
+  <LinkCard title="Running queries and blocking" href="running-queries/" description="Active sessions, wait types, and blocking chains." />
+  <LinkCard title="Calling services" href="calling-services/" description="The services and traces behind a database's load." />
+  <LinkCard title="Schema and indexes" href="schema/" description="Tables, collections, and index suggestions." />
+  <LinkCard title="Sensitive data" href="sensitive-data/" description="Which columns hold personal or health data." />
+  <LinkCard title="Topology" href="topology/" description="Replication and cluster membership." />
+  <LinkCard title="SQL Server Agent jobs and Oracle AWR" href="agent-jobs-and-awr/" description="The engine-specific tabs." />
+</CardGrid>
