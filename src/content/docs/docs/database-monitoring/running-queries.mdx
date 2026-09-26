@@ -29,6 +29,8 @@ When a snapshot contains blocked sessions, a banner counts the blocked sessions 
 
 ![A snapshot with 6 blocked sessions and 4 root blockers. The blocking chain shows each root blocker, idle with a Client wait, above the sessions waiting on its lock, including UPDATE statements on dbm_order and a pg_advisory_xact_lock call.](./images/running-queries-blocking-chain.png)
 
+![The session table with every blocking column turned on. Sessions idle in a transaction are marked Root, and each blocked session shows the session blocking it and the full blocking hierarchy.](./images/running-queries-sessions.png)
+
 - A **root blocker** is holding a lock and isn't waiting on anyone else. It's usually the session to investigate first. Root blockers are often sessions that are idle in a transaction: they still hold the locks they took, but aren't running anything, so their wait shows as **Client**.
 - Each blocking session shows how many sessions it blocks, what it's waiting on, and the relation it's waiting for.
 - A blocker that wasn't captured in the snapshot is drawn with a dashed outline.
@@ -42,8 +44,6 @@ Turn on **Blocking only** to hide the sessions that aren't part of a blocking ch
 ## Add blocking columns to the table
 
 Use the **Columns** button to add the blocking columns to the session table. They're hidden by default, and your choice is saved in your browser.
-
-![The session table with every column turned on, showing idle-in-transaction root blockers marked Root, and the sessions they block with their blockers, blocking hierarchy, and blocked counts.](./images/running-queries-sessions.png)
 
 | Column | Shows |
 |---|---|
