@@ -13,7 +13,7 @@ The **Schema** tab is available for PostgreSQL, MySQL, MariaDB, SQL Server, and 
 
 ![The Schema tab of a PostgreSQL instance, with the public.users table expanded to show its columns, its primary key index, and its primary key constraint.](./images/schema.png)
 
-Each table shows its type, an estimated row count, its total size including indexes, and its table size. The row estimate comes from the database's optimizer statistics, so it can lag behind the real count until the statistics are refreshed.
+Each table shows its type, an estimated row count, its total size including indexes, and its table size. The row estimate comes from the database's optimizer statistics, so it can lag behind the real count until the statistics are refreshed. On PostgreSQL, an estimate of `-1` means the table hasn't been analyzed yet. Run `ANALYZE` on the table to fill it in.
 
 Expand a table to see its columns, indexes, and constraints, including primary keys, foreign keys, unique, and check constraints. A scan lists up to 5,000 tables.
 
