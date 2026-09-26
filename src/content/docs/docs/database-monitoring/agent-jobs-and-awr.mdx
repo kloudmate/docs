@@ -11,6 +11,8 @@ SQL Server and Oracle instances each have one extra tab: **Agent jobs** for SQL 
 
 The **Agent jobs** tab lists the SQL Server Agent job runs in the time range, so you can catch a failed backup or maintenance job without logging in to the server. The tiles at the top count the runs, and how many succeeded, failed, and are still running.
 
+![The Agent jobs tab of a SQL Server instance, with tiles counting 81 runs in the last 24 hours, 66 succeeded, and 15 failed, above a list of job runs with their status, run time, duration, and message.](./images/agent-jobs.png)
+
 Each run shows the job name, its status, when it ran, how long it took, and the message it logged. Expand a run to read the full message.
 
 To collect job runs, turn on the **Agent jobs** coverage for the instance in the agent's database monitoring settings. The monitoring login needs the `SQLAgentReaderRole` role in the `msdb` database:
