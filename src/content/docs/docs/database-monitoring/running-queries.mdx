@@ -27,7 +27,7 @@ The tab loads the newest 500 session rows in the time range. If a busy database 
 
 When a snapshot contains blocked sessions, a banner counts the blocked sessions and the root blockers, and the **Blocking chain** graph draws who's waiting on whom:
 
-![A blocking chain with three root blockers at the top, each holding up a chain of UPDATE sessions that are waiting on a lock.](./images/running-queries-blocking-chain.png)
+![A snapshot with 6 blocked sessions and 4 root blockers. The blocking chain shows each root blocker, idle with a Client wait, above the sessions waiting on its lock, including UPDATE statements on dbm_order and a pg_advisory_xact_lock call.](./images/running-queries-blocking-chain.png)
 
 - A **root blocker** is holding a lock and isn't waiting on anyone else. It's usually the session to investigate first. Root blockers are often sessions that are idle in a transaction: they still hold the locks they took, but aren't running anything, so their wait shows as **Client**.
 - Each blocking session shows how many sessions it blocks, what it's waiting on, and the relation it's waiting for.
