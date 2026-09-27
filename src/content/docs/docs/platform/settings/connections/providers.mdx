@@ -1,12 +1,12 @@
 ---
 title: "Providers"
-description: "What each connectable provider covers, how its credential is supplied, what it can be used for, and which providers a plan includes."
+description: "What each provider can be used for, how you supply its credential, and which providers your plan includes."
 sidebar:
   label: "Providers"
   order: 3
 ---
 
-Each provider decides how its credential is supplied and what a connection to it can be used for. The capabilities below are what each provider can serve; you choose which of them a given connection holds when you connect it.
+Each provider decides how you supply its credential and what a connection to it can be used for. The **Can be used for** column shows what each provider supports. A new connection starts with the provider's usual capability, and you change which ones it holds under [Edit](../manage-connections/#edit).
 
 ## Cloud and infrastructure
 
@@ -17,22 +17,22 @@ Each provider decides how its credential is supplied and what a connection to it
 
 Both allow more than one connection, so a production account and a staging account are two rows.
 
-The IAM policy or Azure role assignment on the credential decides what a step can do with it. There's no second permission list inside KloudMate, so narrow the role itself and gate risky steps with an [approval](/workflows/approvals-and-input/).
+The IAM policy or Azure role assignment on the credential decides what a step can do with it. There's no second permission list inside KloudMate, so narrow the role itself. Gate risky steps with an [approval](/workflows/approvals-and-input/).
 
 :::note
-This is not the same as the AWS account you connect for inventory and metrics. That one lives under [Settings → Data Sources](/platform/settings/data-sources/) and doesn't appear in the Connections list. Connect AWS here when a workflow step needs to call an AWS API, or when the AI assistant needs AWS as a tool.
+This isn't the same as the AWS account you connect for inventory and metrics. That one lives under [Settings → Data Sources](/platform/settings/data-sources/) and doesn't appear in the Connections list. Connect AWS here when a workflow step needs to call an AWS API, or when the AI assistant needs AWS as a tool.
 :::
 
 ## Chat and issue tracking
 
 | Provider | Credential | Can be used for |
 |---|---|---|
-| **Slack** | OAuth install. | Notifications, Triggers, Workflows |
-| **Jira Cloud** | OAuth through Atlassian. | Notifications, Triggers, Workflows |
+| **Slack** | OAuth install. | Notifications, Workflows |
+| **Jira Cloud** | OAuth through Atlassian. | Notifications, Workflows |
 
-One Slack install serves alert notifications, incident ChatOps, the [Slack workflow actions](/workflows/actions/#slack), approval buttons, and Slack event triggers. A connection made for notifications needs reconnecting before it can receive events.
+One Slack install serves alert notifications, incident ChatOps, the [Slack workflow actions](/workflows/actions/#slack), and Slack event triggers. A Slack or Jira Cloud connection made in **Settings → Connections** starts out used for **Notifications**. Add **Workflows** under [Edit](../manage-connections/#edit) before a workflow step or trigger can use it, and reconnect it if it's then marked **Needs reconnect**.
 
-One Jira credential can reach several Atlassian sites, which is why every Jira action and trigger starts with a site picker.
+One Jira credential can access several Atlassian sites, which is why every Jira action and trigger starts with a site picker.
 
 ## Tools and custom endpoints
 
@@ -45,7 +45,7 @@ Use **OAuth 2.0** to give an [HTTP Request](/workflows/actions/#http-request) st
 
 ## AI assistant tools
 
-These connect an MCP server the [KloudMate Assistant](/kloudmate-assistant/) can call as a tool. All of them serve the **AI** capability only, which is also the only capability that permits a [private connection](../connect-an-account/#visibility).
+These connect an MCP server that the [KloudMate Assistant](/kloudmate-assistant/) can call as a tool. They can be used for **AI** only, which also makes them the only connections that can be [private](../connect-an-account/#visibility).
 
 | Provider | Credential |
 |---|---|
@@ -59,23 +59,23 @@ These connect an MCP server the [KloudMate Assistant](/kloudmate-assistant/) can
 | **Google Cloud Monitoring** | Google OAuth. |
 | **Google Cloud Resource Manager** | Google OAuth. |
 
-AWS also serves the AI capability, using an access key pair. See the cloud table above.
+AWS can also be used for **AI**, with an access key pair. See the cloud table above.
 
-## What your plan includes
+## Providers in your plan
 
-Which providers you can connect is part of your plan. The **Connect** picker is filtered to what your organization is entitled to and what the platform currently offers, so it never leads you into a refusal. A provider you expect but can't see is either not included in your plan or not currently offered, and only the first can be fixed by upgrading.
+Your plan decides which providers you can connect. The **Connect** picker shows only the providers your plan includes and the platform currently offers. If you expect a provider but can't see it, either your plan doesn't include it or the platform doesn't offer it right now. Upgrading fixes only the first.
 
-A provider can also be offered for some uses and not others. If it appears in the picker but you can't grant it the capability you wanted, that capability isn't currently offered for it.
+The platform can also offer a provider for some uses and not others. If a provider appears in the picker but you can't grant it the capability you wanted, the platform doesn't offer that capability for it right now.
 
-Turning off a provider, or one of its uses, affects new connections only. Anything already connected keeps working, so existing workflows, dashboards, and notification channels don't break.
+If the platform stops offering a provider, or one of its uses, only new connections are affected. Existing workflows, dashboards, and notification channels keep working.
 
 ## Link your Slack account for ChatOps
 
-One more Slack step is per person rather than per workspace. After someone with the **Developer** role connects Slack and adds a Chat Ops channel, each responder links their own Slack account before they can acknowledge or resolve incidents from Slack.
+One Slack step is done per person, not per workspace. After someone with the **Developer** role connects Slack and adds a Chat Ops channel, each responder links their own Slack account before they can acknowledge or resolve incidents from Slack.
 
-Open **Incidents → Chat Ops**, scroll to **User Settings**, and click **Connect account**. It's a one-time flow that ties your KloudMate identity to your Slack user.
+Open **Incidents → Chat Ops**, scroll to **User Settings**, and click **Connect account**. It's a one-time step that links your KloudMate account to your Slack user.
 
-Everyone links their own account, because KloudMate has to match the Slack user who pressed a button to a workspace member before it acts. The same applies to workflow [approval buttons](/workflows/approvals-and-input/#how-a-request-reaches-people).
+Everyone links their own account, because KloudMate has to match the Slack user who pressed a button to a workspace member before it acts.
 
 See [Slack Integration](/incident-management/slack-integration/) for the full setup.
 

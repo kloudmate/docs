@@ -71,13 +71,13 @@ To undo a managed change, turn the toggle back. There is no separate history or 
 
 ### Runbook scripts
 
-The **Runbook scripts** tab decides whether a [workflow](../../workflows/) can run its scripts on this host with the [Run Command on Host](../../workflows/actions/#run-command-on-host) step. Scripts are off until someone with the **Developer** role turns on **Allow runbook scripts on this host**, and the change reaches the agent within a minute. Only Linux host agents have this setting.
+The **Runbook scripts** tab decides whether a [workflow](../../workflows/) can run commands on this host with the [Run Command on Host](../../workflows/actions/#run-command-on-host) step. Scripts are off until someone with the **Developer** role turns on **Allow runbook scripts on this host**. The agent picks up the change within a minute. Only Linux host agents have this setting.
 
 ![Runbook scripts tab for a Linux host agent](./images/agent-runbook-scripts-tab.png)
 
-Scripts run as root and can reach anything the host can already reach, such as a kubeconfig, a cloud instance profile, or an SSH key on disk. Allow them only on hosts where that's acceptable.
+Scripts run as root and can access anything the host can already access, such as a kubeconfig, a cloud instance profile, or an SSH key on disk. Allow them only on hosts where that's acceptable.
 
-To block scripts on a host whatever the workspace setting says, set `job-types` to `none` in the host's `agent.yaml`. See [Runbook scripts](../reference/agent-config/#runbook-scripts) in the agent configuration reference.
+To block scripts on a host regardless of this setting, set `job-types` to `none` in the host's `agent.yaml`. See [Runbook scripts](../reference/agent-config/#runbook-scripts) in the agent configuration reference.
 
 ### Common Configurations
 

@@ -1,0 +1,307 @@
+---
+title: "Answer common questions in a help channel"
+description: "Answer repeat questions in a Slack help channel with answers your IT team wrote, and open a Jira ticket for every other request."
+sidebar:
+  order: 13
+---
+
+Most questions in an IT help channel are ones the team has answered many times before: how to connect to the VPN, how to reset a password, which Wi-Fi network to use. This guide builds a workflow that answers those in a thread, with answers your team wrote and keeps up to date. Any other request gets a 👀 reaction, so the person knows it was seen, and a Jira ticket for the IT team to pick up.
+
+An **AI Extract** step sorts each message into a topic from a fixed list. The answers themselves are text your team wrote and saved as [variables](/workflows/variables/), so the model never writes an answer.
+
+The finished workflow has these steps:
+
+```text
+Slack: New message in a channel
+└─ A new message?                        Branch
+   └─ Then
+      ├─ What is it about?               AI Extract
+      └─ Which answer?                   Route
+         ├─ vpn                          Answer the VPN question
+         ├─ password_reset               Answer the password question
+         ├─ wifi                         Answer the Wi-Fi question
+         ├─ new_software                 Answer the software question
+         └─ other_request                React, look up who asked,
+                                         open a ticket, and reply
+```
+
+## Before you start
+
+- You need the **Developer** role in a KloudMate workspace whose plan includes workflows.
+- You need a Slack connection and a Jira Cloud connection, both with the **Workflows** capability. Invite the KloudMate bot to your help channel.
+- You need a Jira project for help desk tickets.
+- Each message in the channel uses workflow credits, and the **AI Extract** step uses more. See [Check workflow usage](/workflows/run-history/#check-workflow-usage).
+
+## Step 1: Write the answers
+
+Open **Workflows → Variables**, and create a **Constant** for each answer. The value is the message the bot posts, in Slack's formatting, so a link is written as `<address|text>`:
+
+| Name | Example value |
+|---|---|
+| `answer_vpn` | `To connect to the VPN, open the VPN app and sign in with your work account. <https://wiki.example.com/vpn\|Full VPN guide>` |
+| `answer_password_reset` | `Reset your password at <https://id.example.com/reset\|id.example.com/reset>. You'll need your phone for the verification code.` |
+| `answer_wifi` | `Connect to the network named Corp, and sign in with your work account. Guests use Corp-Guest.` |
+| `answer_new_software` | `Request new software in the <https://portal.example.com\|software portal>. Approved requests are installed within a day.` |
+
+Also create a **Constant** named `jira_url` with your Jira site's address, such as `https://acme.atlassian.net`, if you don't have it already.
+
+Keeping the answers in variables means the IT team can update an answer, for example when the VPN app changes, without editing the workflow. A value can hold up to 8 KB of text, over several lines.
+
+## Step 2: Import the workflow
+
+1. Copy the YAML below.
+2. Open **Workflows**, click **Import**, paste the YAML, and click **Import**.
+3. Click **Open workflow**, and set these before you publish:
+   - On the trigger, pick your Slack connection under **Account**, and pick your help channel under **Channel**.
+   - On every Slack step, pick your Slack connection.
+   - On **Open a ticket**, pick your Jira connection, the **Site**, your help desk project, and an issue type such as **Task**.
+
+```yaml
+kind: workflow
+uid: guide-answer-help-channel-questions
+spec:
+  name: Answer common questions in the help channel
+  description: Answers common IT questions in the help channel with a saved answer, and opens a Jira ticket for any other request.
+  definition:
+    schema_version: 1
+    trigger:
+      type: integration_event
+      config:
+        connection_id:
+          $input: slack
+        trigger_key: slack.new_message_in_channel
+        props:
+          ignore_bots: true
+    steps:
+      - id: new_message
+        type: branch
+        display_name: A new message?
+        if:
+          all:
+            - field: trigger.event.thread_ts
+              op: is_empty
+        then:
+          - id: topic
+            type: action
+            action: ai.extract
+            display_name: What is it about?
+            with:
+              prompt: Someone posted in the IT help channel. Decide what the message is about. Use other_request for a request for help that none of the other topics covers, and not_a_request for a message that doesn't ask for help, such as a thank-you. If you're not sure, use other_request.
+              source: "{{ trigger.event.text }}"
+              output_fields:
+                - name: topic
+                  type: enum
+                  options: [vpn, password_reset, wifi, new_software, other_request, not_a_request]
+                - name: title
+                  type: string
+                  description: A title of up to 10 words for a help desk ticket
+          - id: answer
+            type: route
+            display_name: Which answer?
+            routes:
+              - label: vpn
+                if:
+                  all:
+                    - field: steps.topic.output.topic
+                      op: eq
+                      value: vpn
+                steps:
+                  - id: answer_vpn
+                    type: action
+                    action: slack.post_message
+                    display_name: Answer the VPN question
+                    connection_id:
+                      $input: slack
+                    with:
+                      channel: "{{ trigger.event.channel }}"
+                      thread_ts: "{{ trigger.event.ts }}"
+                      text: "{{ vars.answer_vpn }}\n\nIf this doesn't solve it, reply in this thread and someone from IT will help."
+              - label: password_reset
+                if:
+                  all:
+                    - field: steps.topic.output.topic
+                      op: eq
+                      value: password_reset
+                steps:
+                  - id: answer_password_reset
+                    type: action
+                    action: slack.post_message
+                    display_name: Answer the password question
+                    connection_id:
+                      $input: slack
+                    with:
+                      channel: "{{ trigger.event.channel }}"
+                      thread_ts: "{{ trigger.event.ts }}"
+                      text: "{{ vars.answer_password_reset }}\n\nIf this doesn't solve it, reply in this thread and someone from IT will help."
+              - label: wifi
+                if:
+                  all:
+                    - field: steps.topic.output.topic
+                      op: eq
+                      value: wifi
+                steps:
+                  - id: answer_wifi
+                    type: action
+                    action: slack.post_message
+                    display_name: Answer the Wi-Fi question
+                    connection_id:
+                      $input: slack
+                    with:
+                      channel: "{{ trigger.event.channel }}"
+                      thread_ts: "{{ trigger.event.ts }}"
+                      text: "{{ vars.answer_wifi }}\n\nIf this doesn't solve it, reply in this thread and someone from IT will help."
+              - label: new_software
+                if:
+                  all:
+                    - field: steps.topic.output.topic
+                      op: eq
+                      value: new_software
+                steps:
+                  - id: answer_new_software
+                    type: action
+                    action: slack.post_message
+                    display_name: Answer the software question
+                    connection_id:
+                      $input: slack
+                    with:
+                      channel: "{{ trigger.event.channel }}"
+                      thread_ts: "{{ trigger.event.ts }}"
+                      text: "{{ vars.answer_new_software }}\n\nIf this doesn't solve it, reply in this thread and someone from IT will help."
+              - label: other_request
+                if:
+                  all:
+                    - field: steps.topic.output.topic
+                      op: eq
+                      value: other_request
+                steps:
+                  - id: seen
+                    type: action
+                    action: slack.add_reaction
+                    display_name: React so they know it's seen
+                    connection_id:
+                      $input: slack
+                    with:
+                      channel: "{{ trigger.event.channel }}"
+                      ts: "{{ trigger.event.ts }}"
+                      emoji: eyes
+                  - id: who
+                    type: action
+                    action: slack.lookup_user
+                    display_name: Look up who asked
+                    connection_id:
+                      $input: slack
+                    with:
+                      user: "{{ trigger.event.user }}"
+                  - id: ticket
+                    type: action
+                    action: jira.create_issue
+                    display_name: Open a ticket
+                    connection_id:
+                      $input: jira
+                    with:
+                      summary: "{{ steps.topic.output.title }}"
+                      description: |-
+                        *From:* {{ steps.who.output.user.real_name }} ({{ steps.who.output.user.profile.email }}), in the Slack help channel
+                        {quote}{{ trigger.event.text }}{quote}
+                      fields:
+                        labels: [helpdesk]
+                  - id: reply
+                    type: action
+                    action: slack.post_message
+                    display_name: Reply with the ticket
+                    connection_id:
+                      $input: slack
+                    with:
+                      channel: "{{ trigger.event.channel }}"
+                      thread_ts: "{{ trigger.event.ts }}"
+                      text: "I've opened <{{ vars.jira_url }}/browse/{{ steps.ticket.output.key }}|{{ steps.ticket.output.key }}> for this, and the IT team will pick it up there."
+inputs:
+  slack:
+    kind: connection
+    name: Slack
+    type: slack
+  jira:
+    kind: connection
+    name: Jira
+    type: jira
+  jira_url:
+    kind: variable
+    name: jira_url
+    type: constant
+  answer_vpn:
+    kind: variable
+    name: answer_vpn
+    type: constant
+  answer_password_reset:
+    kind: variable
+    name: answer_password_reset
+    type: constant
+  answer_wifi:
+    kind: variable
+    name: answer_wifi
+    type: constant
+  answer_new_software:
+    kind: variable
+    name: answer_new_software
+    type: constant
+```
+
+## How each step works
+
+### The trigger
+
+The **New message in a channel** trigger runs for every message posted in your help channel. **Ignore messages from bots** is on, so the bot's own answers don't start a run.
+
+Replies in a thread start a run too. A **Branch** checks that `trigger.event.thread_ts` **is empty**, so only a new message goes further. Slack sets `thread_ts` only on a reply, and the workflow leaves conversations in threads to people.
+
+### What is it about?
+
+An **AI Extract** step reads `{{ trigger.event.text }}` and returns a topic from a fixed list, with a title in case it becomes a ticket:
+
+```json
+[
+  { "name": "topic", "type": "enum", "options": ["vpn", "password_reset", "wifi", "new_software", "other_request", "not_a_request"] },
+  { "name": "title", "type": "string", "description": "A title of up to 10 words for a help desk ticket" }
+]
+```
+
+The **Instruction** tells the model to use `other_request` when it isn't sure, so a doubtful message goes to a person rather than getting the wrong answer. `not_a_request` covers messages such as a thank-you, which need nothing.
+
+### Which answer?
+
+A **Route** has a path for each topic, and each path runs when `steps.topic.output.topic` **equals** its name. A topic's path posts a reply in a thread on the message, with **Reply to thread** set to `{{ trigger.event.ts }}` and the answer from its variable:
+
+```liquid
+{{ vars.answer_vpn }}
+
+If this doesn't solve it, reply in this thread and someone from IT will help.
+```
+
+The `other_request` path does more:
+
+1. A Slack **Add Reaction** step reacts to the message with 👀.
+2. A Slack **Look Up User** step finds the person's name and email address.
+3. A Jira **Create Issue** step opens a ticket, with the title from the model, and the person and their message in the description.
+4. A Slack **Post Message** step replies in the thread with a link to the ticket.
+
+The Route has no **Otherwise**, so a message with the topic `not_a_request` runs no path, and the workflow does nothing with it.
+
+## Step 3: Test and publish
+
+1. Open the trigger's **Test** tab and click **Test trigger**. Then post a question in the help channel, such as `How do I connect to the VPN?`. The message becomes the trigger's sample.
+2. Test **What is it about?** from its **Test** tab to see the topic the model picked.
+3. Click **Publish**. The first publish also switches the workflow on.
+
+Then post a few different questions in the channel, and check that each one gets the right answer or a ticket. To see which topic a message got, open its run from **Workflows → Runs**.
+
+## Adapt the workflow
+
+- **Add an answer.** Create a variable for it, add its topic to the `topic` options in **What is it about?**, and add a Route path for it with a reply step that uses the variable.
+- **Answer in several channels.** Leave **Channel** set to one channel, and import the workflow again with a different `uid` for each channel. Each copy can use the same answer variables.
+- **Only react, without a ticket.** Remove **Look up who asked**, **Open a ticket**, and **Reply with the ticket** from the `other_request` path, for a team that works from the channel itself.
+
+## Related
+
+- [AI Extract](/workflows/actions/#ai-extract) for output fields.
+- [Variables](/workflows/variables/) for constants.
+- [Run an IT help desk in Slack](/guides/workflows/it-help-desk-in-slack/) for tickets that people open by messaging the bot directly.

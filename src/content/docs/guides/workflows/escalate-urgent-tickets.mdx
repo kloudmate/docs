@@ -1,0 +1,332 @@
+---
+title: "Escalate urgent support tickets to engineering"
+description: "Receive urgent tickets from your help desk on a webhook, decide with AI whether each one is a product bug, and open a Jira bug for the owning team with a post in its Slack channel and a note back on the ticket."
+sidebar:
+  order: 15
+---
+
+When a customer reports something urgent, support needs to know quickly whether it's a bug that engineering has to fix, and engineering needs the details without asking support to copy them over. This guide builds a workflow that your help desk calls for every urgent ticket. An **AI Extract** step decides whether the ticket reports a product bug, and which part of the product it's about. For a bug, the workflow:
+
+- opens a Jira bug with the customer's report,
+- posts it in the owning team's Slack channel, and
+- adds a private note to the support ticket with a link to the bug.
+
+An urgent ticket that isn't a bug, such as a question, goes to a channel for your support leads instead.
+
+The finished workflow has these steps:
+
+```text
+Webhook: an urgent ticket from the help desk
+├─ Is it a product bug?                  AI Extract
+└─ A product bug?                        Branch
+   ├─ Then
+   │  ├─ Open a bug                      Jira: Create Issue
+   │  ├─ Which team?                     Route
+   │  │  ├─ payments                     Post in the payments channel
+   │  │  ├─ mobile_app                   Post in the mobile channel
+   │  │  └─ Otherwise                    Post in the engineering triage channel
+   │  └─ Add a note to the ticket        HTTP Request to the help desk
+   └─ Else: Post in the support leads' channel
+```
+
+## Before you start
+
+- You need the **Developer** role in a KloudMate workspace whose plan includes workflows.
+- You need a Jira Cloud connection and a Slack connection, both with the **Workflows** capability. Invite the KloudMate bot to each channel the workflow posts in.
+- Your help desk must be able to call a webhook when a ticket matches a rule, with a JSON body you write. To add the note to the ticket, it also needs an API with a token.
+- Each urgent ticket uses workflow credits, and the **AI Extract** step uses more. See [Check workflow usage](/workflows/run-history/#check-workflow-usage).
+
+## Step 1: Save the variables
+
+Open **Workflows → Variables**, and create these:
+
+| Name | Kind | Value |
+|---|---|---|
+| `jira_url` | **Constant** | Your Jira site's address, such as `https://acme.atlassian.net`. You might have it from another guide already. |
+| `helpdesk_api_url` | **Constant** | The base address of your help desk's API, such as `https://support.example.com/api/v1`. |
+| `helpdesk_api_token` | **Secret** | An API token for your help desk, allowed to add notes to tickets. |
+
+## Step 2: Import the workflow
+
+1. Copy the YAML below.
+2. Open **Workflows**, click **Import**, paste the YAML, and click **Import**.
+3. Click **Open workflow**, and set these before you publish:
+   - On **Open a bug**, pick your Jira connection, the **Site**, your engineering project, and the issue type **Bug**.
+   - On every Slack step, pick your Slack connection and the channel it names.
+   - On **Add a note to the ticket**, change the URL and the body to match your help desk's API for adding an internal note. See [Add a note to the ticket](#add-a-note-to-the-ticket).
+
+```yaml
+kind: workflow
+uid: guide-escalate-urgent-tickets
+spec:
+  name: Escalate urgent support tickets
+  description: When the help desk reports an urgent ticket, decides with AI whether it's a product bug. A bug gets a Jira issue, a post in the owning team's Slack channel, and a note on the ticket. Anything else goes to the support leads' channel.
+  definition:
+    schema_version: 1
+    trigger:
+      type: webhook
+      config:
+        dedup_key: "{{ body.ticket.id }}"
+      conditions:
+        all:
+          - field: body.ticket.priority
+            op: eq
+            value: urgent
+    steps:
+      - id: triage
+        type: action
+        action: ai.extract
+        display_name: Is it a product bug?
+        with:
+          prompt: A customer filed this support ticket. Decide whether it reports a bug in our product, as opposed to a question, a request, or a problem on the customer's side. If it's a bug, decide which part of the product it's in, and summarize it for an engineer in one or two sentences.
+          source: "{{ trigger.body.ticket }}"
+          output_fields:
+            - name: kind
+              type: enum
+              options: [bug, not_a_bug]
+            - name: area
+              type: enum
+              options: [payments, mobile_app, other]
+              description: payments is billing, checkout, and invoices. mobile_app is the iOS and Android apps.
+            - name: summary
+              type: string
+      - id: is_bug
+        type: branch
+        display_name: A product bug?
+        if:
+          all:
+            - field: steps.triage.output.kind
+              op: eq
+              value: bug
+        then:
+          - id: bug
+            type: action
+            action: jira.create_issue
+            display_name: Open a bug
+            connection_id:
+              $input: jira
+            with:
+              summary: "Customer bug: {{ trigger.body.ticket.subject }}"
+              description: |-
+                {{ steps.triage.output.summary }}
+
+                *Support ticket:* {{ trigger.body.ticket.url }}
+                *Area:* {{ steps.triage.output.area }}
+                {quote}{{ trigger.body.ticket.description }}{quote}
+              fields:
+                priority:
+                  name: Highest
+                labels: [customer-escalation, "{{ steps.triage.output.area }}"]
+          - id: team
+            type: route
+            display_name: Which team?
+            routes:
+              - label: payments
+                if:
+                  all:
+                    - field: steps.triage.output.area
+                      op: eq
+                      value: payments
+                steps:
+                  - id: post_payments
+                    type: action
+                    action: slack.post_message
+                    display_name: Post in the payments channel
+                    connection_id:
+                      $input: slack
+                    with:
+                      text: ":rotating_light: Urgent customer bug in payments: <{{ vars.jira_url }}/browse/{{ steps.bug.output.key }}|{{ steps.bug.output.key }}> {{ steps.triage.output.summary | replace: '&', '&amp;' | replace: '<', '&lt;' | replace: '>', '&gt;' }}"
+              - label: mobile_app
+                if:
+                  all:
+                    - field: steps.triage.output.area
+                      op: eq
+                      value: mobile_app
+                steps:
+                  - id: post_mobile
+                    type: action
+                    action: slack.post_message
+                    display_name: Post in the mobile channel
+                    connection_id:
+                      $input: slack
+                    with:
+                      text: ":rotating_light: Urgent customer bug in the mobile app: <{{ vars.jira_url }}/browse/{{ steps.bug.output.key }}|{{ steps.bug.output.key }}> {{ steps.triage.output.summary | replace: '&', '&amp;' | replace: '<', '&lt;' | replace: '>', '&gt;' }}"
+            else:
+              - id: post_triage
+                type: action
+                action: slack.post_message
+                display_name: Post in the engineering triage channel
+                connection_id:
+                  $input: slack
+                with:
+                  text: ":rotating_light: Urgent customer bug that needs an owner: <{{ vars.jira_url }}/browse/{{ steps.bug.output.key }}|{{ steps.bug.output.key }}> {{ steps.triage.output.summary | replace: '&', '&amp;' | replace: '<', '&lt;' | replace: '>', '&gt;' }}"
+          - id: note
+            type: action
+            action: http.request
+            display_name: Add a note to the ticket
+            on_error: continue
+            with:
+              method: POST
+              url: "{{ vars.helpdesk_api_url }}/tickets/{{ trigger.body.ticket.id }}/notes"
+              authType: bearer
+              auth:
+                token: "{{ secrets.helpdesk_api_token }}"
+              body_type: json
+              body:
+                private: true
+                body: "Engineering is tracking this as {{ steps.bug.output.key }}: {{ vars.jira_url }}/browse/{{ steps.bug.output.key }}"
+        else:
+          - id: post_support
+            type: action
+            action: slack.post_message
+            display_name: Post in the support leads' channel
+            connection_id:
+              $input: slack
+            with:
+              text: ":bell: Urgent ticket that isn't a product bug: <{{ trigger.body.ticket.url }}|{{ trigger.body.ticket.subject | replace: '&', '&amp;' | replace: '<', '&lt;' | replace: '>', '&gt;' }}>"
+inputs:
+  jira:
+    kind: connection
+    name: Jira
+    type: jira
+  slack:
+    kind: connection
+    name: Slack
+    type: slack
+  jira_url:
+    kind: variable
+    name: jira_url
+    type: constant
+  helpdesk_api_url:
+    kind: variable
+    name: helpdesk_api_url
+    type: constant
+  helpdesk_api_token:
+    kind: variable
+    name: helpdesk_api_token
+    type: secret
+```
+
+## Step 3: Send urgent tickets from your help desk
+
+1. In KloudMate, open the workflow's trigger and copy the webhook URL.
+2. In your help desk, create a webhook that posts to that URL, with a JSON body.
+3. Create a rule that calls the webhook when a ticket is created with the priority **Urgent**.
+4. Write the body in this shape, using your help desk's placeholders for each value:
+
+```json
+{
+  "ticket": {
+    "id": "48213",
+    "subject": "Charged twice for one order",
+    "description": "When I pay with a saved card, the page spins and I'm charged twice.",
+    "priority": "urgent",
+    "requester": "jane@customer.example",
+    "url": "https://support.example.com/tickets/48213"
+  }
+}
+```
+
+The workflow reads these field names. If your help desk names the priority differently, change the value in the trigger's condition to match.
+
+:::caution
+Anyone with the webhook URL can send the workflow a ticket, and every ticket runs the AI step and can open a Jira issue. Keep the URL private. If it leaks, [rotate it](/workflows/triggers/#rotate-the-webhook-url) and update the webhook in your help desk.
+:::
+
+## How each step works
+
+### The trigger
+
+The **Webhook** trigger's **Conditions** accept a delivery only when `body.ticket.priority` **equals** `urgent`, so a rule that sends more than it should still starts no extra runs. **Deduplication key** is `{{ body.ticket.id }}`. A help desk that sends the same ticket twice, for example when it retries a delivery, then starts only one run.
+
+### Is it a product bug?
+
+An **AI Extract** step reads the whole ticket, with **Source** set to `{{ trigger.body.ticket }}`, and returns these fields:
+
+```json
+[
+  { "name": "kind", "type": "enum", "options": ["bug", "not_a_bug"] },
+  { "name": "area", "type": "enum", "options": ["payments", "mobile_app", "other"], "description": "payments is billing, checkout, and invoices. mobile_app is the iOS and Android apps." },
+  { "name": "summary", "type": "string" }
+]
+```
+
+The ticket is text a customer wrote, so the workflow uses **AI Extract**, which can only return these fields, and `kind` and `area` only from their lists. See [AI Extract](/workflows/actions/#ai-extract). The `description` on `area` tells the model what each part of your product covers, so edit it to match your teams.
+
+A **Branch** then checks whether `kind` **equals** `bug`.
+
+### Open a bug
+
+A Jira **Create Issue** step opens the bug. Its description starts with the model's summary for an engineer, and then quotes the customer's own report, so nothing is lost in the summary:
+
+```liquid
+{{ steps.triage.output.summary }}
+
+*Support ticket:* {{ trigger.body.ticket.url }}
+*Area:* {{ steps.triage.output.area }}
+{quote}{{ trigger.body.ticket.description }}{quote}
+```
+
+Its **Extra fields** set the priority to `Highest`, and add two labels, `customer-escalation` and the area, so the bugs are easy to find on a board:
+
+```json
+{
+  "priority": { "name": "Highest" },
+  "labels": ["customer-escalation", "{{ steps.triage.output.area }}"]
+}
+```
+
+### Which team?
+
+A **Route** posts the bug in the owning team's Slack channel. The `payments` path runs when `steps.triage.output.area` **equals** `payments`, and the `mobile_app` path when it equals `mobile_app`. **Otherwise** posts in an engineering triage channel, for a bug that no team obviously owns.
+
+The model wrote the summary from text a customer sent, so the posts escape `&`, `<`, and `>` in it, which Slack would otherwise read as special syntax:
+
+```liquid
+{{ steps.triage.output.summary | replace: '&', '&amp;' | replace: '<', '&lt;' | replace: '>', '&gt;' }}
+```
+
+### Add a note to the ticket
+
+An **HTTP Request** step tells the support agent that engineering has the bug, by adding a private note to the ticket with the Jira link. **Authentication** is **Bearer token**, with the token set to `{{ secrets.helpdesk_api_token }}`.
+
+The URL and the body in the YAML are an example of the usual shape:
+
+```liquid
+{{ vars.helpdesk_api_url }}/tickets/{{ trigger.body.ticket.id }}/notes
+```
+
+```json
+{
+  "private": true,
+  "body": "Engineering is tracking this as {{ steps.bug.output.key }}: {{ vars.jira_url }}/browse/{{ steps.bug.output.key }}"
+}
+```
+
+Every help desk names these differently, so replace them with the endpoint and the fields from your help desk's API documentation. If your help desk uses OAuth, use an [OAuth 2.0 connection](/platform/settings/connections/providers/#tools-and-custom-endpoints) instead of a token.
+
+Under **Settings**, **On failure** is **Go to the next step**. The bug is already in Jira and the team has been told, so a failed note doesn't fail the run.
+
+### Not a bug
+
+The **Else** block posts the ticket in your support leads' channel, with a link to it, so someone can answer an urgent question quickly.
+
+## Step 4: Test and publish
+
+1. With the workflow still a draft, create an urgent test ticket in your help desk. The webhook accepts deliveries for a draft and saves the latest one as the trigger's sample.
+2. Open the trigger's **Test** tab and click **Reload** to see the delivery. Check that the field names match the ones in [Step 3](#step-3-send-urgent-tickets-from-your-help-desk).
+3. Test **Is it a product bug?** from its **Test** tab to see what the model decided.
+4. Click **Test run**. It opens a Jira bug, posts in Slack, and adds the note to the test ticket.
+5. Delete the test bug in Jira, and close the test ticket. Then click **Publish**. The first publish also switches the workflow on.
+
+## Adapt the workflow
+
+- **Add a team.** Add an option to `area`, with a line about it in the `description`, and a Route path that posts in the team's channel. To send the bug to the team's own Jira project, move **Open a bug** into each path, with that project picked.
+- **Escalate high-priority tickets too.** Change the trigger's condition to **in**, with the values `urgent` and `high`.
+- **Link duplicate reports.** Before **Open a bug**, add a Jira **Search Issues** step that looks for open bugs with the label `customer-escalation` and a similar summary, and comment on an existing bug instead of opening another.
+
+## Related
+
+- [Webhook](/workflows/triggers/#webhook) for conditions and deduplication.
+- [AI Extract](/workflows/actions/#ai-extract) for output fields.
+- [HTTP Request](/workflows/actions/#http-request) for calling your help desk's API.

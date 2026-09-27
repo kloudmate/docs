@@ -1,0 +1,439 @@
+---
+title: "Onboard a new hire"
+description: "Turn an HR form into an onboarding issue in Jira with tasks for IT, facilities, and the manager, then invite the new hire to their team's Slack channels on their first day."
+sidebar:
+  order: 9
+---
+
+This guide automates the routine part of onboarding. When HR submits a form for a new hire, the workflow opens an onboarding issue in Jira with a task each for IT, facilities, and the hiring manager, and emails the manager a link to it. On the new hire's start date, a second workflow invites them to the company and team channels in Slack and sends them a welcome message.
+
+The two workflows run weeks apart, and a single run can wait for 24 hours at most. So the form workflow saves the new hire under their start date in [Storage](/workflows/storage/), and the daily workflow reads the list for today.
+
+| Workflow | Trigger | What it does |
+|---|---|---|
+| **Start onboarding for a new hire** | **Form submission** | Opens the Jira issue and its tasks, emails the manager, and adds the new hire to the list for their start date. |
+| **Welcome new hires on their start date** | **Schedule**, daily at 09:00 | Invites the people who start today to Slack channels, and welcomes them. |
+
+## Before you start
+
+- You need the **Developer** role in a KloudMate workspace whose plan includes workflows.
+- You need a Jira Cloud connection and a Slack connection, both with the **Workflows** capability.
+- Pick a Jira project for onboarding issues, such as your IT or HR project. The project needs an issue type for the onboarding issue, such as **Task**, and a subtask type, usually called **Sub-task** or **Subtask**.
+- Invite the KloudMate bot to the Slack channels that new hires join: one for the whole company, and one for each team.
+- The people who submit the form need to be members of your KloudMate workspace, because the form has **Sign-in required** turned on.
+
+## Step 1: Save your Jira address as a variable
+
+The email to the manager links to the onboarding issue. Open **Workflows → Variables** and create a **Constant** named `jira_url`, with your Jira site's address as its value, such as `https://acme.atlassian.net`. If you followed another guide that uses it, it's already there.
+
+## Step 2: Import the form workflow
+
+1. Copy the YAML below. To use your own teams, change the `options` of the `team` input.
+2. Open **Workflows**, click **Import**, paste the YAML, and click **Import**.
+3. Click **Open workflow**, and on every Jira step, pick your Jira connection and the **Site**. Then set the project and the issue type:
+   - On **Open the onboarding issue**, pick the project and an issue type such as **Task**.
+   - On the three task steps, pick the same project and its subtask type.
+
+```yaml
+kind: workflow
+uid: guide-start-onboarding
+spec:
+  name: Start onboarding for a new hire
+  description: From an HR form, opens an onboarding issue in Jira with tasks for IT, facilities, and the manager, and schedules the new hire's Slack welcome for their start date.
+  definition:
+    schema_version: 1
+    trigger:
+      type: form
+      config:
+        title: Onboard a new hire
+        description: "Fill this in when someone accepts an offer. Enter start_date as YYYY-MM-DD, up to 90 days ahead."
+        require_login: true
+        success_message: Thanks. The onboarding tasks are in Jira, and the manager gets an email with the details.
+    inputs:
+      - name: name
+        type: string
+        required: true
+      - name: email
+        type: email
+        required: true
+      - name: manager_email
+        type: email
+        required: true
+      - name: team
+        type: enum
+        required: true
+        options: [Engineering, Sales, Support]
+      - name: start_date
+        type: string
+        required: true
+    steps:
+      - id: check_date
+        type: branch
+        display_name: Is the start date a date?
+        if:
+          all:
+            - field: trigger.inputs.start_date
+              op: regex
+              value: '^[0-9]{4}-[0-9]{2}-[0-9]{2}$'
+        then:
+          - id: parent
+            type: action
+            action: jira.create_issue
+            display_name: Open the onboarding issue
+            connection_id:
+              $input: jira
+            with:
+              summary: "Onboard {{ trigger.inputs.name }} ({{ trigger.inputs.team }}), starting {{ trigger.inputs.start_date }}"
+              description: |-
+                *New hire:* {{ trigger.inputs.name }} ({{ trigger.inputs.email }})
+                *Team:* {{ trigger.inputs.team }}
+                *Manager:* {{ trigger.inputs.manager_email }}
+                *Start date:* {{ trigger.inputs.start_date }}
+          - id: tasks
+            type: parallel
+            display_name: Create the onboarding tasks
+            branches:
+              - - id: task_it
+                  type: action
+                  action: jira.create_issue
+                  display_name: "Task for IT: laptop and accounts"
+                  connection_id:
+                    $input: jira
+                  with:
+                    summary: "Set up a laptop and accounts for {{ trigger.inputs.name }}"
+                    fields:
+                      parent:
+                        key: "{{ steps.parent.output.key }}"
+              - - id: task_facilities
+                  type: action
+                  action: jira.create_issue
+                  display_name: "Task for facilities: desk and badge"
+                  connection_id:
+                    $input: jira
+                  with:
+                    summary: "Prepare a desk and a badge for {{ trigger.inputs.name }}"
+                    fields:
+                      parent:
+                        key: "{{ steps.parent.output.key }}"
+              - - id: find_manager
+                  type: action
+                  action: jira.find_user
+                  display_name: Find the manager in Jira
+                  connection_id:
+                    $input: jira
+                  with:
+                    query: "{{ trigger.inputs.manager_email }}"
+                - id: task_manager
+                  type: action
+                  action: jira.create_issue
+                  display_name: "Task for the manager: first week"
+                  connection_id:
+                    $input: jira
+                  with:
+                    summary: "Plan the first week for {{ trigger.inputs.name }}"
+                    fields:
+                      parent:
+                        key: "{{ steps.parent.output.key }}"
+                      assignee:
+                        accountId: "{{ steps.find_manager.output.users.0.accountId }}"
+          - id: schedule_welcome
+            type: action
+            action: store.add_to_list
+            display_name: Schedule the Slack welcome
+            with:
+              scope: workspace
+              key: "onboarding:{{ trigger.inputs.start_date }}"
+              item:
+                name: "{{ trigger.inputs.name }}"
+                email: "{{ trigger.inputs.email }}"
+                team: "{{ trigger.inputs.team }}"
+                manager_email: "{{ trigger.inputs.manager_email }}"
+              skip_if_present: true
+              ttl: 90d
+          - id: tell_manager
+            type: action
+            action: email.send
+            display_name: Email the manager
+            with:
+              to: "{{ trigger.inputs.manager_email }}"
+              subject: "Onboarding for {{ trigger.inputs.name }} is set up"
+              html: |-
+                {{ trigger.inputs.name | escape }} starts on {{ trigger.inputs.start_date | escape }}. Their onboarding tasks are in <a href="{{ vars.jira_url }}/browse/{{ steps.parent.output.key }}">{{ steps.parent.output.key }}</a>, including one for you to plan their first week.
+
+                On their start date, KloudMate invites them to the team's Slack channels and sends them a welcome message.
+        else:
+          - id: tell_bad_date
+            type: action
+            action: email.send
+            display_name: Ask for the date again
+            with:
+              to: "{{ trigger.submitted_by.email }}"
+              subject: "Onboarding for {{ trigger.inputs.name }} needs a start date"
+              html: "{{ trigger.inputs.start_date | escape }} isn't a date in the form YYYY-MM-DD, such as 2026-11-02, so nothing was set up. Submit the form again with the start date in that form."
+inputs:
+  jira:
+    kind: connection
+    name: Jira
+    type: jira
+  jira_url:
+    kind: variable
+    name: jira_url
+    type: constant
+```
+
+## Step 3: Import the daily workflow
+
+1. Copy the YAML below. If you changed the teams in the form, change the Route paths in **Which team?** to match.
+2. Import it the same way.
+3. On every Slack step, pick your Slack connection. On each **Invite to …** step, pick the channel it names.
+4. On the trigger, set **Timezone** to your office's timezone, such as `Europe/London`.
+
+```yaml
+kind: workflow
+uid: guide-welcome-new-hires
+spec:
+  name: Welcome new hires on their start date
+  description: Every morning, invites the people who start today to their team's Slack channels and sends them a welcome message.
+  definition:
+    schema_version: 1
+    trigger:
+      type: schedule
+      config:
+        mode: daily
+        hour: 9
+        minute: 0
+        run_on_weekends: true
+        timezone: UTC
+    steps:
+      - id: today
+        type: action
+        action: store.get
+        display_name: Who starts today?
+        with:
+          scope: workspace
+          key: "onboarding:{{ trigger.schedule.date }}"
+      - id: anyone
+        type: branch
+        display_name: Anyone starting?
+        if:
+          all:
+            - field: steps.today.output.value
+              op: is_not_empty
+        then:
+          - id: each_hire
+            type: loop
+            display_name: For each new hire
+            items: "{{ steps.today.output.value }}"
+            concurrency: 1
+            each:
+              - id: find
+                type: action
+                action: slack.find_user_by_email
+                display_name: Find them in Slack
+                on_error: continue
+                connection_id:
+                  $input: slack
+                with:
+                  email: "{{ item.email }}"
+              - id: in_slack
+                type: branch
+                display_name: Do they have Slack yet?
+                if:
+                  all:
+                    - field: steps.find.output.user.id
+                      op: is_not_empty
+                then:
+                  - id: invite_all
+                    type: action
+                    action: slack.invite_to_channel
+                    display_name: Invite to the company channel
+                    on_error: continue
+                    connection_id:
+                      $input: slack
+                    with:
+                      users: "{{ steps.find.output.user.id }}"
+                  - id: team_channel
+                    type: route
+                    display_name: Which team?
+                    routes:
+                      - label: engineering
+                        if:
+                          all:
+                            - field: item.team
+                              op: eq
+                              value: Engineering
+                        steps:
+                          - id: invite_engineering
+                            type: action
+                            action: slack.invite_to_channel
+                            display_name: Invite to the engineering channel
+                            on_error: continue
+                            connection_id:
+                              $input: slack
+                            with:
+                              users: "{{ steps.find.output.user.id }}"
+                      - label: sales
+                        if:
+                          all:
+                            - field: item.team
+                              op: eq
+                              value: Sales
+                        steps:
+                          - id: invite_sales
+                            type: action
+                            action: slack.invite_to_channel
+                            display_name: Invite to the sales channel
+                            on_error: continue
+                            connection_id:
+                              $input: slack
+                            with:
+                              users: "{{ steps.find.output.user.id }}"
+                      - label: support
+                        if:
+                          all:
+                            - field: item.team
+                              op: eq
+                              value: Support
+                        steps:
+                          - id: invite_support
+                            type: action
+                            action: slack.invite_to_channel
+                            display_name: Invite to the support channel
+                            on_error: continue
+                            connection_id:
+                              $input: slack
+                            with:
+                              users: "{{ steps.find.output.user.id }}"
+                  - id: welcome
+                    type: action
+                    action: slack.send_direct_message
+                    display_name: Send a welcome message
+                    connection_id:
+                      $input: slack
+                    with:
+                      user: "{{ steps.find.output.user.id }}"
+                      text: ":wave: Welcome, {{ item.name | replace: '&', '&amp;' | replace: '<', '&lt;' | replace: '>', '&gt;' }}! You're now in your team's channels. Your manager has a plan for your first week, and the IT team has your laptop ready."
+                else:
+                  - id: tell_manager
+                    type: action
+                    action: email.send
+                    display_name: Tell the manager
+                    with:
+                      to: "{{ item.manager_email }}"
+                      subject: "{{ item.name }} doesn't have a Slack account yet"
+                      html: "{{ item.name | escape }} starts today, but no Slack account uses {{ item.email | escape }}, so KloudMate couldn't invite them to the team's channels. Ask IT to create the account, then invite them by hand."
+          - id: done
+            type: action
+            action: store.remove
+            display_name: Clear today's list
+            with:
+              scope: workspace
+              key: "onboarding:{{ trigger.schedule.date }}"
+inputs:
+  slack:
+    kind: connection
+    name: Slack
+    type: slack
+```
+
+## How the form workflow works
+
+### The form
+
+The **Form submission** trigger asks for the new hire's `name`, `email`, and `team`, their `manager_email`, and their `start_date`. A **Choice** input lists the teams, so the value always matches one of the Route paths in the daily workflow.
+
+There's no date input type, so `start_date` is **Text**. A **Branch** checks that it **matches regex** `^[0-9]{4}-[0-9]{2}-[0-9]{2}$`, the form `2026-11-02`, because the daily workflow looks the new hire up by a date in exactly that form. If the date doesn't match, the **Else** block emails the person who submitted the form, at `{{ trigger.submitted_by.email }}`, and nothing is created.
+
+### Open the onboarding issue
+
+A Jira **Create Issue** step opens one issue for the whole onboarding, with the details in its description. Jira reads `*text*` in a description as bold:
+
+```liquid
+*New hire:* {{ trigger.inputs.name }} ({{ trigger.inputs.email }})
+*Team:* {{ trigger.inputs.team }}
+*Manager:* {{ trigger.inputs.manager_email }}
+*Start date:* {{ trigger.inputs.start_date }}
+```
+
+### Create the onboarding tasks
+
+A **Parallel** step creates the three tasks at the same time, one in each branch. Each task is a Jira **Create Issue** step with the subtask issue type, and its **Extra fields** set the onboarding issue as its parent:
+
+```json
+{ "parent": { "key": "{{ steps.parent.output.key }}" } }
+```
+
+The manager's branch looks the manager up with Jira **Find User** first, and assigns them the task by adding `"assignee": { "accountId": "{{ steps.find_manager.output.users.0.accountId }}" }` to **Extra fields**. The tasks for IT and facilities stay unassigned, for those teams to pick up from the project.
+
+### Schedule the Slack welcome
+
+A **Storage: Add to List** step adds the new hire to a list under their start date, with **Scope** set to **This workspace** so the daily workflow can read it. The key is `onboarding:{{ trigger.inputs.start_date }}`, so everyone who starts on the same day ends up in the same list. The **Item** is an object:
+
+```json
+{
+  "name": "{{ trigger.inputs.name }}",
+  "email": "{{ trigger.inputs.email }}",
+  "team": "{{ trigger.inputs.team }}",
+  "manager_email": "{{ trigger.inputs.manager_email }}"
+}
+```
+
+**Skip if already there** is on, so a form submitted twice by mistake doesn't welcome someone twice. **Expires after** is `90d`, which removes a list that nothing reads, for example after a start date moved. That also limits how far ahead the form works: a start date more than 90 days away expires before the day comes.
+
+### Email the manager
+
+A **Send Email** step sends the manager a link to the onboarding issue. Values from the form go through `escape`, so the email shows them as plain text. See [Escape values in an email](/workflows/templating/#escape-values-in-an-email).
+
+## How the daily workflow works
+
+### Who starts today?
+
+A **Storage: Get** step reads `onboarding:{{ trigger.schedule.date }}`. `trigger.schedule.date` is the run's date in the trigger's timezone, in the same `2026-11-02` form as the key, so the step finds the list for today. **Run on weekends** stays on, for anyone who starts on a weekend.
+
+A **Branch** stops there when the list **is empty**, which is most days.
+
+### For each new hire
+
+A **Loop** runs once for each new hire on today's list, with **Items** set to `{{ steps.today.output.value }}`. Inside it, `item` is one new hire, so `item.email` is their address and `item.team` their team.
+
+A Slack **Find User by Email** step looks the new hire up in Slack. IT might not have created their account yet, so under **Settings**, **On failure** is **Go to the next step**, and a **Branch** checks whether a user came back.
+
+For a new hire who has an account:
+
+1. A Slack **Invite to Channel** step invites them to the company channel.
+2. A **Route** invites them to their team's channel. Each path runs when `item.team` **equals** its team's name.
+3. A Slack **Send Direct Message** step welcomes them.
+
+Slack refuses to invite someone who is already in a channel, and returns an error. The invite steps have **On failure** set to **Go to the next step**, so someone who joined a channel early still gets the rest of their welcome.
+
+For a new hire without an account, a **Send Email** step tells their manager, so someone can invite them by hand.
+
+### Clear today's list
+
+After the loop, a **Storage: Remove** step deletes today's list, since nothing needs it again.
+
+## Step 4: Test and publish
+
+The daily workflow finds a new hire only on their start date, so test it with a start date that matches its trigger sample:
+
+1. In the daily workflow, open the trigger's **Test** tab and click **Test trigger**. The sample's `date` is the next day the workflow runs.
+2. Publish the form workflow. The first publish also switches it on, and the form goes live.
+3. Open the form workflow's trigger, copy the **Public form URL**, and submit the form for a test hire. Use your own email address as the new hire's and the manager's, and the `date` from step 1 as the start date.
+4. Check that the onboarding issue and its three tasks are in Jira, and that you got the manager's email.
+5. In the daily workflow, click **Test run**. It reads the list for that date, and invites and welcomes you as the test hire.
+6. Publish the daily workflow.
+
+Delete the test issues in Jira afterwards. The test run already removed the test hire's list from Storage.
+
+## Adapt the workflow
+
+- **Add a task.** Add a branch to **Create the onboarding tasks** with another Jira **Create Issue** step, such as a task for payroll.
+- **Let HR submit without a KloudMate account.** Turn off **Sign-in required** on the form trigger, and keep the form's address private. Then change **To** on **Ask for the date again** to your HR team's address, because an open form doesn't know who submitted it.
+- **Send a welcome email as well.** Add a **Send Email** step to the daily workflow's loop, to `{{ item.email }}`, with links to your handbook and the tools the team uses.
+- **Invite people to more channels.** Add an **Invite to Channel** step to a team's path in **Which team?**, with **On failure** set to **Go to the next step**, like the others.
+
+## Related
+
+- [Storage](/workflows/storage/) for lists and expiry.
+- [Triggers](/workflows/triggers/#form-submission) for form fields and **Sign-in required**.
+- [Parallel](/workflows/control-flow/#parallel) and [Loop](/workflows/control-flow/#loop-for-each) for the steps that run the tasks and the new hires.

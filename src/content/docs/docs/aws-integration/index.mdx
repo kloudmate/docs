@@ -33,4 +33,4 @@ Explore the following guides to set up and configure your AWS integrations:
 
 ## Acting on AWS, not just reading it
 
-Everything above is read-only telemetry. To have a [workflow](../workflows/) call an AWS API, restart an instance, or clear a disk, connect AWS separately under [Settings → Connections](/platform/settings/connections/). That connection carries its own IAM role, so what automation can do is decided by a policy you write rather than by the read-only role used for monitoring.
+Everything above is read-only telemetry. To let a [workflow](../workflows/) call AWS APIs, for example to reboot an EC2 instance or redrive a Step Functions execution, connect AWS separately under [Settings → Connections](/platform/settings/connections/). That connection has its own IAM role, so a policy you write decides what automation can do, not the read-only role used for monitoring.

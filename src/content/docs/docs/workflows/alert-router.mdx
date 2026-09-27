@@ -1,0 +1,86 @@
+---
+title: "Send alerts to your workflows"
+description: "Look up the resources in an alert group, and run a workflow you built for each kind of resource: one for hosts, one for Kubernetes workloads."
+sidebar:
+  label: "Send alerts to workflows"
+  order: 4.5
+---
+
+The **Send alerts to your workflows** template runs one of your workflows for each resource in an alert group. When a group opens or new alerts join it, the template finds the resource that each firing instance belongs to. It then calls the workflow you built for that kind of resource: your host workflow for a host, and your workload workflow for a Kubernetes deployment, statefulset, or daemonset. For any other kind of resource, it emails a person.
+
+The template doesn't change anything itself. The workflows it calls decide what happens to each resource, so the same host workflow works whether an alert starts it or a person runs it by hand.
+
+## What the template does
+
+1. The **Webhook** trigger runs on the `opened` and `appended` events, which arrive when an alert group opens and when new alerts join it. Other events, such as `repeat` and `resolved`, don't start a run.
+2. **Look up the alert group's resources** uses [Look Up an Alert Group's Resources](../actions/#look-up-an-alert-groups-resources) to list the group's resources, one entry per resource.
+3. If the lookup couldn't match some firing instances to a resource, **Email: what a person must look at** lists them with the reason for each.
+4. **For each resource** loops over the resources, three at a time.
+5. **Count alert group updates for this resource** skips a resource that already had a workflow run for it during the cooldown. See [How the cooldown works](#how-the-cooldown-works).
+6. **Which workflow?** is a [Route](../control-flow/#route). Its `host` path runs your host workflow, its `workload` path runs your workload workflow, and **Otherwise** emails a person that no workflow handles this kind of resource.
+
+## Build the host and workload workflows
+
+Build and publish these first. You can't publish a workflow that calls another until the called workflow has been published at least once.
+
+Each call passes these inputs, and the called workflow reads them as `{{ trigger.inputs.<name> }}`:
+
+| Called workflow | Inputs |
+|---|---|
+| Host | `host`, `name`, `kind`, `resource_id`, `namespace` |
+| Kubernetes workload | `name`, `kind`, `namespace`, `cluster`, `pods` |
+
+- `resource_id` is the provider's own id for the resource, such as an EC2 instance id, when it has one.
+- `kind` for a workload is `k8s.deployment`, `k8s.statefulset`, or `k8s.daemonset`.
+- `pods` lists the pods that fired, each with its `name` and `node`. It's empty when the alert is on the workload itself.
+
+Give each called workflow a **Manual / API** trigger. Declare the text inputs it uses as input parameters, so you can run it by hand with the same values the template sends. `pods` is a list, so a loop can use `{{ trigger.inputs.pods }}` as its **Items** directly.
+
+## Create the workflow from the template
+
+You need the **Developer** role.
+
+1. Open **Workflows → Templates** and click **Use template** on **Send alerts to your workflows**. The new draft opens in the builder.
+2. On **Run your host workflow** and **Run your workload workflow**, pick the workflow each step runs. If you don't have one of them, delete that step. A path with no steps is valid, but don't delete the Route itself, because that also deletes the email under **Otherwise**.
+3. Set **To** on **Email: what a person must look at** and on **Email: no workflow for this resource**. You can also replace both steps with a Slack or Teams message.
+4. To change the cooldown, set **Expires after** on **Count alert group updates for this resource**. It's `30m` by default.
+5. Click **Publish**.
+
+Publishing refuses the workflow until every call step has a workflow and both emails have an address. It names each field that's still unset, and reports the email address as `notify_email`.
+
+The new workflow's description lists the inputs each call passes.
+
+## Connect the workflow to your alerts
+
+Creating the workflow doesn't connect it to any alerts. To connect it:
+
+1. Copy the webhook URL from the workflow's trigger.
+2. Create a webhook [notification channel](../../platform/settings/notification-channels/) with that URL.
+3. Add the channel to every [routing rule](../../alerts/routing-rules/) whose alerts you want the workflow to handle.
+
+An alert goes only to the first routing rule it matches, so a channel on one rule never gets the alerts that a higher-priority rule matched first. See [Start a workflow from an alert](../triggers/#start-a-workflow-from-an-alert).
+
+## How the cooldown works
+
+The template counts each resource under its `key` before it calls a workflow. The key stays the same every time that resource alerts, even after a workload's pods are replaced.
+
+The first time it counts a resource, the template calls the workflow. Each later update to an alert group that includes the resource adds to the count and restarts the cooldown, so the template leaves a resource alone while it keeps alerting. After the resource has been quiet for the whole cooldown, its next alert calls the workflow again.
+
+The template counts before it calls, so a resource whose workflow failed also waits out the cooldown. Each workflow keeps its own count, and each update happens in one operation, so two runs can't both act on the same resource.
+
+## Add a path for another kind of resource
+
+Add a path to **Which workflow?** with a condition on `item.kind`. Then put a **Call Workflow** step in the path. For example, a path named `lambda` could match `item.kind` equal to `aws.lambda.function` and pass `{{ item.resource_id }}` and `{{ item.where.region }}` to your Lambda workflow.
+
+To see the kinds your alerts produce, [capture a real alert](../test-a-workflow/#capture-a-webhook-sample) as the trigger sample. Then test **Look up the alert group's resources**.
+
+Each resource also has `item.detectors`, the [Smart Alerts](../../alerts/smart-alerts/) detectors whose rules fired on it. A path can check whether that list contains a detector, so you can pick a workflow by the problem instead of by the resource.
+
+The template's emails pass every value that comes from the alert through the `escape` filter. If you edit them, keep the filters in place. See [Escape values in an email](../templating/#escape-values-in-an-email).
+
+## Related
+
+- [Control flow](../control-flow/#route) for the Route step.
+- [The action catalog](../actions/#look-up-an-alert-groups-resources) for everything the lookup returns, and why an instance can go unresolved.
+- [Triggers](../triggers/#start-a-workflow-from-an-alert) for the alert payload and its events.
+- [Storage](../storage/) for the counter that the cooldown uses.

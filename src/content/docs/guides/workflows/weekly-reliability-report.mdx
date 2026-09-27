@@ -1,0 +1,227 @@
+---
+title: "Post a weekly reliability report with AI"
+description: "Every Monday, read the past week's traffic, errors, open incidents, and SLOs from the KloudMate MCP server, and post a report in Slack that AI Prompt writes from them."
+sidebar:
+  order: 4
+---
+
+This guide builds a report that writes itself every Monday. The workflow collects the past week's numbers from your KloudMate workspace, and an **AI Prompt** step turns them into a short report for the engineering channel: the busiest services and their error rates, the incidents that are still open, and the SLOs that are running out of error budget.
+
+The numbers come from the [KloudMate MCP server](/kloudmate-assistant/mcp-server/), the same server that coding tools such as Claude Code use to query KloudMate. A workflow connects to it as a **Custom MCP Server**, and **MCP Tool Call** steps call its tools the way an agent would. Each step calls one tool that you pick, with the arguments you set, so the workflow asks the same questions every week.
+
+The finished workflow has these steps:
+
+```text
+Schedule: Mondays at 09:00
+├─ Collect the week's data             Parallel
+│  ├─ Requests and latency by service  MCP Tool Call
+│  ├─ Errors by service                MCP Tool Call
+│  ├─ Open incidents                   MCP Tool Call
+│  └─ SLOs                             MCP Tool Call
+├─ Write the report                    AI Prompt
+└─ Post the report                     Slack: Post Message
+```
+
+## Before you start
+
+- You need the **Developer** role in a KloudMate workspace whose plan includes workflows.
+- You need a Slack connection with the **Workflows** capability, and a channel for the report. Invite the KloudMate bot to that channel.
+- Each run uses workflow credits, and the **AI Prompt** step uses more. See [Check workflow usage](/workflows/run-history/#check-workflow-usage).
+
+## Step 1: Connect the KloudMate MCP server
+
+1. Create a [personal API key](/platform/settings/api-keys/#a-personal-key) and copy it. The workflow reads whatever the key's owner can read, so create it from an account that can see every service you want in the report.
+2. Copy the ID of this workspace from its URL in the KloudMate app. It starts with `ws_`.
+3. Open **Workflows → Connections**, click **Connect**, and pick **Custom MCP Server**. Name the connection `KloudMate MCP`, and fill in the form:
+
+   | Field | Value |
+   |---|---|
+   | **Server URL** | `https://api.kloudmate.com/mcp` |
+   | **Transport** | **Streamable HTTP** |
+   | **Authentication** | **Bearer token**, with your personal API key as the token |
+   | **Extra headers** | `{"x-workspace-id": "YOUR_WORKSPACE_ID"}` |
+
+4. Click **Connect**.
+
+The personal key works for every workspace its owner belongs to, and `x-workspace-id` picks the one the tools read. KloudMate stores the key encrypted with the connection, so it never appears in the workflow or in run history.
+
+## Step 2: Import the workflow
+
+1. Copy the YAML below.
+2. Open **Workflows**, click **Import**, paste the YAML, and click **Import**.
+3. Click **Open workflow**, and set these before you publish:
+   - On the four MCP Tool Call steps, pick your `KloudMate MCP` connection.
+   - On **Post the report**, pick your Slack connection and the channel.
+   - On the trigger, set **Timezone** to your team's timezone, such as `Europe/Berlin`.
+
+```yaml
+kind: workflow
+uid: guide-weekly-reliability-report
+spec:
+  name: Weekly reliability report
+  description: Every Monday, reads the past week's traffic, errors, open incidents, and SLOs from the KloudMate MCP server, and posts a report that AI writes from them.
+  definition:
+    schema_version: 1
+    trigger:
+      type: schedule
+      config:
+        mode: weekly
+        weekday: 1
+        hour: 9
+        minute: 0
+        timezone: UTC
+    steps:
+      - id: collect
+        type: parallel
+        display_name: Collect the week's data
+        branches:
+          - - id: traffic
+              type: action
+              action: mcp.call
+              display_name: Requests and latency by service
+              connection_id:
+                $input: kloudmate_mcp
+              with:
+                tool: get_service_requests_count_and_avg_latency
+                arguments:
+                  from: now-7d
+                  to: now
+          - - id: errors
+              type: action
+              action: mcp.call
+              display_name: Errors by service
+              connection_id:
+                $input: kloudmate_mcp
+              with:
+                tool: get_service_error_count
+                arguments:
+                  from: now-7d
+                  to: now
+          - - id: incidents
+              type: action
+              action: mcp.call
+              display_name: Open incidents
+              connection_id:
+                $input: kloudmate_mcp
+              with:
+                tool: search_incidents
+                arguments:
+                  limit: 50
+          - - id: slos
+              type: action
+              action: mcp.call
+              display_name: SLOs
+              connection_id:
+                $input: kloudmate_mcp
+              with:
+                tool: search_slos
+                arguments:
+                  enabled: true
+                  limit: 50
+      - id: write
+        type: action
+        action: ai.prompt
+        display_name: Write the report
+        with:
+          prompt: |-
+            Write this week's reliability report for the engineering team, as a Slack message. Use Slack formatting: *bold* for headings and short bullet lists. Keep it under 250 words, and don't include links.
+
+            Include these sections:
+            1. Traffic and errors: the five busiest services, with their request count and error rate. Error rate is the service's errors divided by its requests, as a percentage.
+            2. Open incidents: how many are open, and the three highest-severity ones by title.
+            3. SLOs at risk: every SLO that is breached or has less than 25% of its error budget left.
+
+            Use only the numbers in the data below. If a section has no data, say so in one line. Latency in the data is in nanoseconds, so show it in milliseconds.
+
+            Requests and average latency by service:
+            {{ steps.traffic.output.result }}
+
+            Errors by service:
+            {{ steps.errors.output.result }}
+
+            Open incidents:
+            {{ steps.incidents.output.result }}
+
+            SLOs:
+            {{ steps.slos.output.result }}
+      - id: post
+        type: action
+        action: slack.post_message
+        display_name: Post the report
+        connection_id:
+          $input: slack
+        with:
+          text: "{{ steps.write.output.text | replace: '<!', '&lt;!' }}"
+inputs:
+  kloudmate_mcp:
+    kind: connection
+    name: KloudMate MCP
+    type: custom_mcp
+  slack:
+    kind: connection
+    name: Slack
+    type: slack
+```
+
+## How each step works
+
+### Collect the week's data
+
+A **Parallel** step runs four **MCP Tool Call** steps at the same time, one in each branch. Each step calls one tool on the KloudMate MCP server:
+
+| Step | Tool | Arguments |
+|---|---|---|
+| **Requests and latency by service** | `get_service_requests_count_and_avg_latency` | `from` is `now-7d`, and `to` is `now` |
+| **Errors by service** | `get_service_error_count` | `from` is `now-7d`, and `to` is `now` |
+| **Open incidents** | `search_incidents` | `limit` is `50` |
+| **SLOs** | `search_slos` | `enabled` is `true`, and `limit` is `50` |
+
+Pick the tool from the **Tool** list, and the step builds the **Arguments** form from the tool's own input schema. The tools accept a relative time such as `now-7d`, so the same step reads the last seven days every week. `search_incidents` returns the incidents that aren't resolved yet, and `search_slos` returns each SLO with its latest compliance and error budget.
+
+Every tool on this server only reads data, so the workflow can't change anything in KloudMate. Each step returns what the tool answered as `result`, so the next step reads it as `{{ steps.errors.output.result }}`. See [MCP Tool Call](/workflows/actions/#mcp-tool-call).
+
+### Write the report
+
+An **AI Prompt** step writes the report. The **Prompt** gives the model the structure to follow and the rules for the numbers, and then the data from the four tools:
+
+```liquid
+Requests and average latency by service:
+{{ steps.traffic.output.result }}
+
+Errors by service:
+{{ steps.errors.output.result }}
+```
+
+When a reference sits inside other text, an object or a list renders as JSON, which the model reads well. So the prompt doesn't depend on the exact shape each tool returns, and the model does the arithmetic, such as each service's error rate.
+
+The prompt asks the model to use only numbers from the data, and to say so when a section has none, which keeps it from filling a gap with a guess. Read the first few reports against the numbers in KloudMate before you rely on them.
+
+**AI Prompt** fits here because the data comes from your own workspace. Incident titles and service names are written by your team and your systems. When a prompt includes text that someone outside your team can write, such as a support ticket or a Slack message, use **AI Extract** instead, which can't return anything outside its output fields. See [AI Prompt](/workflows/actions/#ai-prompt).
+
+### Post the report
+
+A Slack **Post Message** step posts `steps.write.output.text`. The `replace` filter turns `<!` into `&lt;!`, which stops text such as `<!channel>` from notifying the whole channel if the model ever writes it:
+
+```liquid
+{{ steps.write.output.text | replace: '<!', '&lt;!' }}
+```
+
+## Step 3: Test and publish
+
+1. Test each of the four MCP Tool Call steps from its **Test** tab. The output shows what the tool returned for your workspace, and a connection problem shows up here first.
+2. Click **Test run**. It writes a report from this week's data and posts it in the channel.
+3. Compare the report with what KloudMate shows for the same week, and adjust the prompt if you want a different focus.
+4. Click **Publish**. The first publish also switches the workflow on.
+
+## Adapt the workflow
+
+- **Report on other data.** Add another MCP Tool Call step to **Collect the week's data**, such as `search_alert_states` for the alerts firing now. Then add its result to the prompt, with a line that says what it is. The [KloudMate MCP server](/kloudmate-assistant/mcp-server/#available-tools) page lists the tools.
+- **Report every day.** Change the trigger to **Daily**, and change `now-7d` to `now-1d` in the arguments.
+- **Email the report instead.** Replace **Post the report** with a **Send Email** step, and ask for Markdown instead of Slack formatting in the prompt, because Send Email reads Markdown.
+- **Use another MCP server.** An MCP Tool Call step can call any server you connect as a **Custom MCP Server**, such as an internal service your team built. Use **API key in a header** under **Authentication** for a server that wants its key in a named header.
+
+## Related
+
+- [MCP Tool Call](/workflows/actions/#mcp-tool-call) for the step's fields and output.
+- [KloudMate MCP Server](/kloudmate-assistant/mcp-server/) for the server's tools and connection details.
+- [Connections](/platform/settings/connections/providers/#tools-and-custom-endpoints) for Custom MCP Server connections.

@@ -1,14 +1,14 @@
 ---
-title: "Templating and variables"
-description: "Reach the trigger payload, an earlier step's output, and workspace constants and secrets from any field that accepts a template."
+title: "Templating"
+description: "Use the trigger payload, an earlier step's output, and workspace variables in any field that accepts a template, and format values with Liquid."
 sidebar:
-  label: "Templating and variables"
+  label: "Templating"
   order: 7
 ---
 
-Most fields on a step accept `{{ }}` templates, and they all resolve against the same scope. Each templatable field offers a variable picker, and once a step has been tested the picker shows a real example value next to every path that step produces.
+Most fields on a step accept `{{ }}` templates, and every template can reference the same data. Each field that accepts templates has a variable picker. After you test a step, the picker shows a real example value next to every path that step produces.
 
-## What's in scope
+## What a template can reference
 
 | Reference | What it holds |
 |---|---|
@@ -16,74 +16,88 @@ Most fields on a step accept `{{ }}` templates, and they all resolve against the
 | `{{ steps.<id>.output.* }}` | What an earlier step returned. |
 | `{{ steps.<id>.error }}` | The error message, when that step is set to continue on failure. |
 | `{{ item }}` and `{{ item_index }}` | The current element inside a loop, and its position. |
-| `{{ vars.<name> }}` | A workspace constant. |
-| `{{ secrets.<name> }}` | A workspace secret. |
+| `{{ vars.<name> }}` | A workspace constant. See [Variables](../variables/). |
+| `{{ secrets.<name> }}` | A workspace secret. See [Variables](../variables/). |
 
-A step's id is generated when you add it, and renaming the step doesn't change it. You don't type these references: pick from the variable picker, which lists steps under the names you gave them and inserts the right id. Examples on these pages use readable ids such as `steps.lookup` to show the shape.
+The builder generates a step's id when you add it, and renaming the step doesn't change it. Don't type these references. Pick them from the variable picker, which lists steps under the names you gave them and inserts the right id. Examples on these pages use readable ids such as `steps.lookup` to show the shape.
 
-Templates compose, so this works as written:
+## Write a template
 
-```text
+Templates use [Liquid](https://liquidjs.com/tutorials/intro-to-liquid.html). `{{ }}` outputs a value, `{% %}` runs logic such as an `if` or a `for` loop, and a filter after a `|` changes a value before it's output. The standard filters and tags all work, apart from tags that load another file, such as `include`. The [LiquidJS filter reference](https://liquidjs.com/filters/overview.html) and [tag reference](https://liquidjs.com/tags/overview.html) list them with examples.
+
+A template string can be up to 8192 characters long.
+
+Mix references with plain text:
+
+```liquid
 Bearer {{ secrets.stripe_key }}
 ```
 
-Templates are Liquid, so filters work: a constant holding a comma-separated list becomes an array with `{{ vars.regions | split: "," }}`.
+When a field might be missing, give it a fallback with `default`:
 
-A template string is capped at 8192 characters.
+```liquid
+Service: {{ trigger.body.group.labels.service | default: "unknown" }}
+```
 
-## When a reference doesn't resolve
+Show different text depending on a condition:
 
-An unknown reference renders empty rather than failing. The Test panel lists every path that resolved to nothing under **Unresolved variables**, and the run timeline records the same list per step, so check both.
+```liquid
+{{ trigger.body.group.title }}: {% if trigger.body.group.severity == "sev1" %}page the on-call engineer.{% else %}review it during working hours.{% endif %}
+```
 
-A reference to a step that doesn't exist is different: publishing rejects it by name.
+Write a line for each item in a list:
 
-## Workspace variables
+```liquid
+{% for rule in trigger.body.rules %}
+- {{ rule.alarm_name }}: {{ rule.instances.size }} instances
+{% endfor %}
+```
 
-Set a value once and refer to it from every workflow that needs it. Open **Workflows → Variables** and click **Add variable**.
+`tz` is a KloudMate filter that shows a timestamp in the timezone you name, or in UTC if you don't name one. With an `opened_at` of `2026-05-23T10:12:00Z`, this prints `Opened 2026-05-23 06:12:00 EDT`:
 
-Pick **Constant** or **Secret** when you create one. The kind decides how the value is referenced, stored, and read:
+```liquid
+Opened {{ trigger.body.group.opened_at | tz: "America/New_York" }}
+```
 
-|  | Constant | Secret |
-|---|---|---|
-| Reference | `{{ vars.<name> }}` | `{{ secrets.<name> }}` |
-| Shown in the list | Yes | No |
-| In run history | The real value | `secret: <name>` |
-| Read | Once per run, then frozen | Per step, so a rotation mid-run takes effect on the next step |
+Turn a comma-separated constant into a list for a JSON field:
 
-Names take letters, digits, and underscores, starting with a letter or underscore, up to 64 characters. `STRIPE_KEY` and `slack_channel` are both fine. A workspace holds up to 200 variables.
+```liquid
+{{ vars.regions | split: "," }}
+```
 
-The list shows who set each one, when the **value** last changed, and, for secrets, when it was last used. Read the value-changed column to answer "has this been rotated since the incident?", because editing a description doesn't move it.
+## How values render
 
-![The Variables tab with a Constant row showing its value and a Secret row showing Hidden, alongside who set each one and when the value last changed](./images/variables-tab.png)
+- **A field is a template only when it contains `{{`.** A value made only of `{% %}` tags is used exactly as written. To choose a value with tags alone, assign it and output it at the end, as in `{% if x %}{% assign p = "High" %}{% else %}{% assign p = "Low" %}{% endif %}{{ p }}`.
+- **A lone reference keeps its type.** When a field holds one reference and nothing else, such as `{{ trigger.body }}` or `{{ item.pods }}`, the step gets the value itself: an object stays an object, and a list stays a list. Anything else renders as text, with an object or a list inside it written out as JSON.
+- **A loop's Items takes a plain reference.** A filter turns the list into text, and a [loop](../control-flow/#loop-for-each) fails when **Items** isn't a list.
+- **`0` and empty text count as false.** `{% if count %}` is false when `count` is `0`, and `default` replaces `0` as well as a missing value. To check whether a value is set at all, compare it with `nil`, as in `{% if count != nil %}`.
+- **Write an array position with a dot**, as in `trigger.body.rules.0.instances.0.labels`. `[0]` also works in a template on an action's field, but condition fields and a loop's **Items** read `rules[0]` as a key name. Publishing refuses `[0]` there and suggests the dot form.
+- **Put a key with spaces or punctuation in quoted brackets**, as in `{{ trigger.body["Alert Name"] }}`. This works in condition fields too.
+- **Publishing parses every template.** A syntax error or a filter that doesn't exist stops the publish, and the error names the field.
 
-### What a secret protects against
+The variable picker writes array positions and quoted keys in the right form for you.
 
-A secret never enters a workflow definition and never enters run history. It's substituted into the step's inputs at the last moment, after everything has been recorded, so run detail shows `secret: stripe_key` where the value would be. If a step's output comes back carrying the secret, it's rewritten to `••••` before that output is recorded or read downstream, and the step still succeeds.
+## Escape values in an email
 
-That protects against passive reading: run history, exports, and someone looking over your shoulder. It does not protect against the person writing the workflow, who can bind a secret to an HTTP step pointed at their own server. A [connection](/platform/settings/connections/) has the same boundary, which is why both need the **Developer** role.
+**Send Email** accepts HTML in its **Message**, and anyone who has a workflow's webhook URL can write the payload. A payload value placed straight into the message can add markup of its own, such as a link that points somewhere else. Pass every value you didn't write yourself through `escape`, including payload fields, command output, resource names, and error messages:
 
-The output rewrite skips values under 8 characters, so don't rely on it for a short secret.
+```liquid
+Alert: <b>{{ trigger.body.group.title | escape }}</b>
+Labels: {{ trigger.body.group.labels | json | escape }}
+```
 
-### Rotate, rename, delete
+For a list or an object, add `json` before `escape`. Without it, `escape` prints an object as `[object Object]`.
 
-**Rotate** a secret by editing it and typing a new value. Leave the value blank to keep the stored secret.
+`escape` changes only HTML characters (`<`, `>`, `&`, and quotes), so Markdown in the value, including a link, still renders. The subject line is plain text and needs no escaping, and KloudMate escapes the messages of Approval and Collect Input steps for you.
 
-**Rename** is refused the first time and lists the workflows that name the key; confirm to go ahead. The reference is the name, so renaming breaks every template using it, and a published version can't be rewritten.
+## Unresolved references
 
-**Delete** is refused outright while any workflow still names the key, with the workflows listed so you can fix them. Unlike a rename, there's no confirm to push past it.
+An unknown reference renders empty rather than failing. The Test panel lists every path that resolved to nothing under **Unresolved variables**, and the run timeline records the same list per step, so check both. The list includes a reference with a `default` too, so you can see when it used the fallback.
 
-**A variable can't be converted between kinds.** Flipping a constant to a secret moves the reference to a different namespace, so every `{{ vars.x }}` in the workspace would quietly start resolving empty. Delete it and create the other kind.
-
-### Reveal a secret
-
-**Reveal value** shows the plaintext to whoever created it, or to an organization **Owner**. Other users with the **Developer** role can't, even though they can rotate or delete it. Each reveal is recorded, along with who read it.
-
-### Publishing checks the names
-
-Publishing fails if a workflow names a secret the workspace doesn't have, and the message names the key. A constant that doesn't exist resolves empty like any other unknown reference, so check the Test panel's unresolved list.
+Publishing does reject a reference to a step that doesn't exist, and names the step.
 
 ## Related
 
+- [Variables](../variables/) for the workspace constants and secrets that `vars` and `secrets` read.
 - [Test a workflow](../test-a-workflow/) for getting real values into the variable picker.
-- [Storage](../storage/) for values a run writes, rather than values you set.
 - [The action catalog](../actions/) for which fields accept templates.

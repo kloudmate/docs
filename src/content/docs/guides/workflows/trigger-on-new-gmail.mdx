@@ -1,0 +1,270 @@
+---
+title: "Trigger a workflow when a new email is received in Gmail"
+description: "Run workflow steps for each new email in a Gmail inbox, using an OAuth 2.0 connection to read the mail and Storage to track the last check. The example adds each email to a Google Sheet."
+sidebar:
+  order: 16
+---
+
+This guide builds a workflow that runs its steps for each new email in a Gmail inbox. KloudMate has no Gmail trigger, so a **Schedule** trigger checks the inbox every 5 minutes, and the workflow then handles each email that arrived since the last check.
+
+As the example, the workflow adds a row to a Google Sheet for each email, with its date, sender, subject, and a short preview. You can replace that step with anything else, such as a Slack message or a Jira issue.
+
+There are no built-in Gmail or Google Sheets actions either, so the workflow calls their APIs directly. You can use the same approach with any service that has an HTTP API:
+
+- An **OAuth 2.0 connection** holds your Google credential, and KloudMate refreshes its access token for you.
+- **HTTP Request** steps call the Gmail and Google Sheets APIs through that connection.
+- **Storage** remembers when the workflow last checked, so each run looks only at new mail.
+
+The finished workflow has these steps:
+
+```text
+Schedule: every 5 minutes
+├─ Last check time          Storage: Get
+├─ New inbox mail           HTTP Request to Gmail
+├─ Any new mail?            Branch
+│  └─ For each message      Loop
+│     ├─ Read the message   HTTP Request to Gmail
+│     └─ Add a row          HTTP Request to Google Sheets
+└─ Remember this check      Storage: Put
+```
+
+## Before you start
+
+- You need the **Developer** role in a KloudMate workspace whose plan includes workflows.
+- Create a Google Sheet to write to, and copy its ID from the sheet's URL. The ID is the part between `/d/` and `/edit` in `https://docs.google.com/spreadsheets/d/SPREADSHEET_ID/edit`.
+- You need a Google Cloud project where you can create an OAuth client.
+
+## Step 1: Create an OAuth client in Google Cloud
+
+In the [Google Cloud console](https://console.cloud.google.com/), in the project you'll use:
+
+1. Enable the **Gmail API** and the **Google Sheets API**.
+2. Set up the OAuth consent screen. If the app is external and its publishing status is **Testing**, add your Google account as a test user.
+3. Create an OAuth client ID with the application type **Web application**.
+4. Under **Authorized redirect URIs**, add this URI:
+
+   ```text
+   https://api.kloudmate.com/integrations/oauth/callback
+   ```
+
+5. Copy the client ID and the client secret.
+
+For more detail on each step, see Google's guide to [creating OAuth credentials](https://developers.google.com/identity/protocols/oauth2/web-server#creatingcred).
+
+:::caution
+While an external app's publishing status is **Testing**, Google expires its refresh tokens after 7 days, and the KloudMate connection then needs a reconnect. To avoid that, publish the app, or make it internal to your Google Workspace organization.
+:::
+
+## Step 2: Connect your Google account
+
+1. In KloudMate, open **Workflows → Connections**, click **Connect**, and pick **OAuth 2.0**.
+2. Name the connection `Google`, and fill in the form:
+
+   | Field | Value |
+   |---|---|
+   | **Grant type** | **Authorization code** |
+   | **Token URL** | `https://oauth2.googleapis.com/token` |
+   | **Authorize URL** | `https://accounts.google.com/o/oauth2/v2/auth?access_type=offline&prompt=consent` |
+   | **Scopes** | `https://www.googleapis.com/auth/gmail.readonly https://www.googleapis.com/auth/spreadsheets` |
+   | **Client ID** and **Client secret** | The values from Step 1. |
+   | **Send client credentials** | **In the body** |
+
+3. Click **Connect**. In the Google window that opens, choose your account and approve the access.
+
+The connection then shows **Verified**. Its scopes let it read your mail and edit your sheets, and nothing else.
+
+Keep `?access_type=offline&prompt=consent` at the end of the **Authorize URL**. Without it, Google issues no refresh token, and the connection stops working after an hour.
+
+## Step 3: Import the workflow
+
+The quickest way to build the workflow is to import it:
+
+1. Copy the YAML below, and replace `YOUR_SPREADSHEET_ID` with your sheet's ID.
+2. Open **Workflows**, click **Import**, paste the YAML, and click **Import**.
+3. Click **Open workflow**. On **New inbox mail**, **Read the message**, and **Add a row to the sheet**, pick your `Google` connection.
+
+The import can't match a connection from another workspace, so it lists those steps under **Set these before publishing** until you pick the connection.
+
+```yaml
+kind: workflow
+uid: guide-gmail-to-google-sheet
+spec:
+  name: Gmail to Google Sheet
+  description: Every 5 minutes, adds a row to a Google Sheet for each new email in the Gmail inbox.
+  definition:
+    schema_version: 1
+    trigger:
+      type: schedule
+      config:
+        mode: interval
+        every_minutes: 5
+        timezone: UTC
+    steps:
+      - id: since
+        type: action
+        action: store.get
+        display_name: Last check time
+        with:
+          scope: workflow
+          key: gmail_after
+          default: "{{ trigger.schedule.fired_at | default: 'now' | date: '%s' | minus: 900 }}"
+      - id: list
+        type: action
+        action: http.request
+        display_name: New inbox mail
+        connection_id:
+          $input: google
+        with:
+          authType: connection
+          method: GET
+          url: "https://gmail.googleapis.com/gmail/v1/users/me/messages?maxResults=20&q={{ 'in:inbox after:' | append: steps.since.output.value | url_encode }}"
+      - id: any_new
+        type: branch
+        display_name: Any new mail?
+        if:
+          all:
+            - field: steps.list.output.body.messages
+              op: is_not_empty
+        then:
+          - id: each_msg
+            type: loop
+            display_name: For each message
+            items: steps.list.output.body.messages
+            each:
+              - id: msg
+                type: action
+                action: http.request
+                display_name: Read the message
+                connection_id:
+                  $input: google
+                with:
+                  authType: connection
+                  method: GET
+                  url: "https://gmail.googleapis.com/gmail/v1/users/me/messages/{{ item.id }}?format=metadata&metadataHeaders=From&metadataHeaders=Subject&metadataHeaders=Date"
+              - id: append
+                type: action
+                action: http.request
+                display_name: Add a row to the sheet
+                connection_id:
+                  $input: google
+                with:
+                  authType: connection
+                  method: POST
+                  url: "https://sheets.googleapis.com/v4/spreadsheets/YOUR_SPREADSHEET_ID/values/A1:append?valueInputOption=RAW&insertDataOption=INSERT_ROWS"
+                  body_type: json
+                  body:
+                    values:
+                      - - "{{ steps.msg.output.body.payload.headers | where: 'name', 'Date' | map: 'value' | first }}"
+                        - "{{ steps.msg.output.body.payload.headers | where: 'name', 'From' | map: 'value' | first }}"
+                        - "{{ steps.msg.output.body.payload.headers | where: 'name', 'Subject' | map: 'value' | first }}"
+                        - "{{ steps.msg.output.body.snippet }}"
+      - id: advance
+        type: action
+        action: store.put
+        display_name: Remember this check
+        with:
+          scope: workflow
+          key: gmail_after
+          value: "{{ trigger.schedule.fired_at | default: 'now' | date: '%s' }}"
+inputs:
+  google:
+    kind: connection
+    name: Google
+    type: oauth2
+```
+
+To build the workflow by hand instead, create it with a **Schedule** trigger, set **Repeat** to **Every N minutes (interval)** with `5`, and add the steps in the order below. The YAML uses readable step ids such as `since` and `list`, but the builder generates its own ids, so pick each reference from the variable picker instead of copying it.
+
+## How each step works
+
+### Last check time
+
+A **Storage: Get** step reads the key `gmail_after`, with **Scope** set to **This workflow**. The key holds a Unix timestamp in seconds, the format that Gmail's `after:` search expects.
+
+On the first run the key doesn't exist yet, so the step returns its **Default**, which starts the search 15 minutes (900 seconds) before this run:
+
+```liquid
+{{ trigger.schedule.fired_at | default: 'now' | date: '%s' | minus: 900 }}
+```
+
+`date: '%s'` turns the run's scheduled time into Unix seconds, and `default: 'now'` uses the current time if the run has no scheduled time.
+
+### New inbox mail
+
+An **HTTP Request** step with **Authentication** set to **OAuth 2.0 connection** and your `Google` connection sends a `GET` to Gmail's message list:
+
+```liquid
+https://gmail.googleapis.com/gmail/v1/users/me/messages?maxResults=20&q={{ 'in:inbox after:' | append: steps.since.output.value | url_encode }}
+```
+
+The `q` parameter takes a Gmail search, so this asks for inbox messages newer than the last check. `url_encode` makes the search text safe to put in a URL. Gmail returns the ids of up to 20 matching messages in `body.messages`.
+
+### Any new mail?
+
+A **Branch** checks that `steps.list.output.body.messages` **is not empty**. Gmail leaves `messages` out of its response when nothing matches, so a run with no new mail goes straight to the last step.
+
+### For each message
+
+A **Loop** with **Items** set to `steps.list.output.body.messages` runs the next two steps once for each message. **Run at once** stays at 1, so the workflow adds the messages one at a time.
+
+### Read the message
+
+An **HTTP Request** step sends a `GET` for one message. `format=metadata` and the `metadataHeaders` parameters ask Gmail for only the `Date`, `From`, and `Subject` headers, along with a short `snippet` of the body:
+
+```liquid
+https://gmail.googleapis.com/gmail/v1/users/me/messages/{{ item.id }}?format=metadata&metadataHeaders=From&metadataHeaders=Subject&metadataHeaders=Date
+```
+
+`{{ item.id }}` is the current message's id from the list.
+
+### Add a row to the sheet
+
+An **HTTP Request** step sends a `POST` to the Google Sheets API, which adds a row below the existing rows on the sheet's first tab. **Body type** is **JSON**, and the body holds one row with four cells:
+
+```json
+{
+  "values": [[
+    "{{ steps.msg.output.body.payload.headers | where: 'name', 'Date' | map: 'value' | first }}",
+    "{{ steps.msg.output.body.payload.headers | where: 'name', 'From' | map: 'value' | first }}",
+    "{{ steps.msg.output.body.payload.headers | where: 'name', 'Subject' | map: 'value' | first }}",
+    "{{ steps.msg.output.body.snippet }}"
+  ]]
+}
+```
+
+Gmail returns the headers as a list of `name` and `value` pairs. `where` keeps the header with the name you want, `map: 'value'` takes its value, and `first` turns the one-item list into text. For more on these filters, see [Templating](/workflows/templating/).
+
+### Remember this check
+
+A **Storage: Put** step saves this run's scheduled time to `gmail_after`, so the next run starts its search from there:
+
+```liquid
+{{ trigger.schedule.fired_at | default: 'now' | date: '%s' }}
+```
+
+It's the last step on purpose. If a run fails partway through, `gmail_after` keeps its old value, and the next run searches the same period again, so no message is skipped.
+
+## Step 4: Test and publish
+
+1. Open the trigger's **Test** tab and click **Test trigger** to capture a sample with a real fire time.
+2. Click **Test run**. It runs every step for real, so any mail from the last 15 minutes becomes rows in your sheet.
+3. Delete the rows the test added from your sheet. Then open **Workflows → Storage** and delete the `gmail_after` key that the test run saved, so the first scheduled run starts fresh, from 15 minutes before it runs.
+4. Click **Publish**. The first publish also switches the workflow on, and it runs every 5 minutes from then on.
+
+To see what each run did, open **Workflows → Runs**. See [Run history](/workflows/run-history/).
+
+## Adapt the workflow
+
+- **Do something else with each email.** Replace **Add a row to the sheet** with any other step, such as Slack **Post Message** or Jira **Create Issue**. The step can read the email's details from `steps.msg.output.body`, the same way the sheet row does.
+- **Only react to some emails.** Narrow the Gmail search in the **New inbox mail** URL. For example, change `'in:inbox after:'` to `'in:inbox from:alerts@example.com after:'`, and the workflow sees only mail from that sender.
+- **Handle more mail per run.** Each run lists at most 20 messages. If more can arrive in 5 minutes, raise `maxResults`, up to 100, which is the most one loop handles.
+- **Avoid duplicate rows.** If a run fails after adding some rows, the next run adds those messages again. To skip them, keep a marker key for each message id, such as `added:{{ item.id }}`, the same way as in [Notify once a day per alert group](/workflows/storage/#notify-once-a-day-per-alert-group).
+- **Call another Google API.** Add its scope to the connection's **Scopes**, then click **Reconnect** on the connection, so Google asks you to approve the new access.
+- **Use another service.** Any API that supports OAuth 2.0 works the same way: create an OAuth client with the service, register the redirect URI, create an OAuth 2.0 connection with the service's token and authorize URLs, and call the API from **HTTP Request** steps.
+
+## Related
+
+- [Connect an account](/platform/settings/connections/connect-an-account/) for OAuth 2.0 connections.
+- [HTTP Request](/workflows/actions/#http-request) for the step's fields.
+- [Storage](/workflows/storage/) for the cursor pattern this workflow uses.
+- [Test a workflow](/workflows/test-a-workflow/) for testing steps against real data.

@@ -30,4 +30,4 @@ Explore the following guides to set up and configure your Azure integrations:
 
 ## Acting on Azure, not just reading it
 
-Everything above is read-only telemetry. To have a [workflow](../workflows/) act on an Azure resource or run a script on a VM, connect Azure separately under [Settings → Connections](/platform/settings/connections/). That connection uses its own service principal, so you can grant it the RBAC roles automation needs without widening the read-only one used for monitoring.
+Everything above is read-only telemetry. To let a [workflow](../workflows/) act on an Azure resource or run a script on a VM, connect Azure separately under [Settings → Connections](/platform/settings/connections/). That connection uses its own service principal, so you can grant it the RBAC roles automation needs without giving more access to the read-only service principal used for monitoring.

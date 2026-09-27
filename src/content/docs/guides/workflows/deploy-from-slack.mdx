@@ -1,0 +1,386 @@
+---
+title: "Deploy from Slack, with approval for production"
+description: "Mention the bot in Slack to start a GitHub Actions deploy. AI Extract reads the request, a production deploy waits for an approval, and the workflow reports the result in the thread."
+sidebar:
+  order: 5
+---
+
+This guide builds a deploy command for Slack. Someone mentions the KloudMate bot with a request such as "deploy api to staging", and the workflow starts your GitHub Actions deploy workflow, follows the run, and replies in the thread when it finishes. A deploy to production waits until an approver says yes.
+
+The request is ordinary text, so an **AI Extract** step reads it and picks the service and the environment from fixed lists. The rest of the workflow works only with those values, never with the message itself.
+
+The finished workflow has these steps:
+
+```text
+Slack: Bot is mentioned
+├─ Read the request                           AI Extract
+└─ Is it a deploy request?                    Branch
+   ├─ Then
+   │  ├─ Look up who asked                    Slack: Look Up User
+   │  ├─ Production?                          Branch
+   │  │  └─ Then: say it needs approval, then Approval
+   │  └─ OK to deploy?                        Branch
+   │     ├─ Then
+   │     │  ├─ Start the deploy workflow      HTTP Request
+   │     │  ├─ Say the deploy started         Slack: Post Message
+   │     │  ├─ Wait for the deploy to finish  Wait until
+   │     │  └─ Report the result              Slack: Post Message
+   │     └─ Else: say nobody approved
+   └─ Else: explain how to ask
+```
+
+## Before you start
+
+- You need the **Developer** role in a KloudMate workspace whose plan includes workflows.
+- You need a Slack connection with the **Workflows** capability, and a channel for deploy requests. Invite the KloudMate bot to that channel.
+- You need a GitHub repository where you can add a workflow, and permission to create a fine-grained personal access token for it.
+- Each run uses workflow credits, and the **AI Extract** step uses more. See [Check workflow usage](/workflows/run-history/#check-workflow-usage).
+
+## Step 1: Add a deploy workflow in GitHub
+
+The workflow starts a GitHub Actions workflow named `deploy.yml`, and passes it the service and the environment. Add this file to your repository's default branch as `.github/workflows/deploy.yml`, and replace the last step with your own deploy commands:
+
+```yaml
+name: Deploy
+on:
+  workflow_dispatch:
+    inputs:
+      service:
+        type: choice
+        options: [api, web, worker]
+      environment:
+        type: choice
+        options: [staging, production]
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: ./scripts/deploy.sh "${{ inputs.service }}" "${{ inputs.environment }}"
+```
+
+If you already have a deploy workflow, add the `workflow_dispatch` trigger with these two inputs to it instead.
+
+## Step 2: Save the repository and a token as variables
+
+1. In GitHub, create a [fine-grained personal access token](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens#creating-a-fine-grained-personal-access-token) with access to the repository, and the **Actions** repository permission set to **Read and write**.
+2. In KloudMate, open **Workflows → Variables**, and create a **Secret** named `github_token` with the token as its value.
+3. Create a **Constant** named `github_repo` with the repository's owner and name, such as `acme/platform`.
+
+The token lets the workflow start runs and read their status, and nothing else in the repository.
+
+## Step 3: Import the workflow
+
+1. Copy the YAML below.
+2. Open **Workflows**, click **Import**, paste the YAML, and click **Import**.
+3. Click **Open workflow**, and set these before you publish:
+   - On the trigger, pick your Slack connection under **Account**, and set **Only in channel** to your deploy channel.
+   - On every Slack step, pick your Slack connection.
+   - On **Approve the production deploy**, add the people who can approve a production deploy under **Approvers**.
+
+```yaml
+kind: workflow
+uid: guide-deploy-from-slack
+spec:
+  name: Deploy from Slack
+  description: When someone mentions the bot with a deploy request, starts the GitHub Actions deploy workflow, asks for approval before a production deploy, and reports the result in the thread.
+  definition:
+    schema_version: 1
+    trigger:
+      type: integration_event
+      config:
+        connection_id:
+          $input: slack
+        trigger_key: slack.app_mention
+        props: {}
+    steps:
+      - id: parse
+        type: action
+        action: ai.extract
+        display_name: Read the request
+        with:
+          prompt: The message asks a bot to deploy a service to an environment. Extract the service and the environment. If the message doesn't ask for a deploy, set intent to other and leave the rest out.
+          source: "{{ trigger.event.text }}"
+          output_fields:
+            - name: intent
+              type: enum
+              options: [deploy, other]
+            - name: service
+              type: enum
+              options: [api, web, worker]
+              required: false
+            - name: environment
+              type: enum
+              options: [staging, production]
+              required: false
+      - id: understood
+        type: branch
+        display_name: Is it a deploy request?
+        if:
+          all:
+            - field: steps.parse.output.intent
+              op: eq
+              value: deploy
+            - field: steps.parse.output.service
+              op: is_not_empty
+            - field: steps.parse.output.environment
+              op: is_not_empty
+        then:
+          - id: who
+            type: action
+            action: slack.lookup_user
+            display_name: Look up who asked
+            connection_id:
+              $input: slack
+            with:
+              user: "{{ trigger.event.user }}"
+          - id: is_production
+            type: branch
+            display_name: Production?
+            if:
+              all:
+                - field: steps.parse.output.environment
+                  op: eq
+                  value: production
+            then:
+              - id: say_waiting
+                type: action
+                action: slack.post_message
+                display_name: Say it needs approval
+                connection_id:
+                  $input: slack
+                with:
+                  channel: "{{ trigger.event.channel }}"
+                  thread_ts: "{% assign thread = trigger.event.thread_ts | default: trigger.event.ts %}{{ thread }}"
+                  text: ":raised_hand: A production deploy of {{ steps.parse.output.service }} needs an approval. I've asked for one."
+              - id: approve
+                type: approval
+                display_name: Approve the production deploy
+                approvers: []
+                timeout: 30m
+                on_timeout: continue
+                message: "{{ steps.who.output.user.real_name }} asked in Slack to deploy {{ steps.parse.output.service }} to production."
+          - id: go
+            type: branch
+            display_name: OK to deploy?
+            if:
+              any:
+                - field: steps.parse.output.environment
+                  op: eq
+                  value: staging
+                - field: steps.approve.output.approved
+                  op: is_not_empty
+            then:
+              - id: dispatch
+                type: action
+                action: http.request
+                display_name: Start the deploy workflow
+                with:
+                  method: POST
+                  url: "https://api.github.com/repos/{{ vars.github_repo }}/actions/workflows/deploy.yml/dispatches"
+                  authType: bearer
+                  auth:
+                    token: "{{ secrets.github_token }}"
+                  headers:
+                    Accept: application/vnd.github+json
+                    X-GitHub-Api-Version: "2022-11-28"
+                  body_type: json
+                  body:
+                    ref: main
+                    inputs:
+                      service: "{{ steps.parse.output.service }}"
+                      environment: "{{ steps.parse.output.environment }}"
+                    return_run_details: true
+              - id: say_started
+                type: action
+                action: slack.post_message
+                display_name: Say the deploy started
+                connection_id:
+                  $input: slack
+                with:
+                  channel: "{{ trigger.event.channel }}"
+                  thread_ts: "{% assign thread = trigger.event.thread_ts | default: trigger.event.ts %}{{ thread }}"
+                  text: ":rocket: Deploying {{ steps.parse.output.service }} to {{ steps.parse.output.environment }} for <@{{ trigger.event.user }}>. <{{ steps.dispatch.output.body.html_url }}|Follow the run>."
+              - id: wait_run
+                type: wait_until
+                display_name: Wait for the deploy to finish
+                timeout: 30m
+                on_error: continue
+                check:
+                  - id: run
+                    type: action
+                    action: http.request
+                    display_name: Read the run
+                    with:
+                      method: GET
+                      url: "https://api.github.com/repos/{{ vars.github_repo }}/actions/runs/{{ steps.dispatch.output.body.workflow_run_id }}"
+                      authType: bearer
+                      auth:
+                        token: "{{ secrets.github_token }}"
+                      headers:
+                        Accept: application/vnd.github+json
+                        X-GitHub-Api-Version: "2022-11-28"
+                until:
+                  all:
+                    - field: steps.run.output.body.status
+                      op: eq
+                      value: completed
+              - id: say_result
+                type: action
+                action: slack.post_message
+                display_name: Report the result
+                connection_id:
+                  $input: slack
+                with:
+                  channel: "{{ trigger.event.channel }}"
+                  thread_ts: "{% assign thread = trigger.event.thread_ts | default: trigger.event.ts %}{{ thread }}"
+                  text: "{% assign r = steps.run.output.body %}{% if r.status != 'completed' %}:hourglass: The deploy is still running after 30 minutes.{% elsif r.conclusion == 'success' %}:white_check_mark: {{ steps.parse.output.service }} is deployed to {{ steps.parse.output.environment }}.{% else %}:x: The deploy finished with the result {{ r.conclusion }}.{% endif %} <{{ steps.dispatch.output.body.html_url }}|Open the run>."
+            else:
+              - id: say_expired
+                type: action
+                action: slack.post_message
+                display_name: Say nobody approved
+                connection_id:
+                  $input: slack
+                with:
+                  channel: "{{ trigger.event.channel }}"
+                  thread_ts: "{% assign thread = trigger.event.thread_ts | default: trigger.event.ts %}{{ thread }}"
+                  text: "Nobody approved the production deploy within 30 minutes, so nothing was deployed. Mention me again to ask once more."
+        else:
+          - id: say_help
+            type: action
+            action: slack.post_message
+            display_name: Explain how to ask
+            connection_id:
+              $input: slack
+            with:
+              channel: "{{ trigger.event.channel }}"
+              thread_ts: "{% assign thread = trigger.event.thread_ts | default: trigger.event.ts %}{{ thread }}"
+              text: "I can deploy api, web, or worker to staging or production. For example: deploy api to staging."
+inputs:
+  slack:
+    kind: connection
+    name: Slack
+    type: slack
+  github_repo:
+    kind: variable
+    name: github_repo
+    type: constant
+  github_token:
+    kind: variable
+    name: github_token
+    type: secret
+```
+
+## How each step works
+
+### The trigger
+
+The **Bot is mentioned** trigger runs when someone mentions the bot in a channel. **Only in channel** limits it to your deploy channel, so a mention anywhere else doesn't start a deploy. The event carries the message as `trigger.event.text`, the person as `trigger.event.user`, and the message's channel and timestamp.
+
+### Read the request
+
+An **AI Extract** step reads `{{ trigger.event.text }}` and returns whether it's a deploy request, the service, and the environment. **Output fields** limits each one to a fixed list, so the model can only answer with a service and an environment that you allow:
+
+```json
+[
+  { "name": "intent", "type": "enum", "options": ["deploy", "other"] },
+  { "name": "service", "type": "enum", "options": ["api", "web", "worker"], "required": false },
+  { "name": "environment", "type": "enum", "options": ["staging", "production"], "required": false }
+]
+```
+
+The message is text that anyone in the channel can write, which is why the workflow uses **AI Extract** rather than **AI Prompt**. A message that tries to steer the model still can't produce a service or an environment outside these lists. See [AI Extract](/workflows/actions/#ai-extract).
+
+A **Branch** then checks that `intent` **equals** `deploy`, and that `service` and `environment` **are not empty**. For anything else, the **Else** block replies with an example of how to ask.
+
+### Look up who asked
+
+A Slack **Look Up User** step turns `{{ trigger.event.user }}` into a person, so the approval email can name the requester as `{{ steps.who.output.user.real_name }}` instead of a Slack user ID.
+
+### Approve a production deploy
+
+A **Branch** checks whether `environment` **equals** `production`. If it does, the workflow replies in the thread that the deploy needs an approval, and an **Approval** step emails the approvers. **Timeout** is `30m`, and **On timeout** is **Continue**.
+
+The next **Branch**, **OK to deploy?**, uses **Match any**, so it continues when either condition holds:
+
+- `steps.parse.output.environment` **equals** `staging`, or
+- `steps.approve.output.approved` **is not empty**, which is true only after an approval.
+
+A staging deploy never reaches the approval, so it goes straight through. A production deploy whose approval timed out takes the **Else** block, which replies that nobody approved it. If an approver rejects the deploy, the run ends there.
+
+### Start the deploy workflow
+
+An **HTTP Request** step sends a `POST` to GitHub's workflow dispatch endpoint:
+
+```liquid
+https://api.github.com/repos/{{ vars.github_repo }}/actions/workflows/deploy.yml/dispatches
+```
+
+**Authentication** is **Bearer token**, with the token set to `{{ secrets.github_token }}`, so the token never appears in the workflow or in run history. The **Headers** set `Accept` to `application/vnd.github+json` and `X-GitHub-Api-Version` to `2022-11-28`. The JSON body picks the branch and passes the two inputs:
+
+```json
+{
+  "ref": "main",
+  "inputs": {
+    "service": "{{ steps.parse.output.service }}",
+    "environment": "{{ steps.parse.output.environment }}"
+  },
+  "return_run_details": true
+}
+```
+
+`return_run_details` asks GitHub to return the new run's ID and its web address, as `workflow_run_id` and `html_url`. The next steps use both.
+
+### Reply in the thread
+
+Every reply is a Slack **Post Message** step with **Channel** set to `{{ trigger.event.channel }}`, and **Reply to thread** set to this template:
+
+```liquid
+{% assign thread = trigger.event.thread_ts | default: trigger.event.ts %}{{ thread }}
+```
+
+If the mention was already a reply in a thread, Slack sends `thread_ts`, and the workflow replies in that thread. Otherwise, it starts a thread on the mention. The `assign` form picks one without leaving an unresolved reference behind when `thread_ts` isn't there.
+
+The first reply names the service, the environment, and the person who asked, with a link to the run in GitHub. Slack's link syntax is `<address|text>`, as in `<{{ steps.dispatch.output.body.html_url }}|Follow the run>`.
+
+### Wait for the deploy to finish
+
+A **Wait until** step reads the run from GitHub, with an **HTTP Request** step in its check block:
+
+```liquid
+https://api.github.com/repos/{{ vars.github_repo }}/actions/runs/{{ steps.dispatch.output.body.workflow_run_id }}
+```
+
+It checks until `steps.run.output.body.status` **equals** `completed`, for up to `30m`. The imported step has `on_error: continue`, so a deploy that takes longer than that still gets a reply. The builder keeps this setting but has no field for it, so if you build the workflow by hand, a deploy that runs past the timeout fails the run instead.
+
+### Report the result
+
+The last reply reads the run's `status` and `conclusion`, and says whether the deploy succeeded, failed, or is still running:
+
+```liquid
+{% assign r = steps.run.output.body %}{% if r.status != 'completed' %}:hourglass: The deploy is still running after 30 minutes.{% elsif r.conclusion == 'success' %}:white_check_mark: {{ steps.parse.output.service }} is deployed to {{ steps.parse.output.environment }}.{% else %}:x: The deploy finished with the result {{ r.conclusion }}.{% endif %}
+```
+
+## Step 4: Test and publish
+
+1. Open the trigger's **Test** tab and click **Test trigger**. Then mention the bot in your deploy channel with a staging deploy, such as `@KloudMate deploy api to staging`. The mention becomes the trigger's sample.
+2. Test **Read the request** from its **Test** tab to see what the model extracted.
+3. Click **Test run**. It runs every step for real, so it starts the staging deploy and replies in the thread.
+4. Click **Publish**. The first publish also switches the workflow on.
+
+Try a production deploy the same way when you're ready, and approve it from the email.
+
+## Adapt the workflow
+
+- **Deploy other services.** Add each service to the `service` options in **Read the request**, and to the `options` of the `service` input in `deploy.yml`.
+- **Limit who can deploy.** Add a condition to **Is it a deploy request?** that `trigger.event.user` is **in** a list of Slack user IDs.
+- **Deploy a branch other than main.** Change `ref` in the body of **Start the deploy workflow**.
+- **Use another CI system.** Replace the two HTTP Request steps with the equivalent calls to your CI system's API, such as starting a pipeline and reading its status.
+
+## Related
+
+- [AI Extract](/workflows/actions/#ai-extract) for output fields and why they're safe with untrusted text.
+- [Approvals and collected input](/workflows/approvals-and-input/) for approval timeouts.
+- [Wait until](/workflows/control-flow/#wait-until) for how often it checks.
+- [Variables](/workflows/variables/) for secrets such as the GitHub token.

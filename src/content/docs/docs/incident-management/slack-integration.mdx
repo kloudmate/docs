@@ -9,10 +9,10 @@ sidebar:
 KloudMate uses a single unified Slack app for both notification delivery and IM ChatOps. Installing it once gives you:
 
 - Threaded notifications on alert groups and incidents (replies stay attached to the parent message).
-- Per-user ChatOps actions — acknowledge, resolve, comment on incidents without leaving Slack.
+- Per-user ChatOps actions: acknowledge, resolve, or comment on incidents without leaving Slack.
 - Cross-surface visibility: the same install shows up under both **Settings → Notification Channels** and **Incidents → Chat Ops**.
 
-You can start the install from either entry point — the OAuth flow lands the same row in both surfaces.
+You can start the install from either place, and it shows up in both.
 
 ## Connect Slack from Incident Management
 
@@ -27,11 +27,11 @@ The new Slack row appears under both **Settings → Notification Channels** and 
 
 ## Per-user account linking
 
-After the org-level install is complete, each responder needs to link their own Slack account before they can acknowledge or resolve incidents from Slack. From the Chat Ops tab, scroll to **User Settings** and click **Connect account** — a one-time OAuth flow links your KloudMate identity to your Slack account.
+After the org-level install is complete, each responder needs to link their own Slack account before they can acknowledge or resolve incidents from Slack. From the Chat Ops tab, scroll to **User Settings** and click **Connect account**. A one-time OAuth flow links your KloudMate account to your Slack account.
 
 Once linked, the same tab shows your Slack username with a **Disconnect** action.
 
 ## Related
 
-- [Connections](/platform/settings/connections/): the Slack install is a connection, so one credential serves notifications, ChatOps, workflow actions, and Slack event triggers. Manage or rotate it from there.
-- [Workflows](../../workflows/): approve or reject a workflow's [approval step](../../workflows/approvals-and-input/) from a Slack button, using the same install.
+- [Connections](/platform/settings/connections/): the Slack install is a connection, so one credential serves notifications, ChatOps, and workflows. Manage or rotate it there. Before a workflow step or trigger can use it, add the **Workflows** capability to it.
+- [Workflows](../../workflows/): post to Slack from a [workflow step](../../workflows/actions/#slack), or start a workflow from a [Slack event](../../workflows/triggers/#app-event), using the same install.

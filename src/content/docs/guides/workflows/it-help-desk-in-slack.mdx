@@ -1,0 +1,362 @@
+---
+title: "Run an IT help desk in Slack"
+description: "Turn direct messages to the bot into Jira tickets, add replies in the ticket's Slack thread to the ticket, and tell the requester in the same thread when the ticket is resolved."
+sidebar:
+  order: 12
+---
+
+This guide builds a help desk that people use from Slack. Someone sends the KloudMate bot a direct message describing their problem, and the workflow opens a ticket in your IT project in Jira and replies with a link to it. Anything they reply in that thread is added to the ticket as a comment. When the IT team moves the ticket to **Done**, the requester gets a message in the same thread.
+
+The requester never has to open Jira, and the IT team works entirely in Jira.
+
+| Workflow | Trigger | What it does |
+|---|---|---|
+| **Open help desk tickets from Slack** | Slack **New direct message to the bot** | Opens a ticket for a new message, or comments on the ticket for a reply in its thread. |
+| **Tell requesters when their ticket is resolved** | Jira **Status changed** | Replies in the ticket's Slack thread when it moves to **Done**. |
+
+The workflows find each other's data through [Storage](/workflows/storage/) keys that the first workflow writes for each ticket:
+
+| Key | Holds | Used to |
+|---|---|---|
+| `helpdesk-thread:<message timestamp>` | The ticket key, such as `IT-311` | Find the ticket for a reply in a thread |
+| `helpdesk:<ticket key>` | The Slack channel and message timestamp | Find the thread when the ticket is resolved |
+
+## Before you start
+
+- You need the **Developer** role in a KloudMate workspace whose plan includes workflows.
+- You need a Slack connection and a Jira Cloud connection, both with the **Workflows** capability.
+- You need a Jira project for help desk tickets. This guide uses the key `IT`.
+- Each ticket uses workflow credits, and the **AI Extract** step uses more. See [Check workflow usage](/workflows/run-history/#check-workflow-usage).
+
+## Step 1: Save your Jira address as a variable
+
+The replies in Slack link to each ticket. Open **Workflows → Variables** and create a **Constant** named `jira_url`, with your Jira site's address as its value, such as `https://acme.atlassian.net`. If you followed another guide that uses it, it's already there.
+
+## Step 2: Import the workflows
+
+Import each workflow on its own. For each one, open **Workflows**, click **Import**, paste the YAML, click **Import**, and then click **Open workflow** to set what the import couldn't.
+
+### Open help desk tickets from Slack
+
+```yaml
+kind: workflow
+uid: guide-helpdesk-from-slack
+spec:
+  name: Open help desk tickets from Slack
+  description: Turns a direct message to the bot into a Jira ticket in the IT project, and adds replies in the ticket's Slack thread to the ticket as comments.
+  definition:
+    schema_version: 1
+    trigger:
+      type: integration_event
+      config:
+        connection_id:
+          $input: slack
+        trigger_key: slack.new_direct_message
+        props: {}
+    steps:
+      - id: who
+        type: action
+        action: slack.lookup_user
+        display_name: Look up who wrote
+        connection_id:
+          $input: slack
+        with:
+          user: "{{ trigger.event.user }}"
+      - id: is_reply
+        type: branch
+        display_name: A reply in a ticket's thread?
+        if:
+          all:
+            - field: trigger.event.thread_ts
+              op: is_not_empty
+        then:
+          - id: thread_ticket
+            type: action
+            action: store.get
+            display_name: Find the thread's ticket
+            with:
+              scope: workspace
+              key: "helpdesk-thread:{{ trigger.event.thread_ts }}"
+          - id: known_thread
+            type: branch
+            display_name: Is it a ticket's thread?
+            if:
+              all:
+                - field: steps.thread_ticket.output.value
+                  op: is_not_empty
+            then:
+              - id: add_comment
+                type: action
+                action: jira.add_comment
+                display_name: Add the reply to the ticket
+                connection_id:
+                  $input: jira
+                with:
+                  issue_key: "{{ steps.thread_ticket.output.value }}"
+                  body: |-
+                    {{ steps.who.output.user.real_name }} replied in Slack:
+                    {quote}{{ trigger.event.text }}{quote}
+              - id: ack_reply
+                type: action
+                action: slack.add_reaction
+                display_name: React to the reply
+                connection_id:
+                  $input: slack
+                with:
+                  channel: "{{ trigger.event.channel }}"
+                  ts: "{{ trigger.event.ts }}"
+                  emoji: white_check_mark
+        else:
+          - id: ticket
+            type: action
+            action: ai.extract
+            display_name: Read the request
+            with:
+              prompt: Someone asks the IT help desk for help. Write a short title for the ticket, and pick its category and priority.
+              source: "{{ trigger.event.text }}"
+              output_fields:
+                - name: title
+                  type: string
+                  description: A title of up to 10 words, such as "Can't connect to the VPN from home"
+                - name: category
+                  type: enum
+                  options: [access, hardware, software, network, other]
+                - name: priority
+                  type: enum
+                  options: [High, Medium]
+                  description: High if the person can't work at all, Medium for anything else
+          - id: create
+            type: action
+            action: jira.create_issue
+            display_name: Open the ticket
+            connection_id:
+              $input: jira
+            with:
+              summary: "{{ steps.ticket.output.title }}"
+              description: |-
+                *From:* {{ steps.who.output.user.real_name }} ({{ steps.who.output.user.profile.email }}), in Slack
+                {quote}{{ trigger.event.text }}{quote}
+              fields:
+                labels: [helpdesk, "{{ steps.ticket.output.category }}"]
+                priority:
+                  name: "{{ steps.ticket.output.priority }}"
+          - id: remember_ticket
+            type: action
+            action: store.put
+            display_name: Remember the Slack thread for the ticket
+            with:
+              scope: workspace
+              key: "helpdesk:{{ steps.create.output.key }}"
+              value:
+                channel: "{{ trigger.event.channel }}"
+                ts: "{{ trigger.event.ts }}"
+              ttl: 90d
+          - id: remember_thread
+            type: action
+            action: store.put
+            display_name: Remember the ticket for the thread
+            with:
+              scope: workspace
+              key: "helpdesk-thread:{{ trigger.event.ts }}"
+              value: "{{ steps.create.output.key }}"
+              ttl: 90d
+          - id: reply
+            type: action
+            action: slack.post_message
+            display_name: Reply with the ticket
+            connection_id:
+              $input: slack
+            with:
+              channel: "{{ trigger.event.channel }}"
+              thread_ts: "{{ trigger.event.ts }}"
+              text: "Thanks, I've opened <{{ vars.jira_url }}/browse/{{ steps.create.output.key }}|{{ steps.create.output.key }}> for you: {{ steps.ticket.output.title | replace: '&', '&amp;' | replace: '<', '&lt;' | replace: '>', '&gt;' }}. Reply in this thread to add anything, and I'll message you here when it's resolved."
+inputs:
+  slack:
+    kind: connection
+    name: Slack
+    type: slack
+  jira:
+    kind: connection
+    name: Jira
+    type: jira
+  jira_url:
+    kind: variable
+    name: jira_url
+    type: constant
+```
+
+After you import it:
+
+- On the trigger, pick your Slack connection under **Account**.
+- On every Slack step, pick your Slack connection.
+- On every Jira step, pick your Jira connection and the **Site**. On **Open the ticket**, also pick your help desk project and an issue type, such as **Task**.
+
+### Tell requesters when their ticket is resolved
+
+```yaml
+kind: workflow
+uid: guide-helpdesk-resolved
+spec:
+  name: Tell requesters when their ticket is resolved
+  description: When a help desk ticket moves to Done, replies in the Slack thread where it was requested.
+  definition:
+    schema_version: 1
+    trigger:
+      type: integration_event
+      config:
+        connection_id:
+          $input: jira
+        trigger_key: jira.status_changed
+        props:
+          jql: project = IT AND status = Done
+    steps:
+      - id: moved_to_done
+        type: branch
+        display_name: Moved to Done?
+        if:
+          all:
+            - field: trigger.event.to.name
+              op: eq
+              value: Done
+        then:
+          - id: thread
+            type: action
+            action: store.get
+            display_name: Find the Slack thread
+            with:
+              scope: workspace
+              key: "helpdesk:{{ trigger.event.issue.key }}"
+          - id: from_slack
+            type: branch
+            display_name: Was it requested in Slack?
+            if:
+              all:
+                - field: steps.thread.output.value
+                  op: is_not_empty
+            then:
+              - id: tell
+                type: action
+                action: slack.post_message
+                display_name: Reply in the thread
+                connection_id:
+                  $input: slack
+                with:
+                  channel: "{{ steps.thread.output.value.channel }}"
+                  thread_ts: "{{ steps.thread.output.value.ts }}"
+                  text: ":white_check_mark: <{{ vars.jira_url }}/browse/{{ trigger.event.issue.key }}|{{ trigger.event.issue.key }}> is resolved. If you still need help, send me a new message."
+              - id: forget_ticket
+                type: action
+                action: store.remove
+                display_name: Forget the ticket's thread
+                with:
+                  scope: workspace
+                  key: "helpdesk:{{ trigger.event.issue.key }}"
+              - id: forget_thread
+                type: action
+                action: store.remove
+                display_name: Forget the thread's ticket
+                with:
+                  scope: workspace
+                  key: "helpdesk-thread:{{ steps.thread.output.value.ts }}"
+inputs:
+  jira:
+    kind: connection
+    name: Jira
+    type: jira
+  slack:
+    kind: connection
+    name: Slack
+    type: slack
+  jira_url:
+    kind: variable
+    name: jira_url
+    type: constant
+```
+
+After you import it:
+
+- On the trigger, pick your Jira connection under **Account**, and pick the **Site**. If your project key isn't `IT`, change it in **Narrow with JQL**.
+- On **Reply in the thread**, pick your Slack connection.
+
+## How the ticket workflow works
+
+### The trigger and the requester
+
+The **New direct message to the bot** trigger runs for every message someone sends the bot, including replies in a thread. The bot's own messages don't start a run.
+
+A Slack **Look Up User** step turns `{{ trigger.event.user }}` into the person's name and email address, for the ticket's description and for comments.
+
+### A new message or a reply?
+
+A **Branch** checks whether `trigger.event.thread_ts` **is not empty**. Slack sets `thread_ts` only on a reply in a thread, so a new message takes the **Else** block and becomes a ticket.
+
+### Open the ticket
+
+An **AI Extract** step reads the message and returns a title, a category, and a priority:
+
+```json
+[
+  { "name": "title", "type": "string", "description": "A title of up to 10 words, such as \"Can't connect to the VPN from home\"" },
+  { "name": "category", "type": "enum", "options": ["access", "hardware", "software", "network", "other"] },
+  { "name": "priority", "type": "enum", "options": ["High", "Medium"], "description": "High if the person can't work at all, Medium for anything else" }
+]
+```
+
+Anyone in your Slack workspace can write the message, so the workflow uses **AI Extract**, which can only return these fields. See [AI Extract](/workflows/actions/#ai-extract).
+
+A Jira **Create Issue** step opens the ticket, with the title as its summary, and the requester and their message in its description. `{quote}` is Jira's markup for a quoted block. Its **Extra fields** add two labels, `helpdesk` and the category, and set the priority:
+
+```json
+{
+  "labels": ["helpdesk", "{{ steps.ticket.output.category }}"],
+  "priority": { "name": "{{ steps.ticket.output.priority }}" }
+}
+```
+
+### Remember the thread and the ticket
+
+**Storage: Put** steps, with **Scope** set to **This workspace**, link the Slack message and the ticket in both directions:
+
+- `helpdesk:{{ steps.create.output.key }}` holds the message's channel and timestamp, as an object: `{"channel": "{{ trigger.event.channel }}", "ts": "{{ trigger.event.ts }}"}`.
+- `helpdesk-thread:{{ trigger.event.ts }}` holds the ticket key.
+
+Both keys expire after `90d`, so a ticket that stays open longer loses its link to Slack.
+
+The timestamp is stored inside an object on purpose. A Slack timestamp such as `1790800000.000300` looks like a number, and inside an object it stays text, exactly as Slack sent it. Slack needs it character for character to find the thread.
+
+### Reply with the ticket
+
+A Slack **Post Message** step replies in a thread on the requester's message, with **Channel** set to `{{ trigger.event.channel }}` and **Reply to thread** set to `{{ trigger.event.ts }}`. The reply links to the ticket. The title came from the model, which read text that someone else wrote, so the reply escapes `&`, `<`, and `>` in it, which Slack would otherwise read as special syntax.
+
+### Add a reply to the ticket
+
+For a reply in a thread, a **Storage: Get** step looks up `helpdesk-thread:{{ trigger.event.thread_ts }}`, where `thread_ts` is the timestamp of the message that started the thread. If the thread belongs to a ticket, a Jira **Add Comment** step adds the reply to the ticket, and a Slack **Add Reaction** step reacts to the reply with ✅, so the requester knows it arrived. A reply in any other thread is ignored.
+
+## How the resolved workflow works
+
+The Jira **Status changed** trigger runs when an issue moves to another status. **Narrow with JQL** is `project = IT AND status = Done`, which limits it to help desk tickets that are now in **Done**.
+
+The JQL checks the issue's status when KloudMate looks, not the status the issue moved to. An issue that moved through two statuses between two checks produces an event for each move. So a **Branch** checks that `trigger.event.to.name` **equals** `Done`, and the workflow replies only once.
+
+A **Storage: Get** step then looks up `helpdesk:{{ trigger.event.issue.key }}`. A ticket that someone opened in Jira has no key, so the workflow stops there. For a ticket from Slack, a Slack **Post Message** step replies in the original thread, with **Channel** and **Reply to thread** read from the stored object. Two **Storage: Remove** steps then delete both keys, since the ticket is done.
+
+## Step 3: Test and publish
+
+1. Publish both workflows. The first publish also switches each one on.
+2. In Slack, send the bot a direct message, such as `My second monitor stopped working`. The bot replies with a ticket link within a few seconds.
+3. Reply in that thread. The reply appears as a comment on the ticket, and the bot reacts to it with ✅.
+4. Move the ticket to **Done** in Jira. Within a couple of minutes, the bot replies in the thread that it's resolved.
+
+To see what a run did, open it from **Workflows → Runs**.
+
+## Adapt the workflow
+
+- **Send urgent requests to a channel.** In the ticket workflow, add a **Branch** after **Open the ticket** that checks whether `steps.ticket.output.priority` **equals** `High`, and posts the ticket in your IT team's channel.
+- **Use your own categories.** Change the `category` options in **Read the request**. The labels follow automatically.
+- **Reopen instead of starting over.** In the resolved workflow's reply, invite the requester to reply in the thread. Then, in the ticket workflow, add a Jira **Transition Issue** step after **Add the reply to the ticket** that moves the ticket back to **In Progress**, and stop removing the keys in the resolved workflow.
+
+## Related
+
+- [Storage](/workflows/storage/) for workspace-scoped keys.
+- [Triggers](/workflows/triggers/#app-event) for Slack and Jira events.
+- [Actions](/workflows/actions/#slack) for the Slack and Jira steps.
