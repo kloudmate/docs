@@ -1,0 +1,77 @@
+---
+title: "Limits"
+description: "The ceilings that apply to a workflow definition, a run, and the public URLs, and which plans include workflow automation."
+sidebar:
+  label: "Limits"
+  order: 11
+---
+
+Most of these you'll never reach. The step cap, the loop cap, and the webhook rate limit are the ones that catch people out.
+
+## What you build
+
+| Limit | Value |
+|---|---|
+| Steps in one workflow | 50, counting every nested block |
+| Trigger input parameters | 20 |
+| Collect-input fields | 20 |
+| Loop iterations | 100, with up to 10 at once |
+| Parallel branches | 2 to 10 |
+| AI Route paths | 2 to 8 |
+| Approvers on one step | 10 |
+| Nested workflow calls | 5 deep |
+| Length of one `{{ }}` template | 8192 characters |
+| Whole definition | 100 KB |
+| Run Code source | 64 KB |
+
+## What a run does
+
+| Limit | Value |
+|---|---|
+| One step attempt | 60 seconds by default, 15 minutes at most |
+| Retries per step | 5 at most |
+| **Wait / Delay** | 24 hours |
+| **Wait until** | 24 hours, with at most 20 checks |
+| Approval and collect-input timeout | 24 hours by default, 7 days at most |
+| HTTP request timeout | 10 seconds by default |
+| Email recipients per step | 20 |
+| Emails per workspace per hour | 200 |
+| Runs in flight per workspace | 20 |
+
+A run that's waiting, whether on a delay, a **Wait until** interval, or a person, doesn't count against the 20 in flight. Only runs actively executing a step do.
+
+## What can start a run
+
+| Limit | Value |
+|---|---|
+| Webhook and form URL | 60 requests per minute, per workflow |
+| App-event trigger | 200 runs per workflow per hour |
+| Any trigger | 500 runs per workflow per 5 minutes |
+
+The 500-run ceiling catches a workflow that triggers itself. Child runs and test runs don't count toward it.
+
+## Retention
+
+Finished runs and their step detail are kept for 30 days. Published versions are kept for 30 days, except the newest 20 per workflow, the live one, and any version a retained run still references.
+
+## Configuration stores
+
+| Limit | Value |
+|---|---|
+| Workspace variables | 200 per workspace |
+| Storage keys | 10,000 per workspace |
+| One stored value | 64 KB |
+| One stored list | 10,000 items |
+
+## Plans
+
+Workflow automation is part of the Pro and Business plans. On the Free plan the Workflows section isn't available.
+
+Which integrations you can connect depends on your plan too. See [Connections → Providers](/platform/settings/connections/providers/).
+
+Existing webhook deliveries, form submissions, and approval links keep working if a plan lapses, so a decision link already in someone's inbox doesn't break. What stops is creating and editing workflows.
+
+## Related
+
+- [Build a workflow](../build-a-workflow/)
+- [Connections](/platform/settings/connections/)

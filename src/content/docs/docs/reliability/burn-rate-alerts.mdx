@@ -10,7 +10,7 @@ A **burn-rate alert** fires when an SLO's burn rate is too high over **both** a 
 Burn-rate alerts live in two places:
 
 - **Per SLO**, under the SLO detail page's Burn-rate alerts section — for creating, editing, and deleting alerts.
-- **Workspace-wide**, on the [Burn-rate alerts page](#workspace-wide-burn-rate-alerts) (`/<workspaceId>/slos/alerts`) — the on-call surface that lists every burn-rate alert in the workspace, firing-first.
+- **Workspace-wide**, on [**Reliability → Burn-rate alerts**](#workspace-wide-burn-rate-alerts), which lists every burn-rate alert in the workspace with firing alerts first.
 
 ## Anatomy of a burn-rate alert
 
@@ -50,7 +50,7 @@ Clicking a preset fills the form fields and seeds a default name (`Critical burn
 
 ## Workspace-wide burn-rate alerts
 
-The workspace-wide page at `/<workspaceId>/slos/alerts` lists every burn-rate alert across every SLO.
+**Reliability → Burn-rate alerts** lists every burn-rate alert across every SLO.
 
 Columns: **State** / **Alert** / **SLO** / **Channels**. Each row shows its parent SLO's name and SLI kind — there's no Service column, since most SLOs aren't tied to a service.
 
@@ -64,7 +64,7 @@ Click any row to open the parent SLO's detail page — alerts are created and ed
 
 ## Permissions
 
-Workspace **admin** is required to create, edit, or delete burn-rate alerts. Everyone else can read the list.
+You need the **Developer** role to create, edit, or delete burn-rate alerts. With the **Viewer** role, you can read the list.
 
 ## Related
 

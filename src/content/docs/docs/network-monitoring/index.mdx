@@ -6,7 +6,7 @@ sidebar:
   order: 0
 ---
 
-Network monitoring watches the routers, switches, firewalls, access points, and PDUs that carry your traffic, all from one **Network** page. You poll them over SNMP for health and interface metrics, check reachability for the sites that can't speak SNMP, and read the application traffic mix from NetFlow or sFlow.
+Use **Network Monitoring** to watch the routers, switches, firewalls, access points, and PDUs that carry your traffic. You poll them over SNMP for health and interface metrics, check reachability for the sites that can't speak SNMP, and read the application traffic mix from NetFlow or sFlow.
 
 A Linux or Docker [KloudMate Agent](/kloudmate-agent/) does the collecting. It polls devices over the network, so one agent can watch an entire site, and nothing gets installed on the devices themselves.
 
@@ -21,9 +21,9 @@ Network monitoring runs on Linux and Docker agents only. Kubernetes agents can't
 - **Traffic flow**: the per-application byte and packet mix on a link, from NetFlow, IPFIX, or sFlow exporters.
 - **Routing and links**: BGP peers, MPLS L3VPN VRFs, IP SLA probes, and LLDP/CDP topology, once you turn those capabilities on.
 
-## The Network page
+## The Network Monitoring tabs
 
-Open **Network** from the sidebar. It has five tabs:
+Open **Network Monitoring**. You land on the **Overview** tab.
 
 | Tab | What it shows |
 |---|---|
@@ -33,13 +33,13 @@ Open **Network** from the sidebar. It has five tabs:
 | **Traffic** | The application traffic mix from your flow listeners. |
 | **Topology** | A link map drawn from LLDP and CDP neighbour data. |
 
-You land on the Overview tab. For how to read each surface, see [Using the Network page](/network-monitoring/network-page/).
+For how to read each tab, see [Using Network Monitoring](/network-monitoring/network-page/).
 
-![The Network Overview tab: problem tiles across the top, a Current problems feed, and a status board of site cards each showing a healthy-over-total count](./images/network-overview.png)
+![The Network Monitoring Overview tab: problem tiles across the top, a Current problems feed, and a status board of site cards each showing a healthy-over-total count](./images/network-overview.png)
 
 ## Set it up
 
-Everything is configured from the Network page. There are no collector files to hand-edit. Use the **Add** menu in the top-right:
+Everything is configured in **Network Monitoring**. There are no collector files to hand-edit. Use the **Add** menu:
 
 - [Add SNMP devices](/network-monitoring/monitoring-snmp/): poll known devices with the guided wizard.
 - [Discover devices](/network-monitoring/discover-devices/): scan IP ranges and monitor what answers.

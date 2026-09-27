@@ -17,13 +17,13 @@ Start with two agent features. The [health metrics](../self-observability/health
 
 ## Metrics are not flowing
 
-- **eBPF is unavailable.** If RED metrics and the service map are missing, the host may not support eBPF. Check the host detail for an "eBPF unavailable" reason (kernel older than 4.14, `debugfs` not mounted, or missing privileges). Host metrics and logs are unaffected. See [eBPF observability](../ebpf-observability/).
+- **eBPF is unavailable.** If RED metrics and the service map are missing, the host may not support eBPF. Check the agent's log for `eBPF baseline not enabled`, which gives the reason (kernel older than 4.14, `debugfs` not mounted, or missing privileges). On a Linux host, run `journalctl -u kmagent | grep "eBPF baseline"`. Host metrics and logs are unaffected. See [eBPF observability](../ebpf-observability/).
 - **The integration is not enabled.** In managed mode, confirm the feature or integration is toggled on. In manual mode, confirm the receiver is in the YAML.
 - **A collection error.** A receiver that cannot reach its target or authenticate logs a scrape error rather than crashing the collector. Check the self-logs for the specific receiver.
 
 ## Traces are not flowing
 
-- **The service was not discovered.** Only discovered services can be instrumented. Confirm the service appears in the Discovered Services list. See [Discovery](../concepts/discovery/).
+- **The service was not discovered.** Only discovered services can be instrumented. Confirm the service appears in the **Application instrumentation** card on the agent's **APM** tab. See [Discovery](../concepts/discovery/).
 - **The toggle has not applied.** Instrumentation takes effect on restart. Check the service's status chip: `pending restart` means the change is written but the service has not restarted. See [Application APM overview](../auto-instrumentation/overview/).
 - **Injection failed and rolled back.** If the status shows failed and rolled back, the service crash-looped after instrumentation and the agent reverted the change. Read the reason in the self-logs, then retry. eBPF monitoring continues to cover the service throughout.
 

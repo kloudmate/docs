@@ -4,25 +4,31 @@ description: "Collect Kafka broker, topic, and consumer metrics in KloudMate thr
 sidebar:
   order: 3
 ---
-Use this integration when you want to monitor Kafka brokers, topics, and consumers in KloudMate through the OpenTelemetry `kafkametrics` receiver running in the KloudMate Agent.
+Use this integration when you want to monitor Kafka brokers, topics, and consumers in KloudMate through the OpenTelemetry `kafka_metrics` receiver running in the KloudMate Agent.
 
 ## Prerequisites
 
 1. Install and run the [KloudMate Agent](../../../kloudmate-agent/).
-2. Ensure your Kafka brokers are reachable from the node where the Agent is running.
+2. Ensure your Kafka brokers are reachable from the host or cluster where the Agent is running.
 3. Have your Kafka broker addresses, protocol version, and authentication credentials ready.
 
-## Step 1: Define the Kafka Metrics Receiver
+## Step 1: Open the Collector Configuration
 
-Add the following `kafkametrics` receiver to your Agent configuration file (typically `/etc/km-agent/config.yaml`). Replace the broker addresses, credentials, and protocol version to match your environment.
+1. Go to **Settings → Agents**.
+2. Find the agent you want to configure and select the three dots.
+3. Choose **Configure**.
+4. Go to **Collector config**.
+
+## Step 2: Add the Kafka Metrics Configuration
+
+Add the following configuration. Replace the broker addresses, credentials, and protocol version to match your environment.
+
+- If the agent runs in managed mode, add it to the **Custom config override** section. See [Custom config override](../../../kloudmate-agent/custom-config-override/).
+- If the agent runs in manual mode, add it directly to the collector configuration.
 
 ```yaml
-extensions:
-  health_check:
-    endpoint: 0.0.0.0:13133
-
 receivers:
-  kafkametrics:
+  kafka_metrics:
     brokers:
       - kafka.example.com:9095
       - kafka.example.com:9096
@@ -47,37 +53,23 @@ receivers:
         enabled: true
       kafka.topic.min_insync_replicas:
         enabled: true
-```
 
-The `scrapers` block controls which data is collected. `brokers`, `topics`, and `consumers` are the three available options. The metrics listed under the `metrics` block are not enabled by default and must be explicitly set to `enabled: true` to be collected.
-
-## Step 2: Add to Pipeline
-
-Add the `kafkametrics` receiver to the metrics pipeline in your Agent configuration.
-
-```yaml
 service:
-  extensions:
-    - health_check
-  telemetry:
-    metrics:
-      level: none
   pipelines:
-    metrics/kafkametrics:
+    metrics/kafka:
       receivers:
-        - kafkametrics
+        - kafka_metrics
       processors:
         - batch
       exporters:
         - otlphttp
 ```
 
-## Step 3: Restart the Agent
+The `scrapers` block controls which data is collected. `brokers`, `topics`, and `consumers` are the three available options. The metrics listed under the `metrics` block are not enabled by default and must be explicitly set to `enabled: true` to be collected.
 
-```bash
-systemctl restart kmagent
-systemctl status kmagent
-```
+## Step 3: Save the Configuration
+
+Click **Save**. The Agent restarts and applies the new configuration.
 
 ## Step 4: Validate in KloudMate
 
@@ -85,7 +77,7 @@ After the Agent restarts:
 
 - Open [Explore](../../../visualize-data/explore/) in KloudMate.
 - Query one of the scraped Kafka metrics, such as `kafka.brokers` or `kafka.topic.partitions`.
-- Build dashboards or alarms once the data is visible.
+- Build dashboards or alerts once the data is visible.
 
 ## Standard Kafka Dashboards
 

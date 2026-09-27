@@ -23,7 +23,7 @@ For a Node.js app under PM2, the agent restarts it with tracing switched on (`pm
 
 ### Standalone processes
 
-The agent can instrument a Node.js process only when it runs under systemd or PM2. A process started on its own can't be instrumented automatically. Run it under systemd or PM2 first; the Discovered Services list flags these and tells you so.
+The agent can instrument a Node.js process only when it runs under systemd or PM2. A process started on its own can't be instrumented automatically. Run it under systemd or PM2 first; the **Application instrumentation** card flags these and tells you so.
 
 ## On Kubernetes
 
@@ -43,7 +43,7 @@ On Amazon ECS, the agent injects the Node.js instrumentation into the services y
 
 ## On Docker
 
-When the agent monitors Docker containers, whether in Docker mode or as a Linux service on a Docker host, eBPF traces your Node.js containers per service through the **Off / eBPF** toggle in Discovered Services, with no code change and no restart.
+When the agent monitors Docker containers, whether in Docker mode or as a Linux service on a Docker host, eBPF traces your Node.js containers per service through the **Off / eBPF** toggle in the **Application instrumentation** card, with no code change and no restart.
 
 The agent can't inject the in-process SDK into a running container, so SDK mode isn't offered for containers. For full SDK depth, add OpenTelemetry to your image yourself and point it at the KloudMate agent's OTLP endpoint. See [Docker platform notes](../../platform-notes/docker/) for the endpoint addresses. On systemd, Kubernetes, or Amazon ECS, the agent injects the instrumentation for you instead.
 

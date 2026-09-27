@@ -122,6 +122,16 @@ In managed mode you pick log files from the web interface. In autonomous mode th
 
 For the file format and worked examples, see [Auto Scaling & Elastic Beanstalk](../../installation/aws-asg-deployment/#configure-log-collection) and [Log monitoring](../../log-monitoring/).
 
+## Runbook scripts
+
+Leave these unset on an ordinary install. The workspace setting decides whether a host runs [workflow scripts](../../../workflows/actions/#run-command-on-host), and the agent checks every job against signing keys that KloudMate publishes to it. Set `job-types` to `none` on a host that must never run scripts, whatever the workspace setting says.
+
+| Setting | Environment variable | Default | Description |
+|---|---|---|---|
+| `job-types` | `KM_JOB_TYPES` | Empty (the workspace setting decides) | Job types this host accepts, as a comma-separated list, or `none` to refuse every job. `run_script` runs a workflow's shell script as the agent's user, which is root on a standard install. Name each type exactly; there's no wildcard. |
+| `job-signing-keys` | `KM_JOB_SIGNING_KEYS` | Empty (the keys KloudMate publishes) | Ed25519 public keys a job must be signed with, as a comma-separated list, each in base64 or `<id>:<base64>` form. When set, the agent accepts only these keys and ignores the published ones. |
+| `job-agent-id` | `KM_JOB_AGENT_ID` | Empty | This host's agent ID. When set, the agent refuses jobs addressed to a different agent. |
+
 ## Related
 
 <CardGrid>

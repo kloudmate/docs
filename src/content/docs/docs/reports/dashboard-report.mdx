@@ -1,18 +1,27 @@
 ---
 title: "Dashboard Report"
-description: "Generate scheduled or ad-hoc PDF reports of your KloudMate dashboards."
+description: "Email PDF snapshots of one or more dashboards on a schedule, with optional XLSX files for table panels."
 sidebar:
   order: 4
 ---
-The **Dashboard Report** generates a PDF version of a selected dashboard. 
+A Dashboards report emails PDF snapshots of one or more dashboards on a schedule. Each PDF shows the dashboard over the report's period, with the variable values you set when you [created the report](../create-report/#choose-a-source).
 
-![image](./images/dashboard-report-1.png)
+![A dashboard that a Dashboards report renders to PDF](./images/dashboard-report-1.png)
 
-The report details page displays the **source**, **schedule**, **format**, and **active** status of the report, plus the specific dashboard (or dashboards) the report includes.
+## What each run produces
 
-![image](./images/dashboard-report-2.png)
+Each run produces one PDF per dashboard. If you selected **Attach table panels as XLSX**, each dashboard also gets an XLSX file with a sheet for each table, logs, or spans panel.
 
-You can click **Send Report now** to trigger the report immediately, or click **View Generated Reports** to access and download previously generated report files.
+## The report page
 
-![image](./images/dashboard-report-3.png)
+The report page lists the dashboards in the report. Select a dashboard's name to open it with the report's variable values applied.
 
+![Dashboards report page with the Covers period in the header and the list of dashboards the report includes](./images/dashboard-report-2.png)
+
+Click **Send Report now** to send the report right away, with a different period or different recipients if you need them. See [Send a report now](../#send-a-report-now).
+
+## Download past files
+
+Click **View Generated Reports** to download files from earlier runs. Each PDF and XLSX file from a run has its own row, and **Period Covered** shows the dates the file covers. See [Download generated reports](../#download-generated-reports).
+
+![Generated Reports list for a Dashboards report, with a Period Covered column for each file](./images/dashboard-report-3.png)

@@ -8,7 +8,7 @@ sidebar:
 
 Step Functions monitoring shows your state-machine executions, which ones failed, and where they failed. Open a failed run to read the error and follow the path it took through the workflow.
 
-Open **Step Functions** from the sidebar, under **Serverless**.
+Open **Serverless → Step Functions**.
 
 Some of this works the moment you connect an AWS account. The rest needs execution logging turned on:
 
@@ -29,13 +29,13 @@ Some of this works the moment you connect an AWS account. The rest needs executi
 
 ## The Overview dashboard
 
-Start on the **Overview** tab to see whether your executions are healthy. It summarizes the last 24 hours across the workspace.
+The **Step Functions** tab opens on the **Overview** view, which summarizes the last 24 hours across the workspace. Start here to see whether your executions are healthy. Use the **Overview** / **State machines** toggle to switch views.
 
-![The Step Functions Overview tab: an Account and Region picker, six outcome tiles for Started, Succeeded, Failed, Aborted, Timed out, and Throttled, and an Executions chart](./images/step-functions-overview.png)
+![The Step Functions Overview view: an Account and Region picker, six outcome tiles for Started, Succeeded, Failed, Aborted, Timed out, and Throttled, and an Executions chart](./images/step-functions-overview.png)
 
-A workspace can span several AWS accounts, so set the scope with the **Account** and **Region** menus at the top left. KloudMate reads CloudWatch for that account and region, and the page remembers your choice next time. Use **Refresh** to update the numbers.
+A workspace can span several AWS accounts, so set the scope with the **Account** and **Region** menus. KloudMate reads CloudWatch for that account and region, and the page remembers your choice next time. Use **Refresh** to update the numbers.
 
-The tab shows:
+The view shows:
 
 - **Outcome tiles**: **Started**, **Succeeded**, **Failed**, **Aborted**, **Timed out**, and **Throttled** counts for the selected scope.
 - **Executions chart**: Started, Succeeded, and Failed plotted across the day.
@@ -45,9 +45,9 @@ The tab shows:
 
 ## The State machines table
 
-Use the **State machines** tab to find a specific machine or spot the ones that are failing. It lists every state machine KloudMate has discovered in the workspace. Search by name from the box at the top right.
+Select **State machines** to find a specific machine or spot the ones that are failing. The view lists every state machine KloudMate has discovered in the workspace. Search by name to narrow the list.
 
-![The State machines tab: a searchable table with Name, Region, Executions, Errors, and Error Rate columns](./images/step-functions-state-machines.png)
+![The State machines view: a searchable table with Name, Region, Executions, Errors, and Error Rate columns](./images/step-functions-state-machines.png)
 
 Each row shows the machine's **Name** and **Region**, with its **Executions**, **Errors**, and **Error Rate** over the last 24 hours. Sort by **Error Rate** to bring the machines with the most errors to the top, then open one to see which runs failed.
 

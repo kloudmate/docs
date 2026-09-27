@@ -4,7 +4,7 @@ description: "Collect VMware vCenter metrics in KloudMate through the OpenTeleme
 sidebar:
   order: 2
 ---
-Use this guide to collect VMware vCenter metrics in KloudMate with the OpenTelemetry `vcenter` receiver running via the KloudMate Agent.
+Use this guide to collect VMware vCenter metrics in KloudMate with OpenTelemetry `vcenter` receiver running via the KloudMate Agent.
 
 ## Prerequisites
 
@@ -13,9 +13,19 @@ Use this guide to collect VMware vCenter metrics in KloudMate with the OpenTelem
 3. Identify the vCenter or ESXi endpoint with SDK access enabled.
 4. Install the [KloudMate Agent](../../../kloudmate-agent/) on a host that can reach vCenter.
 
-## Step 1: Configure the Receiver
+## Step 1: Open the Collector Configuration
 
-Add the `vcenter` receiver to your Agent configuration file (typically `/etc/km-agent/config.yaml`):
+1. Go to **Settings → Agents**.
+2. Find the agent you want to configure and select the three dots.
+3. Choose **Configure**.
+4. Go to **Collector config**.
+
+## Step 2: Add the vCenter Configuration
+
+Add the following configuration. Replace the endpoint and credentials to match your environment.
+
+- If the agent runs in managed mode, add it to the **Custom config override** section. See [Custom config override](../../../kloudmate-agent/custom-config-override/).
+- If the agent runs in manual mode, add it directly to the collector configuration.
 
 ```yaml
 receivers:
@@ -27,33 +37,23 @@ receivers:
     initial_delay: 1s
     tls:
       insecure: true
+
+service:
+  pipelines:
+    metrics/vcenter:
+      receivers:
+        - vcenter
+      processors:
+        - batch
+      exporters:
+        - otlphttp
 ```
 
 If you need to disable specific metrics, add them under the `metrics` section of the receiver configuration.
 
-## Step 2: Add to Pipeline
+## Step 3: Save the Configuration
 
-Update the `metrics` pipeline in the `service` section to include the `vcenter` receiver.
-
-```yaml
-service:
-  pipelines:
-    metrics:
-      receivers: [vcenter, hostmetrics] # Add vcenter here
-      processors: [resource, batch]
-      exporters: [debug, otlphttp]
-```
-
-## Step 3: Restart the Agent
-
-For Linux:
-
-```bash
-systemctl restart kmagent
-systemctl status kmagent
-```
-
-For Windows, restart the `KloudMate Agent` service from `services.msc`.
+Click **Save**. The Agent restarts and applies the new configuration.
 
 ## Step 4: Validate in KloudMate
 

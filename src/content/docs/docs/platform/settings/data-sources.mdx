@@ -40,7 +40,7 @@ Enter the AWS account name and follow the on-screen setup flow when adding a new
 
 Sync Settings control what KloudMate inventories for a connected account. Open an account's menu and choose **Sync settings**.
 
-Two account-level controls decide what gets synced: **Primary regions** and an optional **tag allowlist**. The set of resource types KloudMate inventories is platform-managed and the same for every account. See [Covered services](#covered-services). The **Region sync status** section on the same page surfaces any regions that have stopped syncing and lets an admin turn them back on.
+Two account-level controls decide what gets synced: **Primary regions** and an optional **tag allowlist**. The set of resource types KloudMate inventories is platform-managed and the same for every account. See [Covered services](#covered-services). The **Region sync status** section on the same page surfaces any regions that have stopped syncing, and with the **Developer** role you can turn them back on.
 
 ![The Sync Settings page, showing Region sync status, Primary regions, Tag Filtering, and Covered services](./images/data-sources-3.png)
 
@@ -59,7 +59,7 @@ For each region, the panel shows why it stopped:
 - If a permission error disabled it, the recorded reason appears, for example an `AccessDenied` message naming the missing permission.
 - If it was turned off some other way, it shows **Disabled. No recent error recorded.**
 
-A workspace admin can select **Re-enable** on a region. That turns the region back on, clears its stored error, and starts a sync right away, so its resources return without waiting for the next cycle. Non-admins see the status but can't re-enable.
+With the **Developer** role, you can select **Re-enable** on a region. That turns the region back on, clears its stored error, and starts a sync right away, so its resources return without waiting for the next cycle. With the **Viewer** role, you can see the status but can't re-enable a region.
 
 Most permission problems recover on their own once you fix the underlying access. To find the cause and confirm the fix, see [Troubleshoot AWS sync](../troubleshoot-aws-sync/).
 

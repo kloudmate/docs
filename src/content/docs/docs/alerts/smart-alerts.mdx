@@ -53,10 +53,11 @@ A threshold detector is a plain ceiling for a state that's wrong at any scale. I
 
 Detectors are grouped by pack:
 
-- **Hosts & VMs:** CPU, memory, and network anomalies; a disk-fill forecast; disk-full and load-saturation thresholds.
+- **Hosts & VMs:** CPU, memory, and network anomalies; a disk-fill forecast; CPU-critically-high, memory-critically-high, disk-full, and load-saturation thresholds.
 - **Kubernetes & Containers:** pod CPU and memory anomalies; container memory-and-CPU-limit detectors; node, deployment, statefulset, and pod-health thresholds.
 - **Services (RED):** request latency and throughput anomalies.
 - **Kafka & Queues:** a consumer-lag anomaly; under-replicated, under-min-ISR, and offline-partition thresholds.
+- **Browser & Mobile (RUM):** detectors for real user monitoring data from browser and mobile apps.
 
 ![The Smart Alerts settings page: the Automatic monitoring toggle and the detector packs](./images/smart-alerts-settings.png)
 
@@ -76,7 +77,7 @@ Only detectors with matching data run. Enable a detector and KloudMate creates a
 Set a workspace-wide **default sensitivity** and **default forecast horizon** under **Defaults for new managed alerts**. New detectors inherit these unless you override them per detector.
 
 :::note
-Only workspace admins can change Smart Alerts settings.
+You need the **Developer** role to change Smart Alerts settings.
 :::
 
 ## What a responder sees
@@ -103,7 +104,7 @@ Changing how often the rule runs keeps it managed too. Edit **Evaluate every**, 
 
 Editing the rule's **query**, **threshold**, or **condition** takes it over. The rule detaches from Smart Alerts, is labeled **Customized**, and leaves the **Smart Alerts** folder. From then on it behaves like any alert you wrote by hand: KloudMate stops sending it template updates and no longer manages its lifecycle. Its anomaly or forecast detection keeps running; taking a rule over doesn't turn detection off.
 
-To quiet a managed rule without taking it over, pause it from its row menu with **Pause Evaluation**. The pause holds: saving another Smart Alert won't resume it. To remove a managed rule for good, turn its detector off on the Smart Alerts page. You can't delete a managed rule directly, since Smart Alerts would recreate it. KloudMate disables it instead and points you to the detector toggle.
+To quiet a managed rule without taking it over, pause it from its row menu with **Pause Evaluation**. The pause holds: saving another Smart Alert won't resume it. To remove a managed rule for good, turn its detector off on the Smart Alerts page. Deleting a managed rule that's still evaluating disables it instead, the same as **Pause Evaluation**, and a disabled managed rule can then be deleted.
 
 ## Plan availability
 

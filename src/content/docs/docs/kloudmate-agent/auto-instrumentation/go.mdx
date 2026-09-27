@@ -27,7 +27,7 @@ The result is close to what a language SDK would produce, without changing your 
 eBPF monitoring and the language agents both propagate W3C trace context (`traceparent`). So when an instrumented service calls a Go service, the Go service's eBPF span joins the caller's trace. You see one connected trace with the correct parent-child links, not two separate views.
 
 :::note
-In the Discovered Services list, a Go service offers **Off** and **eBPF** but not **SDK**. eBPF is already tracing it at the kernel level, so there's no in-process agent to add.
+In the **Application instrumentation** card, a Go service offers **Off** and **eBPF** but not **SDK**. eBPF is already tracing it at the kernel level, so there's no in-process agent to add.
 :::
 
 ## Next steps
