@@ -1,0 +1,304 @@
+---
+title: "Triage new Jira bugs with AI"
+description: "Read each new bug report with AI Extract, set its Jira priority, assign it to the lead of the team that owns it, and post it in that team's Slack channel."
+sidebar:
+  order: 6
+---
+
+This guide builds a first pass of bug triage. When someone files a bug in your Jira project, the workflow reads the report, decides which team owns it and what priority it needs, and then:
+
+- sets the issue's priority in Jira,
+- adds a comment that explains the decision,
+- assigns the issue to the owning team's lead, and
+- posts the bug in that team's Slack channel.
+
+When the report doesn't say enough to decide, the workflow posts it in a triage channel for a person to look at instead.
+
+The finished workflow has these steps:
+
+```text
+Jira: New issue
+├─ Read the bug                        Jira: Get Issue
+├─ Triage the bug                      AI Extract
+├─ Set the priority                    Jira: Update Issue
+├─ Comment with the triage             Jira: Add Comment
+└─ Which team?                         Route
+   ├─ frontend
+   │  ├─ Find the frontend lead        Jira: Find User
+   │  ├─ Assign to the frontend lead   Jira: Assign Issue
+   │  └─ Post in the frontend channel  Slack: Post Message
+   ├─ backend: the same three steps for the backend team
+   └─ Otherwise: ask for a person to triage it
+```
+
+## Before you start
+
+- You need the **Developer** role in a KloudMate workspace whose plan includes workflows.
+- You need a Jira Cloud connection and a Slack connection, both with the **Workflows** capability. Invite the KloudMate bot to each team's Slack channel, and to a channel for bugs that need a person.
+- Note your Jira project key, such as `APP`, and the email address of each team's lead.
+- Each run uses workflow credits, and the **AI Extract** step uses more. See [Check workflow usage](/workflows/run-history/#check-workflow-usage).
+
+## Step 1: Save your Jira address as a variable
+
+The Slack messages link to each bug. Open **Workflows → Variables** and create a **Constant** named `jira_url`, with your Jira site's address as its value, such as `https://acme.atlassian.net`.
+
+## Step 2: Import the workflow
+
+1. Copy the YAML below, and make these changes:
+   - In the trigger's `jql`, replace `APP` with your project key.
+   - Replace `frontend-lead@example.com` and `backend-lead@example.com` with your team leads' addresses.
+2. Open **Workflows**, click **Import**, paste the YAML, and click **Import**.
+3. Click **Open workflow**, and set these before you publish:
+   - On the trigger, pick your Jira connection under **Account**, and pick the **Site**.
+   - On every Jira step, pick your Jira connection and the **Site**.
+   - On every Slack step, pick your Slack connection and the channel.
+
+```yaml
+kind: workflow
+uid: guide-triage-jira-bugs
+spec:
+  name: Triage new Jira bugs
+  description: For each new bug, reads the report with AI, sets its priority, assigns it to the owning team's lead, comments with the triage, and posts it in the team's Slack channel.
+  definition:
+    schema_version: 1
+    trigger:
+      type: integration_event
+      config:
+        connection_id:
+          $input: jira
+        trigger_key: jira.issue_created
+        props:
+          jql: project = APP AND issuetype = Bug
+    steps:
+      - id: issue
+        type: action
+        action: jira.get_issue
+        display_name: Read the bug
+        connection_id:
+          $input: jira
+        with:
+          issue_key: "{{ trigger.event.key }}"
+      - id: triage
+        type: action
+        action: ai.extract
+        display_name: Triage the bug
+        with:
+          prompt: This is a new bug report for a web application. Decide which part of the product it's about, and which Jira priority it needs. Explain your decision in one sentence.
+          source:
+            summary: "{{ steps.issue.output.fields.summary }}"
+            description: "{{ steps.issue.output.fields.description }}"
+          output_fields:
+            - name: component
+              type: enum
+              options: [frontend, backend, unknown]
+              description: frontend is the web UI, backend is the API and data
+            - name: priority
+              type: enum
+              options: [Highest, High, Medium, Low]
+              description: Highest if users can't use the product or lose data, High if a feature is broken with no workaround, Medium if there's a workaround, Low for anything cosmetic
+            - name: reason
+              type: string
+      - id: set_priority
+        type: action
+        action: jira.update_issue
+        display_name: Set the priority
+        connection_id:
+          $input: jira
+        with:
+          issue_key: "{{ trigger.event.key }}"
+          fields:
+            priority:
+              name: "{{ steps.triage.output.priority }}"
+      - id: comment
+        type: action
+        action: jira.add_comment
+        display_name: Comment with the triage
+        connection_id:
+          $input: jira
+        with:
+          issue_key: "{{ trigger.event.key }}"
+          body: "Triaged automatically: priority *{{ steps.triage.output.priority }}*, component *{{ steps.triage.output.component }}*. {{ steps.triage.output.reason }}"
+      - id: team
+        type: route
+        display_name: Which team?
+        routes:
+          - label: frontend
+            if:
+              all:
+                - field: steps.triage.output.component
+                  op: eq
+                  value: frontend
+            steps:
+              - id: find_frontend_lead
+                type: action
+                action: jira.find_user
+                display_name: Find the frontend lead
+                connection_id:
+                  $input: jira
+                with:
+                  query: frontend-lead@example.com
+              - id: assign_frontend
+                type: action
+                action: jira.assign_issue
+                display_name: Assign to the frontend lead
+                connection_id:
+                  $input: jira
+                with:
+                  issue_key: "{{ trigger.event.key }}"
+                  account_id: "{{ steps.find_frontend_lead.output.users.0.accountId }}"
+              - id: post_frontend
+                type: action
+                action: slack.post_message
+                display_name: Post in the frontend channel
+                connection_id:
+                  $input: slack
+                with:
+                  text: ":beetle: New {{ steps.triage.output.priority }} priority bug for frontend: <{{ vars.jira_url }}/browse/{{ trigger.event.key }}|{{ trigger.event.key }}> {{ steps.issue.output.fields.summary | replace: '&', '&amp;' | replace: '<', '&lt;' | replace: '>', '&gt;' }}"
+          - label: backend
+            if:
+              all:
+                - field: steps.triage.output.component
+                  op: eq
+                  value: backend
+            steps:
+              - id: find_backend_lead
+                type: action
+                action: jira.find_user
+                display_name: Find the backend lead
+                connection_id:
+                  $input: jira
+                with:
+                  query: backend-lead@example.com
+              - id: assign_backend
+                type: action
+                action: jira.assign_issue
+                display_name: Assign to the backend lead
+                connection_id:
+                  $input: jira
+                with:
+                  issue_key: "{{ trigger.event.key }}"
+                  account_id: "{{ steps.find_backend_lead.output.users.0.accountId }}"
+              - id: post_backend
+                type: action
+                action: slack.post_message
+                display_name: Post in the backend channel
+                connection_id:
+                  $input: slack
+                with:
+                  text: ":beetle: New {{ steps.triage.output.priority }} priority bug for backend: <{{ vars.jira_url }}/browse/{{ trigger.event.key }}|{{ trigger.event.key }}> {{ steps.issue.output.fields.summary | replace: '&', '&amp;' | replace: '<', '&lt;' | replace: '>', '&gt;' }}"
+        else:
+          - id: post_unsorted
+            type: action
+            action: slack.post_message
+            display_name: Ask for a person to triage it
+            connection_id:
+              $input: slack
+            with:
+              text: ":thinking_face: New bug that needs a person to triage it: <{{ vars.jira_url }}/browse/{{ trigger.event.key }}|{{ trigger.event.key }}> {{ steps.issue.output.fields.summary | replace: '&', '&amp;' | replace: '<', '&lt;' | replace: '>', '&gt;' }}"
+inputs:
+  jira:
+    kind: connection
+    name: Jira
+    type: jira
+  slack:
+    kind: connection
+    name: Slack
+    type: slack
+  jira_url:
+    kind: variable
+    name: jira_url
+    type: constant
+```
+
+## How each step works
+
+### The trigger
+
+The Jira **New issue** trigger runs once for each new issue. **Narrow with JQL** is `project = APP AND issuetype = Bug`, so only new bugs in that project start a run. KloudMate checks Jira for new issues every couple of minutes, so a run starts shortly after the bug is filed, not at the same moment.
+
+The event carries the new issue's key as `trigger.event.key`, with a few common fields, but not the description.
+
+### Read the bug
+
+A Jira **Get Issue** step reads the whole issue, with **Issue key** set to `{{ trigger.event.key }}`. The description is in `steps.issue.output.fields.description`.
+
+### Triage the bug
+
+An **AI Extract** step reads the summary and the description, which its **Source** passes as one object:
+
+```json
+{
+  "summary": "{{ steps.issue.output.fields.summary }}",
+  "description": "{{ steps.issue.output.fields.description }}"
+}
+```
+
+**Output fields** asks for the component and the priority from fixed lists, and a one-sentence reason:
+
+```json
+[
+  { "name": "component", "type": "enum", "options": ["frontend", "backend", "unknown"], "description": "frontend is the web UI, backend is the API and data" },
+  { "name": "priority", "type": "enum", "options": ["Highest", "High", "Medium", "Low"], "description": "Highest if users can't use the product or lose data, High if a feature is broken with no workaround, Medium if there's a workaround, Low for anything cosmetic" },
+  { "name": "reason", "type": "string" }
+]
+```
+
+The `description` of each field tells the model what the options mean for your product, so edit them to match how your teams split the work.
+
+Anyone who can file a bug writes the text the model reads, which is why the workflow uses **AI Extract**. Whatever the report says, `component` and `priority` can only come back as one of the listed options. See [AI Extract](/workflows/actions/#ai-extract).
+
+### Set the priority and comment
+
+A Jira **Update Issue** step sets the priority, with **Fields** set to `{"priority": {"name": "{{ steps.triage.output.priority }}"}}`. The priority options are Jira's default priority names. If your site uses others, use those in **Output fields** instead.
+
+A Jira **Add Comment** step records the decision on the issue, so everyone who opens the bug can see why it was routed where it was:
+
+```liquid
+Triaged automatically: priority *{{ steps.triage.output.priority }}*, component *{{ steps.triage.output.component }}*. {{ steps.triage.output.reason }}
+```
+
+Jira reads `*text*` in a comment as bold.
+
+### Which team?
+
+A **Route** picks a path by `steps.triage.output.component`. The `frontend` path runs when it **equals** `frontend`, and the `backend` path when it equals `backend`. **Otherwise** runs for `unknown`.
+
+Each team's path has these steps:
+
+1. A Jira **Find User** step looks up the team lead by email.
+2. A Jira **Assign Issue** step assigns the bug to the lead, with **Assignee** set to `{{ steps.find_frontend_lead.output.users.0.accountId }}`. Jira assigns issues by account ID, not by email, which is why the lookup comes first.
+3. A Slack **Post Message** step posts the bug in the team's channel, with a link to it.
+
+**Otherwise** only posts the bug in the triage channel. It doesn't assign it to anyone.
+
+### Keep Slack messages safe
+
+The Slack messages include the bug's summary, which the person who filed the bug wrote. Slack gives some text in a message a special meaning, so a summary that contains `<!channel>` would notify everyone in the channel. The messages escape `&`, `<`, and `>`, the characters Slack treats specially:
+
+```liquid
+{{ steps.issue.output.fields.summary | replace: '&', '&amp;' | replace: '<', '&lt;' | replace: '>', '&gt;' }}
+```
+
+The summary then shows up as written, and mentions nobody.
+
+## Step 3: Test and publish
+
+1. Open the trigger's **Test** tab and click **Test trigger**, then pick a recent bug as the sample.
+2. Test **Read the bug** and **Triage the bug** from their **Test** tabs. The triage output shows what the model decided, without changing anything in Jira.
+3. Click **Test run** to run every step for real on that bug. It changes the bug's priority, comments on it, assigns it, and posts in Slack.
+4. Click **Publish**. The first publish also switches the workflow on.
+
+From then on, each new bug in the project gets a run. To see what the workflow decided for a bug, open the run from **Workflows → Runs**.
+
+## Adapt the workflow
+
+- **Add a team.** Add an option to `component` in **Output fields**, with a line about it in the `description`. Then add a Route path with a matching condition and the team's three steps.
+- **Keep a person in the loop.** Remove **Set the priority** and the assign steps, and keep the comment. The team then sees the suggestion and decides for themselves.
+- **Triage other issue types.** Change the trigger's JQL, for example to `project = APP AND issuetype in (Bug, Task)`.
+- **Label the bug instead of assigning it.** Replace the assign steps with a Jira **Update Issue** step that sets `{"labels": ["team-frontend"]}`, for teams that pull work from a board.
+
+## Related
+
+- [Triggers](/workflows/triggers/#app-event) for Jira events and how often KloudMate checks for them.
+- [Actions](/workflows/actions/#jira-cloud) for the Jira steps.
+- [Route](/workflows/control-flow/#route) for choosing between paths.

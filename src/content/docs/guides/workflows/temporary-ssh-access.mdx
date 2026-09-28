@@ -1,0 +1,371 @@
+---
+title: "Grant temporary SSH access to a server, with approval"
+description: "Let a workspace member request SSH access to a bastion host through a form. After an on-call lead approves, the workflow opens the host's security group to their IP address, and closes it again after 1, 4, or 8 hours."
+sidebar:
+  order: 1
+---
+
+This guide builds a workflow for just-in-time SSH access to a bastion host on AWS. An engineer requests access through a form, an on-call lead approves the request by email, and the workflow adds an inbound rule for the engineer's IP address to the bastion's security group. When the time the engineer asked for is up, the workflow removes the rule again, so access never stays open because someone forgot to close it.
+
+The workflow also posts each change to a Slack channel. That gives you a record of who had access, from which address, for how long, and who approved it.
+
+The finished workflow has these steps:
+
+```text
+Form: Request SSH access to the bastion
+└─ Is it an IPv4 address?                         Branch
+   ├─ Then
+   │  ├─ Approve the access                       Approval
+   │  └─ Approved in time?                        Branch
+   │     ├─ Then
+   │     │  ├─ Open SSH to the address            AWS API Call
+   │     │  ├─ Post in the audit channel          Slack: Post Message
+   │     │  ├─ Tell the requester access is open  Send Email
+   │     │  ├─ How long?                          Route, then Wait
+   │     │  ├─ Close SSH again                    AWS API Call
+   │     │  └─ Reply in the audit thread          Slack: Post Message
+   │     └─ Else: tell the requester nobody approved
+   └─ Else: tell the requester the address is wrong
+```
+
+## Before you start
+
+- You need the **Developer** role in a KloudMate workspace whose plan includes workflows.
+- You need an [AWS connection](/platform/settings/connections/connect-an-account/) with the **Workflows** capability, in the account that holds the bastion.
+- You need a Slack connection with the **Workflows** capability, and a channel for the access records. Invite the KloudMate bot to that channel.
+- Copy the ID of the bastion's security group, such as `sg-0123456789abcdef0`, from the EC2 console.
+
+## Step 1: Let the AWS connection change the security group
+
+Add this policy to the IAM role that your AWS connection uses. Replace `REGION`, `ACCOUNT_ID`, and the security group ID with your own values:
+
+```json
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": [
+        "ec2:AuthorizeSecurityGroupIngress",
+        "ec2:RevokeSecurityGroupIngress"
+      ],
+      "Resource": "arn:aws:ec2:REGION:ACCOUNT_ID:security-group/sg-0123456789abcdef0"
+    }
+  ]
+}
+```
+
+The policy lets the workflow add and remove inbound rules on that one security group, and nothing else.
+
+## Step 2: Save the security group ID as a variable
+
+Open **Workflows → Variables** and click **Add variable**. Create a **Constant** named `bastion_security_group`, with the security group ID as its value.
+
+The workflow reads the ID from this variable. To point it at another security group later, you change the variable instead of editing the workflow.
+
+## Step 3: Import the workflow
+
+1. Copy the YAML below.
+2. Open **Workflows**, click **Import**, paste the YAML, and click **Import**.
+3. Click **Open workflow**, and set these before you publish:
+   - On **Open SSH to the address** and **Close SSH again**, pick your AWS connection.
+   - On **Post in the audit channel** and **Reply in the audit thread**, pick your Slack connection. On **Post in the audit channel**, also pick the channel.
+   - On **Approve the access**, add the people who can approve a request under **Approvers**.
+
+```yaml
+kind: workflow
+uid: guide-temporary-ssh-access
+spec:
+  name: Temporary SSH access to the bastion
+  description: After an approval, opens SSH on the bastion to one IP address for 1, 4, or 8 hours, then closes it again.
+  definition:
+    schema_version: 1
+    trigger:
+      type: form
+      config:
+        title: Request SSH access to the bastion
+        description: "Access opens after an on-call lead approves it, and closes on its own. For ip_address, enter the public IPv4 address you'll connect from. To find it, run: curl https://checkip.amazonaws.com"
+        require_login: true
+        success_message: Your request is waiting for approval. You'll get an email when access opens.
+    inputs:
+      - name: ip_address
+        type: string
+        required: true
+      - name: duration
+        type: enum
+        required: true
+        options: [1 hour, 4 hours, 8 hours]
+      - name: reason
+        type: textarea
+        required: true
+    steps:
+      - id: check_ip
+        type: branch
+        display_name: Is it an IPv4 address?
+        if:
+          all:
+            - field: trigger.inputs.ip_address
+              op: regex
+              value: '^([0-9]{1,3}\.){3}[0-9]{1,3}$'
+        then:
+          - id: approve
+            type: approval
+            display_name: Approve the access
+            approvers: []
+            timeout: 1h
+            on_timeout: continue
+            message: |-
+              {{ trigger.submitted_by.name }} ({{ trigger.submitted_by.email }}) asks for SSH access to the bastion from {{ trigger.inputs.ip_address }} for {{ trigger.inputs.duration }}.
+
+              Reason: {{ trigger.inputs.reason }}
+          - id: approved
+            type: branch
+            display_name: Approved in time?
+            if:
+              all:
+                - field: steps.approve.output.approved
+                  op: is_not_empty
+            then:
+              - id: open
+                type: action
+                action: aws.executeApi
+                display_name: Open SSH to the address
+                connection_id:
+                  $input: aws
+                with:
+                  service: ec2
+                  action: AuthorizeSecurityGroupIngress
+                  params:
+                    GroupId: "{{ vars.bastion_security_group }}"
+                    IpPermissions:
+                      - IpProtocol: tcp
+                        FromPort: 22
+                        ToPort: 22
+                        IpRanges:
+                          - CidrIp: "{{ trigger.inputs.ip_address }}/32"
+                            Description: "Temporary access for {{ trigger.submitted_by.email }}"
+              - id: announce
+                type: action
+                action: slack.post_message
+                display_name: Post in the audit channel
+                connection_id:
+                  $input: slack
+                with:
+                  text: ":unlock: Opened SSH on the bastion to {{ trigger.inputs.ip_address }} for {{ trigger.submitted_by.name }}, for {{ trigger.inputs.duration }}. Approved by {{ steps.approve.output.decidedBy.name }}."
+              - id: tell_open
+                type: action
+                action: email.send
+                display_name: Tell the requester access is open
+                with:
+                  to: "{{ trigger.submitted_by.email }}"
+                  subject: Your SSH access to the bastion is open
+                  html: "{{ steps.approve.output.decidedBy.name | escape }} approved your request. The bastion accepts SSH from {{ trigger.inputs.ip_address | escape }} for {{ trigger.inputs.duration }}, and then closes to that address on its own."
+              - id: how_long
+                type: route
+                display_name: How long?
+                routes:
+                  - label: one_hour
+                    if:
+                      all:
+                        - field: trigger.inputs.duration
+                          op: eq
+                          value: 1 hour
+                    steps:
+                      - id: wait_1h
+                        type: wait
+                        display_name: Wait 1 hour
+                        duration: 1h
+                  - label: four_hours
+                    if:
+                      all:
+                        - field: trigger.inputs.duration
+                          op: eq
+                          value: 4 hours
+                    steps:
+                      - id: wait_4h
+                        type: wait
+                        display_name: Wait 4 hours
+                        duration: 4h
+                else:
+                  - id: wait_8h
+                    type: wait
+                    display_name: Wait 8 hours
+                    duration: 8h
+              - id: close
+                type: action
+                action: aws.executeApi
+                display_name: Close SSH again
+                connection_id:
+                  $input: aws
+                with:
+                  service: ec2
+                  action: RevokeSecurityGroupIngress
+                  params:
+                    GroupId: "{{ vars.bastion_security_group }}"
+                    SecurityGroupRuleIds:
+                      - "{{ steps.open.output.result.SecurityGroupRules.0.SecurityGroupRuleId }}"
+              - id: announce_closed
+                type: action
+                action: slack.post_message
+                display_name: Reply in the audit thread
+                connection_id:
+                  $input: slack
+                with:
+                  channel: "{{ steps.announce.output.channel }}"
+                  thread_ts: "{{ steps.announce.output.ts }}"
+                  text: ":lock: Closed SSH to {{ trigger.inputs.ip_address }}."
+            else:
+              - id: tell_expired
+                type: action
+                action: email.send
+                display_name: Tell the requester nobody approved
+                with:
+                  to: "{{ trigger.submitted_by.email }}"
+                  subject: Your SSH access request expired
+                  html: "Nobody approved your request for SSH access from {{ trigger.inputs.ip_address | escape }} within an hour, so the bastion stays closed to it. Submit the form again if you still need access."
+        else:
+          - id: tell_bad_ip
+            type: action
+            action: email.send
+            display_name: Tell the requester the address is wrong
+            with:
+              to: "{{ trigger.submitted_by.email }}"
+              subject: Your SSH access request needs an IPv4 address
+              html: "{{ trigger.inputs.ip_address | escape }} isn't an IPv4 address such as 203.0.113.7, so nothing was opened. Submit the form again with the address you'll connect from."
+inputs:
+  aws:
+    kind: connection
+    name: AWS
+    type: aws
+  slack:
+    kind: connection
+    name: Slack
+    type: slack
+  bastion_security_group:
+    kind: variable
+    name: bastion_security_group
+    type: constant
+```
+
+The security group must be in the AWS connection's default region. If it's in another region, set **Region** on both AWS steps.
+
+## How each step works
+
+### The form
+
+The **Form submission** trigger has **Sign-in required** turned on, so only members of your workspace can submit it. Steps read who submitted it from `{{ trigger.submitted_by.name }}` and `{{ trigger.submitted_by.email }}`, which means the requester doesn't type their own name, and can't type someone else's.
+
+The form's fields are the workflow's input parameters:
+
+| Field | Type | What it's for |
+|---|---|---|
+| `ip_address` | **Text** | The public IPv4 address the requester connects from. |
+| `duration` | **Choice** | How long access stays open: `1 hour`, `4 hours`, or `8 hours`. |
+| `reason` | **Long text** | Why they need access. It appears in the approval email. |
+
+### Is it an IPv4 address?
+
+A **Branch** checks that `trigger.inputs.ip_address` **matches regex** `^([0-9]{1,3}\.){3}[0-9]{1,3}$`, which accepts four numbers separated by dots, such as `203.0.113.7`. If the requester typed anything else, such as a range or a host name, the **Else** block emails them and the run ends without asking anyone to approve it.
+
+### Approve the access
+
+An **Approval** step emails the approvers a link to approve or reject the request. Its **Message** names the requester, the address, the duration, and the reason:
+
+```liquid
+{{ trigger.submitted_by.name }} ({{ trigger.submitted_by.email }}) asks for SSH access to the bastion from {{ trigger.inputs.ip_address }} for {{ trigger.inputs.duration }}.
+
+Reason: {{ trigger.inputs.reason }}
+```
+
+**Timeout** is `1h`, because a request that nobody looks at within an hour is usually stale. **On timeout** is **Continue**, so a timed-out request goes on to the next step instead of failing the run.
+
+If an approver rejects the request, the run ends as **Rejected** and none of the later steps run.
+
+### Approved in time?
+
+A **Branch** checks that `steps.approve.output.approved` **is not empty**. An approval sets it to `true`, and a timeout leaves it empty. When the request timed out, the **Else** block emails the requester that nobody approved it.
+
+### Open SSH to the address
+
+An **AWS API Call** step calls **EC2 → AuthorizeSecurityGroupIngress**. Its **Parameters** set **GroupId** to `{{ vars.bastion_security_group }}` and **IpPermissions** to one rule for TCP port 22:
+
+```json
+[
+  {
+    "IpProtocol": "tcp",
+    "FromPort": 22,
+    "ToPort": 22,
+    "IpRanges": [
+      {
+        "CidrIp": "{{ trigger.inputs.ip_address }}/32",
+        "Description": "Temporary access for {{ trigger.submitted_by.email }}"
+      }
+    ]
+  }
+]
+```
+
+`/32` limits the rule to the one address. The rule's description names the requester, so anyone who looks at the security group in the EC2 console can tell who the rule is for.
+
+AWS returns the new rule in `result.SecurityGroupRules`, including its ID, which **Close SSH again** uses to remove it.
+
+### Post in the audit channel
+
+A Slack **Post Message** step posts who got access, from which address, for how long, and who approved it. `{{ steps.approve.output.decidedBy.name }}` is the approver.
+
+The message leaves out the requester's reason. Slack reads some text in a message as a mention, so free text from a form could notify a whole channel. The reason stays in the approval email and in run history instead.
+
+### Tell the requester access is open
+
+A **Send Email** step emails the requester at `{{ trigger.submitted_by.email }}`. Values from the form are passed through `escape`, so the email shows them as plain text. See [Escape values in an email](/workflows/templating/#escape-values-in-an-email).
+
+### How long?
+
+A **Route** picks the wait that matches the requester's choice. The `one_hour` path runs when `trigger.inputs.duration` **equals** `1 hour`, and the `four_hours` path when it equals `4 hours`. **Otherwise** covers `8 hours`.
+
+Each path holds a **Wait / Delay** step. **Wait for** takes a fixed duration, such as `4h`, rather than a template, which is why the workflow chooses between steps instead of reading the duration from the form. A wait of a minute or longer doesn't count toward the [runs a workspace can have running at the same time](/workflows/limits/#run-limits), so a run that waits for 8 hours doesn't hold anything up.
+
+### Close SSH again
+
+An **AWS API Call** step calls **EC2 → RevokeSecurityGroupIngress** with the rule's ID:
+
+```liquid
+{{ steps.open.output.result.SecurityGroupRules.0.SecurityGroupRuleId }}
+```
+
+Removing the rule by its ID removes exactly the rule this run added. If the same address also has a permanent rule on the security group, that rule stays.
+
+### Reply in the audit thread
+
+A Slack **Post Message** step replies in the thread of the first message. **Channel** is `{{ steps.announce.output.channel }}` and **Reply to thread** is `{{ steps.announce.output.ts }}`, both from Slack's response to the first post, so the opening and the closing of each request stay together.
+
+## Step 4: Publish and try it
+
+The form works only when the workflow is published, so try it on the live form:
+
+1. Click **Publish**. The first publish also switches the workflow on.
+2. Open the trigger and copy the **Public form URL**. Open it, sign in if you're asked to, and request access for your own IP address, with **duration** set to `1 hour`.
+3. Approve the request from the email that the approvers receive.
+4. Check that the security group has a new inbound rule for your address, and that you can connect over SSH.
+
+An hour later, the workflow removes the rule and replies in the Slack thread. To see the whole cycle without waiting an hour, set **Wait 1 hour** to `2m` while you try it, and set it back to `1h` afterwards. Publish after each change.
+
+To follow a request, open **Workflows → Runs**. A run shows **Waiting approval** until someone decides, and **Waiting** while the access is open. See [Run history](/workflows/run-history/).
+
+:::caution
+If you cancel a run while it waits, the rule stays on the security group. Remove it by hand in the EC2 console. Rules that the workflow adds have a description that starts with `Temporary access for`.
+:::
+
+## Adapt the workflow
+
+- **Open another port.** Change `FromPort` and `ToPort` on **Open SSH to the address**, for example to `5432` for PostgreSQL. **Close SSH again** removes the rule by its ID, so it needs no change.
+- **Offer other durations.** Add an option to the `duration` input, then add a Route path with a matching condition and a **Wait / Delay** step. **Wait for** can be up to `24h`.
+- **Protect more than one server.** Add a **Choice** input that names the servers, and a Route that picks the security group for each one. Keep each security group ID in its own variable, and add each group to the IAM policy.
+- **Send the record somewhere else.** Replace the two Slack steps with a Microsoft Teams message or an email to your security team, using the same text.
+
+## Related
+
+- [Approvals and collected input](/workflows/approvals-and-input/) for the approval email and its timeout.
+- [Triggers](/workflows/triggers/#form-submission) for the form trigger and **Sign-in required**.
+- [AWS API Call](/workflows/actions/#aws-api-call) for the services a step can call.
+- [Variables](/workflows/variables/) for constants such as the security group ID.

@@ -1,0 +1,64 @@
+---
+title: "Approvals and collected input"
+description: "Pause a workflow until a person approves it, or until someone fills in a form, and let them respond from a link in their email."
+sidebar:
+  label: "Approvals and input"
+  order: 5
+---
+
+**Approval** and **Collect Input** pause a run until a person responds. Approval asks for a yes or no. Collect Input asks the person to fill in a form, and passes the submitted values to the steps that follow.
+
+Put an approval in front of anything that changes a resource. Nothing else gates a destructive step: a run restarts an instance or deletes a file without asking unless an approval stops it.
+
+A paused run doesn't count toward the [limit on runs at the same time](../limits/#run-limits), so waiting a day for a decision costs nothing.
+
+## Approval
+
+| Field | What it takes |
+|---|---|
+| **Approvers** | Workspace members who can approve, up to 10. The first to respond decides. |
+| **Message** | What approvers see with the request. You can use templates here, for example to name the host and the command. |
+| **Timeout** | How long to wait, `24h` by default and `7d` at most. |
+| **On timeout** | **Fail the run**, or **Continue**. |
+
+`{{ steps.<id>.output.approved }}` holds the decision, and `{{ steps.<id>.output.decidedBy }}` holds the person who decided, as an object with `id`, `name`, `email`, and `timezone`, so a later Slack message can name them.
+
+### When an approval is rejected or times out
+
+**Rejected isn't a failure.** The run ends as `rejected`, skips the steps after the approval, and retries nothing. Run history shows it as **Rejected**, not **Failed**.
+
+**Timed out** gives the step `approved: null` and then follows **On timeout**. With **Continue**, a later branch can check `{{ steps.<id>.output.approved }}` and take a fallback path.
+
+## Collect Input
+
+Takes the same fields as an approval, with **Assignees** in place of **Approvers**, plus the form.
+
+**Fields** holds between 1 and 20 entries. Each has a name and a type: **Text**, **Long text**, **Email**, **Number**, **Checkbox**, or **Choice**. A Choice field needs at least one option and can allow more than one. Mark a field required, or leave it optional and give it a default.
+
+**Assignees** are the workspace members who get the form, and only the first submission counts.
+
+Later steps read `{{ steps.<id>.output.fields.<name> }}` for the values and `{{ steps.<id>.output.submittedBy }}` for who submitted them, with `id`, `name`, and `email`.
+
+## How people receive a request
+
+Every request goes out by email, and the link in that email is the only way to respond. Each person named on the step gets their own email and their own link:
+
+- The subject names the workflow and the step, for example `Approval needed: Disk cleanup · Approve the cleanup`.
+- Your **Message** appears in the body. KloudMate escapes it, so a value from a payload shows up as plain text.
+- When more than one person was asked, the email names the others and says that the first reply decides.
+- The email shows the deadline in the recipient's own timezone.
+
+People can respond without signing in to KloudMate, because the signed link identifies them.
+
+## Restrictions
+
+- **Name at least one person.** Publishing refuses an Approval or Collect Input step with nobody on it.
+- **Someone who has left can't decide.** KloudMate leaves them out when it sends the request, and checks membership again when someone responds, so a link stops working when its recipient loses access.
+- **The first response wins.** Every other link stops working after one person answers.
+- **Neither step can go inside a loop.** Publishing rejects it.
+
+## Related
+
+- [Control flow](../control-flow/) for the other structural steps.
+- [Test a workflow](../test-a-workflow/) for testing an approval before real approvers get it.
+- [Limits](../limits/) for the timeout ceilings and the hourly cap on request emails.

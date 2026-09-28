@@ -19,13 +19,13 @@ Each service becomes a node under its `service.name`, and an edge is drawn where
 
 ## Overview
 
-Click **Service Map** in the left navigation to open the map.
+Open **APM & Services** and select the **Service map** view. You can also open the map from a service's page: click **View in service map** in the **Service dependencies** panel.
 
-![image](./images/service-map-1.png)
+![The Service map view of APM & Services, with the Refresh button, the Show external dependencies switch, the summary chips, and the Service Dependency Graph](./images/service-map-1.png)
 
-At the top of the page, a summary bar shows the total number of services, dependencies, services with errors, and erroring edges in the selected time range.
+Summary chips count the services, external dependencies, dependencies, services with errors, and erroring edges in the selected time range. A service or dependency counts as erroring when its error rate is 0.05% or higher.
 
-Use the **time range** selector to adjust the observation window, and click **Refresh** to reload the map with the latest data.
+The **Service map** view uses the same time range as the **List** view. Click **Refresh** to reload the map with the latest data, and turn on **Show external dependencies** to add the uninstrumented dependencies your services call, such as databases, queues, and third-party hosts.
 
 The main area displays the **Service Dependency Graph**. Each service is represented as a node showing its name, protocol, request rate, and average latency. The directed edges between nodes represent the call flow and dependencies between services.
 

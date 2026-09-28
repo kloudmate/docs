@@ -30,3 +30,7 @@ Explore the following guides to set up and configure your AWS integrations:
 - **[AWS Lambda Monitoring](./lambda-monitoring/)**: Explore how KloudMate aggregates Lambda metrics, invocations, and issues in a unified console.
 - **[Lambda Telemetry Extension](./lambda-telemetry-extension/)**: Send Lambda logs, metrics, and traces to KloudMate with a layer, skipping the cross-account CloudFormation setup.
 - **[AWS Step Functions Monitoring](./step-functions-monitoring/)**: Watch state-machine executions, spot failures, and replay the workflow graph to see which state failed.
+
+## Acting on AWS, not just reading it
+
+Everything above is read-only telemetry. To let a [workflow](../workflows/) call AWS APIs, for example to reboot an EC2 instance or redrive a Step Functions execution, connect AWS separately under [Settings → Connections](/platform/settings/connections/). That connection has its own IAM role, so a policy you write decides what automation can do, not the read-only role used for monitoring.

@@ -9,7 +9,7 @@ Use this integration when a Kafka cluster (for example, a Bitnami Helm release) 
 
 ## Prerequisites
 
-1. The [KloudMate Agent](../../../kloudmate-agent/) deployed and running in the cluster.
+1. The [KloudMate Agent](../../../kloudmate-agent/) is deployed and running in the cluster.
 2. The scrape details from the `ServiceMonitor`(s) already collecting Kafka metrics.
 
 ## Step 1: Gather Details from the Existing ServiceMonitor
@@ -26,12 +26,19 @@ From the output, note:
 4. `spec.endpoints[].interval` → match this in your scrape config to stay consistent with the existing setup.
 5. `spec.namespaceSelector` → confirms the namespace to target.
 
-## Step 2: Define the Prometheus Receiver
+## Step 2: Open the Collector Configuration
 
-Go to **Settings → Agents**, select the Kubernetes agent, and click **Configure**.
+1. Go to **Settings → Agents**.
+2. Find the agent you want to configure and select the three dots.
+3. Choose **Configure**.
+4. Go to **Collector config**.
 
-- If the agent runs in managed mode, add the configuration below through the [custom config override](../../../kloudmate-agent/custom-config-override/) section for the deployment collector.
-- If the agent runs in manual mode, add the configuration as-is.
+## Step 3: Add the Prometheus Receiver
+
+Add the following configuration. Replace `<release>`, `<kafka-namespace>`, and `<cluster-name>` with your own values, and adjust the ports and interval if your `ServiceMonitor` differs from the Bitnami defaults.
+
+- If the agent runs in managed mode, add it to the **Custom config override** section. See [Custom config override](../../../kloudmate-agent/custom-config-override/).
+- If the agent runs in manual mode, add it directly to the collector configuration.
 
 ```yaml
 receivers:
@@ -53,33 +60,25 @@ receivers:
             - targets: ['<release>-kafka-exporter.<kafka-namespace>.svc.cluster.local:9308']
               labels:
                 cluster: '<cluster-name>'
+
 service:
   pipelines:
     metrics/kafka:
-      receivers: [prometheus]
-      processors: [batch]
-      exporters: [otlphttp]
+      receivers:
+        - prometheus
+      processors:
+        - batch
+      exporters:
+        - otlphttp
 ```
 
-Replace `<release>`, `<kafka-namespace>`, and `<cluster-name>` with your own values, and adjust the ports and interval if your `ServiceMonitor` differs from the Bitnami defaults.
+## Step 4: Save the Configuration
 
-## Step 3: Restart the Agent
+Click **Save**. The Agent restarts and applies the new configuration.
 
-If you edited the configuration directly instead of using a custom config override, restart whichever workload runs the agent:
+## Step 5: Validate in KloudMate
 
-```bash
-kubectl rollout restart deployment <km-agent> -n <kafka-namespace>
-```
-
-or
-
-```bash
-kubectl rollout restart daemonset <km-agent> -n <kafka-namespace>
-```
-
-## Step 4: Validate in KloudMate
-
-After the agent restarts:
+After the Agent restarts:
 
 - Open [Explore](../../../visualize-data/explore/) in KloudMate.
 - Query one of the scraped metrics, for example:

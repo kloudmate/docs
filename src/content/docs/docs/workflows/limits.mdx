@@ -1,0 +1,81 @@
+---
+title: "Limits"
+description: "The limits on a workflow's size, its runs, and its webhook and form URLs, and the plans that include workflow automation."
+sidebar:
+  label: "Limits"
+  order: 11
+---
+
+Most workflows stay well inside these limits. The ones people hit most are the step cap, the loop cap, and the webhook rate limit.
+
+## Workflow definition limits
+
+| Limit | Value |
+|---|---|
+| Steps in one workflow | 50, counting every nested block |
+| Trigger input parameters | 20 |
+| Collect-input fields | 20 |
+| Items in one loop | 100, with up to 10 at once |
+| Parallel branches | 2 to 10 |
+| Paths on one Route | 1 to 10 |
+| Routes on one AI Route | 2 to 8 |
+| Approvers on one step | 10 |
+| Nested workflow calls | 5 deep |
+| Length of one `{{ }}` template | 8192 characters |
+| Whole definition | 100 KB |
+| Run Code source | 64 KB |
+
+## Run limits
+
+| Limit | Value |
+|---|---|
+| One step attempt | 60 seconds by default, 15 minutes at most |
+| Retries per step | 5 at most |
+| **Wait / Delay** | 24 hours |
+| **Wait until** | 24 hours, with at most 20 checks |
+| Approval and collect-input timeout | 24 hours by default, 7 days at most |
+| HTTP request timeout | 10 seconds by default |
+| **Send Email** recipients per step | 20 |
+| **Send Email** emails per workspace per hour | 200 |
+| Approval and input request emails per workspace per hour | 200, counted separately from **Send Email** |
+| Resources from one alert group lookup | 100 resources, from up to 1,000 firing instances |
+| Runs at the same time, per workspace | 20 |
+
+A run that's waiting on a person, between the checks of a **Wait until**, or on a **Wait / Delay** of 1 minute or longer doesn't count toward the 20. A shorter delay does, and so does every run that's running a step.
+
+## Trigger limits
+
+| Limit | Value |
+|---|---|
+| Webhook and form URL | 60 requests per minute, per workflow |
+| App-event trigger | 200 runs per workflow per hour |
+| Any trigger | 500 runs per workflow per 5 minutes |
+
+The 500-run limit stops a workflow that keeps triggering itself. Child runs and test runs don't count toward it.
+
+## Retention
+
+KloudMate keeps finished runs and their step detail for 30 days. It keeps published versions for 30 days too, but always keeps the newest 20 per workflow, the live one, and any version a kept run still uses.
+
+## Variable and storage limits
+
+| Limit | Value |
+|---|---|
+| Workspace variables | 200 per workspace |
+| One variable's value | 8 KB |
+| Storage keys | 10,000 per workspace |
+| One stored value | 64 KB |
+| One stored list | 10,000 items |
+
+## Plans
+
+Workflow automation is part of the Pro and Business plans. On the Free plan, **Workflows** shows an upgrade prompt instead, with **View plans** for organization owners.
+
+Your plan also decides which integrations you can connect. See [Connections → Providers](/platform/settings/connections/providers/).
+
+If a plan lapses, existing webhook deliveries, form submissions, and approval links keep working, so a decision link already in someone's inbox doesn't break. You can no longer create or edit workflows.
+
+## Related
+
+- [Build a workflow](../build-a-workflow/)
+- [Connections](/platform/settings/connections/)

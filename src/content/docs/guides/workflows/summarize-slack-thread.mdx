@@ -1,0 +1,158 @@
+---
+title: "Summarize a Slack thread with AI"
+description: "React to any message in a Slack thread with 📝, and the workflow reads the whole thread and replies with a summary of its decisions, open questions, and action items."
+sidebar:
+  order: 8
+---
+
+Long Slack threads are where decisions get made and then lost. This guide builds a workflow that summarizes a thread on request: anyone reacts to a message in the thread with 📝, and an **AI Prompt** step reads the whole thread and replies in it with the decisions, the open questions, and who agreed to do what. The owner of each action item is mentioned, so they get a notification.
+
+The finished workflow has these steps:
+
+```text
+Slack: Reaction added, 📝 only
+├─ Read the thread               Slack: Get Thread Replies
+└─ Is it a thread?               Branch
+   └─ Then
+      ├─ Summarize the thread    AI Prompt
+      └─ Reply with the summary  Slack: Post Message
+```
+
+## Before you start
+
+- You need the **Developer** role in a KloudMate workspace whose plan includes workflows.
+- You need a Slack connection with the **Workflows** capability. The workflow works in every channel the KloudMate bot is in, so invite the bot to the channels where you want summaries.
+- Each summary uses workflow credits, and the **AI Prompt** step uses more. See [Check workflow usage](/workflows/run-history/#check-workflow-usage).
+
+## Step 1: Import the workflow
+
+1. Copy the YAML below.
+2. Open **Workflows**, click **Import**, paste the YAML, and click **Import**.
+3. Click **Open workflow**. On the trigger, pick your Slack connection under **Account**, and on the two Slack steps, pick your Slack connection.
+
+```yaml
+kind: workflow
+uid: guide-summarize-slack-thread
+spec:
+  name: Summarize a Slack thread
+  description: When someone reacts to a message in a thread with a memo emoji, reads the whole thread and replies in it with a summary of the decisions, open questions, and action items.
+  definition:
+    schema_version: 1
+    trigger:
+      type: integration_event
+      config:
+        connection_id:
+          $input: slack
+        trigger_key: slack.reaction_added
+        props:
+          emoji: memo
+    steps:
+      - id: thread
+        type: action
+        action: slack.get_thread_replies
+        display_name: Read the thread
+        connection_id:
+          $input: slack
+        with:
+          channel: "{{ trigger.event.item.channel }}"
+          ts: "{{ trigger.event.item.ts }}"
+          limit: 200
+      - id: has_replies
+        type: branch
+        display_name: Is it a thread?
+        if:
+          all:
+            - field: steps.thread.output.messages.1
+              op: is_not_empty
+        then:
+          - id: summary
+            type: action
+            action: ai.prompt
+            display_name: Summarize the thread
+            with:
+              prompt: |-
+                Summarize this Slack thread for someone who wasn't part of it. Use Slack formatting, and keep it under 150 words, with these sections:
+                *Decisions*: what the thread agreed on.
+                *Open questions*: what is still undecided.
+                *Action items*: who does what. Name each owner as they appear below, in the form <@USER_ID>.
+                Leave out a section that would be empty. Don't add anything the thread doesn't say.
+
+                The thread, oldest message first. Each message starts with its author:
+                {% for m in steps.thread.output.messages %}
+                <@{{ m.user }}>: {{ m.text }}
+                {% endfor %}
+          - id: reply
+            type: action
+            action: slack.post_message
+            display_name: Reply with the summary
+            connection_id:
+              $input: slack
+            with:
+              channel: "{{ trigger.event.item.channel }}"
+              thread_ts: "{{ steps.thread.output.messages.0.ts }}"
+              text: ":memo: *Summary, as <@{{ trigger.event.user }}> asked*\n{{ steps.summary.output.text | replace: '<!', '&lt;!' }}"
+inputs:
+  slack:
+    kind: connection
+    name: Slack
+    type: slack
+```
+
+## How each step works
+
+### The trigger
+
+The Slack **Reaction added** trigger has **Only this emoji** set to `memo`, Slack's name for 📝, so any other reaction is ignored. **Only in channel** is empty, so a 📝 in any channel the bot is in starts a run. The event carries the reacted message's channel and timestamp as `trigger.event.item.channel` and `trigger.event.item.ts`, and the person who reacted as `trigger.event.user`.
+
+### Read the thread
+
+A Slack **Get Thread Replies** step reads the thread, with **Channel** and **Thread** set from the event. **Thread** can be the timestamp of any message in the thread, so a 📝 on a reply works as well as one on the first message. **Max messages** is `200`.
+
+Slack returns the thread in `messages`, oldest first, with the message that started the thread at position `0`.
+
+A **Branch** checks that `steps.thread.output.messages.1` **is not empty**, which means the thread has at least one reply. A 📝 on a message with no replies does nothing.
+
+### Summarize the thread
+
+An **AI Prompt** step writes the summary. The **Prompt** sets the sections and the length, and then lists the thread with a Liquid `for` loop, one message after another:
+
+```liquid
+{% for m in steps.thread.output.messages %}
+<@{{ m.user }}>: {{ m.text }}
+{% endfor %}
+```
+
+Each message starts with its author's user ID in Slack's mention syntax, `<@U02ABCDEF>`. The prompt asks the model to name the owner of each action item the same way, so the owners are mentioned when the summary is posted, and Slack shows their names.
+
+The prompt also tells the model not to add anything the thread doesn't say. A summary that invents a decision is worse than no summary, so check a few summaries against their threads when you start.
+
+**AI Prompt** reads the messages as part of its instructions, so whoever writes in the thread can steer the summary. That's acceptable here, because the people in the thread are your colleagues, and the summary only goes back into the same thread. For text from outside your company, use **AI Extract** instead. See [AI Prompt](/workflows/actions/#ai-prompt).
+
+### Reply with the summary
+
+A Slack **Post Message** step replies in the thread, with **Reply to thread** set to `{{ steps.thread.output.messages.0.ts }}`, the first message of the thread. The reply names who asked for the summary:
+
+```liquid
+:memo: *Summary, as <@{{ trigger.event.user }}> asked*
+{{ steps.summary.output.text | replace: '<!', '&lt;!' }}
+```
+
+The `replace` filter turns `<!` into `&lt;!`. That keeps the summary from notifying a whole channel with `<!channel>` or `<!here>`, even if a message in the thread tricked the model into writing one. User mentions, which start with `<@`, still work.
+
+## Step 2: Test and publish
+
+1. Open the trigger's **Test** tab and click **Test trigger**. Then react with 📝 to a message in a thread in a channel the bot is in. The reaction becomes the trigger's sample.
+2. Test **Read the thread** from its **Test** tab, then test **Summarize the thread** to see the summary without posting it.
+3. Click **Publish**. The first publish also switches the workflow on.
+
+## Adapt the workflow
+
+- **Save the summary in Jira.** For threads about a Jira issue, add an **AI Extract** step that returns the issue key mentioned in the thread, and a Jira **Add Comment** step that posts the summary on that issue.
+- **Summarize only some channels.** Import the workflow once for each channel, each with a different `uid`, and set **Only in channel** on each trigger.
+- **Write a different summary.** Change the sections in the prompt, for example to a timeline for an incident thread, or to a list of open questions only.
+
+## Related
+
+- [AI Prompt](/workflows/actions/#ai-prompt) and [AI Extract](/workflows/actions/#ai-extract) for when to use each one.
+- [Templating](/workflows/templating/#write-a-template) for `for` loops in a template.
+- [Triggers](/workflows/triggers/#app-event) for Slack events.

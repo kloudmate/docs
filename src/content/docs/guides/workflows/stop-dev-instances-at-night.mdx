@@ -1,0 +1,468 @@
+---
+title: "Stop development instances at night"
+description: "Stop the EC2 instances tagged as development every weekday evening, and start them again the next weekday morning. A Slack reaction on the evening warning keeps them running for the night."
+sidebar:
+  order: 2
+---
+
+This guide builds a schedule that stops your development EC2 instances every weekday evening and starts them again the next weekday morning. EC2 bills a running instance by the second, so a development instance that sits idle overnight and at weekends costs money for nothing. A stopped instance keeps everything on its EBS volumes.
+
+Half an hour before the instances stop, the workflow posts a warning in Slack. If someone is still working, they react to the warning with 📌 (`:pushpin:`), and the instances keep running that night.
+
+The work is split across these workflows:
+
+| Workflow | Trigger | What it does |
+|---|---|---|
+| **Stop development instances at night** | **Schedule**, weekdays at 18:30 | Posts the warning, waits 30 minutes, and stops the running development instances, unless someone reacted to the warning. |
+| **Keep development instances running tonight** | Slack **Reaction added** | Records that someone reacted to tonight's warning. |
+| **Start development instances in the morning** | **Schedule**, weekdays at 08:00 | Starts the instances that the evening workflow stopped. |
+
+The workflows pass information to each other through [Storage](/workflows/storage/) keys with **Scope** set to **This workspace**:
+
+| Key | Written by | Read by |
+|---|---|---|
+| `dev_warning:<message timestamp>` | The evening workflow, when it posts the warning | The reaction workflow, to check that a reaction is on tonight's warning |
+| `keep_dev_running` | The reaction workflow | The evening workflow, before it stops anything |
+| `dev_stopped_instances` | The evening workflow | The morning workflow |
+
+## Before you start
+
+- You need the **Developer** role in a KloudMate workspace whose plan includes workflows.
+- You need an [AWS connection](/platform/settings/connections/connect-an-account/) with the **Workflows** capability, in the account that runs the instances.
+- You need a Slack connection with the **Workflows** capability, and a channel for the warnings. Invite the KloudMate bot to that channel.
+- Tag each development instance with the key `Environment` and the value `development`. The workflows don't touch instances without this tag.
+
+## Step 1: Let the AWS connection stop and start the instances
+
+Add this policy to the IAM role that your AWS connection uses. Replace `ACCOUNT_ID` with your AWS account ID:
+
+```json
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": "ec2:DescribeInstances",
+      "Resource": "*"
+    },
+    {
+      "Effect": "Allow",
+      "Action": ["ec2:StopInstances", "ec2:StartInstances"],
+      "Resource": "arn:aws:ec2:*:ACCOUNT_ID:instance/*",
+      "Condition": {
+        "StringEquals": { "aws:ResourceTag/Environment": "development" }
+      }
+    }
+  ]
+}
+```
+
+The condition limits stopping and starting to instances tagged as development, so the connection can't stop a production instance even if a step asks it to.
+
+If the instances' EBS volumes are encrypted with a customer managed KMS key, the role also needs `kms:CreateGrant` on that key. Without it, an instance goes back to **Stopped** a few seconds after the morning workflow starts it.
+
+## Step 2: Import the workflows
+
+Import each workflow on its own. For each one, open **Workflows**, click **Import**, paste the YAML, click **Import**, and then click **Open workflow** to set what the import couldn't.
+
+### Stop development instances at night
+
+```yaml
+kind: workflow
+uid: guide-stop-dev-instances
+spec:
+  name: Stop development instances at night
+  description: Every weekday evening, warns in Slack and then stops the running EC2 instances tagged Environment=development, unless someone asked to keep them running.
+  definition:
+    schema_version: 1
+    trigger:
+      type: schedule
+      config:
+        mode: daily
+        hour: 18
+        minute: 30
+        run_on_weekends: false
+        timezone: UTC
+    steps:
+      - id: find
+        type: action
+        action: aws.executeApi
+        display_name: Find running development instances
+        connection_id:
+          $input: aws
+        with:
+          service: ec2
+          action: DescribeInstances
+          params:
+            Filters:
+              - Name: tag:Environment
+                Values: [development]
+              - Name: instance-state-name
+                Values: [running]
+      - id: ids
+        type: action
+        action: transform
+        display_name: List their instance IDs
+        with:
+          from: "{{ steps.find.output.result }}"
+          path: $.Reservations[*].Instances[*].InstanceId
+      - id: any_running
+        type: branch
+        display_name: Anything running?
+        if:
+          all:
+            - field: steps.ids.output.value
+              op: is_not_empty
+        then:
+          - id: warn
+            type: action
+            action: slack.post_message
+            display_name: Warn the channel
+            connection_id:
+              $input: slack
+            with:
+              text: ":crescent_moon: In 30 minutes, these development instances stop for the night: {{ steps.ids.output.value | join: ', ' }}. React to this message with :pushpin: to keep them running tonight."
+          - id: remember_warning
+            type: action
+            action: store.put
+            display_name: Remember the warning message
+            with:
+              scope: workspace
+              key: "dev_warning:{{ steps.warn.output.ts }}"
+              value: "true"
+              ttl: 30m
+          - id: wait
+            type: wait
+            display_name: Wait 30 minutes
+            duration: 30m
+          - id: keep
+            type: action
+            action: store.get
+            display_name: Did anyone ask to keep them running?
+            with:
+              scope: workspace
+              key: keep_dev_running
+          - id: kept
+            type: branch
+            display_name: Keep them running?
+            if:
+              all:
+                - field: steps.keep.output.value
+                  op: is_not_empty
+            then:
+              - id: say_kept
+                type: action
+                action: slack.post_message
+                display_name: Say they keep running
+                connection_id:
+                  $input: slack
+                with:
+                  channel: "{{ steps.warn.output.channel }}"
+                  thread_ts: "{{ steps.warn.output.ts }}"
+                  text: "Development instances keep running tonight, as <@{{ steps.keep.output.value.user }}> asked."
+            else:
+              - id: remember_stopped
+                type: action
+                action: store.put
+                display_name: Remember which instances stop
+                with:
+                  scope: workspace
+                  key: dev_stopped_instances
+                  value: "{{ steps.ids.output.value }}"
+                  ttl: 4d
+              - id: stop
+                type: action
+                action: aws.executeApi
+                display_name: Stop the instances
+                connection_id:
+                  $input: aws
+                with:
+                  service: ec2
+                  action: StopInstances
+                  params:
+                    InstanceIds: "{{ steps.ids.output.value }}"
+              - id: say_stopped
+                type: action
+                action: slack.post_message
+                display_name: Say they stopped
+                connection_id:
+                  $input: slack
+                with:
+                  channel: "{{ steps.warn.output.channel }}"
+                  thread_ts: "{{ steps.warn.output.ts }}"
+                  text: "Stopped the development instances. They start again on the next weekday morning."
+inputs:
+  aws:
+    kind: connection
+    name: AWS
+    type: aws
+  slack:
+    kind: connection
+    name: Slack
+    type: slack
+```
+
+After you import it:
+
+- On **Find running development instances** and **Stop the instances**, pick your AWS connection.
+- On the Slack steps, pick your Slack connection. On **Warn the channel**, also pick the channel.
+- On the trigger, set **Timezone** to your team's timezone, such as `America/New_York`.
+
+### Keep development instances running tonight
+
+```yaml
+kind: workflow
+uid: guide-keep-dev-instances-running
+spec:
+  name: Keep development instances running tonight
+  description: When someone reacts with a pushpin to tonight's shutdown warning, keeps the development instances running until morning.
+  definition:
+    schema_version: 1
+    trigger:
+      type: integration_event
+      config:
+        connection_id:
+          $input: slack
+        trigger_key: slack.reaction_added
+        props:
+          emoji: pushpin
+    steps:
+      - id: warning
+        type: action
+        action: store.get
+        display_name: Is it tonight's warning?
+        with:
+          scope: workspace
+          key: "dev_warning:{{ trigger.event.item.ts }}"
+      - id: on_warning
+        type: branch
+        display_name: Reacted to the warning?
+        if:
+          all:
+            - field: steps.warning.output.value
+              op: is_not_empty
+        then:
+          - id: keep
+            type: action
+            action: store.put
+            display_name: Keep them running tonight
+            with:
+              scope: workspace
+              key: keep_dev_running
+              value:
+                user: "{{ trigger.event.user }}"
+              ttl: 12h
+          - id: confirm
+            type: action
+            action: slack.post_message
+            display_name: Confirm in the thread
+            connection_id:
+              $input: slack
+            with:
+              channel: "{{ trigger.event.item.channel }}"
+              thread_ts: "{{ trigger.event.item.ts }}"
+              text: "OK <@{{ trigger.event.user }}>, development instances keep running tonight."
+inputs:
+  slack:
+    kind: connection
+    name: Slack
+    type: slack
+```
+
+After you import it:
+
+- On the trigger, pick your Slack connection under **Account**, and set **Only in channel** to the channel that gets the warnings.
+- On **Confirm in the thread**, pick your Slack connection.
+
+### Start development instances in the morning
+
+```yaml
+kind: workflow
+uid: guide-start-dev-instances
+spec:
+  name: Start development instances in the morning
+  description: Every weekday morning, starts the development instances that the evening workflow stopped.
+  definition:
+    schema_version: 1
+    trigger:
+      type: schedule
+      config:
+        mode: daily
+        hour: 8
+        minute: 0
+        run_on_weekends: false
+        timezone: UTC
+    steps:
+      - id: stopped
+        type: action
+        action: store.get
+        display_name: Which instances stopped last night?
+        with:
+          scope: workspace
+          key: dev_stopped_instances
+      - id: any_stopped
+        type: branch
+        display_name: Anything to start?
+        if:
+          all:
+            - field: steps.stopped.output.value
+              op: is_not_empty
+        then:
+          - id: find
+            type: action
+            action: aws.executeApi
+            display_name: Find the ones still stopped
+            connection_id:
+              $input: aws
+            with:
+              service: ec2
+              action: DescribeInstances
+              params:
+                Filters:
+                  - Name: instance-id
+                    Values: "{{ steps.stopped.output.value }}"
+                  - Name: instance-state-name
+                    Values: [stopped]
+          - id: ids
+            type: action
+            action: transform
+            display_name: List their instance IDs
+            with:
+              from: "{{ steps.find.output.result }}"
+              path: $.Reservations[*].Instances[*].InstanceId
+          - id: any_left
+            type: branch
+            display_name: Any still stopped?
+            if:
+              all:
+                - field: steps.ids.output.value
+                  op: is_not_empty
+            then:
+              - id: start
+                type: action
+                action: aws.executeApi
+                display_name: Start the instances
+                connection_id:
+                  $input: aws
+                with:
+                  service: ec2
+                  action: StartInstances
+                  params:
+                    InstanceIds: "{{ steps.ids.output.value }}"
+              - id: say_started
+                type: action
+                action: slack.post_message
+                display_name: Say they started
+                connection_id:
+                  $input: slack
+                with:
+                  text: ":sunrise: Started these development instances: {{ steps.ids.output.value | join: ', ' }}."
+          - id: forget
+            type: action
+            action: store.remove
+            display_name: Forget last night's list
+            with:
+              scope: workspace
+              key: dev_stopped_instances
+inputs:
+  aws:
+    kind: connection
+    name: AWS
+    type: aws
+  slack:
+    kind: connection
+    name: Slack
+    type: slack
+```
+
+After you import it:
+
+- On **Find the ones still stopped** and **Start the instances**, pick your AWS connection.
+- On **Say they started**, pick your Slack connection and the channel.
+- On the trigger, set **Timezone** to the same timezone as the evening workflow.
+
+All three workflows find the instances in the AWS connection's default region. For another region, set **Region** on every AWS step.
+
+## How the workflows work
+
+### Find the running instances
+
+An **AWS API Call** step calls **EC2 → DescribeInstances** with two filters, so it returns only running instances tagged as development:
+
+```json
+[
+  { "Name": "tag:Environment", "Values": ["development"] },
+  { "Name": "instance-state-name", "Values": ["running"] }
+]
+```
+
+EC2 returns instances grouped into reservations. A **Transform** step collects the instance IDs from every reservation into one list, with **JSONPath** set to `$.Reservations[*].Instances[*].InstanceId`. A **Branch** then checks that the list **is not empty**, so on an evening when nothing is running, the workflow stops there without posting anything.
+
+### Warn, then wait
+
+**Warn the channel** posts the list of instance IDs and asks anyone who needs them to react with 📌.
+
+Slack identifies a message by its timestamp, which the post returns as `ts`. A **Storage: Put** step saves a key that contains it, `dev_warning:{{ steps.warn.output.ts }}`, with **Expires after** set to `30m`. The reaction workflow looks for this key to tell tonight's warning apart from any other message, and the expiry stops a late reaction from counting after the instances have stopped.
+
+A **Wait / Delay** step then waits 30 minutes.
+
+### Keep them running tonight
+
+The reaction workflow starts on Slack's **Reaction added** event, with **Only this emoji** set to `pushpin`. The event carries the reacted message's timestamp as `trigger.event.item.ts`, so a **Storage: Get** step looks up `dev_warning:{{ trigger.event.item.ts }}`. The key exists only when the reaction is on tonight's warning, and only for 30 minutes after it was posted.
+
+When the key exists, a **Storage: Put** step saves `keep_dev_running`, holding the person who reacted:
+
+```json
+{ "user": "{{ trigger.event.user }}" }
+```
+
+**Expires after** is `12h`, so the key is gone by the next evening. A reply in the warning's thread confirms the request.
+
+### Stop the instances
+
+After the wait, the evening workflow reads `keep_dev_running`. If the key exists, it replies in the warning's thread and names who asked, using Slack's mention syntax, `<@{{ steps.keep.output.value.user }}>`.
+
+Otherwise, it saves the list of instance IDs to `dev_stopped_instances` for the morning, and calls **EC2 → StopInstances** with **InstanceIds** set to `{{ steps.ids.output.value }}`. A field that holds a single reference receives the list itself, not text. See [How values render](/workflows/templating/#how-values-render).
+
+The list expires after 4 days, so the list from Friday evening is still there on Monday morning.
+
+### Start them in the morning
+
+The morning workflow reads `dev_stopped_instances`. Before it starts anything, it calls **DescribeInstances** again, filtered by those instance IDs and by the state `stopped`:
+
+```json
+[
+  { "Name": "instance-id", "Values": "{{ steps.stopped.output.value }}" },
+  { "Name": "instance-state-name", "Values": ["stopped"] }
+]
+```
+
+This skips an instance that someone started by hand or terminated overnight. **StartInstances** fails for the whole list if any instance in it no longer exists, so checking first keeps one missing instance from stopping the rest.
+
+It then starts the instances, posts which ones started, and removes `dev_stopped_instances`.
+
+## Step 3: Test and publish
+
+1. In **Stop development instances at night**, test **Find running development instances** and **List their instance IDs** from their **Test** tabs. Neither one changes anything, and the output shows which instances the workflow would stop.
+2. Publish all three workflows. The first publish also switches each one on.
+3. On the first evening, check the warning in Slack, and react to it with 📌 to try the reaction workflow. The instances then keep running that night.
+
+To follow what happened, open **Workflows → Runs**. See [Run history](/workflows/run-history/).
+
+:::caution
+A **Test run** of the evening or morning workflow runs every step for real. It posts the warning, and it stops or starts your development instances.
+:::
+
+## Adapt the workflow
+
+- **Use your own tag.** Change the tag filter on **Find running development instances** and the condition in the IAM policy, for example to `Stage` = `dev`.
+- **Change the hours.** Set the time on each trigger. To keep the instances off at weekends, leave **Run on weekends** off on both schedules.
+- **Give more notice.** Change **Wait 30 minutes**, and set **Expires after** on **Remember the warning message** to the same duration.
+- **Stop databases too.** Add AWS API Call steps for **RDS → StopDBInstance** and **StartDBInstance**, and add both actions to the IAM policy. AWS starts a stopped RDS instance again after 7 days, which a nightly schedule never reaches.
+
+## Related
+
+- [Storage](/workflows/storage/) for workspace-scoped keys and their expiry.
+- [Triggers](/workflows/triggers/#app-event) for Slack events such as **Reaction added**.
+- [Schedule](/workflows/triggers/#schedule) for time zones and weekday schedules.
+- [AWS API Call](/workflows/actions/#aws-api-call) for the services a step can call.

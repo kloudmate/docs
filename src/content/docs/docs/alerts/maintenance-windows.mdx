@@ -24,33 +24,34 @@ Each maintenance window shows:
 - **Alert rule targeted:** the alert rule the maintenance window applies to.
 - **Matching labels:** labels assigned to the maintenance window.
 - **Schedule:** start and end time for the maintenance window.
-- **Status:** whether the maintenance window is active or paused.
+- **Status:** **Active** when the window is enabled, or **Disabled**.
 
-![Maintenance window overview](./images/maintenance-window-1.png)
+![Maintenance windows list with the Type, Schedule, and Status columns](./images/maintenance-window-1.png)
+
+With the **Developer** role, you can **Disable** or **Enable**, **Edit**, or **Delete** a window from its row menu.
 
 ## Creating a maintenance window
 
-1. Open the **Maintenance Windows** page in the Alerts module.
-2. Click **Create Maintenance Window**.
+1. Open **Alerts → Maintenance**.
+2. Click **Create window**. You need the **Developer** role to create maintenance windows.
 3. Configure these details:
 
 - **Name:** a name for the maintenance window.
 - **Description:** a short description of the maintenance window.
 - **Timezone:** the timezone for the scheduled window.
-- **One time:** schedules the maintenance period once, for a specific date and time.
+- **One Time:** schedules the maintenance period once, for a specific date and time.
 - **Recurring:** repeats automatically on a regular cycle, so you don't reconfigure it each time.
 
-![Maintenance window Name, Description, Timezone, and One time/Recurring fields](./images/maintenance-window-2.png)
+![Maintenance window Name, Description, Timezone, and One Time/Recurring fields](./images/maintenance-window-2.png)
 
 Additional settings:
 
-- **Start time:** date and time when the maintenance window begins.
-- **End time:** date and time when the maintenance window ends.
-- **Frequency:** available only for recurring windows; select a daily, weekly, or monthly schedule.
-- **Label Matchers:** target the window to specific alerts by their labels (for example, service name, host, or region). Each matcher is a label key, an operator, and a value, combined with AND. The operators are the same four used across the alert module (**Equals**, **Not equals**, **Matches regex**, **Doesn't match regex**), matched against alert rule labels and alert instance labels.
+- For a **One Time** window, pick the **From** and **To** date and time, or type a **Duration** such as `2h` and press Enter to start the window now and run it for that long.
+- For a **Recurring** window, set a **Start Date**, an optional **End Date**, a **Start Time**, an **End Time**, and a **Frequency** of **Daily**, **Weekly**, or **Monthly**. **Weekly** adds **Days of Week**, and **Monthly** lets you choose by **Day of Month** or **Day of Week**. The **End Time** must be later than the **Start Time**, so a recurring window can't run past midnight.
+- **Label Matchers:** target the window to specific alerts by their labels (for example, service name, host, or region). Each matcher is a label key, an operator, and a value, combined with AND. The operators are the same four used across the alert module (**Equals**, **Not equals**, **Matches regex**, **Doesn't match regex**), matched against alert rule labels and alert instance labels. A window needs at least one matcher unless it targets specific alert rules.
 
 As you add matchers, an **Affected Alert Instances** preview lists the alert rules and instances the window currently matches, so you can confirm its scope before saving.
 
 4. Click **Save** to create the new maintenance window.
 
-![Maintenance window additional settings, Affected Alert Instances preview, and Save button](./images/maintenance-window-3.png)
+![Maintenance window schedule, Label Matchers, Affected Alert Instances preview, and Save button](./images/maintenance-window-3.png)

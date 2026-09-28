@@ -4,7 +4,7 @@ description: "Ingest Prometheus metrics into KloudMate through the KloudMate Age
 sidebar:
   order: 1
 ---
-Use this integration when your workloads already expose Prometheus metrics and you want KloudMate to ingest them without changing application code.
+Use this integration when your workloads already expose Prometheus metrics, and you want KloudMate to ingest them without changing application code.
 
 KloudMate does not scrape Prometheus directly. Instead, you configure the KloudMate Agent with the Prometheus receiver and export the collected metrics to KloudMate.
 
@@ -13,19 +13,25 @@ KloudMate does not scrape Prometheus directly. Instead, you configure the KloudM
 1. Install and run the [KloudMate Agent](../../../kloudmate-agent/).
 2. Ensure you can access the Prometheus configuration or know the scrape targets you want the Agent to use.
 
-## Step 1: Define the Prometheus Receiver
+## Step 1: Open the Collector Configuration
 
-Add a Prometheus receiver to the Agent configuration file (typically `/etc/km-agent/config.yaml`). You can copy scrape jobs from your existing Prometheus configuration or define a smaller metrics-only subset for KloudMate.
+1. Go to **Settings → Agents**.
+2. Find the agent you want to configure and select the three dots.
+3. Choose **Configure**.
+4. Go to **Collector config**.
+
+## Step 2: Add the Prometheus Configuration
+
+Add the following configuration. You can copy scrape jobs from your existing Prometheus configuration or define a smaller metrics-only subset for KloudMate.
+
+- If the agent runs in managed mode, add it to the **Custom config override** section. See [Custom config override](../../../kloudmate-agent/custom-config-override/).
+- If the agent runs in manual mode, add it directly to the collector configuration.
 
 ```yaml
 receivers:
   prometheus:
     config:
       scrape_configs:
-        - job_name: km-agent
-          scrape_interval: 5s
-          static_configs:
-            - targets: ["0.0.0.0:8888"]
         - job_name: kubernetes-pods
           kubernetes_sd_configs:
             - role: pod
@@ -37,31 +43,27 @@ receivers:
             - source_labels: [__name__]
               regex: "(request_duration_seconds.*|response_duration_seconds.*)"
               action: keep
+
+service:
+  pipelines:
+    metrics/prometheus:
+      receivers:
+        - prometheus
+      processors:
+        - batch
+      exporters:
+        - otlphttp
 ```
+
+The `otlphttp` exporter is already configured by default when you install the KloudMate Agent.
 
 :::info
 Validate indentation carefully when copying `scrape_configs` into the Agent configuration.
 :::
 
-## Step 2: Add to Pipeline
+## Step 3: Save the Configuration
 
-Configure the Agent's pipeline to include the Prometheus receiver. The `otlphttp` exporter is already configured by default when you install the KloudMate Agent.
-
-```yaml
-service:
-  pipelines:
-    metrics:
-      receivers: [prometheus, hostmetrics] # Add prometheus to your existing receivers
-      processors: [resource, batch]
-      exporters: [debug, otlphttp]
-```
-
-## Step 3: Restart the Agent
-
-```bash
-systemctl restart kmagent
-systemctl status kmagent
-```
+Click **Save**. The Agent restarts and applies the new configuration.
 
 ## Step 4: Validate in KloudMate
 

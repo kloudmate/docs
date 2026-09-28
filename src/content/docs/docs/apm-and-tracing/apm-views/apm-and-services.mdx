@@ -5,13 +5,13 @@ sidebar:
   label: "Services"
   order: 2
 ---
-The **Services** view in APM is where you compare application and service performance at a glance.
+Open **APM & Services** to compare application and service performance at a glance. It opens in the **List** view. Select the **Service map** view to see how your services connect, as described in [Service Map](../service-map/).
 
 ## Services Overview
 
-The Services Overview page lists all instrumented applications and services in a tabular view, making it easy to compare their health across the selected time range.
+The **List** view shows all instrumented applications and services in a table, so you can compare their health across the selected time range.
 
-![image](./images/apm-and-services-1.png)
+![The List view of APM & Services, with a table of services showing requests, throughput, error rate, dependency failures, and P50, P95, and P99 latency](./images/apm-and-services-1.png)
 
 Each row represents one service and includes:
 
@@ -20,18 +20,18 @@ Each row represents one service and includes:
 - **Throughput:** request rate, such as requests per minute
 - **P99, P95, and P50 latency:** percentile-based latency views for worst-case, upper-percentile, and median performance
 - **Error rate:** percentage of failed requests
-- **Version:** reported deployment version for release correlation
+- **Dep. failures:** outbound calls this service made that failed, with their share of all its outbound calls. These failures don't count toward **Error rate**.
 
 ## Service APM Dashboard
 
-Clicking any service in the Services Overview opens its APM dashboard, which is a preconfigured view focused on that specific service.
+Clicking any service in the **List** view opens its APM dashboard, which is a preconfigured view focused on that specific service.
 
-![image](./images/apm-and-services-2.png)
+![A service's APM dashboard, with the request and latency charts, the Service dependencies panel, and the Issues, Alerts, and Dashboards panels](./images/apm-and-services-2.png)
 
 The dashboard includes:
 
 - **Requests, errors, and latency over time:** timeline charts that help identify traffic spikes, error bursts, and latency regressions
-- **Destinations table:** a breakdown of downstream dependencies, including request rate, error percentage, and dependency latency
+- **Service dependencies:** tables of downstream dependencies, outbound calls, and upstream callers, including request rate, error percentage, and latency
 - **Related issues, alerts, and dashboards:** links to broader operational context for that service
 
 ## Traces and Logs

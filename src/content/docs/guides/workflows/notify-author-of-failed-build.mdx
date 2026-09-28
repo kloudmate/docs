@@ -1,0 +1,173 @@
+---
+title: "Tell the author when their build fails"
+description: "Receive GitHub Actions run events on a webhook, and send the author of a failed build a direct message in Slack with a link to the run."
+sidebar:
+  order: 7
+---
+
+This guide builds a workflow that tells developers about their own failed builds. When a GitHub Actions run fails, GitHub calls the workflow's webhook, and the workflow finds the author of the commit in Slack by their email address and sends them a direct message with a link to the run. Nobody else gets notified, so a busy team channel doesn't fill up with other people's failures.
+
+If the author isn't in your Slack workspace, the workflow posts in a team channel instead, so the failure doesn't go unnoticed.
+
+The finished workflow has these steps:
+
+```text
+Webhook: a GitHub Actions run failed
+├─ Find the author in Slack    Slack: Find User by Email
+└─ Found them?                 Branch
+   ├─ Then: Message the author          Slack: Send Direct Message
+   └─ Else: Post in the team channel    Slack: Post Message
+```
+
+## Before you start
+
+- You need the **Developer** role in a KloudMate workspace whose plan includes workflows.
+- You need a Slack connection with the **Workflows** capability. Invite the KloudMate bot to the channel for failures whose author isn't in Slack.
+- You need admin access to the GitHub repository, to add a webhook.
+- Developers commit with the same email address they use in Slack. GitHub's private `noreply` addresses don't match anyone in Slack, so commits made with one go to the team channel.
+
+## Step 1: Import the workflow
+
+1. Copy the YAML below.
+2. Open **Workflows**, click **Import**, paste the YAML, and click **Import**.
+3. Click **Open workflow**. On the three Slack steps, pick your Slack connection, and on **Post in the team channel**, also pick the channel.
+
+```yaml
+kind: workflow
+uid: guide-notify-author-of-failed-build
+spec:
+  name: Tell the author when their build fails
+  description: When a GitHub Actions run fails, sends the author of the commit a direct message in Slack with a link to the run.
+  definition:
+    schema_version: 1
+    trigger:
+      type: webhook
+      config:
+        dedup_key: "{{ body.workflow_run.id }}:{{ body.workflow_run.run_attempt }}"
+      conditions:
+        all:
+          - field: headers.x-github-event
+            op: eq
+            value: workflow_run
+          - field: body.action
+            op: eq
+            value: completed
+          - field: body.workflow_run.conclusion
+            op: eq
+            value: failure
+    steps:
+      - id: find
+        type: action
+        action: slack.find_user_by_email
+        display_name: Find the author in Slack
+        on_error: continue
+        connection_id:
+          $input: slack
+        with:
+          email: "{{ trigger.body.workflow_run.head_commit.author.email }}"
+      - id: found
+        type: branch
+        display_name: Found them?
+        if:
+          all:
+            - field: steps.find.output.user.id
+              op: is_not_empty
+        then:
+          - id: dm
+            type: action
+            action: slack.send_direct_message
+            display_name: Message the author
+            connection_id:
+              $input: slack
+            with:
+              user: "{{ steps.find.output.user.id }}"
+              text: ":x: {{ trigger.body.workflow_run.name }} failed on {{ trigger.body.workflow_run.head_branch | replace: '&', '&amp;' | replace: '<', '&lt;' | replace: '>', '&gt;' }} in {{ trigger.body.repository.full_name }}, for your commit {{ trigger.body.workflow_run.head_sha | slice: 0, 7 }}. <{{ trigger.body.workflow_run.html_url }}|Open the run>"
+        else:
+          - id: post
+            type: action
+            action: slack.post_message
+            display_name: Post in the team channel
+            connection_id:
+              $input: slack
+            with:
+              text: ":x: {{ trigger.body.workflow_run.name }} failed on {{ trigger.body.workflow_run.head_branch | replace: '&', '&amp;' | replace: '<', '&lt;' | replace: '>', '&gt;' }} in {{ trigger.body.repository.full_name }}, for a commit by {{ trigger.body.workflow_run.head_commit.author.name | replace: '&', '&amp;' | replace: '<', '&lt;' | replace: '>', '&gt;' }}. <{{ trigger.body.workflow_run.html_url }}|Open the run>"
+inputs:
+  slack:
+    kind: connection
+    name: Slack
+    type: slack
+```
+
+## Step 2: Add a webhook in GitHub
+
+1. In KloudMate, open the workflow's trigger and copy the webhook URL.
+2. In the GitHub repository, open **Settings → Webhooks** and click **Add webhook**.
+3. Set **Payload URL** to the webhook URL, and **Content type** to `application/json`.
+4. Under **Which events would you like to trigger this webhook?**, choose **Let me select individual events**, clear **Pushes**, and select **Workflow runs**.
+5. Click **Add webhook**.
+
+GitHub sends a `ping` event right away, to check the URL. The workflow ignores it, because its trigger conditions only match failed runs.
+
+:::caution
+KloudMate doesn't check GitHub's webhook secret, so anyone who has the webhook URL can send the workflow a request. Keep the URL private. If it leaks, [rotate it](/workflows/triggers/#rotate-the-webhook-url) and update the webhook in GitHub.
+:::
+
+## How each step works
+
+### The trigger
+
+GitHub sends a `workflow_run` event when a run is requested, when it starts, and when it completes. The trigger's **Conditions** keep only failed runs, and every other delivery is acknowledged without starting a run:
+
+| Field | Condition | Value |
+|---|---|---|
+| `headers.x-github-event` | **equals** | `workflow_run` |
+| `body.action` | **equals** | `completed` |
+| `body.workflow_run.conclusion` | **equals** | `failure` |
+
+**Deduplication key** is `{{ body.workflow_run.id }}:{{ body.workflow_run.run_attempt }}`. GitHub retries a delivery it thinks failed, and the key makes a retried delivery start no second run. It includes the attempt number, so when someone re-runs a failed job and it fails again, the author hears about it again.
+
+### Find the author in Slack
+
+A Slack **Find User by Email** step looks up `{{ trigger.body.workflow_run.head_commit.author.email }}`, the email address of the commit's author.
+
+If no Slack user has that address, Slack returns an error and the step fails. Under **Settings**, **On failure** is **Go to the next step**, so the run carries on without the user instead of failing.
+
+### Found them?
+
+A **Branch** checks that `steps.find.output.user.id` **is not empty**. A step that failed and carried on has no output, so the condition is false when the lookup failed.
+
+When the author was found, a Slack **Send Direct Message** step messages them. **User id** is `{{ steps.find.output.user.id }}`, because Slack sends direct messages by user ID. The message names the workflow, the branch, the repository, and the first 7 characters of the commit, which `slice: 0, 7` takes from the full commit hash:
+
+```liquid
+{{ trigger.body.workflow_run.head_sha | slice: 0, 7 }}
+```
+
+Otherwise, a Slack **Post Message** step posts the same details in the team channel, with the author's name.
+
+The branch name and the author's name come from the commit, so the messages escape `&`, `<`, and `>` in them, which Slack would otherwise read as special syntax:
+
+```liquid
+{{ trigger.body.workflow_run.head_branch | replace: '&', '&amp;' | replace: '<', '&lt;' | replace: '>', '&gt;' }}
+```
+
+## Step 3: Test and publish
+
+1. With the workflow still a draft, make a build fail on a test branch, or re-run a failed run in GitHub. The webhook accepts deliveries for a draft and saves the latest one as the trigger's sample.
+2. Open the trigger's **Test** tab and click **Reload** to see the delivery.
+3. Test **Find the author in Slack** from its **Test** tab, to check that the author's email address matches a Slack user.
+4. Click **Publish**. The first publish also switches the workflow on.
+
+From then on, every failed run in the repository sends one message. To see a delivery that didn't start a run, check **Recent Deliveries** on the webhook in GitHub.
+
+## Adapt the workflow
+
+- **Only watch some workflows.** Add a condition on `body.workflow.path`, such as **equals** `.github/workflows/ci.yml`, so failures in other workflows don't notify anyone.
+- **Only watch the main branch.** Add a condition that `body.workflow_run.head_branch` **equals** `main`, and point **Message the author** at the team channel instead, because a broken main branch affects everyone.
+- **Tell the author when it's fixed.** Import the YAML again with a different `uid`, so it creates a second workflow. In the copy, set the last condition to `success` and change the message.
+- **Watch every repository.** Add the webhook to the GitHub organization instead of one repository, under the organization's **Settings → Webhooks**.
+
+## Related
+
+- [Webhook](/workflows/triggers/#webhook) for conditions, deduplication, and rotating the URL.
+- [Test a workflow](/workflows/test-a-workflow/#capture-a-webhook-sample) for capturing a webhook sample.
+- [Actions](/workflows/actions/#slack) for the Slack steps.

@@ -8,11 +8,11 @@ sidebar:
 
 import { Tabs, TabItem, Steps, LinkCard, CardGrid } from '@astrojs/starlight/components';
 
-The KloudMate MCP server lets your AI coding tools and agents pull observability data straight from your workspace. Point a client like Claude Code, Cursor, or VS Code at it, and you can ask about errors, latency, traces, and firing alerts in plain language — without leaving your editor or opening the KloudMate UI.
+The KloudMate MCP server lets your AI coding tools and agents pull observability data straight from your workspace. Point a client like Claude Code, Cursor, or VS Code at it, and you can ask about errors, latency, traces, and firing alerts in plain language, without leaving your editor or opening the KloudMate UI.
 
 This is the mirror image of the [MCP integrations](../settings/#mcp-integrations) you connect *into* the Assistant. There, KloudMate is the client calling out to other tools. Here, KloudMate is the server, and your agent is the client calling in. The connection is built on the [Model Context Protocol](https://modelcontextprotocol.io/), an open standard for giving language models access to external tools and data.
 
-Once you're connected, your agent can chain KloudMate's query tools to investigate an incident, answer a question about a service, or run a repeatable workflow you've defined — all grounded in your real telemetry instead of guesswork.
+After you connect, your agent can chain KloudMate's query tools to investigate an incident, answer a question about a service, or run a repeatable workflow you've defined.
 
 ## Connection details
 
@@ -31,7 +31,7 @@ A personal key carries your access to every workspace you belong to, so the conn
 
 You'll need:
 
-- **A KloudMate Personal API Key.** From the account menu (top-right), open **API keys** and click **Create Key**. It's tied to your account and reads whatever you can read. Copy it when it's shown (it's shown only once) and keep it handy for your client's config. Any signed-in user can create one; no admin role needed. See [API Keys](../../platform/settings/api-keys/#personal-api-keys) for the full walkthrough.
+- **A KloudMate Personal API Key.** From the account menu (top-right), open **API keys** and click **Create Key**. It's tied to your account and reads whatever you can read. Copy it when it's shown (it's shown only once) and keep it handy for your client's config. Any signed-in user can create one; you don't need the **Developer** role. See [API Keys](../../platform/settings/api-keys/#personal-api-keys) for the full walkthrough.
 - **The workspace ID** you want to query. Find it in the workspace's URL in the KloudMate app; it goes in the `x-workspace-id` header.
 - **An MCP-capable client.** Any tool that supports remote MCP servers over Streamable HTTP with custom headers works. The steps below cover Claude Code, Cursor, VS Code, and Claude Desktop.
 
@@ -144,7 +144,7 @@ Open `claude_desktop_config.json` (**Settings → Developer → Edit Config**) a
 }
 ```
 
-The `Bearer ` token goes in the `AUTH_HEADER` environment variable, and the `--header` argument has no spaces around the colon. That split is deliberate: it sidesteps a known bug where Claude Desktop mangles spaces inside `args` when it launches `npx`. Quit and reopen Claude Desktop fully — it reads the config only at startup — then check that `kloudmate` appears in the tools menu.
+The `Bearer ` token goes in the `AUTH_HEADER` environment variable, and the `--header` argument has no spaces around the colon. That split is deliberate: it sidesteps a known bug where Claude Desktop mangles spaces inside `args` when it launches `npx`. Quit Claude Desktop fully and reopen it, because it reads the config only at startup. Then check that `kloudmate` appears in the tools menu.
 
 The config file lives at:
 
@@ -170,40 +170,58 @@ Every tool is read-only. The server queries your telemetry; it never creates, ed
 
 **Issues and alerts**
 
-- `search_issues` — errors and warnings aggregated from logs and traces.
-- `search_alarm_rules`, `search_alarm_states`, `search_alarm_states_history` — list alert rules, see what's firing now, and review how states changed over time.
+- `search_issues`: errors and warnings aggregated from logs and traces.
+- `search_alert_rules`, `search_alert_states`, `search_alert_states_history`: list alert rules, see what's firing now, and review how states changed over time.
+- `search_alert_groups`, `get_alert_group_details`: find alert groups and see a single group's alert instances, routing rule, and any root-cause investigation attached to it.
+
+**Incidents**
+
+- `search_incidents`, `get_incident_details`: find open incidents, then look up an incident by its key, such as `INC-42`, to read its responders, notes, alerts, and activity timeline.
+- `get_incident_metrics`: incident counts by status, plus MTTA and MTTR.
 
 **Service health (APM)**
 
-- `get_service_error_count`, `get_service_requests_count_and_avg_latency` — error counts, throughput, and average latency for a service.
-- `get_service_to_service_requests_count`, `get_service_to_service_failed_requests_count`, `get_service_to_service_request_duration` — request volume, failures, and latency between services, to scope a blast radius.
+- `get_service_error_count`, `get_service_requests_count_and_avg_latency`: error counts, throughput, and average latency for a service.
+- `get_service_to_service_requests_count`, `get_service_to_service_failed_requests_count`, `get_service_to_service_request_duration`: request volume, failures, and latency between services, to scope a blast radius.
+
+**SLOs**
+
+- `search_slos`, `get_slo_details`: list SLOs with their latest compliance and remaining error budget, and read a single SLO's SLI definition, compliance history, and burn-rate alerts.
+- `search_slo_burn_rate_alerts`: burn-rate alerts across every SLO, with firing alerts listed first.
 
 **Logs, traces, and spans**
 
-- `search_logs`, `search_traces`, `search_spans` — query telemetry with filters.
-- `get_log_details`, `get_span_details`, `get_trace_spans`, `get_trace_logs` — pull the full record for a single log line, span, or trace.
+- `search_logs`, `search_traces`, `search_spans`: query telemetry with filters.
+- `search_trace_groups`: trace count, p95 duration, and error count for each service and operation, to find the busiest and slowest endpoints before you open individual traces.
+- `get_log_details`, `get_span_details`, `get_trace_spans`, `get_trace_logs`: pull the full record for a single log line, span, or trace.
+- `find_cloudwatch_log_groups`, `search_cloudwatch_logs`: find the CloudWatch log groups for an AWS resource and read their events directly from your connected AWS accounts, even for logs that aren't sent to KloudMate.
 
 **Schema discovery**
 
-- `discover_dataset_fields`, `discover_field_values` — find which fields and values exist before building a filter.
-- `discover_metrics`, `discover_metric_label_values` — find metric names and the values their labels take.
+- `discover_dataset_fields`, `discover_field_values`: find which fields and values exist before building a filter.
+- `discover_metrics`, `discover_metric_label_values`: find metric names and the values their labels take.
 
 **Aggregations and queries**
 
-- `run_aggregation_query`, `run_metric_aggregation_query` — grouped counts, percentiles, and timeseries over logs and traces, or over metrics.
-- `run_multiple_log_trace_aggregations`, `run_multiple_metric_aggregations` — run several aggregations in one call.
+- `run_aggregation_query`, `run_metric_aggregation_query`: grouped counts, percentiles, and timeseries over logs and traces, or over metrics.
+- `run_multiple_log_trace_aggregations`, `run_multiple_metric_aggregations`: run several aggregations in one call.
+
+**Profiling**
+
+- `discover_profiles`: list the services that send profiles and the profile types each service reports, such as CPU, allocated memory, or goroutines.
+- `analyze_profile_hotspots`, `analyze_profile_trend`, `compare_profile_windows`: find the functions using the most CPU or memory, track a profile type over time to spot a memory leak, and compare two time windows, such as before and after a deploy.
 
 **Dashboards**
 
-- `search_dashboards`, `get_dashboard_panels`, `run_dashboard_panel_query` — find a dashboard, inspect its panels, and run a panel's query.
+- `search_dashboards`, `get_dashboard_panels`, `run_dashboard_panel_query`: find a dashboard, inspect its panels, and run a panel's query.
 
 **Kubernetes**
 
-- `list_kubernetes_resources`, `search_kubernetes_events` — inspect clusters, namespaces, deployments, and pods, and read recent cluster events.
+- `list_kubernetes_resources`, `search_kubernetes_events`: inspect clusters, namespaces, deployments, and pods, and read recent cluster events.
 
 **Synthetics**
 
-- `search_synthetic_monitors`, `search_synthetic_incidents` — check uptime and browser monitors and the incidents they've raised.
+- `search_synthetic_monitors`, `search_synthetic_incidents`: check uptime and browser monitors and the incidents they've raised.
 
 ## Example prompts
 
@@ -217,7 +235,7 @@ Once connected, ask in plain language. The agent picks the right tools and fills
 
 ## Build custom workflows
 
-Because your agent can chain these tools and combine them with whatever else it can reach — your codebase, a runbook, your deployment history — you can codify investigations that used to mean clicking through several screens.
+Your agent can chain these tools and combine them with whatever else it can reach, such as your codebase, a runbook, or your deployment history. You can turn an investigation that takes several screens in the KloudMate UI into a repeatable workflow.
 
 A triage workflow, for example, might pull the currently firing alerts, scope the affected services with the service-to-service tools, gather the relevant traces and logs, and hand you a single summary with a probable cause. Save it as a reusable command or prompt in your tool of choice, and the next on-call run is one sentence instead of twenty clicks.
 
@@ -234,7 +252,7 @@ A few things worth keeping in mind:
 
 <CardGrid>
   <LinkCard title="API Keys" description="Create the personal key the MCP server authenticates with, and manage ingest keys." href="../../platform/settings/api-keys/#personal-api-keys" />
-  <LinkCard title="Assistant Settings" description="Connect external MCP servers and tools into the KloudMate Assistant." href="../settings/#mcp-integrations" />
+  <LinkCard title="MCP Integrations" description="Connect external MCP servers and tools into the KloudMate Assistant." href="../settings/#mcp-integrations" />
   <LinkCard title="Investigations" description="Run AI-assisted root cause analysis inside KloudMate." href="../investigations/" />
   <LinkCard title="KloudMate Assistant" description="The in-app AI assistant for monitoring, dashboards, and RCA." href="../" />
 </CardGrid>

@@ -148,11 +148,11 @@ There are two ways to enable **Application Performance Monitoring (APM)** in you
 
 ### 1.  Enable APM via Dashboard
 
-- After installing the agent, open the APM configuration tab in the dashboard.
+- After installing the agent, go to **Settings → Agents**, open the cluster's actions menu (⋮), and select **Configure** to open its **APM** tab.
 - The agent lists the workloads it discovered, grouped by namespace, with each workload's detected language. Use the namespace filter or the search box to find one in a large cluster.
 - For each workload, choose **Off**, **eBPF**, or **SDK**, then apply. eBPF starts tracing on the next check-in with no restart; SDK rolls that workload's pods. Workloads with no SDK injector — Go, Ruby, or an unrecognized runtime — offer **Off** or **eBPF** only.
 
-![image](./images/kubernetes-agent-1.png)
+![The cluster's APM tab, with the Application instrumentation card listing workloads grouped by namespace, each with Off, eBPF, and SDK options, and the Apply button](./images/kubernetes-agent-1.png)
 
 - After you turn a workload on, wait a few minutes for its traces to start, then verify them on the dashboard.
 
@@ -234,12 +234,12 @@ On Kubernetes, one agent represents one cluster. A fleet-manager pod applies the
 
 - Node, pod, and cluster telemetry starts flowing automatically. See [Host metrics and logs](../../baseline/host-metrics-and-logs/).
 - Where nodes run a supported kernel, [eBPF monitoring](../../ebpf-observability/) turns on per node.
-- Use the **Discovered Services** view to instrument workloads for APM, or enable auto-instrumentation as shown above. See [Application APM on Kubernetes](../../auto-instrumentation/kubernetes/).
+- Use the cluster's **APM** tab to instrument workloads for APM, or enable auto-instrumentation as shown above. See [Application APM on Kubernetes](../../auto-instrumentation/kubernetes/).
 - To monitor in-cluster databases, provide credentials through a Kubernetes Secret referenced by the `dbMonitoring.secretName` Helm value. See [Database monitoring on Kubernetes](../../database-monitoring/on-kubernetes/).
 
 ## **Next Steps**
 
-- Open **Kubernetes Monitoring** to view metrics and events for your *cluster*, **nodes**, **namespaces**, **pods**, and **workloads**
+- Open **Kubernetes** to view metrics and events for your *cluster*, **nodes**, **namespaces**, **pods**, and **workloads**
 - Use **Dashboards** to create visualizations or view **pre-built dashboards**
-- Use **Log Explorer** to investigate logs and correlate them with metrics
+- Use **Logs** to investigate logs and correlate them with metrics
 - Configure **alerts** for any of these components based on thresholds

@@ -1,0 +1,85 @@
+---
+title: "Providers"
+description: "What each provider can be used for, how you supply its credential, and which providers your plan includes."
+sidebar:
+  label: "Providers"
+  order: 3
+---
+
+Each provider decides how you supply its credential and what a connection to it can be used for. The **Can be used for** column shows what each provider supports. A new connection starts with the provider's usual capability, and you change which ones it holds under [Edit](../manage-connections/#edit).
+
+## Cloud and infrastructure
+
+| Provider | Credential | Can be used for |
+|---|---|---|
+| **AWS** | Assume Role with a role ARN and external ID (recommended), or an access key pair. A default region comes with it, and a workflow step can override it. | Workflows, AI |
+| **Azure** | A service principal: directory (tenant) id, application (client) id, client secret, and a default subscription id. | Workflows |
+
+Both allow more than one connection, so a production account and a staging account are two rows.
+
+The IAM policy or Azure role assignment on the credential decides what a step can do with it. There's no second permission list inside KloudMate, so narrow the role itself. Gate risky steps with an [approval](/workflows/approvals-and-input/).
+
+:::note
+This isn't the same as the AWS account you connect for inventory and metrics. That one lives under [Settings → Data Sources](/platform/settings/data-sources/) and doesn't appear in the Connections list. Connect AWS here when a workflow step needs to call an AWS API, or when the AI assistant needs AWS as a tool.
+:::
+
+## Chat and issue tracking
+
+| Provider | Credential | Can be used for |
+|---|---|---|
+| **Slack** | OAuth install. | Notifications, Workflows |
+| **Jira Cloud** | OAuth through Atlassian. | Notifications, Workflows |
+
+One Slack install serves alert notifications, incident ChatOps, the [Slack workflow actions](/workflows/actions/#slack), and Slack event triggers. A Slack or Jira Cloud connection made in **Settings → Connections** starts out used for **Notifications**. Add **Workflows** under [Edit](../manage-connections/#edit) before a workflow step or trigger can use it, and reconnect it if it's then marked **Needs reconnect**.
+
+One Jira credential can access several Atlassian sites, which is why every Jira action and trigger starts with a site picker.
+
+## Tools and custom endpoints
+
+| Provider | Credential | Can be used for |
+|---|---|---|
+| **Custom MCP Server** | A server URL, a transport of Streamable HTTP or SSE, and either no auth, a bearer token, or an API key in a header you name. Extra headers can be sent alongside, for a server that wants a routing header as well as a credential. | Workflows |
+| **OAuth 2.0** | Your own authorize and token URLs, scopes, client id, and client secret, with either the client-credentials or the authorization-code grant. | Workflows |
+
+Use **OAuth 2.0** to give an [HTTP Request](/workflows/actions/#http-request) step a credential that's refreshed for you and never stored in the workflow definition.
+
+## AI assistant tools
+
+These connect an MCP server that the [KloudMate Assistant](/kloudmate-assistant/) can call as a tool. They can be used for **AI** only, which also makes them the only connections that can be [private](../connect-an-account/#visibility).
+
+| Provider | Credential |
+|---|---|
+| **GitHub** | A GitHub token. |
+| **Atlassian** | An Atlassian API token. |
+| **Sentry** | OAuth. |
+| **Google Cloud BigQuery** | Google OAuth. |
+| **Google Cloud Compute Engine** | Google OAuth. |
+| **Google Cloud GKE** | Google OAuth. |
+| **Google Cloud Logging** | Google OAuth. |
+| **Google Cloud Monitoring** | Google OAuth. |
+| **Google Cloud Resource Manager** | Google OAuth. |
+
+AWS can also be used for **AI**, with an access key pair. See the cloud table above.
+
+## Providers in your plan
+
+Your plan decides which providers you can connect. The **Connect** picker shows only the providers your plan includes and the platform currently offers. If you expect a provider but can't see it, either your plan doesn't include it or the platform doesn't offer it right now. Upgrading fixes only the first.
+
+The platform can also offer a provider for some uses and not others. If a provider appears in the picker but you can't grant it the capability you wanted, the platform doesn't offer that capability for it right now.
+
+If the platform stops offering a provider, or one of its uses, only new connections are affected. Existing workflows, dashboards, and notification channels keep working.
+
+## Link your Slack account for ChatOps
+
+One Slack step is done per person, not per workspace. After someone with the **Developer** role connects Slack and adds a Chat Ops channel, each responder links their own Slack account before they can acknowledge or resolve incidents from Slack.
+
+Open **Incidents → Chat Ops**, scroll to **User Settings**, and click **Connect account**. It's a one-time step that links your KloudMate account to your Slack user.
+
+Everyone links their own account, because KloudMate has to match the Slack user who pressed a button to a workspace member before it acts.
+
+See [Slack Integration](/incident-management/slack-integration/) for the full setup.
+
+## Related
+
+- [Connect an account](../connect-an-account/)
+- [Manage a connection](../manage-connections/)

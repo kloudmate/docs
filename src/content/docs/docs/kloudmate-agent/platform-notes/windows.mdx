@@ -15,7 +15,7 @@ Windows has no `LD_PRELOAD` and no production eBPF, so the agent uses Windows-na
 
 ## Discovery
 
-To build the Discovered Services list, the agent looks at:
+To find the services it lists in the **Application instrumentation** card, the agent looks at:
 
 - **IIS** sites and application pools, including each pool's managed runtime version and state. These appear with a kind of `iis`.
 - **Windows services**, through the Service Control Manager. These appear with a kind of `windows_service`.

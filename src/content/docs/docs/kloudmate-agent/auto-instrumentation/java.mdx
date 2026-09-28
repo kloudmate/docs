@@ -15,7 +15,7 @@ The Java agent ships inside the KloudMate agent package and upgrades with it, so
 
 ### systemd services
 
-This is the main method on Linux. When you turn on SDK tracing for a systemd service, the agent writes a small startup config that loads the Java agent through `JAVA_TOOL_OPTIONS`, then restarts the service after you confirm. Because the service restarts, the agent sets everything up front: a fixed `service.name` (the name shown in Discovered Services), the sampling rate, and where to send traces.
+This is the main method on Linux. When you turn on SDK tracing for a systemd service, the agent writes a small startup config that loads the Java agent through `JAVA_TOOL_OPTIONS`, then restarts the service after you confirm. Because the service restarts, the agent sets everything up front: a fixed `service.name` (the name shown in the **Application instrumentation** card), the sampling rate, and where to send traces.
 
 Turning tracing off removes the config and restarts the service, leaving it as it was. Running the same action twice changes nothing, so it's safe to repeat.
 
@@ -52,7 +52,7 @@ On Amazon ECS, the agent injects the OpenTelemetry Java agent into the services 
 
 ## On Docker
 
-When the agent monitors Docker containers, whether in Docker mode or as a Linux service on a Docker host, eBPF traces your Java containers per service through the **Off / eBPF** toggle in Discovered Services, with no code change and no restart.
+When the agent monitors Docker containers, whether in Docker mode or as a Linux service on a Docker host, eBPF traces your Java containers per service through the **Off / eBPF** toggle in the **Application instrumentation** card, with no code change and no restart.
 
 The agent can't inject the in-process SDK into a running container, so SDK mode isn't offered for containers. For full SDK depth, add the OpenTelemetry Java agent to your image yourself and point it at the KloudMate agent's OTLP endpoint. See [Docker platform notes](../../platform-notes/docker/) for the endpoint addresses. On systemd, Kubernetes, or Amazon ECS, the agent injects the Java agent for you instead.
 

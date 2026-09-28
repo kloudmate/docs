@@ -1,0 +1,357 @@
+---
+title: "Patch hosts one at a time"
+description: "Upgrade the packages on a list of Linux hosts through the KloudMate agent, one host after another. Each host reboots if an update needs it, and the rollout stops at the first host that doesn't come back healthy."
+sidebar:
+  order: 3
+---
+
+This guide builds a rolling patch: you give it a list of Linux hosts, and it upgrades their packages one host at a time through the KloudMate agent. A host reboots when an update needs it, and the next host starts only after the previous one is back and has no failed services. If a host fails, the rollout stops there, so a bad update takes down one host instead of the whole fleet.
+
+The rollout is two workflows. **Patch one host** does the work on a single host. **Patch hosts one at a time** reads your list and calls **Patch one host** for each host in turn:
+
+```text
+Patch hosts one at a time                    Manual / API trigger
+├─ Read the host list                        Run Code
+├─ For each host                             Loop, one at a time
+│  └─ Patch this host                        Call Workflow: Patch one host
+└─ Email the result                          Send Email
+
+Patch one host                               Manual / API trigger
+├─ Find the host's agent                     Check a Host Agent
+└─ Is the agent reporting?                   Branch
+   ├─ Then
+   │  ├─ Upgrade packages                    Run Command on Host
+   │  ├─ Reboot if an update needs it        Run Command on Host
+   │  ├─ Rebooting?                          Branch
+   │  │  └─ Then: wait for the reboot, and until the agent is back
+   │  └─ Check that nothing failed to start  Run Command on Host
+   └─ Else: stop, the host can't be patched
+```
+
+**Patch one host** is also useful on its own, when you want to patch a single host by hand.
+
+## Before you start
+
+- You need the **Developer** role in a KloudMate workspace whose plan includes workflows.
+- Install the [KloudMate agent](/kloudmate-agent/installation/linux-agent/) on each host, and [allow runbook scripts](/workflows/actions/#allow-runbook-scripts-on-a-host) on each one.
+- The hosts use `apt`, `dnf`, or `yum` to manage packages, and `systemd`.
+- Patch hosts that can go down one at a time without an outage, such as web servers behind a load balancer.
+
+## Step 1: Import and publish Patch one host
+
+Import this workflow first, because the rollout calls it and can only call a published workflow:
+
+1. Copy the YAML below.
+2. Open **Workflows**, click **Import**, paste the YAML, and click **Import**.
+3. Click **Open workflow**, then click **Publish**.
+
+```yaml
+kind: workflow
+uid: guide-patch-one-host
+spec:
+  name: Patch one host
+  description: Upgrades a host's packages through its KloudMate agent, reboots it if an update needs a reboot, and checks that nothing failed to start.
+  definition:
+    schema_version: 1
+    trigger:
+      type: manual
+      config: {}
+    inputs:
+      - name: host
+        type: string
+        required: true
+    steps:
+      - id: agent
+        type: action
+        action: km.host_agent
+        display_name: Find the host's agent
+        with:
+          hostname: "{{ trigger.inputs.host }}"
+      - id: ready
+        type: branch
+        display_name: Is the agent reporting?
+        if:
+          all:
+            - field: steps.agent.output.status
+              op: eq
+              value: reachable
+        then:
+          - id: upgrade
+            type: action
+            action: agent.run_script
+            display_name: Upgrade packages
+            timeout: 15m
+            with:
+              agent_id: "{{ steps.agent.output.agent_id }}"
+              timeout_seconds: 720
+              commands: |-
+                set -e
+                if command -v apt-get >/dev/null 2>&1; then
+                  export DEBIAN_FRONTEND=noninteractive
+                  apt-get update -q
+                  apt-get upgrade -y -q
+                else
+                  dnf upgrade -y -q || yum update -y -q
+                fi
+          - id: reboot
+            type: action
+            action: agent.run_script
+            display_name: Reboot if an update needs it
+            timeout: 5m
+            with:
+              agent_id: "{{ steps.agent.output.agent_id }}"
+              commands: |-
+                if [ -f /var/run/reboot-required ] || { command -v needs-restarting >/dev/null 2>&1 && ! needs-restarting -r >/dev/null 2>&1; }; then
+                  shutdown -r +1 "Rebooting after package updates"
+                  echo "rebooting"
+                else
+                  echo "no reboot needed"
+                fi
+          - id: rebooting
+            type: branch
+            display_name: Rebooting?
+            if:
+              all:
+                - field: steps.reboot.output.stdout
+                  op: contains
+                  value: rebooting
+            then:
+              - id: settle
+                type: wait
+                display_name: Wait for the reboot
+                duration: 3m
+              - id: back
+                type: wait_until
+                display_name: Wait until the agent reports again
+                timeout: 15m
+                check:
+                  - id: agent_again
+                    type: action
+                    action: km.host_agent
+                    display_name: Check the agent
+                    with:
+                      hostname: "{{ trigger.inputs.host }}"
+                until:
+                  all:
+                    - field: steps.agent_again.output.seconds_since_checkin
+                      op: lt
+                      value: 90
+          - id: health
+            type: action
+            action: agent.run_script
+            display_name: Check that nothing failed to start
+            timeout: 5m
+            with:
+              agent_id: "{{ steps.agent.output.agent_id }}"
+              commands: |-
+                failed=$(systemctl list-units --state=failed --no-legend --plain)
+                if [ -n "$failed" ]; then
+                  echo "$failed"
+                  exit 1
+                fi
+                echo "all units running"
+        else:
+          - id: not_ready
+            type: action
+            action: code.run
+            display_name: Stop, the host can't be patched
+            with:
+              input:
+                host: "{{ trigger.inputs.host }}"
+                status: "{{ steps.agent.output.status }}"
+              source: |-
+                function main(input) {
+                  throw new Error(input.host + " can't be patched: its agent status is " + input.status + ".");
+                }
+inputs: {}
+```
+
+## Step 2: Import Patch hosts one at a time
+
+Import the rollout the same way. The import finds **Patch one host** by its `uid` and fills in the **Call Workflow** step for you:
+
+```yaml
+kind: workflow
+uid: guide-patch-hosts-one-at-a-time
+spec:
+  name: Patch hosts one at a time
+  description: Patches a list of hosts one after another, and stops at the first host that fails.
+  definition:
+    schema_version: 1
+    trigger:
+      type: manual
+      config: {}
+    inputs:
+      - name: hosts
+        type: textarea
+        required: true
+      - name: notify_email
+        type: email
+        required: true
+    steps:
+      - id: split
+        type: action
+        action: code.run
+        display_name: Read the host list
+        with:
+          input:
+            text: "{{ trigger.inputs.hosts }}"
+          source: |-
+            function main(input) {
+              const hosts = String(input.text || "")
+                .split(/[\s,]+/)
+                .filter((name) => name !== "");
+              return { hosts: hosts };
+            }
+      - id: each_host
+        type: loop
+        display_name: For each host
+        items: "{{ steps.split.output.output.hosts }}"
+        concurrency: 1
+        each:
+          - id: patch
+            type: call_workflow
+            display_name: Patch this host
+            workflow_id:
+              $input: patch_one_host
+            with:
+              host: "{{ item }}"
+      - id: done
+        type: action
+        action: email.send
+        display_name: Email the result
+        with:
+          to: "{{ trigger.inputs.notify_email }}"
+          subject: The patch rollout finished
+          html: "These hosts are patched, and none of them has a failed service: {{ steps.split.output.output.hosts | join: ', ' | escape }}."
+inputs:
+  patch_one_host:
+    kind: workflow
+    uid: guide-patch-one-host
+    name: Patch one host
+```
+
+Publish it when you're ready. Its trigger is **Manual / API**, so it only runs when someone clicks **Run**.
+
+## How each step works
+
+### Find the host's agent
+
+A **Check a Host Agent** step looks up the agent by **Host name**, `{{ trigger.inputs.host }}`. The name must match the host name the agent registered with, as shown under **Settings → Agents**.
+
+A **Branch** then checks that `steps.agent.output.status` **equals** `reachable`, which means the agent checked in within the last 5 minutes. For any other status, such as `unreachable` or `not_found`, the **Else** block runs a **Run Code** step that throws an error:
+
+```js
+function main(input) {
+  throw new Error(input.host + " can't be patched: its agent status is " + input.status + ".");
+}
+```
+
+The error fails the run with a message that names the host and the reason, and a failed call stops the rollout. Without the check, a command for a host that's down would wait until the step timed out.
+
+### Upgrade packages
+
+A **Run Command on Host** step runs the upgrade on the host, with **Host** set to `{{ steps.agent.output.agent_id }}` from the lookup:
+
+```sh
+set -e
+if command -v apt-get >/dev/null 2>&1; then
+  export DEBIAN_FRONTEND=noninteractive
+  apt-get update -q
+  apt-get upgrade -y -q
+else
+  dnf upgrade -y -q || yum update -y -q
+fi
+```
+
+The lines run as one shell script. `set -e` makes the script stop, and the step fail, at the first command that fails, instead of carrying on after a failed `apt-get update`.
+
+An upgrade can take several minutes, so the step allows for it in two places. **Command timeout (seconds)** is `720`, which stops the upgrade on the host after 12 minutes. The step's **Timeout**, under **Settings**, is `15m`, which also covers the time the agent takes to pick up the command and report back.
+
+### Reboot if an update needs it
+
+A second **Run Command on Host** step checks whether the host needs a reboot. On Debian and Ubuntu, an update that needs one creates `/var/run/reboot-required`. On Red Hat-based systems, `needs-restarting -r` exits with a non-zero code when a reboot is needed:
+
+```sh
+if [ -f /var/run/reboot-required ] || { command -v needs-restarting >/dev/null 2>&1 && ! needs-restarting -r >/dev/null 2>&1; }; then
+  shutdown -r +1 "Rebooting after package updates"
+  echo "rebooting"
+else
+  echo "no reboot needed"
+fi
+```
+
+`shutdown -r +1` schedules the reboot a minute later instead of rebooting at once. That gives the agent time to report the step's result before the host goes down.
+
+### Wait for the reboot
+
+A **Branch** checks whether the output, `steps.reboot.output.stdout`, **contains** `rebooting`. If it does, a **Wait / Delay** step waits 3 minutes for the reboot to happen.
+
+A **Wait until** step then checks the agent with **Check a Host Agent** until `steps.agent_again.output.seconds_since_checkin` is **less than** `90`. The agent checks in every 60 seconds, so a check-in less than 90 seconds old means the host is back up. The step's **Timeout** is `15m`. If the host isn't back by then, the step fails, and so does the rollout.
+
+### Check that nothing failed to start
+
+The last **Run Command on Host** step lists the `systemd` units that are in the failed state:
+
+```sh
+failed=$(systemctl list-units --state=failed --no-legend --plain)
+if [ -n "$failed" ]; then
+  echo "$failed"
+  exit 1
+fi
+echo "all units running"
+```
+
+If any unit failed, the script prints them and exits with `1`, which fails the step. The failed units appear in the step's output in run history.
+
+### Read the host list
+
+In the rollout, the `hosts` input is **Long text**. A **Run Code** step turns it into a list, splitting it at line breaks, spaces, and commas, so you can paste one host name per line or a comma-separated list:
+
+```js
+function main(input) {
+  const hosts = String(input.text || "")
+    .split(/[\s,]+/)
+    .filter((name) => name !== "");
+  return { hosts: hosts };
+}
+```
+
+Its **Input** is `{"text": "{{ trigger.inputs.hosts }}"}`, and the list comes back as `steps.split.output.output.hosts`.
+
+### For each host
+
+A **Loop** runs a **Call Workflow** step for each host, with **Items** set to `{{ steps.split.output.output.hosts }}` and **Run at once** at `1`. The call's **Inputs** pass the host as `host`, which **Patch one host** reads as `{{ trigger.inputs.host }}`.
+
+With **Run at once** at `1`, the loop waits for each call to finish before it starts the next one, and a call that fails stops the loop. The rollout then fails, and run history shows which host failed and why.
+
+A **Wait until** can't go inside a loop, which is why the steps for one host are a workflow of their own. See [Wait until](/workflows/control-flow/#wait-until).
+
+### Email the result
+
+When every host is done, a **Send Email** step emails the address in the `notify_email` input, and lists the hosts it patched.
+
+## Step 3: Try it on one host
+
+1. Open **Patch one host**, click **Run**, and enter a host that can go down for a few minutes.
+2. Open the run from **Workflows → Runs**, and follow the steps as they run. A host that reboots shows **Waiting** while the workflow waits for it.
+3. When that works, run **Patch hosts one at a time** with two hosts, one per line, and your email address.
+
+A run patches at most 100 hosts, which is the most one loop handles.
+
+:::caution
+Every run changes the hosts for real. Try it on hosts you can afford to lose for a few minutes before you run it across a fleet.
+:::
+
+## Adapt the workflow
+
+- **Ask for approval first.** Add an **Approval** step before **For each host** in the rollout, with a message that lists `{{ steps.split.output.output.hosts | join: ", " }}`.
+- **Check your application too.** Add a command to **Check that nothing failed to start** that calls your service's health endpoint on the host, such as `curl -fsS http://localhost:8080/health`.
+- **Install security updates only.** On Red Hat-based systems, change the upgrade line to `dnf upgrade --security -y -q`.
+- **Patch on a schedule.** Change the rollout's trigger to a monthly **Schedule**, and keep the host names in a [constant](/workflows/variables/) as a comma-separated list. Then set the **Input** of **Read the host list** to `{"text": "{{ vars.patch_hosts }}"}`, and **To** on **Email the result** to your team's address.
+
+## Related
+
+- [Run Command on Host](/workflows/actions/#run-command-on-host) for how commands and timeouts work.
+- [Control flow](/workflows/control-flow/) for Loop, Call Workflow, and Wait until.
+- [Run Code](/workflows/actions/#run-code) for the sandbox the host list runs in.

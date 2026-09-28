@@ -1,0 +1,263 @@
+---
+title: "Offboard a leaver"
+description: "After an approval, suspend a leaver's Google Workspace account, reassign their open Jira issues to their manager, and email a record of every change."
+sidebar:
+  order: 10
+---
+
+This guide builds an offboarding request that someone in IT or a manager submits on a person's last day. After an approver agrees, the workflow suspends the person's Google Workspace account, which blocks their access to mail and files, and reassigns their open Jira issues to their manager. It then emails the manager and the person who asked a record of what changed, and of what still needs doing by hand.
+
+Google Workspace has no built-in action in KloudMate, so the workflow calls Google's Admin SDK API through an [OAuth 2.0 connection](/platform/settings/connections/providers/#tools-and-custom-endpoints), the same way the [Gmail guide](/guides/workflows/trigger-on-new-gmail/) calls Gmail.
+
+The finished workflow has these steps:
+
+```text
+Form: Offboard someone who is leaving
+├─ Approve the offboarding              Approval
+├─ Offboard in each tool                Parallel
+│  ├─ Suspend the Google account        HTTP Request to Google
+│  └─ Find the leaver in Jira           Jira: Find User
+│     └─ Do they have a Jira account?   Branch
+│        ├─ Find the manager in Jira    Jira: Find User
+│        ├─ Find their open issues      Jira: Search Issues
+│        └─ For each open issue         Loop: assign it to the manager
+└─ Email what changed                   Send Email
+```
+
+## Before you start
+
+- You need the **Developer** role in a KloudMate workspace whose plan includes workflows.
+- You need a Jira Cloud connection with the **Workflows** capability.
+- You need a Google Workspace administrator account that can manage users, and a Google Cloud project where you can create an OAuth client.
+- The people who submit the form need to be members of your KloudMate workspace, because the form has **Sign-in required** turned on.
+
+## Step 1: Connect Google as an administrator
+
+1. In the [Google Cloud console](https://console.cloud.google.com/), enable the **Admin SDK API**, and create an OAuth client the way the Gmail guide describes in [Step 1: Create an OAuth client in Google Cloud](/guides/workflows/trigger-on-new-gmail/#step-1-create-an-oauth-client-in-google-cloud). Make the consent screen **Internal** to your organization, so its tokens don't expire after 7 days.
+2. In KloudMate, open **Workflows → Connections**, click **Connect**, and pick **OAuth 2.0**. Name the connection `Google Admin`, and fill in the form:
+
+   | Field | Value |
+   |---|---|
+   | **Grant type** | **Authorization code** |
+   | **Token URL** | `https://oauth2.googleapis.com/token` |
+   | **Authorize URL** | `https://accounts.google.com/o/oauth2/v2/auth?access_type=offline&prompt=consent` |
+   | **Scopes** | `https://www.googleapis.com/auth/admin.directory.user` |
+   | **Client ID** and **Client secret** | The values from your OAuth client. |
+   | **Send client credentials** | **In the body** |
+
+3. Click **Connect**, and sign in to Google as the administrator.
+
+The connection acts as that administrator, so the workflow can suspend any user in your Google Workspace organization. Only people with the **Developer** role can use or change the connection in KloudMate.
+
+## Step 2: Import the workflow
+
+1. Copy the YAML below.
+2. Open **Workflows**, click **Import**, paste the YAML, and click **Import**.
+3. Click **Open workflow**, and set these before you publish:
+   - On **Suspend the Google account**, pick your `Google Admin` connection.
+   - On every Jira step, pick your Jira connection and the **Site**.
+   - On **Approve the offboarding**, add the people who can approve an offboarding under **Approvers**.
+
+```yaml
+kind: workflow
+uid: guide-offboard-a-leaver
+spec:
+  name: Offboard a leaver
+  description: After an approval, suspends the leaver's Google Workspace account, reassigns their open Jira issues to their manager, and emails a record of what changed.
+  definition:
+    schema_version: 1
+    trigger:
+      type: form
+      config:
+        title: Offboard someone who is leaving
+        description: Submit this on the person's last day. Their Google Workspace account is suspended as soon as the request is approved.
+        require_login: true
+        success_message: The request is waiting for approval. You'll get an email when the offboarding is done.
+    inputs:
+      - name: email
+        type: email
+        required: true
+      - name: manager_email
+        type: email
+        required: true
+      - name: notes
+        type: textarea
+        required: false
+    steps:
+      - id: approve
+        type: approval
+        display_name: Approve the offboarding
+        approvers: []
+        timeout: 24h
+        on_timeout: fail
+        message: |-
+          {{ trigger.submitted_by.name }} asks to offboard {{ trigger.inputs.email }}. Their Google Workspace account will be suspended, and their open Jira issues reassigned to {{ trigger.inputs.manager_email }}.
+
+          {% assign notes = trigger.inputs.notes | default: "none" %}Notes: {{ notes }}
+      - id: offboard
+        type: parallel
+        display_name: Offboard in each tool
+        branches:
+          - - id: suspend
+              type: action
+              action: http.request
+              display_name: Suspend the Google account
+              on_error: continue
+              connection_id:
+                $input: google_admin
+              with:
+                authType: connection
+                method: PUT
+                url: "https://admin.googleapis.com/admin/directory/v1/users/{{ trigger.inputs.email | url_encode }}"
+                body_type: json
+                body:
+                  suspended: true
+          - - id: find_leaver
+              type: action
+              action: jira.find_user
+              display_name: Find the leaver in Jira
+              connection_id:
+                $input: jira
+              with:
+                query: "{{ trigger.inputs.email }}"
+            - id: in_jira
+              type: branch
+              display_name: Do they have a Jira account?
+              if:
+                all:
+                  - field: steps.find_leaver.output.users.0.accountId
+                    op: is_not_empty
+              then:
+                - id: find_manager
+                  type: action
+                  action: jira.find_user
+                  display_name: Find the manager in Jira
+                  connection_id:
+                    $input: jira
+                  with:
+                    query: "{{ trigger.inputs.manager_email }}"
+                - id: open_issues
+                  type: action
+                  action: jira.search_issues
+                  display_name: Find their open issues
+                  connection_id:
+                    $input: jira
+                  with:
+                    jql: "assignee = {{ steps.find_leaver.output.users.0.accountId }} AND resolution = Unresolved"
+                    max_results: 100
+                    fields: summary
+                - id: reassign
+                  type: loop
+                  display_name: For each open issue
+                  items: "{{ steps.open_issues.output.issues }}"
+                  concurrency: 5
+                  each:
+                    - id: assign
+                      type: action
+                      action: jira.assign_issue
+                      display_name: Assign it to the manager
+                      on_error: continue
+                      connection_id:
+                        $input: jira
+                      with:
+                        issue_key: "{{ item.key }}"
+                        account_id: "{{ steps.find_manager.output.users.0.accountId }}"
+      - id: report
+        type: action
+        action: email.send
+        display_name: Email what changed
+        with:
+          to: "{{ trigger.inputs.manager_email }}, {{ trigger.submitted_by.email }}"
+          subject: "Offboarding for {{ trigger.inputs.email }} is done"
+          html: |-
+            {% assign suspended = steps.suspend.output.body.suspended %}{% assign why = steps.suspend.error %}{% assign moved = steps.reassign.output.iterations | default: 0 %}{{ steps.approve.output.decidedBy.name | escape }} approved offboarding {{ trigger.inputs.email | escape }}.
+
+            - Google Workspace: {% if suspended %}the account is suspended.{% else %}the account wasn't suspended. {{ why | escape }}{% endif %}
+            - Jira: {{ moved }} open issues were reassigned to {{ trigger.inputs.manager_email | escape }}.
+
+            Still to do by hand: deactivate their Slack account, and collect their equipment.
+inputs:
+  google_admin:
+    kind: connection
+    name: Google Admin
+    type: oauth2
+  jira:
+    kind: connection
+    name: Jira
+    type: jira
+```
+
+## How each step works
+
+### The form and the approval
+
+The **Form submission** trigger asks for the leaver's work `email`, their `manager_email`, and optional `notes`. **Sign-in required** is on, so the approval request can name the person who submitted it, as `{{ trigger.submitted_by.name }}`.
+
+Suspending an account can't wait for someone to notice a mistake, so an **Approval** step asks a second person first. Its message says exactly what will happen to whom. If the approver rejects the request, or nobody answers within 24 hours, the run ends without changing anything.
+
+### Suspend the Google account
+
+An **HTTP Request** step with **Authentication** set to **OAuth 2.0 connection** sends a `PUT` to Google's Directory API:
+
+```liquid
+https://admin.googleapis.com/admin/directory/v1/users/{{ trigger.inputs.email | url_encode }}
+```
+
+Its JSON body is `{"suspended": true}`. Google changes only the fields in the body, so the rest of the account stays as it was. A suspended user can't use Gmail, Drive, or other Google Workspace services, and new mail to them is blocked. Their data stays in place, people they shared files with keep their access, and the account still counts toward your Google bill until you delete it.
+
+`url_encode` makes the address safe to put in a URL, by turning the `@` into `%40`.
+
+### Reassign their open Jira issues
+
+The Jira branch of the **Parallel** step runs at the same time as the Google branch:
+
+1. A Jira **Find User** step finds the leaver by email. A **Branch** checks that it found an account, so someone who never used Jira is skipped.
+2. Another **Find User** step finds the manager.
+3. A Jira **Search Issues** step finds the leaver's open issues, with this **JQL**:
+
+   ```liquid
+   assignee = {{ steps.find_leaver.output.users.0.accountId }} AND resolution = Unresolved
+   ```
+
+4. A **Loop** assigns each issue to the manager. **Run at once** is `5`, because the issues don't depend on each other.
+
+A search returns at most 100 issues. Someone with more than that keeps the rest, and you can run the workflow again to move the next 100.
+
+### Carry on when a tool fails
+
+**Suspend the Google account** and **Assign it to the manager** both have **On failure** set to **Go to the next step**, under **Settings**. If Google refuses the request or one issue can't be reassigned, the other changes still happen, and the email reports the failure.
+
+### Email what changed
+
+A **Send Email** step emails the manager and the person who submitted the form, with a line for each tool. It reads the results of the steps that ran in the parallel branches:
+
+```liquid
+{% assign suspended = steps.suspend.output.body.suspended %}{% assign why = steps.suspend.error %}{% assign moved = steps.reassign.output.iterations | default: 0 %}
+```
+
+Some of these values exist only in some runs. `steps.suspend.error` is set only when the Google request failed, and `steps.reassign` only when the leaver had a Jira account. Reading them with `assign` keeps a missing one from showing up as an unresolved reference in run history. When the request failed, the email includes Google's error, such as a missing permission.
+
+The email also lists what the workflow can't do. KloudMate's Slack actions can't deactivate a user, so a Slack admin does that by hand.
+
+## Step 3: Test and publish
+
+Test with an account you can afford to lose, such as a test user in your Google Workspace:
+
+1. Click **Publish**. The first publish also switches the workflow on, and the form goes live.
+2. Open the trigger, copy the **Public form URL**, and submit the form for the test user, with your own address as the manager.
+3. Approve the request from the email.
+4. Check that the test user is suspended in the Google Admin console, and read the email the workflow sent.
+
+To undo the test, unsuspend the user in the Google Admin console.
+
+## Adapt the workflow
+
+- **Transfer their files.** Add an HTTP Request step that calls Google's Data Transfer API to move the leaver's Drive files to their manager. Add the scope `https://www.googleapis.com/auth/admin.datatransfer` to the connection, and click **Reconnect** on it.
+- **Offboard from another identity provider.** Replace **Suspend the Google account** with a call to your provider's API, through an OAuth 2.0 connection or with a token stored as a [secret](/workflows/variables/).
+- **Open a ticket for the manual steps.** Add a Jira **Create Issue** step after the email, for the Slack account and the equipment, and assign it to your IT team.
+
+## Related
+
+- [Approvals and collected input](/workflows/approvals-and-input/) for the approval email.
+- [Parallel](/workflows/control-flow/#parallel) for running independent branches together.
+- [HTTP Request](/workflows/actions/#http-request) for calling an API through an OAuth 2.0 connection.

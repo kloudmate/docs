@@ -23,7 +23,24 @@ export const redirects = {
   '/azure-monitoring': '/azure-integration/',
   '/configuration': '/kloudmate-agent/management/',
   '/database-integrations': '/database-monitoring/',
-  '/direct-database-monitoring': '/database-monitoring/direct-database-monitoring/',
+  '/database-monitoring/database-activity-monitoring-dam': '/kloudmate-agent/ebpf-observability/',
+  '/database-monitoring/database-activity-monitoring-dam/ml-classifier-deployment-guide':
+    '/database-monitoring/sensitive-data/',
+  '/database-monitoring/database-integrations/mongodb-monitoring':
+    '/kloudmate-agent/database-monitoring/engines-and-coverages/',
+  '/database-monitoring/database-integrations/mssql-monitoring':
+    '/kloudmate-agent/database-monitoring/engines-and-coverages/',
+  '/database-monitoring/database-integrations/mysql-monitoring':
+    '/kloudmate-agent/database-monitoring/engines-and-coverages/',
+  '/database-monitoring/database-integrations/oracledb-monitoring':
+    '/kloudmate-agent/database-monitoring/engines-and-coverages/',
+  '/database-monitoring/database-integrations/postgresql-monitoring':
+    '/kloudmate-agent/database-monitoring/engines-and-coverages/',
+  '/database-monitoring/database-integrations/redis-monitoring':
+    '/kloudmate-agent/database-monitoring/engines-and-coverages/',
+  '/database-monitoring/direct-database-monitoring': '/kloudmate-agent/database-monitoring/overview/',
+  '/database-monitoring/opentelemetry-database-monitoring': '/apm-and-tracing/auto-instrumentation/',
+  '/direct-database-monitoring': '/kloudmate-agent/database-monitoring/overview/',
   '/enable-service-principal-azure': '/azure-integration/enable-service-principal-azure/',
   '/get-help': '/getting-started/get-help/',
   '/go-instrumentation-running-on-kubernetes': '/kloudmate-agent/auto-instrumentation/go/',
@@ -35,8 +52,7 @@ export const redirects = {
   '/managing-kloudmate-agents': '/kloudmate-agent/management/',
   '/managing-panels': '/visualize-data/dashboards/managing-panels/',
   '/mcp-integrations': '/kloudmate-assistant/mcp-server/',
-  '/ml-classifier-deployment-guide':
-    '/database-monitoring/database-activity-monitoring-dam/ml-classifier-deployment-guide/',
+  '/ml-classifier-deployment-guide': '/database-monitoring/sensitive-data/',
   '/net-instrumentation-running-on-kubernetes': '/kloudmate-agent/auto-instrumentation/dotnet/',
   '/setting-up-kloudmate': '/getting-started/setting-up-kloudmate/',
   '/sns': '/incident-management/integrations/integrating-with-aws-cloudwatch/',

@@ -1,0 +1,200 @@
+---
+title: "Send requests to the right team with AI Route"
+description: "Collect requests through one internal form, let AI Route pick the team that handles each one, email that team, and tell the requester where the request went."
+sidebar:
+  order: 14
+---
+
+People rarely know which team handles what. This guide builds one form for every internal request, such as a broken laptop, a parking space, or an expense question. An **AI Route** step reads the request and picks the team that handles it, the workflow emails that team, and the requester gets an email saying where the request went. A request that doesn't clearly belong to one team goes to your office manager to pass on.
+
+**AI Route** decides from descriptions you write, such as "Facilities: desks, parking, and repairs in the office", instead of from rules. Nobody has to list every word that means "laptop", and a new kind of request usually finds its team without a change to the workflow.
+
+The finished workflow has these steps:
+
+```text
+Form: Ask for help
+├─ Which team handles it?             AI Route
+│  ├─ it                              Email IT
+│  ├─ facilities                      Email facilities
+│  ├─ people                          Email the people team
+│  ├─ finance                         Email finance
+│  └─ unsure (the fallback route)     Email the office manager
+└─ Tell the requester where it went   Send Email
+```
+
+## Before you start
+
+- You need the **Developer** role in a KloudMate workspace whose plan includes workflows.
+- The people who submit the form need to be members of your KloudMate workspace, because the form has **Sign-in required** turned on.
+- Each request uses workflow credits, and the **AI Route** step uses more. See [Check workflow usage](/workflows/run-history/#check-workflow-usage).
+
+## Step 1: Import the workflow
+
+1. Copy the YAML below, and replace the example addresses, such as `it@example.com`, with your teams' addresses.
+2. Open **Workflows**, click **Import**, paste the YAML, and click **Import**.
+3. Click **Open workflow**, and read each route's description. Change them to match what your teams handle.
+
+```yaml
+kind: workflow
+uid: guide-route-requests-with-ai
+spec:
+  name: Send requests to the right team
+  description: Reads a request from an internal form, lets AI pick the team that handles it, emails that team, and tells the requester where it went.
+  definition:
+    schema_version: 1
+    trigger:
+      type: form
+      config:
+        title: Ask for help
+        description: Describe what you need in your own words, and we'll send it to the team that handles it.
+        require_login: true
+        success_message: Thanks. We've sent your request to the team that handles it, and emailed you which one.
+    inputs:
+      - name: request
+        type: textarea
+        required: true
+    steps:
+      - id: team
+        type: ai_branch
+        display_name: Which team handles it?
+        instruction: "{{ trigger.inputs.request }}"
+        default_route: unsure
+        routes:
+          - label: it
+            description: IT. Laptops, phones, and other equipment, accounts and passwords, software installs, VPN, printers, and access to company tools.
+            steps:
+              - id: email_it
+                type: action
+                action: email.send
+                display_name: Email IT
+                with:
+                  to: it@example.com
+                  subject: "Request from {{ trigger.submitted_by.name }}"
+                  html: "{{ trigger.submitted_by.name | escape }} ({{ trigger.submitted_by.email | escape }}) asked:<br><br>{{ trigger.inputs.request | escape | newline_to_br }}<br><br>It came to you because: {{ steps.team.output.reason | escape }}"
+          - label: facilities
+            description: Facilities. Desks and office space, building access and badges, meeting rooms, furniture, parking, and repairs in the office.
+            steps:
+              - id: email_facilities
+                type: action
+                action: email.send
+                display_name: Email facilities
+                with:
+                  to: facilities@example.com
+                  subject: "Request from {{ trigger.submitted_by.name }}"
+                  html: "{{ trigger.submitted_by.name | escape }} ({{ trigger.submitted_by.email | escape }}) asked:<br><br>{{ trigger.inputs.request | escape | newline_to_br }}<br><br>It came to you because: {{ steps.team.output.reason | escape }}"
+          - label: people
+            description: The people team. Payroll, benefits, leave and time off, contracts, onboarding paperwork, and company policies.
+            steps:
+              - id: email_people
+                type: action
+                action: email.send
+                display_name: Email the people team
+                with:
+                  to: people@example.com
+                  subject: "Request from {{ trigger.submitted_by.name }}"
+                  html: "{{ trigger.submitted_by.name | escape }} ({{ trigger.submitted_by.email | escape }}) asked:<br><br>{{ trigger.inputs.request | escape | newline_to_br }}<br><br>It came to you because: {{ steps.team.output.reason | escape }}"
+          - label: finance
+            description: Finance. Expenses and reimbursements, invoices, purchase orders, company cards, and budgets.
+            steps:
+              - id: email_finance
+                type: action
+                action: email.send
+                display_name: Email finance
+                with:
+                  to: finance@example.com
+                  subject: "Request from {{ trigger.submitted_by.name }}"
+                  html: "{{ trigger.submitted_by.name | escape }} ({{ trigger.submitted_by.email | escape }}) asked:<br><br>{{ trigger.inputs.request | escape | newline_to_br }}<br><br>It came to you because: {{ steps.team.output.reason | escape }}"
+          - label: unsure
+            description: Anything that doesn't clearly belong to one of the other teams, a request that needs several teams, or a message that isn't a request.
+            steps:
+              - id: email_office
+                type: action
+                action: email.send
+                display_name: Email the office manager
+                with:
+                  to: office@example.com
+                  subject: "Request from {{ trigger.submitted_by.name }}"
+                  html: "{{ trigger.submitted_by.name | escape }} ({{ trigger.submitted_by.email | escape }}) asked:<br><br>{{ trigger.inputs.request | escape | newline_to_br }}<br><br>It came to you because: {{ steps.team.output.reason | escape }}"
+      - id: tell_requester
+        type: action
+        action: email.send
+        display_name: Tell the requester where it went
+        with:
+          to: "{{ trigger.submitted_by.email }}"
+          subject: We've received your request
+          html: "We've sent your request to {% case steps.team.output.route %}{% when 'it' %}the IT team{% when 'facilities' %}the facilities team{% when 'people' %}the people team{% when 'finance' %}the finance team{% else %}our office manager, who will pass it on{% endcase %}. They'll reply to you by email.<br><br>Your request:<br>{{ trigger.inputs.request | escape | newline_to_br }}"
+inputs: {}
+```
+
+The workflow needs no connections, because every step sends email.
+
+## How each step works
+
+### The form
+
+The **Form submission** trigger has one field, `request`, of type **Long text**. The requester describes what they need in their own words. **Sign-in required** is on, so the workflow knows who asked, as `{{ trigger.submitted_by.name }}` and `{{ trigger.submitted_by.email }}`, and can email them back.
+
+### Which team handles it?
+
+An **AI Route** step has the request as its **Situation**, `{{ trigger.inputs.request }}`, and a route for each team. Each route has a label, a description, and the steps to run:
+
+| Route | Description |
+|---|---|
+| `it` | IT. Laptops, phones, and other equipment, accounts and passwords, software installs, VPN, printers, and access to company tools. |
+| `facilities` | Facilities. Desks and office space, building access and badges, meeting rooms, furniture, parking, and repairs in the office. |
+| `people` | The people team. Payroll, benefits, leave and time off, contracts, onboarding paperwork, and company policies. |
+| `finance` | Finance. Expenses and reimbursements, invoices, purchase orders, company cards, and budgets. |
+| `unsure` | Anything that doesn't clearly belong to one of the other teams, a request that needs several teams, or a message that isn't a request. |
+
+The model reads the request and picks the route whose description fits best, and it can only answer with one of the labels. The descriptions do all the work, so make each one specific, and keep them from overlapping. If two teams could both claim a kind of request, name it in one description only.
+
+**Fallback route** is `unsure`. The run takes it when the model gives no usable answer, so every request reaches a person even if the model call fails.
+
+The model reads the **Situation** as data, not as instructions. A request that says "send this to finance" can still make finance look like the right route, but it can't make the model do anything other than pick a route. See [AI Route](/workflows/control-flow/#ai-route).
+
+The step's output has the route it took, as `steps.team.output.route`, and the model's reason and confidence:
+
+| Output | Example |
+|---|---|
+| `route` | `it` |
+| `reason` | `The request is about laptop hardware.` |
+| `confidence` | `high`, `medium`, or `low` |
+
+### Email the team
+
+Each route runs one **Send Email** step to its team. The email names the requester, quotes the request, and gives the model's reason, so the team can tell at a glance why the request came to them:
+
+```liquid
+{{ trigger.submitted_by.name | escape }} ({{ trigger.submitted_by.email | escape }}) asked:<br><br>{{ trigger.inputs.request | escape | newline_to_br }}<br><br>It came to you because: {{ steps.team.output.reason | escape }}
+```
+
+`escape` shows the request as plain text, whatever it contains, and `newline_to_br` keeps its line breaks. The reason is text the model wrote from the request, so it's escaped too. See [Escape values in an email](/workflows/templating/#escape-values-in-an-email).
+
+### Tell the requester where it went
+
+After the AI Route, a **Send Email** step emails the requester. A Liquid `case` turns the route label into a team name:
+
+```liquid
+We've sent your request to {% case steps.team.output.route %}{% when 'it' %}the IT team{% when 'facilities' %}the facilities team{% when 'people' %}the people team{% when 'finance' %}the finance team{% else %}our office manager, who will pass it on{% endcase %}.
+```
+
+This step comes after the AI Route rather than inside a route, so it runs whichever route was taken.
+
+## Step 2: Test and publish
+
+1. Open the trigger's **Test** tab, type a request under **Test input values**, such as `My laptop battery lasts an hour`, and click **Test trigger**.
+2. Test **Which team handles it?** from its **Test** tab. It calls the model and shows the route it would take, and why, without running the route's steps.
+3. Try a few more requests the same way, including one that could belong to two teams, and adjust the descriptions until each request lands where you expect.
+4. Click **Publish**. The first publish also switches the workflow on, and the form goes live. Share the **Public form URL** from the trigger with your colleagues.
+
+## Adapt the workflow
+
+- **Open a ticket instead of an email.** Replace a team's **Send Email** step with a Jira **Create Issue** step in that team's project.
+- **Ask a person when the model isn't sure.** Inside each team's route, add a **Branch** that checks whether `steps.team.output.confidence` **equals** `low`, and also emails the office manager.
+- **Add a team.** Add a route with a label, a description, and a **Send Email** step, and add its name to the `case` in **Tell the requester where it went**. An AI Route holds up to 8 routes.
+
+## Related
+
+- [AI Route](/workflows/control-flow/#ai-route) for routes, descriptions, and the fallback route.
+- [Route](/workflows/control-flow/#route) for choosing a path by a condition instead of a model.
+- [Answer common questions in a help channel](/guides/workflows/answer-common-questions/) for sorting messages with **AI Extract** instead.

@@ -1,0 +1,271 @@
+---
+title: "Remind owners before a license or contract renews"
+description: "Read a Google Sheet of software licenses and contracts every weekday, email each owner 30 days and 7 days before a renewal, and open a Jira issue to decide whether to renew."
+sidebar:
+  order: 11
+---
+
+Software licenses and contracts renew on their own unless someone cancels them in time. This guide builds a workflow that reads your list of renewals from a Google Sheet every weekday. When a renewal is 30 days away, it emails the owner and opens a Jira issue to decide whether to renew. When it's 7 days away, it emails the owner again.
+
+The list stays in a spreadsheet that anyone can update, and the workflow keeps track of the reminders it has sent in [Storage](/workflows/storage/), so each owner gets each reminder once.
+
+The finished workflow has these steps:
+
+```text
+Schedule: weekdays at 09:00
+├─ Read the renewals sheet               HTTP Request to Google Sheets
+├─ Find the renewals that are due        Run Code
+└─ For each renewal that's due           Loop
+   ├─ Count reminders at this stage      Storage: Increment
+   ├─ First reminder at this stage?      Branch
+   │  └─ Then: Email the owner           Send Email
+   ├─ Count issues for this renewal      Storage: Increment
+   └─ No issue yet?                      Branch
+      └─ Then: Open a renewal issue      Jira: Create Issue
+```
+
+## Before you start
+
+- You need the **Developer** role in a KloudMate workspace whose plan includes workflows.
+- You need a Google connection that can read Google Sheets. If you followed [Trigger a workflow when a new email is received in Gmail](/guides/workflows/trigger-on-new-gmail/), your `Google` connection already can. Otherwise, create one the way that guide describes, with the scope `https://www.googleapis.com/auth/spreadsheets.readonly`.
+- You need a Jira Cloud connection with the **Workflows** capability, and a project for renewal decisions.
+
+## Step 1: Set up the sheet
+
+Create a Google Sheet with one row per license or contract, and these columns, starting in column A:
+
+| Name | Owner | Renews on | Cost |
+|---|---|---|---|
+| Design tool | `design-lead@example.com` | `2026-11-30` | $9,000 a year |
+| CRM | `sales-ops@example.com` | `2027-01-15` | $48,000 a year |
+
+Keep the header in row 1. Write each date as `2026-11-30`, year first. If you type dates another way, format the column with **Format → Number → Custom date and time** as `yyyy-mm-dd`. **Cost** is optional.
+
+Copy the sheet's ID from its URL. It's the part between `/d/` and `/edit` in `https://docs.google.com/spreadsheets/d/SPREADSHEET_ID/edit`. Then open **Workflows → Variables** in KloudMate, and create a **Constant** named `renewals_sheet_id` with the ID as its value.
+
+## Step 2: Import the workflow
+
+1. Copy the YAML below.
+2. Open **Workflows**, click **Import**, paste the YAML, and click **Import**.
+3. Click **Open workflow**, and set these before you publish:
+   - On **Read the renewals sheet**, pick your Google connection.
+   - On **Open a renewal issue**, pick your Jira connection, the **Site**, the project, and an issue type such as **Task**.
+   - On the trigger, set **Timezone** to your team's timezone, such as `America/Chicago`.
+
+```yaml
+kind: workflow
+uid: guide-renewal-reminders
+spec:
+  name: Remind owners before a renewal
+  description: Every weekday, reads a Google Sheet of licenses and contracts, emails each owner 30 days and 7 days before a renewal, and opens a Jira issue to decide on the renewal.
+  definition:
+    schema_version: 1
+    trigger:
+      type: schedule
+      config:
+        mode: daily
+        hour: 9
+        minute: 0
+        run_on_weekends: false
+        timezone: UTC
+    steps:
+      - id: sheet
+        type: action
+        action: http.request
+        display_name: Read the renewals sheet
+        connection_id:
+          $input: google
+        with:
+          authType: connection
+          method: GET
+          url: "https://sheets.googleapis.com/v4/spreadsheets/{{ vars.renewals_sheet_id }}/values/A2:D500"
+      - id: due
+        type: action
+        action: code.run
+        display_name: Find the renewals that are due
+        with:
+          input:
+            rows: "{{ steps.sheet.output.body.values }}"
+            today: "{{ trigger.schedule.date }}"
+          source: |-
+            function main(input) {
+              const day = 24 * 60 * 60 * 1000;
+              const today = Date.parse(input.today);
+              const due = [];
+              const skipped = [];
+              for (const row of input.rows || []) {
+                const [name, owner, date, cost] = row;
+                if (!name || !owner || !/^\d{4}-\d{2}-\d{2}$/.test(date || "")) {
+                  if (name) skipped.push(name);
+                  continue;
+                }
+                const days = Math.round((Date.parse(date) - today) / day);
+                if (days < 0 || days > 30) continue;
+                const stage = days <= 7 ? "7" : "30";
+                const slug = name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+                due.push({ name: name, owner: owner, date: date, cost: cost || "", days: days, stage: stage, id: slug + ":" + date });
+              }
+              return { due: due, skipped: skipped };
+            }
+      - id: each_renewal
+        type: loop
+        display_name: For each renewal that's due
+        items: "{{ steps.due.output.output.due }}"
+        concurrency: 1
+        each:
+          - id: reminders
+            type: action
+            action: store.increment
+            display_name: Count reminders at this stage
+            with:
+              scope: workflow
+              key: "reminded:{{ item.id }}:{{ item.stage }}"
+              by: 1
+              ttl: 60d
+          - id: first_reminder
+            type: branch
+            display_name: First reminder at this stage?
+            if:
+              all:
+                - field: steps.reminders.output.value
+                  op: lt
+                  value: 2
+            then:
+              - id: email_owner
+                type: action
+                action: email.send
+                display_name: Email the owner
+                with:
+                  to: "{{ item.owner }}"
+                  subject: "{{ item.name }} renews on {{ item.date }}"
+                  html: |-
+                    **{{ item.name | escape }}** renews on {{ item.date | escape }}{% if item.cost != "" %}, for {{ item.cost | escape }}{% endif %}. You're listed as its owner.
+
+                    If you still need it, check the renewal terms now. If you don't, cancel it before {{ item.date | escape }} so it doesn't renew.
+          - id: issues
+            type: action
+            action: store.increment
+            display_name: Count issues for this renewal
+            with:
+              scope: workflow
+              key: "issue:{{ item.id }}"
+              by: 1
+              ttl: 60d
+          - id: first_issue
+            type: branch
+            display_name: No issue yet?
+            if:
+              all:
+                - field: steps.issues.output.value
+                  op: lt
+                  value: 2
+            then:
+              - id: open_issue
+                type: action
+                action: jira.create_issue
+                display_name: Open a renewal issue
+                connection_id:
+                  $input: jira
+                with:
+                  summary: "Decide on the renewal of {{ item.name }} by {{ item.date }}"
+                  description: "*Owner:* {{ item.owner }}\n*Renews on:* {{ item.date }}\n*Cost:* {{ item.cost | default: 'not listed' }}"
+inputs:
+  google:
+    kind: connection
+    name: Google
+    type: oauth2
+  jira:
+    kind: connection
+    name: Jira
+    type: jira
+  renewals_sheet_id:
+    kind: variable
+    name: renewals_sheet_id
+    type: constant
+```
+
+## How each step works
+
+### Read the renewals sheet
+
+An **HTTP Request** step reads the sheet through your Google connection, with **Authentication** set to **OAuth 2.0 connection**:
+
+```liquid
+https://sheets.googleapis.com/v4/spreadsheets/{{ vars.renewals_sheet_id }}/values/A2:D500
+```
+
+`A2:D500` skips the header row, and covers up to 499 renewals. Google returns the rows as `body.values`, a list with one list of cells per row. It leaves out empty rows at the end, and empty cells at the end of a row.
+
+### Find the renewals that are due
+
+A **Run Code** step works out which renewals are 30 days away or less. Its **Input** passes the rows and the run's date:
+
+```json
+{
+  "rows": "{{ steps.sheet.output.body.values }}",
+  "today": "{{ trigger.schedule.date }}"
+}
+```
+
+`trigger.schedule.date` is the run's date in the trigger's timezone, in the same `2026-11-30` form as the sheet. The code compares each row's date with it:
+
+```js
+function main(input) {
+  const day = 24 * 60 * 60 * 1000;
+  const today = Date.parse(input.today);
+  const due = [];
+  const skipped = [];
+  for (const row of input.rows || []) {
+    const [name, owner, date, cost] = row;
+    if (!name || !owner || !/^\d{4}-\d{2}-\d{2}$/.test(date || "")) {
+      if (name) skipped.push(name);
+      continue;
+    }
+    const days = Math.round((Date.parse(date) - today) / day);
+    if (days < 0 || days > 30) continue;
+    const stage = days <= 7 ? "7" : "30";
+    const slug = name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+    due.push({ name: name, owner: owner, date: date, cost: cost || "", days: days, stage: stage, id: slug + ":" + date });
+  }
+  return { due: due, skipped: skipped };
+}
+```
+
+Each renewal that's due gets a `stage`: `30` from 30 days out, and `7` in the last week. It also gets an `id` built from its name and date, such as `design-tool:2026-11-30`, because a Storage key can't hold spaces. A row without an owner, or with a date in another form, goes into `skipped`, which the step's output shows in run history.
+
+### Send each reminder once
+
+A **Loop** runs for each renewal in `steps.due.output.output.due`.
+
+A **Storage: Increment** step adds 1 to a counter under `reminded:{{ item.id }}:{{ item.stage }}`, and returns the new count. The first time the workflow sees a renewal at a stage, the count is `1`. A **Branch** checks that the count is **less than** `2`, and only then emails the owner. On the days after, the count is higher, so the owner isn't emailed again until the renewal reaches the next stage and gets a new counter.
+
+A second counter, `issue:{{ item.id }}`, works the same way for the Jira issue, so each renewal gets one issue, whichever stage the workflow first sees it at.
+
+The counters have **Scope** set to **This workflow**, and **Expires after** set to `60d`, so they clean themselves up after the renewal has passed. Checking the count keeps a reminder from going out twice even when the workflow runs again the same day. A run that fails before it sends a reminder, however, leaves the count at `1`, so that reminder isn't sent.
+
+### Email the owner and open the issue
+
+A **Send Email** step emails the owner, and passes values from the sheet through `escape` so they show up as written. See [Escape values in an email](/workflows/templating/#escape-values-in-an-email).
+
+A Jira **Create Issue** step opens the renewal decision, with the owner, the date, and the cost in its description. Assign the issue type and project that your finance or IT team works from.
+
+## Step 3: Test and publish
+
+1. Add a test row to the sheet with a renewal date 20 days from today, and your own email address as the owner.
+2. Open the trigger's **Test** tab and click **Test trigger**, then test **Read the renewals sheet** and **Find the renewals that are due** from their **Test** tabs. The output of **Find the renewals that are due** lists the test row under `due`.
+3. Click **Test run**. It emails you and opens a Jira issue for the test row.
+4. Delete the test row and the Jira issue. Then open **Workflows → Storage**, and delete the two keys the test run created, `reminded:…` and `issue:…`.
+5. Click **Publish**. The first publish also switches the workflow on.
+
+## Adapt the workflow
+
+- **Remind at other times.** Change the `stage` rule in **Find the renewals that are due**, for example to add a stage at 60 days with `days <= 60`, and change `days > 30` to match.
+- **Remind a team as well as the owner.** Add a **To** address, separated by a comma, such as `{{ item.owner }}, finance@example.com`.
+- **Post in Slack instead.** Replace **Email the owner** with a Slack **Post Message** step in your finance channel.
+- **Read a longer sheet.** Change `A2:D500` in the URL. A loop handles up to 100 renewals in one run, which is plenty for the renewals due in any 30 days.
+
+## Related
+
+- [Run Code](/workflows/actions/#run-code) for the sandbox the date check runs in.
+- [Storage](/workflows/storage/) for counters and expiry.
+- [Trigger a workflow when a new email is received in Gmail](/guides/workflows/trigger-on-new-gmail/) for creating a Google connection.
