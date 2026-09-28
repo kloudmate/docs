@@ -1,0 +1,32 @@
+---
+title: "Sensitive data"
+description: "Find the tables and columns that hold personal or health data, how sensitive they are, and how each column was classified."
+sidebar:
+  order: 9
+---
+
+The **Sensitive data** tab shows which tables and columns hold personally identifiable information (PII) or protected health information (PHI), such as email addresses, phone numbers, or national IDs. Use it to see where sensitive data lives in each database.
+
+The tab is available for PostgreSQL, MySQL, MariaDB, SQL Server, Oracle, and MongoDB. To start scanning, turn on PII classification for the instance in the agent's database monitoring settings. The tab shows results from the last seven days.
+
+## Read the results
+
+The tiles across the top count the tables scanned, the tables with sensitive data, and the sensitive columns out of all columns scanned. They also name the classifier version that produced the results.
+
+Each table in the list shows its highest sensitivity level, how many of its columns are sensitive, the categories found in it, and when it was last classified. Sensitivity levels run from **Critical** and **High** through **Medium** and **Low** to **No PII**. A column that couldn't be classified is marked **Unclassified**.
+
+Expand a table to see every column, with the sensitive columns listed first. Hover a column's sensitivity to see its categories and how it was detected:
+
+| Detected by | Meaning |
+|---|---|
+| Dictionary | The column name matched a built-in list of sensitive column names. |
+| Pattern | The column matched a pattern rule. |
+| Model | The GLiNER-PII model detected sensitive data in the column, with a confidence score. |
+| Cached | An earlier result for the same column was reused. |
+| Override | Someone set the classification by hand. It takes precedence over automatic classification. |
+
+:::caution
+Only scanned tables appear in the list. A table that isn't listed hasn't been scanned yet, so it isn't known to be free of sensitive data.
+:::
+
+On an Oracle container database, tables live in the pluggable databases. Select a PDB in the **Database** menu to see its results.
