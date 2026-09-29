@@ -1,6 +1,6 @@
 ---
 title: "The action catalog"
-description: "Every step a workflow can run: HTTP requests, sandboxed code, AI prompts, AWS and Azure calls, Slack and Jira, MCP tools, host commands, and lookups of hosts, resources, and alert groups."
+description: "Every step a workflow can run: HTTP requests, sandboxed code, AI prompts, the KloudMate Assistant, AWS and Azure calls, Slack and Jira, MCP tools, host commands, and lookups of hosts, resources, and alert groups."
 sidebar:
   label: "Action catalog"
   order: 6
@@ -37,6 +37,7 @@ Slack actions use a [Slack connection](/platform/settings/connections/providers/
 | Action | What it does |
 |---|---|
 | **Post Message** | Post to a channel or a person, optionally as a thread reply. |
+| **Reply in Thread** | Reply in the thread under a message. |
 | **Update Message** | Edit a message the workflow posted. |
 | **Send Direct Message** | Message a person directly, as the bot. |
 | **Add Reaction** | React to a message. |
@@ -47,11 +48,25 @@ Slack actions use a [Slack connection](/platform/settings/connections/providers/
 | **Look Up User** | Turn a Slack user id into a person. |
 | **Find User by Email** | Turn an email address into a Slack user. |
 
-When the destination is fixed, use **Send Slack Message**. When the workflow decides the channel, replies in a thread, or needs the posted message back so a later step can edit it, use **Post Message**.
+When the destination is fixed, use **Send Slack Message**. When the workflow decides the channel, or needs the posted message back so a later step can edit it, use **Post Message**. To reply in a thread, use **Reply in Thread**.
 
 :::caution
 Some of these need permissions the first Slack install didn't ask for. Looking up users needs profile access, and the channel actions need channel management. If a step fails with `missing_scope`, reconnect the Slack connection. Everything else on that connection keeps working in the meantime.
 :::
+
+#### Reply in Thread
+
+Set **Thread** to the `ts` of the message that starts the thread. If **Thread** renders blank, the step fails instead of posting to the channel.
+
+To reply to the message that started the run, use:
+
+```liquid
+{{ trigger.event.thread_ts | default: trigger.event.ts }}
+```
+
+This also works when that message is itself a reply in a thread.
+
+Turn on **Also send to channel** to show the reply in the channel as well. **Account**, **Channel**, **Text**, and **Blocks** work the same way as on **Post Message**.
 
 ### Jira Cloud
 
@@ -251,6 +266,31 @@ If you leave **Output fields** empty, the instruction describes the shape instea
 
 The extracted fields are at the top level of the step output, so a later step reads `{{ steps.extract.output.severity }}`. Their shape comes from your own list, so the variable picker shows them only after you test the step once.
 
+### Ask KloudMate Assistant
+
+Runs the [KloudMate Assistant](/kloudmate-assistant/) on a prompt and returns its answer. It's the same Assistant you chat with, so it can query your telemetry. For example, use it to look into an alert before the workflow posts about it.
+
+- **Prompt** says what to find out or do. The Assistant can't ask you questions, so say which service and time range to look at, and what you want back.
+- **MCP Integrations** is optional. Pick integrations to give the Assistant their tools, which it runs without asking for approval. Only integrations shared with the workspace are listed. Tools set to **Ask before run** are off. Manage the tools in [Assistant → MCP Integrations](/kloudmate-assistant/settings/#tool-level-settings).
+
+For an alert trigger, a prompt could look like this:
+
+```text
+{{ trigger.body.group.title }} is firing. Look at errors and latency for the affected service over the last 30 minutes. What is the most likely cause?
+```
+
+The step returns the Assistant's `answer` and `tool_calls`, a list of the tools it called with shortened inputs. Use `{{ steps.<id>.output.answer }}` in a later step, for example in a Slack message. To branch on the answer, add an **AI Extract** step after this one.
+
+The step costs 1 AI credit each time it answers. It uses the same [AI credits](/kloudmate-assistant/usage/) as chat with the Assistant, so a workflow that runs often can use up the credits your team needs for chat.
+
+A failed or timed-out step costs nothing. If the organization is out of AI credits, the step fails before it starts. A **Test run** of the workflow spends the credit too, but [testing the step on its own](../test-a-workflow/#test-one-step) only shows the shape of its output.
+
+The step's **Timeout** defaults to 5 minutes. A higher timeout doesn't give the Assistant more time. The step never retries, and you can't put it inside a [Wait until](../control-flow/#wait-until).
+
+:::caution
+If you template untrusted text into the prompt, such as a Slack message or a webhook payload, whoever wrote that text can steer which tools the Assistant calls. With no integrations picked, the Assistant's tools only read data, so the worst case is a wrong answer. If a picked integration has tools that make changes, put an [approval](../approvals-and-input/) before this step.
+:::
+
 ## Utilities
 
 These actions need no connection.
@@ -311,7 +351,7 @@ Run Code never retries, because the code can POST. If a caller might re-run the 
 
 ## Retries and failures
 
-Every action step has the settings covered in [Build a workflow](../build-a-workflow/#step-settings). The one difference between actions is retries: anything that changes external state never retries and doesn't offer the setting, so a failed write is never silently repeated.
+Every action step has the settings covered in [Build a workflow](../build-a-workflow/#step-settings). Anything that changes external state never retries and doesn't offer the setting, so a failed write is never silently repeated. The **Timeout** defaults to 60 seconds, or to 5 minutes on **Ask KloudMate Assistant**.
 
 ## Related
 

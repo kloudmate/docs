@@ -63,7 +63,9 @@ You can't re-run a test run this way, because it ran a draft, not a published ve
 
 **Workflows → Usage** shows how workflows are doing across the workspace over the time range you pick, the last 7 days by default. Its tiles show the **Runs** that finished, the **Failed** runs, the **Success Rate %**, and the **Credits** used, above a chart of **Runs and Failures Over Time**. It doesn't count test runs from the builder.
 
-Each run counts 1 credit, and each **AI Prompt**, **AI Extract**, or **AI Route** step it runs adds 2. A workflow that a **Call Workflow** step starts counts as a run of its own. Loop items and parallel branches don't. Workflow credits are separate from the AI credits the [KloudMate Assistant](../../kloudmate-assistant/) uses.
+Each run counts 1 credit, and each **AI Prompt**, **AI Extract**, or **AI Route** step it runs adds 2. A workflow that a **Call Workflow** step starts counts as a run of its own. Loop items and parallel branches don't.
+
+Workflow credits are separate from the [AI credits](../../kloudmate-assistant/usage/) that the KloudMate Assistant uses in chat. An **Ask KloudMate Assistant** step adds no workflow credits, and spends 1 AI credit each time it answers instead.
 
 ## Run retention
 
