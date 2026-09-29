@@ -76,7 +76,7 @@ In Slack steps that post or edit a message, **Text** uses Slack's own formatting
 [{"type": "markdown", "text": {{ steps.<id>.output.answer | json }}}]
 ```
 
-Always add `| json`, with no quotes around the value. It adds the quotes and escapes line breaks and quote marks, so the block stays valid JSON.
+Always add `| json`, with no quotes around the value. It adds the quotes and escapes line breaks and quote marks, so the block stays valid JSON. If **Blocks** isn't a valid JSON list once its `{{ }}` values are filled in, the step fails.
 
 Set **Text** to a short line too, for example `{{ trigger.body.group.title }}: Assistant findings`. Slack shows **Text** in notifications and as a fallback.
 
