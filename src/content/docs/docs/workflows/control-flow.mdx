@@ -80,7 +80,7 @@ Runs a block of steps repeatedly until a condition holds, then continues. Use it
 
 | Field | What it takes |
 |---|---|
-| **Check until the condition is true** | The steps to run each time. Actions, Branch, and Route steps only. |
+| **Check until the condition is true** | The steps to run each time. Actions (except **Ask KloudMate Assistant**), Branch, and Route steps only. |
 | **Until** | The condition, read against the check block's own step outputs, for example `steps.vm.output.result.status` equals `running`. |
 | **Timeout** | How long the step waits before it fails. Default `10m`, maximum `24h`. |
 

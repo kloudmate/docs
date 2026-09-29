@@ -1,30 +1,27 @@
 ---
 title: "Usage"
-description: "Track AI consumption, manage costs, and gain visibility into how your team interacts with the Assistant."
+description: "See how many AI credits your workspace spends on chat, investigations, and workflow steps, and who spends them."
 sidebar:
   order: 4
 ---
-Usage provides visibility into AI consumption across your workspace and helps you track how the Assistant is being used by your team, manage costs, and stay within quota limits.
+Open **Assistant → Usage** to see how many AI credits your workspace spent in the time range you pick, the last 7 days by default.
 
-![image](./images/usage-1.png)
+A chat message costs 1 AI credit, an investigation costs 5, and an [Ask KloudMate Assistant](/workflows/actions/#ask-kloudmate-assistant) step in a workflow costs 1 each time it answers. They all use the same AI credits.
 
-### Summary Metrics
+If your organization prepays for AI credits, the page also shows the credits available, and someone with the **Owner** role can click **Buy credits**.
 
-At the top of the page, four tiles give you a high-level snapshot of activity in the selected period:
+![The Usage tab under Assistant, with the AI credits available, summary tiles, and charts of daily credit usage](./images/usage-1.png)
 
-- **Total AI Credits:** The total number of AI credits consumed across all Assistant interactions.
-- **Chat Messages:** The total number of conversational messages sent to the Assistant.
-- **Investigations:** The total number of investigations triggered during the period.
-- **Usage Count by Agent:** A breakdown showing how many interactions were handled by each agent type.
+## Summary tiles
 
-### Daily AI Credits Usage
+- **Total AI Credits:** every credit spent in the range.
+- **Chat Messages:** credits spent on chat with the Assistant, not counting workflow steps.
+- **Investigations:** credits spent on investigations, at 5 credits each.
+- **Usage Count:** the number of **Messages Sent**, **Investigations**, and **Workflow Steps** in the range.
 
-A bar chart displays daily AI credit consumption over the selected period. This makes it easy to spot spikes in usage.
+## Daily charts
 
-### Usage by User
-
-A stacked bar chart breaks down daily credit consumption by individual user, identified by their email address. Use it to see which users are driving the most AI activity across the workspace.
-
-### Usage by Agent
-
-A separate chart shows daily credit consumption broken down by agent type, Chat Assistant versus Investigator. This is useful for understanding whether your team relies more on conversational queries or on deep investigation workflows, and can inform decisions around capacity planning and feature adoption.
+- **Daily AI Credits Usage** shows the credits spent each day.
+- **Usage by User** splits the daily credits by person, listed by email address. Credits from workflow steps aren't tied to a person.
+- **Usage by Agent** splits the daily credits between the **Chat Assistant**, the **Investigator**, and **Workflows**. **Chat Assistant** counts chat only, and **Workflows** counts **Ask KloudMate Assistant** steps.
+- **Usage by Type** splits the daily credits between **Chat**, **Investigations**, and **Workflows**.

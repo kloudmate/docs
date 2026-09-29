@@ -80,8 +80,8 @@ Action steps have a collapsible **Settings** section under their fields. Control
 | Setting | Default | What it does |
 |---|---|---|
 | **On failure** | Stop the workflow | **Go to the next step** records the error under `steps.<id>.error` and carries on. |
-| **Retry attempts** | 3, or 1 for the AI actions | At most 5. Not offered on an action that changes external state: those run once, so a failed write is never silently repeated. |
-| **Timeout** | 60s | How long one attempt may run, up to 15m. |
+| **Retry attempts** | 3, or 1 for **AI Prompt** and **AI Extract** | At most 5. Not offered on an action that changes external state: those run once, so a failed write is never silently repeated. |
+| **Timeout** | 60s, or 5m for **Ask KloudMate Assistant** | How long one attempt may run, up to 15m. **Ask KloudMate Assistant** stops at 5m even if you set it higher. |
 
 **No retries** gives the same default as leaving **Retry attempts** alone, so you can't set a read-only action to zero retries from the builder.
 

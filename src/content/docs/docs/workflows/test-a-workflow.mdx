@@ -16,7 +16,7 @@ The result is one of these:
 
 - **The step ran and returned.** Both panes fill in, and the output becomes the step's sample.
 - **The step ran and failed.** The panel shows the provider's own error.
-- **The step needs a real run.** **Run Command on Host** doesn't run its command from the Test tab. It shows the shape of its output with empty values instead, and saves that as the sample. Use [Test run](#test-the-whole-workflow) to run the command for real.
+- **The step needs a real run.** **Run Command on Host** and **Ask KloudMate Assistant** don't run from the Test tab. They show the shape of their output with empty values instead, and save that as the sample. Use [Test run](#test-the-whole-workflow) to run them for real.
 - **The test couldn't run at all.** Nothing ran, and the step isn't marked as failed. Try again.
 
 If any template resolved to nothing, the panel lists the paths under **Unresolved variables**. Fix those before you publish. Publishing catches a reference to a step that doesn't exist, but not a wrong path under a step that does, because a template that renders empty is still valid.
@@ -88,7 +88,7 @@ KloudMate can't fetch a pushed event on demand. When the workflow hasn't run on 
 
 `{{ trigger.* }}` comes from the trigger sample you saved, so capture a real payload once and replay it as often as you like. When there's a history of captured payloads, pick the one to replay under **Run against**. For a manual or form trigger, fill in the **Trigger inputs** instead.
 
-A test run does everything a real run does. It runs **Run Command on Host**, waits for real approvals and form submissions, waits out delays, and calls the published version of any workflow it calls. Run history marks it **Test**, so you can tell it apart from real traffic.
+A test run does everything a real run does. It runs **Run Command on Host** and **Ask KloudMate Assistant**, waits for real approvals and form submissions, waits out delays, and calls the published version of any workflow it calls. An **Ask KloudMate Assistant** step spends an AI credit in a test run too. Run history marks a test run **Test**, so you can tell it apart from real traffic.
 
 A test run also saves each step's output as that step's sample, including the steps of the workflows it calls, so you don't have to test them one by one. The new samples appear the next time you open the builder.
 
