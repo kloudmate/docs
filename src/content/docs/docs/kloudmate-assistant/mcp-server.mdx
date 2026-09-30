@@ -16,7 +16,7 @@ After you connect, your agent can chain KloudMate's query tools to investigate a
 
 ## Connection details
 
-The server is a single remote endpoint. You authenticate with a KloudMate [Personal API Key](../../platform/settings/api-keys/#personal-api-keys) passed as a bearer token, and name the workspace you want to read with an `x-workspace-id` header.
+The server is a single remote endpoint. You authenticate with a KloudMate [Personal API Key](../../platform/settings/api-keys/#personal-api-keys) passed as a bearer token, and set the workspace you want to read in an `x-workspace-id` header.
 
 | Setting | Value |
 |---|---|
@@ -182,7 +182,7 @@ Every tool is read-only. The server queries your telemetry; it never creates, ed
 **Service health (APM)**
 
 - `get_service_error_count`, `get_service_requests_count_and_avg_latency`: error counts, throughput, and average latency for a service.
-- `get_service_to_service_requests_count`, `get_service_to_service_failed_requests_count`, `get_service_to_service_request_duration`: request volume, failures, and latency between services, to scope a blast radius.
+- `get_service_to_service_requests_count`, `get_service_to_service_failed_requests_count`, `get_service_to_service_request_duration`: request volume, failures, and latency between services, to see which services a problem affects.
 
 **SLOs**
 
