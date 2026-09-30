@@ -246,14 +246,13 @@ Click **Save** to save the alert, or **Save & Close** to save it and return to t
 
 To open an alert, select its name on the **Rules** tab. The detail page has these tabs:
 
-![Alert detail page with the Overview, Instances, Blast radius, History, and Rule tabs](./images/alarm-detail-overview.png)
-
 - **Overview:** instance states, breaching instances with their labels, reason, and duration, plus recent state transitions.
 - **Instances:** the full list of alert instances and their current states.
-- **Blast radius:** the resources the alert's instances map to, and what those resources depend on.
 - **History:** the state-change history over time.
 - **Rule:** the alert configuration and query definition.
 
-![Blast radius tab on an alert rule](./images/alarm-detail-blast-radius.png)
+![The Overview tab of an alert rule: instance states, breaching instances with their value and last seen time, and recent transitions](./images/alarm-detail-overview.png)
+
+To see which resources the firing alerts affect, and what else is alerting around them, open their [alert group](../alert-groups/#affected-resources).
 
 The instance tables on **Overview** and **Instances** also show each instance's last evaluated value and when it was **Last seen**.

@@ -1,6 +1,6 @@
 ---
 title: "Alert Groups"
-description: "Group related alerts into a single notifiable incident, with firing instances, an audit log, and dispatched notifications all in one place."
+description: "Group related alerts into one incident, and see its affected resources, root cause analysis, instances, and notifications on one page."
 sidebar:
   order: 6
 ---
@@ -14,7 +14,7 @@ An Alert Group forms by static grouping or by the AI correlation engine. Both pr
 - **Static grouping** folds alerts together by the deterministic group-by keys on a routing rule. Alerts that share those label values land in one group.
 - **Auto (AI) grouping** hands the decision to the correlation engine, which links related alerts on its own and learns which alerts tend to fire together over time.
 
-You choose the mode per routing rule; see [Routing Rules](../routing-rules/#alert-grouping-static-or-auto-ai). For how membership is decided in each mode, and why a single rule firing on many hosts stays one Auto group, see [How Alert Grouping Works](../how-alert-grouping-works/). However a group forms, it behaves the same everywhere else on this page. An Auto-correlated group also records [why its alerts were grouped](#why-these-were-grouped).
+You choose the mode per routing rule; see [Routing Rules](../routing-rules/#alert-grouping-static-or-auto-ai). For how membership is decided in each mode, and why a single rule firing on many hosts stays one Auto group, see [How Alert Grouping Works](../how-alert-grouping-works/). However a group forms, it behaves the same everywhere else on this page. An Auto-correlated group also records [why its alerts were grouped](#grouped-by).
 
 ## Where to find groups
 
@@ -41,32 +41,100 @@ Severity isn't a filter on the list.
 
 A group carries:
 
-- **Title:** for a **Static** group, the rendered **Title** annotation when every instance that opened the group renders the same text, and otherwise the name of the alert that opened it. The correlation engine names an **Auto (AI)** group. See [Set a custom notification title](../annotations-and-severity/#set-a-custom-notification-title).
+- **Title:** for a **Static** group, the rendered **Title** annotation when every instance that opened the group renders the same text, and otherwise the name of the alert that opened it. An **Auto (AI)** group gets its title from the correlation engine. See [Set a custom notification title](../annotations-and-severity/#set-a-custom-notification-title).
 - **Severity:** the most severe **Severity** annotation among the instances that opened the group.
 - **State:** **Firing** while at least one underlying instance is firing, and **Resolved** as soon as none is. A firing group whose firing instances are **all silenced** stays **Firing** and is marked **Muted**. Muting gates notifications; it doesn't resolve the group.
 - **Labels:** the labels that define the group, read from the alerts that joined it (the group-by keys, in Static mode).
 - **Alerts and instances:** how many distinct alerts and firing instances the group holds so far.
 - **Routing rule:** the rule that opened the group.
 - **Group ID:** the durable identifier you can share with teammates or paste into the assistant.
-- **Correlation reason:** for an Auto-correlated group, why these alerts were grouped. See [Why these were grouped](#why-these-were-grouped).
+- **Grouped by:** for an Auto-correlated group, why its alerts were grouped. See [Grouped by](#grouped-by).
 - **Investigation:** a root-cause investigation, when one is attached. Start it manually with **Run RCA**, or automatically with [Auto-RCA](../auto-rca/); see [Run RCA and View RCA](#run-rca-and-view-rca).
 
 ## Group detail
 
 Click a group's title to open its detail page.
 
-![Alert group detail page: the Run RCA, Ask Assistant, and Silence this group buttons above the Instances panel](./images/alert-group-detail.png)
+![An alert group's detail page: the facts row with Grouped by and the Correct and Wrong buttons, the Root cause analysis card, and the Affected resources table](./images/alert-group-detail.png)
 
 ### Header
 
-- **Title:** named from the alerts that opened the group. See [Anatomy of a group](#anatomy-of-a-group).
 - **Run RCA / View RCA:** starts or opens a root-cause investigation for the group. See [Run RCA and View RCA](#run-rca-and-view-rca).
 - **Ask Assistant:** opens the assistant chat panel with the group's labels, state, alert and instance counts, and routing rule pre-loaded into the prompt, so you can start investigating without retyping context.
 - **Silence this group:** opens the silence creator with matchers derived from the group, bound to the group so the silence lifts when the group resolves. The binding sets when the silence ends, not what it mutes: the silence covers any alert in the workspace whose labels match its matchers, group member or not. See [From an Alert Group](../silences/#from-an-alert-group).
 
+### Facts
+
+The row under the title shows the group's **Status** and how long it has been in that state, how many **Instances** are firing, the **Last update**, and the routing rule under **Routed by**. Click the rule to open it.
+
+On an **Auto (AI)** group with more than one instance, the row also shows the **Grouped by** reason and the **Was this grouping correct?** buttons. A **Static** group has neither.
+
+### Grouped by
+
+**Grouped by** shows the strongest reason the correlation engine put these alerts together: **Same alert**, **Shared label**, **Fired together**, **Known cascade**, **Topology**, or **AI**. For what each reason means, see [Why alerts group in Auto mode](../how-alert-grouping-works/#why-alerts-group-in-auto-mode).
+
+Hover over the reason to see the details: a sentence that explains the grouping, the likely root resource when there is one, the labels the alerts share, and any further reasons. For example, a group can show "Fired together 14 times in the last 30 days" or "Alerts on directly connected resources: pods and deployments."
+
+### Cold start
+
+A new workspace has little co-occurrence history for the engine to learn from, so it leaves most alerts as separate groups of one, with no **Grouped by** reason. That's expected. Correlation strengthens over the following days as the engine sees which alerts tend to fire together.
+
+### Rate the grouping
+
+Under **Was this grouping correct?**, click **Correct** or **Wrong**. When you click **Wrong**, pick the alert that doesn't belong, or mark the whole group as wrong.
+
+Your answer trains the correlation engine: a **Wrong** answer makes it less likely to pair those alerts again, and **Correct** reinforces the grouping. The current group doesn't change.
+
+### Run RCA and View RCA
+
+The root-cause button's label depends on whether an investigation is attached:
+
+- **Run RCA:** shown when no investigation is attached. It starts a root-cause investigation for the group on demand.
+- **View RCA:** shown once an investigation is attached. It opens the full analysis in a side panel, with a link to the full investigation.
+
+When an investigation is attached, a **Root cause analysis** card appears under the facts row. It gives a short overview and the numbered findings, each with its confidence, such as **Medium confidence**. Click **Read full analysis** to open the side panel.
+
+This is the manual trigger. To investigate every group a rule opens automatically instead, enable [Auto-RCA](../auto-rca/) on the routing rule. The result appears in the same card and under **View RCA**.
+
+![View RCA drawer with the root-cause summary and a View full investigation link](./images/alert-group-rca-drawer.png)
+
+### Affected resources
+
+**Affected resources** lists the resources that the group's alerts are about, one row per resource. The resource that started firing first is at the top, because in a cascade the first to fire is usually the closest to the cause.
+
+Each row shows the resource, its type, and where it runs, such as a Kubernetes cluster and namespace. For a Kubernetes workload, **Pod that fired** shows the pod and the node it runs on. A red dot next to the node means the node has alerts of its own. Hover over the dot to see them.
+
+Expand a row to see what the resource connects to, grouped by relation, such as **Runs on** or **Talks with**, with how many of those resources are alerting. A connected resource that belongs to this group is marked **In this group**.
+
+If an alert doesn't match any resource, it's counted under the table. Hover over the count to see why.
+
+### Related alerts and resources
+
+The **Related** card lists clues to the cause from around the affected resources:
+
+- **Nodes with alerts:** nodes that run a pod that fired and have alerts of their own.
+- **Connected resources with alerts:** resources that the affected resources connect to and that have alerts of their own. Resources that the affected resources depend on come first, because they're more likely to be the cause.
+- **Other alerts on the affected resources:** alerts outside this group that are firing on the same resources.
+- **Shared resources with no alerts:** resources that two or more affected resources connect to, such as a database that two workloads both talk to.
+
+When a tooltip on this page lists alert rules, click a rule to open it in a new tab.
+
+![The Related card listing nodes with alerts, a connected resource with alerts, and other alerts on the affected resources, above the Instances, Alerts, Notifications, and Audit tabs](./images/alert-group-related.png)
+
+### Tabs
+
+Each tab shows how many items it holds, such as **Instances (7)**.
+
+- **Instances:** every unique alert instance in the group. See [Instances](#instances).
+- **Alerts:** one row per alert rule in the group, with its state, how many of its instances are firing, and when it was last seen. The alert name links to its rule when the alert is KloudMate-native.
+- **Notifications:** every notification sent for the group, reminders included, with each channel's result and a link to where it landed: the Slack thread, the Jira ticket, the KloudMate Incidents incident, and so on.
+- **Audit:** a timeline of the group's history, from when it opened to when it resolved. It records each notification and reminder sent, notifications suppressed by a silence or skipped, and investigations. For Auto-correlated groups, it also logs when the engine opened the group and when it correlated each alert.
+
+![Reminder on an alert group Audit tab](./images/alert-group-audit-reminder.png)
+
 ### Instances
 
-The **Instances** panel lists the unique alert instances in this group. Filter it by **All**, **Firing**, or **Resolved**; it shows **Firing** instances by default.
+The **Instances** tab lists the unique alert instances in this group. It opens on the **Firing** instances, or on **All** of them when the group is resolved. Filter it by **All**, **Firing**, or **Resolved**.
 
 - **Common labels:** labels shared by every instance, so the per-row labels column only shows what varies.
 - **Columns:**
@@ -76,53 +144,7 @@ The **Instances** panel lists the unique alert instances in this group. Filter i
   - **Instance labels:** the labels that distinguish this instance from its siblings (common labels are stripped out).
   - **Since:** how long this instance has been in its current state.
 
-Use this panel to see what's firing inside the group at a glance. Switch to **All** to see, for example, that service A's `prod` and `staging` are firing while `dev` has already recovered.
-
-### Run RCA and View RCA
-
-The root-cause button's label depends on whether an investigation is attached:
-
-- **Run RCA:** shown when no investigation is attached. It starts a root-cause investigation for the group on demand.
-- **View RCA:** shown once an investigation is attached. It opens the root-cause summary, which links to the full investigation.
-
-This is the manual trigger. To investigate every group a rule opens automatically instead, enable [Auto-RCA](../auto-rca/) on the routing rule; the result appears under the same **View RCA**.
-
-![View RCA drawer with the root-cause summary and a View full investigation link](./images/alert-group-rca-drawer.png)
-
-### Tabs
-
-- **Alerts:** one row per alert rule in the group, with its state, how many of its instances are firing, and when it was last seen. The alert name links to its rule when the alert is KloudMate-native.
-- **Blast radius:** what the group's firing resources connect to. See [Blast radius](#blast-radius).
-- **Audit:** a timeline of the group's history, from when it opened to when it resolved. It records each notification and reminder sent, notifications suppressed by a silence or skipped, and investigations. For Auto-correlated groups, it also logs when the engine opened the group and when it correlated each alert.
-- **Notifications:** every notification sent for the group, reminders included, with each channel's result and a link to where it landed: the Slack thread, the Jira ticket, the KloudMate Incidents incident, and so on.
-
-![Reminder on an alert group Audit tab](./images/alert-group-audit-reminder.png)
-
-### Blast radius
-
-The **Blast radius** tab resolves the group's firing alerts to the resources they name, then graphs what each one depends on, so you can see how far the incident reaches.
-
-Each affected resource anchors its own graph, its neighbors connected by labeled edges: **runs on**, **talks to**, **calls**. Neighbors of the same kind collapse into one node (for example, *116 Pods · runs on*) that you click to list them.
-
-The same graph appears on a single alert's **Blast radius** tab and on a resource's **Dependencies** tab in Cloud Inventory. An empty graph means KloudMate hasn't mapped a connection yet, not that the lookup failed. When nothing is firing or the alerts don't match a known resource, there's no graph to draw.
-
-![The Blast radius tab: a row of affected resource chips above a graph of each resource and what it runs on](./images/alert-group-blast-radius.png)
-
-### Why these were grouped
-
-**Why these were grouped** gives the reason in plain English, the shared labels, and supporting detail.
-
-This reason appears only when the engine grouped more than one alert instance, either several alerts or the same alert firing on multiple targets. A lone instance the engine left on its own has none, which is expected (see [Cold start](#cold-start)).
-
-### Cold start
-
-A new workspace has little co-occurrence history for the engine to learn from, so it leaves most alerts as separate singletons with no correlation chip. That's expected, not a failure. Correlation strengthens over the following days as the engine sees which alerts tend to fire together.
-
-### Feedback
-
-You can rate the grouping **Correct** or **Wrong**.
-
-Choosing **Wrong** lets you point at the specific alert that doesn't belong, or mark the whole group as wrong. That feedback trains the correlation engine: a **Wrong** verdict makes it less likely to pair those alerts again, and **Correct** reinforces the grouping.
+Use this tab to see what's firing inside the group at a glance. Switch to **All** to see, for example, that service A's `prod` and `staging` are firing while `dev` has already recovered.
 
 ## When a group resolves
 

@@ -19,7 +19,7 @@ One alert rule can fire on many targets at once. A `High CPU` rule fires once pe
 
 Every alert runs through a [routing rule](../routing-rules/), and each rule groups its alerts one of two ways.
 
-**Static** grouping is deterministic: you name the labels, and alerts that share those values land together. **Auto (AI)** grouping hands the decision to the correlation engine, which links related alerts on its own and learns which of your alerts tend to fire together over time.
+**Static** grouping is deterministic: you pick the labels, and alerts that share those values land together. **Auto (AI)** grouping hands the decision to the correlation engine, which links related alerts on its own and learns which of your alerts tend to fire together over time.
 
 | | **Static** | **Auto (AI)** |
 |---|---|---|
@@ -48,15 +48,15 @@ Some rules you *do* want split per host, like a disk-filling-up check. Switch th
 
 Auto grouping analyzes each burst of alerts and links them on the strongest connection it can find, in this order:
 
-1. **Same rule:** every firing of one rule (always together, as above).
-2. **Same identity label:** firings that share a `key=value`, like `pod=api-7`.
-3. **Fire together often:** alerts with a track record of going off at the same time.
-4. **Cause and effect:** a known pattern where trouble in one resource sets off another.
-5. **Connected resources:** the two are linked in the dependency graph.
-6. **AI grouping:** a machine-learning model makes the call on whatever's left.
+1. **Same alert:** every firing of one rule (always together, as above).
+2. **Shared label:** firings that share a `key=value`, like `pod=api-7`.
+3. **Fired together:** alerts with a track record of going off at the same time.
+4. **Known cascade:** a known pattern where trouble in one resource sets off another.
+5. **Topology:** the alerts are on resources that are directly connected.
+6. **AI:** a machine-learning model makes the call on whatever's left.
 7. **On its own:** nothing links it, so it stays a group of one.
 
-However alerts link, the group shows the reason under [**Why these were grouped**](../alert-groups/#why-these-were-grouped), naming the strongest connection that covers the whole group. The engine also learns continuously: a new workspace starts with less history, and grouping gets more precise over the first few days as the model sees which alerts travel together. See [Cold start](../alert-groups/#cold-start).
+However alerts link, the group's [**Grouped by**](../alert-groups/#grouped-by) fact shows the strongest connection that covers the whole group. Hover over it for the details, such as "Fired together 14 times in the last 30 days." The engine also learns continuously: a new workspace starts with less history, and grouping gets more precise over the first few days as the model sees which alerts travel together. See [Cold start](../alert-groups/#cold-start).
 
 ## How Auto grouping behaves
 
@@ -71,4 +71,4 @@ Auto grouping follows a few predictable rules:
 ## Related
 
 - [Routing Rules](../routing-rules/): set the grouping mode and Group-by keys.
-- [Alert Groups](../alert-groups/): the group you get, and where the grouping reason shows.
+- [Alert Groups](../alert-groups/): the group you get, and where its **Grouped by** reason shows.

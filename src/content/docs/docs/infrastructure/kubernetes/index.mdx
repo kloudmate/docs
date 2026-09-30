@@ -7,7 +7,7 @@ sidebar:
 ---
 Kubernetes Monitoring in KloudMate gives you visibility into cluster health, workload availability, resource usage, pod behavior, and related telemetry collected by the KloudMate Agent.
 
-KloudMate organizes Kubernetes data into tabs for clusters, nodes, namespaces, pods, storage, workloads, and jobs, so you can move from fleet-level health to pod-level troubleshooting quickly.
+KloudMate organizes Kubernetes data into tabs for clusters, nodes, namespaces, pods, storage, workloads, and jobs, plus a map of the traffic between workloads, so you can move from fleet-level health to pod-level troubleshooting quickly.
 
 ## What This Covers
 
@@ -88,6 +88,27 @@ The **Workloads** tab lists deployments, daemonsets, statefulsets, and other wor
 The **Jobs** tab lists Jobs across your clusters, with their status, completions (succeeded out of desired, the same count `kubectl` shows), and active, failed, and parallelism counts. Filter by cluster, namespace, or status to find Jobs that failed or haven't completed. To list CronJobs instead, select **CronJob** as the job type. Each CronJob shows its cluster, namespace, and number of active jobs.
 
 ![Jobs tab in Kubernetes](./images/kubernetes-jobs-tab.png)
+
+### Map
+
+The **Map** tab shows how the workloads in a cluster talk to each other. Pick a cluster, then pick a namespace or keep **All namespaces**.
+
+- **All namespaces** shows one box per namespace, with how many workloads and Services it has and how many of them are alerting. A line joins two namespaces whose workloads talk to each other. Click a namespace to open its map.
+- **A single namespace** shows its Deployments, StatefulSets, DaemonSets, and Services, with a line between each pair that talks. Workloads and Services in other namespaces that they talk to are dimmed. Click one to open its namespace.
+
+Click a workload or Service to open a side panel with its firing alerts, what it connects to, and **Open in Kubernetes** (**Open in Inventory** for a Service).
+
+The map draws workloads and Services that sent data in the last 2 hours, up to 200 at a time. In a larger cluster, pick a namespace to see all of them. Nodes aren't drawn. In a namespace, workloads and Services with no traffic are counted under the map instead, with a link to the namespace.
+
+The lines come from network flow data that the KloudMate agent collects with eBPF, so the nodes need a kernel that supports it. See [eBPF requirements](../../kloudmate-agent/ebpf-observability/#deployment-modes-and-requirements). Without flow data, the map draws no lines and notes that the cluster sends no traffic data.
+
+## See what a resource connects to
+
+Open a node, pod, Deployment, StatefulSet, or DaemonSet, and select the **Topology** tab, the last tab in the drawer. It lists what the resource connects to, grouped by relation, such as **Talks with** for network traffic and **Runs here** for what runs on a node.
+
+Each group shows how many of its resources are alerting, and a group with alerting resources opens by default. Hover over a resource's **firing** count to see its alerts, and click an alert to open its rule in a new tab. Resources not seen in the last 2 hours are counted but not listed.
+
+![The Topology tab of a Kubernetes node, with Talks with expanded to show the hosts and workloads the node talks with and their firing alerts](./images/kubernetes-topology-tab.png)
 
 ## Find resources that stopped reporting
 
