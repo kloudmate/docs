@@ -1,6 +1,6 @@
 ---
 title: "GitOps-managed clusters"
-description: "Trace Kubernetes workloads that Argo CD or Flux reconciles, with eBPF, a namespace annotation, a committed annotation, or your own policy engine."
+description: "Trace Kubernetes workloads that Argo CD or Flux manages, with eBPF, a namespace annotation, a committed annotation, agent patching, or your own policy engine."
 sidebar:
   label: "GitOps clusters"
   order: 11
@@ -8,7 +8,7 @@ sidebar:
 
 import { LinkCard, CardGrid } from '@astrojs/starlight/components';
 
-Argo CD and Flux reconcile a cluster back to what's in git. The KloudMate agent detects the workloads they own and doesn't write to them, so you can't turn on **SDK** tracing for them from KloudMate. You can still trace them. Start with eBPF mode and work down the list.
+Argo CD and Flux keep your cluster matched to what's in git. The KloudMate agent detects the workloads they manage and doesn't change them, so you can't turn on **SDK** tracing for those workloads from KloudMate. You can still trace them in other ways. Start with eBPF mode and work down the list.
 
 | Approach | Pods restart | Repo change | Argo CD or Flux change |
 |---|---|---|---|
@@ -20,27 +20,27 @@ Argo CD and Flux reconcile a cluster back to what's in git. The KloudMate agent 
 
 ## Why the agent doesn't patch these workloads
 
-To turn on SDK tracing, the agent adds an OpenTelemetry Operator annotation to the workload's pod template. Your controller reverts anything that didn't come from git, and the agent would re-add it on the next check-in. Every revert and re-patch changes the pod template, so your pods would roll once a minute, and nothing would show up as an error.
+To turn on SDK tracing, the agent adds an OpenTelemetry Operator annotation to the workload's pod template. Your controller removes anything that didn't come from git, and the agent would add the annotation again on the next check-in. Each change to the pod template restarts the pods, so they would restart once a minute, and nothing would show up as an error.
 
-The agent reads ownership from the markers each controller adds to the workload. Argo CD's tracking annotation, an Argo-prefixed instance label, and Flux's kustomize-controller and helm-controller labels all name their controller outright, so they count on any cluster.
+The agent checks the markers that each controller adds to a workload. Argo CD's tracking annotation, an Argo-prefixed instance label, and the labels that Flux's kustomize-controller and helm-controller add all identify the controller directly, so the agent trusts them on any cluster.
 
-Argo CD installs that use label-based resource tracking are the exception. They mark a workload with `app.kubernetes.io/instance` and nothing else, and plain Helm charts set that same label, so the agent counts it only on a cluster where Argo CD itself is running. That cuts both ways: on such a cluster, a workload you installed with Helm and never put under Argo CD carries the label too, and shows as Argo-managed. Any of the options below still instruments it.
+Argo CD with label-based resource tracking is the exception. It marks a workload only with the `app.kubernetes.io/instance` label, and plain Helm charts set the same label. So the agent trusts this label only on a cluster where Argo CD itself runs. On such a cluster, a workload that you installed with Helm and never put under Argo CD also shows as managed by Argo CD. Any of the options below still instruments it.
 
 :::note[When Argo CD runs outside the cluster]
-A central Argo CD that manages this cluster from elsewhere installs nothing in it, so the agent can't tell that Argo CD is involved. With annotation tracking, detection still works, because the tracking annotation travels with each resource. With label tracking there's nothing for the agent to go on, so it keeps patching those workloads and rolling their pods.
+A central Argo CD that manages this cluster from somewhere else installs nothing in it, so the agent can't see Argo CD. With annotation tracking, detection still works, because each resource carries the tracking annotation. With label tracking, the agent finds no marker, so it keeps patching those workloads and restarting their pods.
 
-Annotation tracking is the default from Argo CD 3.0. On an older instance, switch `application.resourceTrackingMethod` to `annotation`, migrating through `annotation+label`. Or use any of the options below, none of which depend on detection.
+Annotation tracking is the default from Argo CD 3.0. On an older version, set `application.resourceTrackingMethod` to `annotation+label` first, then to `annotation`. You can also use any of the options below, because none of them depend on detection.
 :::
 
 ## Check whether a workload is externally managed
 
-Open the cluster's agent settings in KloudMate and find **Application instrumentation**. Workloads that Argo CD or Flux owns show as managed by that controller. The rest of the list behaves normally, so a cluster running Argo CD can still have workloads the agent instruments for you.
+Go to **Settings → Agents**, open the cluster agent's actions menu (⋮), and select **Configure**. On the **APM** tab, the **Application instrumentation** card shows **Managed by Argo CD** or **Managed by Flux** on each workload that one of them manages. Other workloads work as usual, even on a cluster that runs Argo CD.
 
 ## Turn on eBPF mode
 
-Set the workload to **eBPF** in **Application instrumentation** and apply. The change takes effect on the next agent check-in. The agent writes nothing to your cluster objects, your manifests don't change, and no pods restart, because eBPF attaches to processes that are already running.
+Set the workload to **eBPF** in **Application instrumentation** and click **Apply**. The change takes effect on the next agent check-in. The agent doesn't change your cluster objects or your manifests, and no pods restart, because eBPF attaches to processes that are already running.
 
-You get request rate, errors, duration, and trace spans. What you don't get is the in-process detail an SDK adds, such as spans for your database queries, framework internals, and outbound HTTP calls. For Go, Ruby, and PHP, eBPF is the only option on Kubernetes, whatever manages the workload, because the OpenTelemetry Operator has no injector for those runtimes. Those workloads aren't traced until you select eBPF for each one.
+You get request rate, errors, duration, and trace spans. You don't get the in-process detail that an SDK adds, such as spans for database queries, framework internals, and outbound HTTP calls. For Go, Ruby, and PHP, eBPF is the only option on Kubernetes, whatever manages the workload, because KloudMate doesn't inject an SDK for those runtimes there. Those workloads aren't traced until you select eBPF for each one.
 
 ## Annotate the namespace
 
@@ -62,14 +62,14 @@ metadata:
     instrumentation.opentelemetry.io/inject-java: km-agent/km-agent-instrumentation-crd
 ```
 
-Under Argo CD, the namespace is often created by the `CreateNamespace=true` sync option rather than declared in the app repo. If yours is created that way, the Namespace object isn't part of any Application's desired state, so annotating it doesn't count as drift and nothing reverts it.
+Under Argo CD, the `CreateNamespace=true` sync option often creates the namespace, instead of a manifest in the app repo. If yours is created that way, the Namespace object isn't part of any Application's desired state, so annotating it doesn't count as drift and nothing reverts it.
 
-The annotation doesn't change running pods. New pods get the injection, so delete the running ones or wait for the next deploy. Deleting pods doesn't create drift, because your controller reconciles the Deployment, not the pods it creates.
+The annotation doesn't change running pods. New pods get the injection, so delete the running ones or wait for the next deploy. Deleting pods doesn't create drift, because your controller manages the Deployment, not the pods it creates.
 
-Know the limits before you use this:
+Keep these limits in mind:
 
 - **Every pod in the namespace gets injected**, including short-lived jobs.
-- **One runtime per namespace.** The annotation names a single language. If a namespace holds a Java service and a Python service, this covers only one of them.
+- **One runtime per namespace.** The annotation sets a single language. If a namespace holds a Java service and a Python service, this covers only one of them.
 - **.NET runtime options come from the pod only.** If a .NET workload needs one, put it on that workload's pod template.
 
 ## Commit the annotation
@@ -84,13 +84,13 @@ spec:
         instrumentation.opentelemetry.io/inject-java: km-agent/km-agent-instrumentation-crd
 ```
 
-Your controller applies it on the next sync, and the pods roll once. Argo CD and Flux need no extra configuration, because the annotation is now part of the desired state rather than a difference from it.
+Your controller applies it on the next sync, and the pods restart once. Argo CD and Flux need no extra configuration, because the annotation is part of the desired state.
 
-Set that workload to **SDK** in **Application instrumentation** as well. The agent still won't write to it. The selection keeps the workload tracked in KloudMate, and once your controller syncs the annotation the workload reports as **Instrumented**.
+Also set that workload to **SDK** in **Application instrumentation**. The agent still doesn't change the workload. The setting keeps the workload tracked in KloudMate, and after your controller syncs the annotation, the workload shows as **Instrumented**.
 
 ## Allow the agent to patch these workloads
 
-If you'd rather keep the per-workload toggle in KloudMate, configure Argo CD to accept the agent's annotation, then turn the agent's patching back on. You need both of the Argo CD settings below.
+If you'd rather keep the per-workload toggle in KloudMate, set up Argo CD to accept the agent's annotation, then turn the agent's patching back on. You need both of the Argo CD settings below.
 
 First, ignore the inject annotations in the `argocd-cm` ConfigMap:
 
@@ -121,10 +121,10 @@ spec:
 ```
 
 :::caution
-`ignoreDifferences` on its own only changes what Argo CD reports as drift. Self-heal still reverts the annotation, so the pods keep rolling while the Argo CD UI shows the Application as synced. `RespectIgnoreDifferences=true` keeps the field out of the sync itself.
+`ignoreDifferences` on its own only changes what Argo CD reports as drift. Self-heal still reverts the annotation, so the pods keep restarting while the Argo CD UI shows the Application as synced. `RespectIgnoreDifferences=true` keeps the field out of the sync itself.
 :::
 
-With both in place, turn the agent's patching back on with the `patchExternallyManagedWorkloads` Helm value:
+With both settings in place, turn the agent's patching back on with the `patchExternallyManagedWorkloads` Helm value:
 
 ```bash
 helm upgrade kloudmate-release kloudmate/km-kube-agent \
@@ -132,13 +132,13 @@ helm upgrade kloudmate-release kloudmate/km-kube-agent \
   --set patchExternallyManagedWorkloads=true
 ```
 
-In the fleet-manager pod spec, this shows up as `KM_K8S_APM_PATCH_MANAGED=true`. It's a cluster-wide switch, so any Application left without the exception above reverts the annotation again and rolls its pods. Those workloads also stop showing as managed by Argo CD in **Application instrumentation**, and go back to reporting the usual instrumentation status.
+This value applies to the whole cluster. If an Application doesn't have the settings above, Argo CD reverts the annotation and the Application's pods keep restarting. With the value on, workloads that Argo CD manages no longer show **Managed by Argo CD** in **Application instrumentation**. They show their usual instrumentation status instead.
 
-These steps are specific to Argo CD. On Flux, exclude the same annotation from drift correction before you set the variable, or Flux reverts the agent's patches again.
+These steps are for Argo CD. On Flux, exclude the same annotations from drift correction before you turn on `patchExternallyManagedWorkloads`, or Flux reverts the agent's changes.
 
 ## Use your own policy engine
 
-If you already run Kyverno, have it add the annotation to pods at admission:
+If you already run Kyverno, have it add the annotation to pods when they're created:
 
 ```yaml
 apiVersion: kyverno.io/v1
@@ -162,17 +162,17 @@ spec:
               instrumentation.opentelemetry.io/inject-java: km-agent/km-agent-instrumentation-crd
 ```
 
-Argo CD and Flux compare Deployments, not the pods those Deployments create, so a policy that annotates pods never shows up as drift. The OpenTelemetry documentation suggests the same pattern, and KloudMate needs no configuration for it. As with the namespace annotation, running pods pick it up when they're recreated.
+Argo CD and Flux compare Deployments, not the pods those Deployments create, so a policy that annotates pods never shows up as drift. The OpenTelemetry documentation suggests the same pattern, and KloudMate needs no configuration for it. As with the namespace annotation, running pods get the annotation when they're recreated.
 
 ## Install the agent on a GitOps cluster
 
-`helm install` is the tested path, and it keeps the agent-update button in the KloudMate dashboard working. See the [Kubernetes installation guide](../../installation/kubernetes-agent/).
+Install the agent with Helm, as shown in the [Kubernetes installation guide](../../installation/kubernetes-agent/).
 
-To manage the agent through Argo CD instead, its Application needs these settings:
+To manage the agent through Argo CD instead, set these on its Application:
 
-- **`ignoreDifferences` on the agent's own ConfigMaps.** The agent writes each collector's live configuration into the `/data/agent-daemonset.yaml` and `/data/agent-deployment.yaml` keys of `km-agent-configmap-daemonset` and `km-agent-configmap-deployment`. Argo CD renders the chart without reading the cluster, so every sync would otherwise push those collectors back to the configuration the chart ships.
-- **The destination namespace set to `km-agent`.** The chart hardcodes that namespace on the Instrumentation resource that the inject annotation points at (`km-agent/km-agent-instrumentation-crd`).
-- **`SkipDryRunOnMissingResource=true`** in the sync options. On the first sync, Argo CD applies the Instrumentation resource in the same wave that installs the OpenTelemetry Operator's CRDs, and the dry run fails without it.
+- **`ignoreDifferences` on the agent's own ConfigMaps.** The agent writes each collector's live configuration into the `/data/agent-daemonset.yaml` and `/data/agent-deployment.yaml` keys of `km-agent-configmap-daemonset` and `km-agent-configmap-deployment`. Argo CD renders the chart without reading the cluster, so without this setting, every sync resets the collectors to the configuration in the chart.
+- **The destination namespace set to `km-agent`.** The chart always creates the Instrumentation resource in `km-agent`, and the inject annotation points to it as `km-agent/km-agent-instrumentation-crd`.
+- **`SkipDryRunOnMissingResource=true`** in the sync options. On the first sync, Argo CD applies the Instrumentation resource in the same wave that installs the OpenTelemetry Operator's CRDs, and the dry run fails without this option.
 
 ```yaml
 spec:
