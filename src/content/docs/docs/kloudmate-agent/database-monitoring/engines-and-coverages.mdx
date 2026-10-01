@@ -47,6 +47,23 @@ Some coverages need a one-time setup step on the database. The wizard shows you 
 
 If a prerequisite is missing, the agent reports it and the other coverages keep working.
 
+### Keep a `postgres` database on managed PostgreSQL
+
+The agent connects to the database named `postgres` to read server-wide statistics and query performance. These statistics cover every database on the server, so the data you see still comes from your application databases.
+
+Managed services such as Amazon RDS, Aurora, Cloud SQL, and Azure Database for PostgreSQL usually create `postgres` for you. If it was dropped, or the instance only has an application database, the agent logs `pq: database "postgres" does not exist (3D000)` and query performance and some metrics panels stay empty.
+
+To fix it, connect as an administrator and create an empty `postgres` database with `pg_stat_statements` in it:
+
+```sql
+CREATE DATABASE postgres;
+\c postgres
+CREATE EXTENSION IF NOT EXISTS pg_stat_statements;
+GRANT CONNECT ON DATABASE postgres TO kmmonitor;
+```
+
+Replace `kmmonitor` with your monitoring user. KloudMate doesn't write anything to this database. You don't need to restart the agent; data appears on the next collection.
+
 ## Filtering database logs
 
 Database logs carry a `km.db.coverage` attribute set to the coverage they came from, such as `query-performance`, `server-logs`, or `slow-log`. You can filter database logs by this attribute in Log Explorer.
