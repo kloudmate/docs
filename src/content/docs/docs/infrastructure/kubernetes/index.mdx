@@ -102,6 +102,8 @@ The map draws workloads and Services that sent data in the last 2 hours, up to 2
 
 The lines come from network flow data that the KloudMate agent collects with eBPF, so the nodes need a kernel that supports it. See [eBPF requirements](../../kloudmate-agent/ebpf-observability/#deployment-modes-and-requirements). Without flow data, the map draws no lines and notes that the cluster sends no traffic data.
 
+![The Map tab in Kubernetes, with one box per namespace, their workload and Service counts, alerting counts, and lines between namespaces that talk to each other](./images/kubernetes-map-tab.png)
+
 ## See what a resource connects to
 
 Open a node, pod, Deployment, StatefulSet, or DaemonSet, and select the **Topology** tab, the last tab in the drawer. It lists what the resource connects to, grouped by relation, such as **Talks with** for network traffic and **Runs here** for what runs on a node.
