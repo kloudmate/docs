@@ -18,18 +18,16 @@ Lambda logs from the connected AWS account are ingested automatically.
 
 ## Subscribe a CloudWatch Log Group
 
-1. From the KloudMate home screen, open **Settings -> Data Sources**.
-2. In the list of connected AWS accounts, click the more options (⋮) icon for the account you want to ingest CloudWatch logs from, then select **CloudWatch Logs**.
+1. Go to **Settings → Data Sources**.
+2. On the card of the AWS account you want to ingest logs from, open the menu (⋮) and select **CloudWatch Logs**.
 
-![image](./images/subscribing-to-aws-cloudwatch-logs-1.png)
+![A connected AWS account card on the Data Sources page, with its menu open and CloudWatch Logs highlighted.](./images/subscribing-to-aws-cloudwatch-logs-1.png)
 
-3. Choose the AWS region or use search to find the log groups you want.
+3. Pick the AWS region, or search for a log group by name. The list shows each log group's name, stored bytes, and creation time.
 
-![image](./images/subscribing-to-aws-cloudwatch-logs-2.png)
+![The CloudWatch Logs page, with the region picker and log group search highlighted above the list of log groups.](./images/subscribing-to-aws-cloudwatch-logs-2.png)
 
 4. Click **Subscribe** for each log group that you want KloudMate to ingest.
-
-![image](./images/subscribing-to-aws-cloudwatch-logs-3.png)
 
 ## CloudWatch Subscription Filter Limit
 
@@ -39,14 +37,12 @@ AWS allows only two subscription filters per log group.
 
 If a log group already has two active subscription filters, KloudMate cannot add another one until an existing filter is removed.
 
-![image](./images/subscribing-to-aws-cloudwatch-logs-4.png)
-
 ## Remove an Existing Subscription Filter
 
 To free a subscription slot:
 
 1. Open the AWS console.
-2. Go to **CloudWatch -> Log groups**.
+2. Go to **CloudWatch → Log groups**.
 3. Select the relevant log group.
 4. Open **Actions**.
 5. Click **Remove Subscription Filter**.

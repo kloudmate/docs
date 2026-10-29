@@ -11,23 +11,23 @@ The KloudMate Agent is managed centrally from the web UI, so there is no need to
 
 The KloudMate agent's landing page lets you view, add, and manage agents. After an agent is integrated, it appears in the table:
 
-![image](./images/managing-kloudmate-agents-3.png)
+![The Manage KloudMate Agents page, listing each agent's host, status, mode, agent version with an Update available badge where newer, and when it was last seen.](./images/managing-kloudmate-agents-3.png)
 
 - **Host:** The agent's host machine name, with its platform and architecture underneath (for example, `Linux · amd64`).
-- **Status:** The agent's current reachability, such as **Healthy** or **Unreachable**, plus a **Restart pending** tag while a restart is in progress.
+- **Status:** **Healthy** when the agent is checking in and its collector is running, **Stopped** when the agent is checking in but its collector isn't running, or **Unreachable** when the agent has stopped checking in. A **Restart pending** tag appears while a restart is in progress.
 - **Mode:** Whether the agent is in **Managed** or **Manual** configuration mode. See [Managed and manual mode](#managed-and-manual-mode).
-- **Agent Version:** Version of the KloudMate agent used during integration.
+- **Agent Version:** The version the agent is running. **Update available** appears next to it when a newer release is out. See [Upgrade the agent](#upgrade-the-agent).
 - **Last Seen:** How long ago the agent last checked in.
 
 ## Adding a New Agent
 
 1. Click the **Add Agent** button located at the top-right corner of the page.
 
-![image](./images/managing-kloudmate-agents-1.png)
+![The Add Agent button at the top right of the Manage KloudMate Agents page.](./images/managing-kloudmate-agents-1.png)
 
 2. Choose where you want to install the agent.
 
-![image](./images/managing-kloudmate-agents-2.png)
+![The Install KloudMate Agent page asking where the agent should be installed, with Linux, Docker, Windows, Kubernetes, and Amazon ECS options.](./images/managing-kloudmate-agents-2.png)
 
 :::note
   After choosing a platform, refer to the corresponding installation guide:
@@ -46,10 +46,11 @@ The agent watches for remote configuration changes over a secure connection and 
 
 Open the actions menu (⋮) for an agent to manage it:
 
-![image](./images/managing-kloudmate-agents-4.png)
+![An agent's actions menu with Configure, Restart agent, Uninstall, and Delete.](./images/managing-kloudmate-agents-4.png)
 
 - **Configure:** Opens the agent's Configuration page, with tabs for **APM**, **Databases**, **Logs**, **Processes**, **Runbook scripts**, and **Collector config**. Updates apply automatically wherever the agent is installed.
 - **Restart agent:** Restart the agent when needed.
+- **Uninstall:** Shows the command that removes the agent from its host.
 - **Delete:** Remove the agent from the KloudMate Agent landing page and clear all of its configuration.
 
 :::caution

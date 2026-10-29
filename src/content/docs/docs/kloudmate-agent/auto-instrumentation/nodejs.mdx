@@ -23,7 +23,7 @@ For a Node.js app under PM2, the agent restarts it with tracing switched on (`pm
 
 ### Standalone processes
 
-The agent can instrument a Node.js process only when it runs under systemd or PM2. A process started on its own can't be instrumented automatically. Run it under systemd or PM2 first; the **Application instrumentation** card flags these and tells you so.
+The agent can instrument a Node.js process only when it runs under systemd or PM2. A process started on its own can't be instrumented automatically. Run it under systemd or PM2 first; the **Application Performance Monitoring** card flags these and tells you so.
 
 ## On Kubernetes
 
@@ -43,7 +43,7 @@ On Amazon ECS, the agent injects the Node.js instrumentation into the services y
 
 ## On Docker
 
-When the agent monitors Docker containers, whether in Docker mode or as a Linux service on a Docker host, each Node.js container offers **Off**, **eBPF**, and **SDK** in the **Application instrumentation** card. eBPF needs no code change and no restart.
+When the agent monitors Docker containers, whether in Docker mode or as a Linux service on a Docker host, each Node.js container offers **Off**, **eBPF**, and **SDK** in the **Application Performance Monitoring** card. eBPF needs no code change and no restart.
 
 **SDK** adds the OpenTelemetry Node.js instrumentation by recreating the container with the same settings, which restarts it for a few seconds. If the new container doesn't come up healthy, the agent starts the original again. It loads for both CommonJS and ES-module apps and needs Node.js 18.19 or later. If the app already sets `NODE_OPTIONS`, the agent adds its loader to the existing value. Containers managed by Docker Compose or Swarm aren't recreated: their row shows the settings to add at the next deploy. See [Instrument Java, Node.js, Python, and .NET containers](../../platform-notes/docker/#instrument-java-nodejs-python-and-net-containers).
 

@@ -18,9 +18,11 @@ To connect a new account, follow [AWS Account Setup](../../../aws-integration/ac
 
 Open **Settings → Data Sources** to view all connected AWS accounts.
 
-Each connected account appears as a card showing the AWS logo, a connection-status indicator, and the account ID with a copy button. An **Edit** action opens the connection, and a menu gives you **Sync settings** and **CloudWatch Logs**.
+Each connected account appears as a card with its name, a connection-status indicator, and the AWS account ID with a copy button. **Edit** opens the account's details, and the card's menu (⋮) has **Sync settings** and **CloudWatch Logs**.
 
-The connection-status indicator also flags access problems. When the delegation role KloudMate uses is missing a required permission, the account shows a **Permission error** state with the reason. That means the whole account's access is failing, not a single region. Open the account's **Edit** screen to see the same error alongside the connection details. To fix it, update the delegation role's permissions, then let KloudMate re-check on the next sync. See [Troubleshoot AWS sync](../troubleshoot-aws-sync/).
+![A connected AWS account card on the Data Sources page, with its menu open on Sync settings and CloudWatch Logs.](./images/data-sources-1.png)
+
+The connection-status indicator also flags access problems. When the delegation role KloudMate uses is missing a required permission, the account shows a **Permission error** state with the reason. That means the whole account's access is failing, not a single region. Open the account's **Edit Account Details** screen to see the same error alongside the connection details. To fix it, update the delegation role's permissions, then let KloudMate re-check on the next sync. See [Troubleshoot AWS sync](../troubleshoot-aws-sync/).
 
 From this page, you can:
 
@@ -30,11 +32,19 @@ From this page, you can:
 - Access CloudWatch log subscription controls
 - [Remove an AWS account](../deleting-your-aws-account-from-kloudmate/)
 
-![Connected AWS accounts on the Data Sources page](./images/data-sources-1.png)
+To add an account, click **Connect AWS account**, name the account, and follow the steps in [AWS Account Setup](../../../aws-integration/account-setup/). The **Accounts** counter shows how many accounts you've connected out of the number your plan allows. When you reach the limit, **Connect AWS account** is turned off.
 
-Enter the AWS account name and follow the on-screen setup flow when adding a new account.
+![The Name your AWS account step, with the Account name field and the Continue button.](./images/data-sources-2.png)
 
-![Adding an AWS account](./images/data-sources-2.png)
+### Edit account details
+
+An account you named but haven't finished connecting shows **Pending**, with no account ID. Click **Edit** to open **Edit Account Details** and paste its Role ARN.
+
+![A Pending AWS account card with no account ID and an Edit button, and the Accounts counter at its 1 of 1 limit with Connect AWS account turned off.](./images/data-sources-pending-account.png)
+
+**Edit Account Details** shows the account's AWS account ID and external ID. Change the **AWS Account Name**, or paste a new **Role ARN**, then click **Update**. If you don't have a role yet, **Click here to add KloudMate CloudFormation stack to AWS** below the field opens the stack in AWS. To remove the account, click **Delete account**. Its data is deleted permanently.
+
+![The Edit Account Details screen, with the AWS account ID, external ID, account name, Role ARN field, Update button, and Delete account section.](./images/data-sources-4.png)
 
 ## Sync Settings
 

@@ -34,11 +34,11 @@ Annotation tracking is the default from Argo CD 3.0. On an older version, set `a
 
 ## Check whether a workload is externally managed
 
-Go to **Settings → Agents & Pipelines**, open the cluster agent's actions menu (⋮), and select **Configure**. On the **APM** tab, the **Application instrumentation** card shows **Managed by Argo CD** or **Managed by Flux** on a managed workload once you set it to **eBPF** or **SDK** and the agent checks in. A workload left at **Off** doesn't carry the label, but a banner at the top of the card tells you when Argo CD runs in the cluster. Other workloads work as usual, even on a cluster that runs Argo CD.
+Go to **Settings → Agents & Pipelines**, open the cluster agent's actions menu (⋮), and select **Configure**. On the **APM** tab, the **Application Performance Monitoring** card shows **Managed by Argo CD** or **Managed by Flux** on a managed workload once you set it to **eBPF** or **SDK** and the agent checks in. A workload left at **Off** doesn't carry the label, but a banner at the top of the card tells you when Argo CD runs in the cluster. Other workloads work as usual, even on a cluster that runs Argo CD.
 
 ## Turn on eBPF mode
 
-Set the workload to **eBPF** in **Application instrumentation** and click **Apply**. The change takes effect on the next agent check-in. The agent doesn't change your cluster objects or your manifests, and no pods restart, because eBPF attaches to processes that are already running.
+Set the workload to **eBPF** in **Application Performance Monitoring** and click **Apply**. The change takes effect on the next agent check-in. The agent doesn't change your cluster objects or your manifests, and no pods restart, because eBPF attaches to processes that are already running.
 
 You get request rate, errors, duration, and trace spans. You don't get the in-process detail that an SDK adds, such as spans for database queries, framework internals, and outbound HTTP calls. For Go, Ruby, and PHP, eBPF is the only option on Kubernetes, whatever manages the workload, because KloudMate doesn't inject an SDK for those runtimes there. Those workloads aren't traced until you select eBPF for each one.
 
@@ -71,7 +71,7 @@ Keep these limits in mind:
 - **Every pod in the namespace gets injected**, including short-lived jobs.
 - **One runtime per namespace.** The annotation sets a single language. If a namespace holds a Java service and a Python service, this covers only one of them.
 - **.NET runtime options come from the pod only.** If a .NET workload needs one, put it on that workload's pod template.
-- **The workloads show Off in Application instrumentation.** The agent didn't add the annotation, so it doesn't track these workloads, but their traces still reach KloudMate.
+- **The workloads show Off in Application Performance Monitoring.** The agent didn't add the annotation, so it doesn't track these workloads, but their traces still reach KloudMate.
 
 ## Commit the annotation
 
@@ -87,7 +87,7 @@ spec:
 
 Your controller applies it on the next sync, and the pods restart once. Argo CD and Flux need no extra configuration, because the annotation is part of the desired state.
 
-Also set that workload to **SDK** in **Application instrumentation**. The agent still doesn't change the workload. The setting keeps the workload tracked in KloudMate, and after your controller syncs the annotation, the workload shows as **Instrumented**.
+Also set that workload to **SDK** in **Application Performance Monitoring**. The agent still doesn't change the workload. The setting keeps the workload tracked in KloudMate, and after your controller syncs the annotation, the workload shows as **Instrumented**.
 
 ## Allow the agent to patch these workloads
 
@@ -143,7 +143,7 @@ spec:
         patchExternallyManagedWorkloads: true
 ```
 
-This value applies to the whole cluster. If an Application doesn't have the settings above, Argo CD reverts the annotation and the Application's pods keep restarting. With the value on, workloads that Argo CD manages no longer show **Managed by Argo CD** in **Application instrumentation**. They show their usual instrumentation status instead.
+This value applies to the whole cluster. If an Application doesn't have the settings above, Argo CD reverts the annotation and the Application's pods keep restarting. With the value on, workloads that Argo CD manages no longer show **Managed by Argo CD** in **Application Performance Monitoring**. They show their usual instrumentation status instead.
 
 These steps are for Argo CD. On Flux, exclude the same annotations from drift correction before you turn on `patchExternallyManagedWorkloads`, or Flux reverts the agent's changes.
 
@@ -173,7 +173,7 @@ spec:
               instrumentation.opentelemetry.io/inject-java: km-agent/km-agent-instrumentation-crd
 ```
 
-Argo CD and Flux compare Deployments, not the pods those Deployments create, so a policy that annotates pods never shows up as drift. The OpenTelemetry documentation suggests the same pattern. As with the namespace annotation, running pods get the annotation when they're recreated, and the workloads show **Off** in **Application instrumentation** while their traces still reach KloudMate.
+Argo CD and Flux compare Deployments, not the pods those Deployments create, so a policy that annotates pods never shows up as drift. The OpenTelemetry documentation suggests the same pattern. As with the namespace annotation, running pods get the annotation when they're recreated, and the workloads show **Off** in **Application Performance Monitoring** while their traces still reach KloudMate.
 
 The OpenTelemetry Operator injects the SDK from its own admission webhook, which Kubernetes calls once per pod. That webhook has to run after Kyverno's, or it never sees the annotation. km-kube-agent charts released after 2.5.1 order the webhooks this way. On an older chart, set the order yourself:
 
