@@ -1,13 +1,13 @@
 ---
 title: "Incident Details"
-description: "Read the activity timeline, manage responders and severity, and publish an incident to a status page."
+description: "Read the activity timeline, manage responders and severity, start a war room, and publish an incident to a status page."
 sidebar:
   label: "Incident Details"
   order: 3
 ---
 Open any incident from the list to view its detail page. It's the single place to see what happened, who was paged, and how the response unfolded.
 
-![Incident detail page with the header, metrics, and incident summary](./images/incident-details-1.png)
+![Incident detail page with the header, Incident War Room panel, metrics, and incident summary](./images/incident-details-1.png)
 
 ## The header
 
@@ -20,6 +20,16 @@ The header identifies the incident and its routing:
 - **Recurrence of** — a link to the earlier incident this one repeats, when there is one.
 
 Use **Acknowledge** or **Resolve** in the top-right to update the status; you can also unacknowledge or unresolve.
+
+## Start a war room
+
+Use the **Incident War Room** panel to give this incident its own Slack or Microsoft Teams channel, with the responders and on-call engineers in it and a link to the call.
+
+Click **Start war room**. You can change the channel name, paste a call link, and invite extra people before the room opens.
+
+![The Incident War Room panel, marked Not Active, with the Start war room button highlighted](./images/incident-war-room-panel.png)
+
+Once the room is open, the panel shows it as **Active**. To connect Slack or Teams first, see [Set up war rooms](../../war-rooms/setup/). To learn what responders see in the channel, see [Incident War Rooms](../../war-rooms/).
 
 ## Incident metrics
 
@@ -36,7 +46,7 @@ Alongside the header, the page shows the numbers that matter during response:
 - **Severity** — change the severity; the change is recorded on the timeline.
 - **Summary** — edit the incident description with the context of what happened and its impact.
 
-![Responders, severity, and the incident summary, each with its edit control](./images/incident-responders.png)
+![The incident detail page with arrows on the edit icons for severity and the incident summary](./images/incident-responders.png)
 
 ## Incident summary
 

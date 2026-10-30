@@ -13,7 +13,7 @@ Where the [Service Map](../service-map/) shows caller-to-callee dependencies and
 
 Open **API Monitoring**.
 
-![API Monitoring page, showing the filter bar and the endpoints table with protocol badges, the Status column, and throughput trend sparklines.](./images/api-monitoring-1.png)
+![API Monitoring page, showing the filter bar and the endpoints table with protocol badges, the Status column, and trend sparklines.](./images/api-monitoring-1.png)
 
 Use the **time range** picker to set the observation window. The view defaults to the last **24 hours** so the per-endpoint trend sparklines have enough history to draw.
 
@@ -25,11 +25,11 @@ Each row is one endpoint, identified by its service, protocol, and (for HTTP) me
 
 - **Endpoint:** a protocol badge (`HTTP`, `GRPC`, or `CONNECT_RPC`), a method chip for HTTP rows (`GET`, `POST`, …), and the endpoint label — a templated route such as `GET /users/{id}` for HTTP, or the full method name such as `pkg.Svc/Method` for RPC.
 - **Service:** the service that handles the endpoint. It links to that service's [APM dashboard](../apm-and-services/).
-- **Throughput (req/min):** request rate over the selected window.
+- **Req/min:** request rate over the selected window.
 - **Error rate:** the percentage of requests counted as errors (see [How Errors Are Counted](#how-errors-are-counted)). Shown in red when above zero.
 - **p50 / p95 / p99:** latency percentiles, in milliseconds.
 - **Status:** an error-focused summary of the HTTP status mix. It reads `healthy` when there are no `4xx` or `5xx` responses, and surfaces `4xx` and `5xx` counts when they occur. Hover it to see the full `2xx` / `3xx` / `4xx` / `5xx` breakdown, plus any uncategorized requests.
-- **Throughput trend:** a sparkline of request volume across the window.
+- **Trend:** a sparkline of request volume across the window.
 
 ### HTTP vs. RPC rows
 
@@ -59,7 +59,7 @@ Use the filter bar above the table to narrow the list:
 - **Method:** one or more HTTP methods (`GET`, `POST`, `PUT`, `PATCH`, `DELETE`, `HEAD`, `OPTIONS`).
 - **Status:** restrict to endpoints that returned a given HTTP status class — `4xx` or `5xx`.
 
-Click the **Throughput**, **Error rate**, or **p95** column header to sort by that metric. Sorting is always highest-first and is applied across all matching endpoints, so the table always shows the true top results rather than re-ordering only the current page.
+Click the **Req/min**, **Error rate**, or **p95** column header to sort by that metric. Sorting is always highest-first and is applied across all matching endpoints, so the table always shows the true top results rather than re-ordering only the current page.
 
 :::tip
 To find failing endpoints quickly, sort by **Error rate**, or set the **Status** filter to `5xx`.

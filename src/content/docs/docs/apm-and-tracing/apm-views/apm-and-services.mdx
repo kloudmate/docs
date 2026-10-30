@@ -24,24 +24,25 @@ Each row represents one service and includes:
 
 ## Service APM Dashboard
 
-Clicking any service in the **List** view opens its APM dashboard, which is a preconfigured view focused on that specific service.
+Clicking any service in the **List** view opens its APM dashboard, which is a preconfigured view focused on that specific service. The dashboard has tabs for **Overview**, [Runtime](../runtime/), [Infrastructure](../infrastructure/), **Traces**, and **Logs**.
 
-![A service's APM dashboard, with the request and latency charts, the Service dependencies panel, and the Issues, Alerts, and Dashboards panels](./images/apm-and-services-2.png)
+![The Overview tab of a service's APM dashboard, with the Throughput, Error rate, and latency cards, the Requests & Errors and Latency charts, and the Internal operations table](./images/apm-and-services-2.png)
 
-The dashboard includes:
+The **Overview** tab includes:
 
 - **Requests, errors, and latency over time:** timeline charts that help identify traffic spikes, error bursts, and latency regressions
 - **Service dependencies:** tables of downstream dependencies, outbound calls, and upstream callers, including request rate, error percentage, and latency
+- **Internal operations:** work with no traced caller, such as jobs, scheduled tasks, and startup work, with its runs, errors, and latency
 - **Related issues, alerts, and dashboards:** links to broader operational context for that service
 
 ## Traces and Logs
 
-From the APM dashboard, you can inspect related traces and logs for a selected service.
+Use the **Traces** and **Logs** tabs to inspect the traces and logs for a selected service.
 
-The **Traces** table shows recent traces with details such as start time, span name, kind, duration, and a link to the full trace for end-to-end request analysis.
+The **Traces** tab shows recent traces with details such as start time, span name, kind, and duration. Click **View Trace** to open the full trace for end-to-end request analysis, or **Explore traces** to search across them.
 
-![image](./images/apm-and-services-3.png)
+![The Traces tab of a service's APM dashboard, with a table of start time, span name, kind, duration, and a View Trace action on each row](./images/apm-and-services-3.png)
 
-The **Logs** table lists recent logs with time, severity, and message, along with actions to explore logs in detail and correlate them with traces and issues for faster root-cause investigation.
+The **Logs** tab lists recent logs with time, severity, and message. Click **View Trace** on a log line to open the trace it belongs to, or **Explore logs** to investigate further.
 
-![image](./images/apm-and-services-4.png)
+![The Logs tab of a service's APM dashboard, with a table of time, severity, and message, and a View Trace action on log lines that carry a trace](./images/apm-and-services-4.png)
