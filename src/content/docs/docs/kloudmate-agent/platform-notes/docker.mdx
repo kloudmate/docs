@@ -131,10 +131,14 @@ KM_CONTAINER_INSTRUMENT_ENABLED=false
 
 ### What is supported
 
-- **Web servers:** Apache with mod_php, and PHP-FPM. The agent reloads them gracefully, so tracing starts without a restart. WordPress and the official `php:8.x-apache` images work this way.
+- **Web servers:** Apache with mod_php, and PHP-FPM. The agent reloads Apache gracefully and signals the PHP-FPM master to reload, so tracing starts without a restart. The official `php:8.x-apache` and `php:8.x-fpm` images and WordPress work this way.
+- **PHP-FPM behind nginx:** set the PHP-FPM container to **SDK**, not the nginx container. PHP runs in PHP-FPM, so that's where the tracer goes.
 - **PHP versions:** 7.0 through 8.x. The tracer is matched to the container's exact PHP build automatically.
+- **Network access:** the agent downloads the tracer installer from GitHub inside the container, so the container needs outbound internet access and `curl` or `wget`. The official `php` images include `curl`.
 
-The agent cannot instrument a container that serves requests from the **PHP built-in server** (`php -S`), because that server does not reload configuration without a full restart. The official Adminer image is one example. Alpine (musl) images are also a problem, because the bundled tracer assets target glibc.
+The agent can't instrument a container that serves requests from the **PHP built-in server** (`php -S`). It runs no Apache or PHP-FPM to reload, so the agent leaves the container unchanged and its row shows why. The official Adminer image is one example. Alpine (musl) images are also a problem, because the bundled tracer assets target glibc.
+
+Traces from a container built on an official `php` image are reported under the container's name. Other images, such as WordPress, are reported under the image name.
 
 ### How PHP-container tracing is selected
 
