@@ -10,17 +10,19 @@ You need the **Developer** role to connect an account. Open **Settings → Conne
 
 The picker lists only the providers your organization can connect. If a provider you expect is missing, see [Providers](../providers/#providers-in-your-plan).
 
-![The Connect dialog listing providers such as Atlassian, AWS, Azure, Custom MCP Server, GitHub, Google Workspace, Jira, Microsoft 365 / Teams, and OAuth 2.0, each with chips for what it can be used for](./images/connect-provider-picker.png)
+![The Connect dialog listing providers such as Atlassian, AWS, Azure, Custom MCP Server, GitHub, Google Workspace, Jira, Microsoft Teams, and OAuth 2.0, each with chips for what it can be used for](./images/connect-provider-picker.png)
 
 Pick a provider and fill in the **Connection name**. How you finish depends on the provider.
 
-A connection made here starts with the provider's usual capability: **Notifications** for Slack and Jira Cloud; **Notifications** and **Meetings** for Microsoft 365 / Teams; **Meetings** for Google Workspace and Zoom; **Workflows** for AWS, Azure, a custom MCP server, and OAuth 2.0; and **AI** for the assistant tools. Change what it's used for, and who can use it, afterward under [Edit](../manage-connections/#edit).
+A connection made here starts with the provider's usual capability: **Notifications** for Slack and Jira Cloud; **Meetings** for Google Workspace and Zoom; **Workflows** for AWS, Azure, a custom MCP server, and OAuth 2.0; and **AI** for the assistant tools. Change what it's used for, and who can use it, afterward under [Edit](../manage-connections/#edit).
 
 ## Connect through OAuth
 
-Slack, Jira Cloud, Microsoft 365 / Teams, Google Workspace, Sentry, and the Google Cloud providers send you to the provider's own site. Click **Connect** and approve the access there. KloudMate adds the connection when you're done.
+Slack, Jira Cloud, Google Workspace, Sentry, and the Google Cloud providers send you to the provider's own site. Click **Connect** and approve the access there. KloudMate adds the connection when you're done.
 
 Zoom works the same way, except that you install the KloudMate app in Zoom instead of approving a consent screen. Install it from a Licensed Zoom account, because every war room meeting is hosted by the account that installed the app.
+
+Microsoft Teams is the exception: a team is connected from Teams. Choosing it opens the steps and a **Download app package** button. See [Microsoft Teams Integration](/incident-management/microsoft-teams-integration/).
 
 The connection records the account you authorized, so you can tell two Slack installs or two Google accounts apart.
 

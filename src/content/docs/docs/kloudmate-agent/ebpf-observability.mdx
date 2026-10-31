@@ -24,7 +24,7 @@ When eBPF monitoring is active, the agent collects:
 
 Because eBPF observes traffic in the kernel, it can trace a service with no code change and no restart — including Go and other services no language agent can inject. eBPF RED metrics and trace spans are a per-service choice you turn on (the **eBPF** APM mode); the network topology map and database activity monitoring run automatically. When a service also runs application APM, its eBPF spans and the application spans share the same trace, so hops you haven't put on the SDK still appear in end-to-end traces. See the [Application APM overview](../auto-instrumentation/overview/).
 
-On a host running Docker, the agent reads each container's name and listen ports from the Docker socket, so a container can be traced with eBPF the same way a host process can, whether the agent runs as a Linux service or in Docker mode. In the **Application instrumentation** card on the agent's **APM** tab, a container offers **Off** or **eBPF**, because the agent can't attach an in-process SDK to a running container. PHP containers can also offer an **SDK** option that injects a tracer with no redeploy. See [Docker platform notes](../platform-notes/docker/).
+On a host running Docker, the agent reads each container's name and listen ports from the Docker socket, so a container can be traced with eBPF the same way a host process can, whether the agent runs as a Linux service or in Docker mode. In the **Application Performance Monitoring** card on the agent's **APM** tab, a container offers **Off** or **eBPF**, because the agent can't attach an in-process SDK to a running container. PHP containers can also offer an **SDK** option that injects a tracer with no redeploy. See [Docker platform notes](../platform-notes/docker/).
 
 ## Deployment modes and requirements
 
@@ -83,7 +83,7 @@ eBPF monitoring runs within a budget of roughly 50 to 100 MB of memory and 5 to 
 On a manual-mode agent, eBPF is managed through the remote YAML editor, with no need to log in to the host or edit local files.
 
 1. Log in to your KloudMate platform.
-2. Go to the **Agents** landing page.
+2. Go to **Settings → Agents & Pipelines**.
 3. Locate the agent on your target Linux host or Kubernetes cluster.
 4. Open the collector configuration editor.
 

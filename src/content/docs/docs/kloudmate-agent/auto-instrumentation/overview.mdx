@@ -17,7 +17,7 @@ Application performance monitoring (APM) is opt-in and per service. For each ser
 
 The flow is the same across every deployment mode:
 
-1. **Discover.** The agent finds your services and lists them in the **Application instrumentation** card on the agent's **APM** tab. To open it, go to **Settings → Agents**, open the agent's actions menu (⋮), and select **Configure**. See [Discovery](../../concepts/discovery/).
+1. **Discover.** The agent finds your services and lists them in the **Application Performance Monitoring** card on the agent's **APM** tab. To open it, go to **Settings → Agents & Pipelines**, open the agent's actions menu (⋮), and select **Configure**. See [Discovery](../../concepts/discovery/).
 2. **Choose a mode.** For each service, pick Off, eBPF, or SDK, then click **Apply**. eBPF takes effect on the next agent check-in with no restart.
 3. **Confirm the restart (SDK only).** SDK instrumentation takes effect when the process restarts, so the agent asks before applying. After you confirm, the service shows **Pending** while the agent applies the change and restarts the app.
 4. **Traces flow.** The service's chip flips to **Instrumented** and it sends application traces to the agent's local collector, correlated with its eBPF spans.
@@ -31,9 +31,11 @@ Each service selected for SDK instrumentation shows a status chip so you always 
 - **Failed:** the restart failed, so the agent rolled back the change (see rollback below) and the service reverts to its previous mode.
 - **Unsupported:** the runtime version has no bundled instrumentation, for example a Python minor release with no bundled cell. The service stays covered by eBPF; move to a supported version to add SDK traces.
 
+On a Docker host, the **Redeploy-safe SDK** card below the list keeps the SDK on containers when they're redeployed, so they start instrumented with no extra restart. It's off by default. See [Redeploy-safe SDK](../../platform-notes/redeploy-safe-sdk/).
+
 Services covered by eBPF (Go, Ruby, or anything without an SDK injector) don't restart and carry no chip. eBPF traces them as soon as you turn them on. A separate **Restart pending** marker on the *agents list* is unrelated: it means the agent's own collector configuration is queued for a restart, not a per-service instrumentation change.
 
-![The Application instrumentation card on an agent's APM tab, with per-service Off / eBPF / SDK controls and status chips](./images/discovered-services-status-chips.png)
+![The Application Performance Monitoring card on a Docker host's APM tab, with per-container Off / eBPF / SDK controls and Failed, Pending, and Next deploy status chips](./images/discovered-services-status-chips.png)
 
 ## Restart consent and health gating
 
@@ -90,7 +92,7 @@ Shared setup that applies to every language on that platform:
 <CardGrid>
   <LinkCard title="Kubernetes setup" href="../kubernetes/" description="The OpenTelemetry Operator, Cert Manager, and monitored namespaces." />
   <LinkCard title="Windows platform notes" href="../../platform-notes/windows/" description="ETW, IIS application pools, and service discovery." />
-  <LinkCard title="Docker" href="../../platform-notes/docker/" description="eBPF per container, and manual OpenTelemetry for full SDK depth." />
+  <LinkCard title="Docker" href="../../platform-notes/docker/" description="eBPF or the SDK per container, added by recreating the container." />
   <LinkCard title="Amazon ECS" href="../../installation/ecs-agent/" description="Language-aware SDK injection on EC2 and Fargate." />
 </CardGrid>
 

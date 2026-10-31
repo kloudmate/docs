@@ -29,6 +29,7 @@ This isn't the same as the AWS account you connect for inventory and metrics. Th
 |---|---|---|
 | **Slack** | OAuth install. | Notifications, Workflows |
 | **Jira Cloud** | OAuth through Atlassian. | Notifications, Workflows |
+| **Microsoft Teams** | The KloudMate app, added to a team in Teams. One connection per team. See [Microsoft Teams Integration](/incident-management/microsoft-teams-integration/). | Notifications |
 
 One Slack install serves alert notifications, incident ChatOps, the [Slack workflow actions](/workflows/actions/#slack), and Slack event triggers. A Slack or Jira Cloud connection made in **Settings → Connections** starts out used for **Notifications**. Add **Workflows** under [Edit](../manage-connections/#edit) before a workflow step or trigger can use it, and reconnect it if it's then marked **Needs reconnect**.
 
@@ -40,11 +41,10 @@ These create the conference call for an incident [war room](/incident-management
 
 | Provider | Credential | Can be used for |
 |---|---|---|
-| **Microsoft 365 / Teams** | Microsoft sign-in, as the service account that should own the rooms and meetings. | Notifications, Meetings |
 | **Google Workspace** | Google sign-in, as the Workspace account that should own the meeting spaces. | Meetings |
 | **Zoom** | An install of the KloudMate app, from a Licensed Zoom account. See [Zoom](../zoom/). | Meetings |
 
-One Microsoft 365 connection covers both the Teams war room chat and its meeting. Meetings hosted by a Basic Zoom account end after 40 minutes, so install the Zoom app from a Licensed account. See [Set up war rooms](/incident-management/war-rooms/setup/#add-a-conference-call) for what each provider adds to a room.
+Meetings hosted by a Basic Zoom account end after 40 minutes, so install the Zoom app from a Licensed account. See [Set up war rooms](/incident-management/war-rooms/setup/#add-a-conference-call) for what each provider adds to a room.
 
 ## Tools and custom endpoints
 
@@ -85,9 +85,9 @@ If the platform stops offering a provider, or one of its uses, only new connecti
 
 ## Link your Slack account for ChatOps
 
-One Slack step is done per person, not per workspace. After someone with the **Developer** role connects Slack and adds a Chat Ops channel, each responder links their own Slack account before they can acknowledge or resolve incidents from Slack.
+One Slack step is done per person, not per workspace. After someone with the **Developer** role connects Slack and adds a ChatOps channel, each responder links their own Slack account before they can acknowledge or resolve incidents from Slack.
 
-Open **Incidents → Chat Ops**, scroll to **User Settings**, and click **Connect account**. It's a one-time step that links your KloudMate account to your Slack user.
+Open **Incidents → Settings**, find the **Slack** panel of the **ChatOps** card, and under **Your account** click **Connect account**. This step needs the **Developer** role. It's a one-time step that links your KloudMate account to your Slack user.
 
 Everyone links their own account, because KloudMate has to match the Slack user who pressed a button to a workspace member before it acts.
 

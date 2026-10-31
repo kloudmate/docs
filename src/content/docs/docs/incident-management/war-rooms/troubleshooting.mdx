@@ -18,7 +18,7 @@ Add **Workflows** to the Slack connection under **Settings → Connections**, th
 The check in the settings always asks for the private-channel scope, `groups:write`. If you open public rooms, it can report `groups:write` as missing while your rooms open fine. Check **Private room** before acting on that one line.
 :::
 
-For Microsoft Teams, the missing scopes come from the Microsoft 365 connection. Reconnect it and approve `Chat.Create`, `ChatMessage.Send`, `User.ReadBasic.All`, and `OnlineMeetings.ReadWrite`.
+Teams has no scope banner. A Teams room needs the KloudMate app in the team, with the team permissions it asked for when it was added. If someone removed the app, the war room settings say so, and the team shows **App removed** under **Settings → Connections**. A team owner adds the app back to the team, and rooms open again. See [Microsoft Teams Integration](../../microsoft-teams-integration/).
 
 ## The chat connection needs attention
 
@@ -43,7 +43,7 @@ Also worth checking: the room only opens on an escalation step's first pass, and
 
 ## A connection isn't in the meeting picker
 
-**A new meeting per incident** lists connections granted for **Meetings**. Microsoft 365, Google Meet, and Zoom carry that grant when you connect them, so a connection that's missing from the picker was either made before this existed or had the grant removed. Open it under **Settings → Connections**, click **Edit**, and add **Meetings** under **Can be used for**. If it's then marked **Needs reconnect**, reconnect it.
+**A new meeting per incident** lists connections granted for **Meetings**. Google Meet and Zoom carry that grant when you connect them, so a connection that's missing from the picker was either made before this existed or had the grant removed. Open it under **Settings → Connections**, click **Edit**, and add **Meetings** under **Can be used for**. If it's then marked **Needs reconnect**, reconnect it.
 
 Saving a connection that can't create meetings is refused with `connection '<provider>' is not connected for meetings`.
 
@@ -51,7 +51,7 @@ Saving a connection that can't create meetings is refused with `connection '<pro
 
 A call provider that fails doesn't hold up the room. KloudMate opens the channel, invites everyone, and leaves the call off the card.
 
-Open the incident, click the edit icon on **Conference call**, and paste a **Meeting link**. The card and the topic pick it up. Then look at why the provider failed:
+Open the incident, click the edit icon on **Conference call**, and paste a **Meeting link**. The card picks it up, and so does the channel topic in Slack. Then look at why the provider failed:
 
 - The connection selected under **A new meeting per incident** was deleted, switched off, or is **Needs reconnect** or **Revoked**. Removing the KloudMate app at Zoom's end leaves the connection in exactly that state.
 - The connection lost its **Meetings** grant, so the setting no longer points at anything usable.
@@ -66,11 +66,16 @@ Upgrade that Zoom user to Licensed and click **Re-check**, or connect Zoom again
 
 ## Someone wasn't invited
 
-KloudMate matches people by email address: the address on their KloudMate account has to match their Slack or Teams account. When it can't find a match, that person is listed under **Could not add** on the card and tagged **Unmapped** on the incident panel, with the reason on hover.
+In Slack, KloudMate matches people by email address: the address on their KloudMate account has to match their Slack account. When it can't find a match, that person is listed under **Could not add** on the card and tagged **Unmapped** on the incident panel, with the reason on hover.
 
-Two things cause nearly all of these. The addresses genuinely differ, which you fix at one end or the other. Or the connection can't read email addresses at all, which is the `users:read.email` scope for Slack and `User.ReadBasic.All` for Teams, and shows up as the banner above.
+Two things cause nearly all of these. The addresses genuinely differ, which you fix at one end or the other. Or the connection can't read email addresses at all, which is the `users:read.email` scope, and shows up as the banner above.
 
 Invite them to the channel yourself for the incident at hand. Once they're matched, KloudMate remembers the pairing for later rooms.
+
+In Teams, the card says why:
+
+- **Not in this team:** they aren't members of the team, so they can't see the room's channel. A team owner adds them to the team. KloudMate can't add people to a team.
+- **Not linked to Teams:** their Microsoft sign-in name isn't their KloudMate email address, and they haven't linked their Teams account yet. To link, they click a button on the card and choose **Link my account**. Later rooms mention them.
 
 ## That name is taken
 
@@ -78,13 +83,21 @@ You get this on the name field when you've typed a name another channel already 
 
 ## The room was archived while we were still using it
 
-An archive scheduled when the incident resolved still runs if you reopen the incident in the meantime. Unarchive the channel in Slack to carry on in it. Starting the war room again returns the same archived room rather than creating a second one.
+A room closes when the delay under **After the incident resolves** runs out and the incident is still resolved. Reopening the incident inside the delay keeps the room open, in Slack and in Teams. If you resolve it again, though, the close scheduled by the first resolve still runs at its original time, so the room can close sooner than the full delay after the second resolve.
+
+In Slack, unarchive the channel to carry on in it. Starting the war room again returns the same archived room rather than creating a second one. A closed Teams room is renamed `closed-<name>` and deleted 7 days later. A team owner can restore a deleted channel in Teams for 30 days.
 
 If this keeps happening, raise the delay under **After the incident resolves**, or set it to **Keep the room open** and archive rooms yourself with **Archive war room** on the incident panel.
 
+## A Teams room won't open
+
+- **The team is near its channel limit.** Teams allows 1,000 channels per team and counts deleted channels for 30 days. KloudMate stops opening rooms 100 channels short of that. Delete channels you don't need, or point war rooms at a channel in another team.
+- **The settings keep rooms open.** Teams rooms need a delay under **After the incident resolves**. **Keep the room open** works only for Slack.
+- **The war room channel isn't connected any more.** Someone removed it from KloudMate, deleted it in Teams, or disconnected the team. Pick another channel under **Where rooms open** and save.
+
 ## A Teams room is missing things a Slack room has
 
-Teams rooms have no action buttons, no thread replies, and no RCA. Acknowledge, resolve, and add notes from the incident page. Microsoft Graph also can't archive a group chat, so a closed Teams room gets a closing summary and nothing else: KloudMate stops posting to it, but the chat stays in your Teams workspace. **Private room** doesn't apply to group chats either.
+Teams rooms have no **Run RCA** button and no timeline replies. Notes you add from the card are posted as replies under it. **Private room** doesn't apply: a Teams room is always a standard channel that everyone in the team can see.
 
 ## Related
 

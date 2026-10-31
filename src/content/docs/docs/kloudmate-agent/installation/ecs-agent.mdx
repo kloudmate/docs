@@ -95,7 +95,7 @@ Instrumenting a service runs a task-definition injection step. This happens on e
 
 ## Install Agent
 
-**Step 1:** Go to **Settings → Agents** in your KloudMate account.
+**Step 1:** Go to **Settings → Agents & Pipelines** in your KloudMate account.
 
 **Step 2:** Click **Add Agent**, select **Amazon ECS**, and click **Continue**. On the **API key** step, click **Create backend key**, or select **Use existing key** and paste your backend ingest key. Then click **Continue**.
 
@@ -229,7 +229,7 @@ kmagent ecs instrument \
 
 The two launch types appear differently in KloudMate:
 
-- **EC2 daemon:** each container instance appears in **Settings → Agents** as **Amazon ECS**, one row per instance. Its **APM** tab has no per-service toggle. Instead, it points you to the `kmagent ecs discover` and `instrument` commands and explains the language-aware split (SDK for Java/Node/Python/.NET, eBPF for the rest).
+- **EC2 daemon:** each container instance appears in **Settings → Agents & Pipelines** as **Amazon ECS**, one row per instance. Its **APM** tab has no per-service toggle. Instead, it points you to the `kmagent ecs discover` and `instrument` commands and explains the language-aware split (SDK for Java/Node/Python/.NET, eBPF for the rest).
 - **Fargate tasks are autonomous:** each collector sidecar ships telemetry on its own and **does not appear as an agent row**. Find that data in **APM & Services** and **Logs**, keyed by service name. Fargate tasks don't appear in **Hosts**. The install flow's verify step accounts for this, so it won't wait for a Fargate check-in that never comes.
 
 ## Log Integration

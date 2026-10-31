@@ -61,7 +61,7 @@ View all collected data in these KloudMate sections:
 
 ## Install Agent
 
-**Step 1:** Navigate to the **Settings → Agents** section in your KloudMate account.
+**Step 1:** Navigate to the **Settings → Agents & Pipelines** section in your KloudMate account.
 
 **Step 2:** Click **Add Agent**, select **Docker**, and click **Continue**. On the **API key** step, click **Create backend key**, or select **Use existing key** and paste your backend ingest key. Then click **Continue**.
 
@@ -83,7 +83,7 @@ For a hand-written `filelog` receiver in manual mode, see [Collect File Logs wit
 
 ## Coverage and configuration
 
-In Docker mode, the agent collects host and container metrics and container and host logs, and, where the host kernel supports it, places your containers on the service map from [eBPF](../../ebpf-observability/) network flows, with no code changes. Application tracing is opt-in per service: set a container to **eBPF** for RED metrics and spans (no restart), or leave it **Off**. Java, Node.js, Python, .NET, and Go containers can't take the in-process SDK, so they use eBPF. PHP containers are the exception: they also offer an **SDK** option that injects the tracer and reloads the web server, with no redeploy. See [Docker platform notes](../../platform-notes/docker/) for the per-runtime detail.
+In Docker mode, the agent collects host and container metrics and container and host logs, and, where the host kernel supports it, places your containers on the service map from [eBPF](../../ebpf-observability/) network flows, with no code changes. Application tracing is opt-in per service: set a container to **eBPF** for RED metrics and spans (no restart), to **SDK** for deep spans from the OpenTelemetry SDK, or leave it **Off**. For Java, Node.js, Python, and .NET, the agent adds the SDK by recreating the container with the same settings. PHP containers get the tracer without a redeploy. Go containers use eBPF. See [Docker platform notes](../../platform-notes/docker/) for the per-runtime detail.
 
 New agents start in managed mode, so KloudMate generates the collector configuration for you. See the [configuration model](../../concepts/config-model/).
 

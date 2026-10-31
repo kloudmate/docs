@@ -1,0 +1,55 @@
+---
+title: "Pipeline rule conditions"
+description: "Fields and operators for matching logs, spans, and metrics in a KloudMate pipeline rule."
+sidebar:
+  label: "Conditions"
+  order: 4
+---
+
+Conditions choose the records a pipeline rule acts on. Each condition compares one field with a value, and a record must match every condition on the rule. A rule with no conditions applies to every record of its data type.
+
+## Fields
+
+| Field | Where it's read | Data |
+|---|---|---|
+| `body` | The log body. | Logs |
+| `severity` | The log level: `TRACE`, `DEBUG`, `INFO`, `WARN`, `ERROR`, or `FATAL`. | Logs |
+| `span.name` | The span's name. | Traces |
+| A key in a JSON body | A top-level key of a JSON log body, added from a sampled record. | Logs |
+| Any other name | A record or resource attribute, such as `service.name`, `http.route`, `k8s.namespace.name`, or `host.name`. | All |
+
+The field list shows common names first, followed by the keys your workspace has sent in the last hour. You can type any name made of letters, digits, `_`, `.`, and `-`, up to 128 characters. The editor flags a name the agent would reject before you publish.
+
+The quickest way to get a field and value right is to [add a condition from a sampled record](../create-a-rule/#add-a-condition-from-a-record).
+
+## Operators
+
+| Operator | Matches when | Example |
+|---|---|---|
+| equals | The value is exactly this. | `service.name` equals `api-server` |
+| does not equal | The value is anything else. | `deployment.environment` does not equal `prod` |
+| is one of | The value is in a comma-separated list. | `http.route` is one of `/health, /ready` |
+| matches regex | The regex matches part of the value. | `body` matches regex `timeout\|connection refused` |
+| exists | The field is present, with any value. | `user.id` exists |
+| is below | The severity is lower than this level. | `severity` is below `WARN` |
+
+A regex matches anywhere in the value. To match the whole value, anchor it with `^` and `$`, for example `^GET /static/`. The agent uses Go regular expressions (RE2), which don't support lookahead or back-references.
+
+`severity` does not equal a level only matches records whose severity is known. A log without a severity isn't matched.
+
+## Combine conditions
+
+All of a rule's conditions must match. To match one value or another, use **is one of** or a regex with `|`, or write a second rule.
+
+For example, these conditions drop only the debug logs of one service:
+
+- `service.name` equals `alarms-service`
+- `severity` is below `INFO`
+
+## Conditions and masking
+
+Mask rules run before every other rule, so conditions on drop, edit attributes, and sample rules see masked values. A condition that compares a field with its original, unmasked value never matches.
+
+## Test before you publish
+
+Test a rule's conditions on recent records from a real agent before you publish it. See [Test the conditions on live data](../create-a-rule/#test-the-conditions-on-live-data).

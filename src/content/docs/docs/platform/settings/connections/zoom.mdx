@@ -44,17 +44,15 @@ Start the install from KloudMate, in the workspace that will use it. If you foun
 
 5. Review the permissions and click **Allow**.
 
-6. Back in **Settings → Connections**, open the row menu on the new Zoom connection and click **Re-check**.
-
 </Steps>
 
-**Re-check** confirms the Zoom account is Licensed. If it isn't, the connection shows **Degraded**. See [The connection shows Degraded](#the-connection-shows-degraded).
+KloudMate checks the Zoom account as soon as the install finishes. A Licensed account shows **Verified**. A Basic account shows **Degraded**, and you can fix it as described in [The connection shows Degraded](#the-connection-shows-degraded).
 
 ## Create a meeting for each war room
 
 <Steps>
 
-1. Go to **Incidents → Chat Ops** and find **Incident War Rooms**.
+1. Go to **Incidents → Settings** and find **War rooms**.
 
 2. Under **Conference call**, select **A new meeting per incident**.
 
@@ -106,7 +104,7 @@ The host user has a Basic Zoom account. Follow the first row in [The connection 
 
 ## Remove the app
 
-To disconnect Zoom completely, remove the app in Zoom and delete the connection in KloudMate. Before you do, change **Conference call** under **Incidents → Chat Ops** to another option, so new war rooms don't open without a call link.
+To disconnect Zoom completely, remove the app in Zoom and delete the connection in KloudMate. Before you do, change **Conference call** under **Incidents → Settings** to another option, so new war rooms don't open without a call link.
 
 ### Remove the app from Zoom
 
@@ -140,7 +138,7 @@ Deleting the connection erases the stored Zoom access token and account details.
 
 - New war rooms open without a **Join Call** button until you select another meeting connection or another **Conference call** option. The rooms still open, and everyone is still invited.
 - Meetings KloudMate already created stay in the host user's Zoom account, and their links keep working. Delete them in Zoom if you don't want them.
-- To use Zoom again after removing the app in Zoom, click **Reconnect** beside the revoked connection and install the app again. Then open **Edit** and turn **Enabled** back on. The connection keeps its ID, so the war room settings still point to it.
+- To use Zoom again after removing the app in Zoom, click **Reconnect** beside the revoked connection and install the app again. The connection is switched back on and keeps its ID, so the war room settings still point to it.
 - To use Zoom again after deleting the connection, [add the app](#add-the-app) from the start and select the new connection in the war room settings.
 
 ## Related

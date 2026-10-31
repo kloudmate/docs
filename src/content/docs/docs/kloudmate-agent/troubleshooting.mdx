@@ -23,7 +23,7 @@ Start with two agent features. The [health metrics](../self-observability/health
 
 ## Traces are not flowing
 
-- **The service was not discovered.** Only discovered services can be instrumented. Confirm the service appears in the **Application instrumentation** card on the agent's **APM** tab. See [Discovery](../concepts/discovery/).
+- **The service was not discovered.** Only discovered services can be instrumented. Confirm the service appears in the **Application Performance Monitoring** card on the agent's **APM** tab. See [Discovery](../concepts/discovery/).
 - **The toggle has not applied.** Instrumentation takes effect on restart. Check the service's status chip: `pending restart` means the change is written but the service has not restarted. See [Application APM overview](../auto-instrumentation/overview/).
 - **Injection failed and rolled back.** If the status shows failed and rolled back, the service crash-looped after instrumentation and the agent reverted the change. Read the reason in the self-logs, then retry. eBPF monitoring continues to cover the service throughout.
 

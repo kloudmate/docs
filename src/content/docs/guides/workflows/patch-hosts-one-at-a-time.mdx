@@ -237,7 +237,7 @@ Publish it when you're ready. Its trigger is **Manual / API**, so it only runs w
 
 ### Find the host's agent
 
-A **Check a Host Agent** step looks up the agent by **Host name**, `{{ trigger.inputs.host }}`. The name must match the host name the agent registered with, as shown under **Settings → Agents**.
+A **Check a Host Agent** step looks up the agent by **Host name**, `{{ trigger.inputs.host }}`. The name must match the host name the agent registered with, as shown under **Settings → Agents & Pipelines**.
 
 A **Branch** then checks that `steps.agent.output.status` **equals** `reachable`, which means the agent checked in within the last 5 minutes. For any other status, such as `unreachable` or `not_found`, the **Else** block runs a **Run Code** step that throws an error:
 

@@ -10,13 +10,24 @@ import { Steps } from '@astrojs/starlight/components';
 
 War rooms run on the chat connection you already use for incident notifications. Point them at a Slack or Microsoft Teams channel, decide who gets invited, and optionally let KloudMate create a conference call for each incident.
 
-The settings live on **Incidents → Chat Ops**, under **Incident War Rooms**, below the chat connection they use. You need the **Developer** role to change them. Everyone else sees them read-only.
+The settings live on **Incidents → Settings**, under **War rooms**, below the **ChatOps** card where Slack and Microsoft Teams are connected. You need the **Developer** role to change them. Everyone else sees them read-only.
+
+**Where rooms open** lists every connected Slack workspace and every Teams team channel, each named with its app, such as **Slack · Acme**. A room opens in the app of the one you pick.
 
 ## Before you start
 
 - Your plan includes Incident Management.
-- Your workspace has a Slack or Microsoft Teams channel under **Incidents → Chat Ops**. See [Slack Integration](../../slack-integration/).
-- For a conference call that's created per incident, you've connected Microsoft 365, Google Meet, or Zoom under **Settings → Connections**.
+- Your workspace has a Slack channel, or a Microsoft Teams channel in a team connected through the KloudMate app. See [Slack Integration](../../slack-integration/) and [Microsoft Teams Integration](../../microsoft-teams-integration/).
+- For a conference call that's created per incident, you've connected Google Meet or Zoom under **Settings → Connections**.
+
+## Connect ChatOps
+
+The **ChatOps** card on **Incidents → Settings** connects Slack and Microsoft Teams to Incident Management, so responders can act on incidents from chat. War rooms open in the workspaces and channels connected here, so set this up first.
+
+![The ChatOps card with the Slack panel, showing the Add ChatOps channel button, and the Microsoft Teams panel, showing the Manage teams button](./images/war-room-chatops-card.png)
+
+- **Slack:** Click **Connect** on the **Slack** panel. If Slack is already installed for notifications, click **Add ChatOps channel** instead. See [Slack Integration](../../slack-integration/).
+- **Microsoft Teams:** Add the KloudMate app to a team in Teams, and have a team owner click **Connect** on the card it posts. Then add one of the team's channels under **Manage teams**. See [Microsoft Teams Integration](../../microsoft-teams-integration/).
 
 ## Set up Slack rooms
 
@@ -29,7 +40,7 @@ Slack needs more permissions to open a war room than it does to post a notificat
 
 3. Click **Reconnect** beside the connection and approve the Slack install again. Approving again only adds permissions, so you don't lose what Slack already had.
 
-4. Open **Incidents → Chat Ops**, set **Chat provider** to **Slack**, and pick the channel under **Chat channel**.
+4. Open **Incidents → Settings** and pick your Slack workspace under **Where rooms open**.
 </Steps>
 
 KloudMate checks the channel's permissions as soon as you pick it. If anything is missing, a **Reconnect Slack to open war rooms** banner lists the exact scopes, and **Start war room** stays disabled until you fix it. These are the ones it checks:
@@ -43,19 +54,19 @@ KloudMate checks the channel's permissions as soon as you pick it. If anything i
 
 ## Set up Microsoft Teams rooms
 
-A Teams room is a group chat, created by the Microsoft 365 account you sign in with. That account owns every room, so use a service account rather than a person's.
+A Teams room is a new standard channel in a team connected through the KloudMate app. The app creates, renames, and deletes these channels with the team permissions a team owner approved when they added it, so there's no separate account to sign in with.
 
 <Steps>
-1. Open **Settings → Connections** and connect **Microsoft 365 / Teams**. Sign in as the account that should own the rooms.
+1. Connect the team and add one of its channels in KloudMate. See [Microsoft Teams Integration](../../microsoft-teams-integration/).
 
-2. Approve the permissions on the Microsoft consent screen.
+2. Open **Incidents → Settings** and pick that channel under **Where rooms open**. Rooms open as new channels in its team.
 
-3. Add a Microsoft Teams channel under **Incidents → Chat Ops**.
-
-4. Set **Chat provider** to **Microsoft Teams** and pick that channel under **Chat channel**.
+3. Set **After the incident resolves** to a delay. Teams rooms can't use **Keep the room open**.
 </Steps>
 
-A Microsoft 365 connection is granted for **Notifications** and **Meetings** when you make it, which is what a Teams war room needs. The room and the call come from the same grant, so one consent screen covers creating the chat, posting to it, looking a member up by email address, and creating the online meeting.
+The channel you pick also keeps each room's record. When a room closes, KloudMate posts the closing note and the AI resolution summary in the incident's alert thread there, because the room's own channel is deleted 7 days after it closes.
+
+Every room takes one of the team's 1,000 channel slots, and Teams keeps counting a deleted channel for 30 days. KloudMate won't open a room when the team is within 100 channels of that limit, so point war rooms at a team that doesn't already hold hundreds of channels.
 
 ## Add a conference call
 
@@ -67,21 +78,21 @@ A Microsoft 365 connection is granted for **Notifications** and **Meetings** whe
 | **The same link every time** | KloudMate uses your **Call link**, rendered per incident, plus an optional **Dial-in**. Use a standing bridge, or a link with the incident key in it, such as `https://meet.google.com/lookup/inc-{{ key }}`. |
 | **A new meeting per incident** | KloudMate creates a fresh meeting on the connection you pick. |
 
+![The Conference call dropdown open, with No call, The same link every time, and A new meeting per incident](./images/war-room-conference-call.png)
+
 For a new meeting per incident, connect one of these under **Settings → Connections** and select it in the war room settings. The picker lists connections granted for **Meetings**, so a Slack or AWS connection never shows up there.
 
-### Microsoft Teams
-
-The Microsoft 365 connection you set up above also creates the meetings. Nothing else to connect. A Teams meeting comes with a dial-in number when your tenant has audio conferencing.
+Teams rooms use the same options. KloudMate doesn't create Teams meetings, so for a Teams call, put a standing Teams meeting link under **The same link every time**.
 
 ### Google Meet
 
-Connect **Google Meet** and sign in as the Google Workspace account that should own the meeting spaces. The consent screen asks to create meeting spaces, plus your name and email address to label the connection. The meeting permission reaches only the spaces KloudMate creates itself, not the rest of your Workspace. Google Meet returns no dial-in number, so rooms show the **Join Call** button on its own.
+Connect **Google Workspace** and sign in as the Google Workspace account that should own the meeting spaces. The consent screen asks to create meeting spaces, plus your name and email address to label the connection. The meeting permission reaches only the spaces KloudMate creates itself, not the rest of your Workspace. Google Meet returns no dial-in number, so rooms show the **Join Call** button on its own.
 
 ### Zoom
 
 Connect **Zoom** and install the KloudMate app. Every war room meeting is created as the account that installs it, so install it from a Licensed Zoom account: meetings hosted by a Basic account cut out after 40 minutes, which is not what you want halfway through an incident. Zoom rooms don't show a dial-in number.
 
-Removing the KloudMate app from Zoom revokes the connection. KloudMate erases the stored credential, marks the connection **Revoked**, and switches it off, so rooms open without a call link until the app is installed again. **Reconnect** beside the connection re-runs the install with the same connection id, so the war room settings keep pointing at it. Then turn **Enabled** back on under **Edit**. See [Zoom](/platform/settings/connections/zoom/) for the full install and removal steps.
+Removing the KloudMate app from Zoom revokes the connection. KloudMate erases the stored credential, marks the connection **Revoked**, and switches it off, so rooms open without a call link until the app is installed again. **Reconnect** beside the connection re-runs the install and switches the connection back on, with the same connection id, so the war room settings keep pointing at it. See [Zoom](/platform/settings/connections/zoom/) for the full install and removal steps.
 
 :::caution
 Account-level Zoom settings override what KloudMate asks for. If responders land in a waiting room or get turned away, check the account's join-before-host and authentication settings.
@@ -89,18 +100,22 @@ Account-level Zoom settings override what KloudMate asks for. If responders land
 
 ## Set the defaults for every room
 
+![The War rooms settings, with Where rooms open, Room name template, Private room, Who gets invited, Conference call, After the incident resolves, and the Save war room settings button](./images/war-room-settings.png)
+
 | Setting | What it controls |
 |---|---|
-| **Room name template** | The channel name or chat topic. Use `{{ number }}`, `{{ key }}`, `{{ title }}`, `{{ severity }}`, and `{{ service }}`. The default is `inc-{{ number }}-{{ title }}`. Slack names are lowercased and stripped to letters, numbers, hyphens, and underscores, up to 80 characters. A Teams topic can run to 50. |
-| **Private room** | Opens Slack rooms as private channels, which people have to be invited to. Turn it off to open public channels anyone in the Slack workspace can join. |
+| **Room name template** | The channel name. Use `{{ number }}`, `{{ key }}`, `{{ title }}`, `{{ severity }}`, and `{{ service }}`. The default is `inc-{{ number }}-{{ title }}`. Slack names are lowercased and stripped to letters, numbers, hyphens, and underscores, up to 80 characters. Teams names can run to 50 characters, without the characters Teams doesn't allow in a channel name, such as `#`, `/`, and `?`. |
+| **Private room** | Opens Slack rooms as private channels, which people have to be invited to. Turn it off to open public channels anyone in the Slack workspace can join. Teams rooms are always standard channels, visible to everyone in the team. |
 | **Incident responders** | Invites whoever is assigned to the incident. |
 | **On-call engineers** | Invites whoever is on call. Leave the schedule picker empty to follow the incident's escalation policy, or name specific [schedules](../../oncall/) to use those instead. |
 | **Always invite** | People who join every room, on call or not. An incident commander, for example. |
-| **After the incident resolves** | How long a resolved room stays open before KloudMate archives it. **Keep the room open** turns the automatic archive off. |
+| **After the incident resolves** | How long a resolved room stays open before KloudMate closes it. **Keep the room open** turns the automatic archive off for Slack rooms. Teams rooms need a delay. |
+
+Click **Save war room settings** to apply your changes.
 
 If a name is already taken by another incident's channel, KloudMate adds a short suffix and uses that. A name you type yourself is never changed for you, so you're told it's taken instead.
 
-Anyone who has no chat account for their KloudMate email address is listed on the card under **Could not add**, and tagged **Unmapped** on the incident panel. The room still opens, and everyone else is still invited.
+Anyone KloudMate can't match to a chat account is listed on the card, under **Could not add** in Slack, or under **Not in this team** or **Not linked to Teams** in Teams. They're tagged **Unmapped** on the incident panel. The room still opens, and everyone else is still invited.
 
 ## Open a room automatically
 
@@ -110,10 +125,10 @@ Opening a room by hand is fine for the first few. After that, let the rule that 
 
 **From an escalation step.** Check **Start War Room on this step** in the step editor. The room opens when the incident reaches that step, and only on the policy's first pass, so a policy that repeats won't open a second room. See [Escalation Policies](../../escalation-policy/).
 
-Both paths are worth scoping tightly. A rule that matches everything opens a channel for every incident, and archived channels still count towards your Slack workspace limits.
+Both paths are worth scoping tightly. A rule that matches everything opens a channel for every incident. Archived channels still count towards your Slack workspace limits, and a Teams room holds a channel slot in its team until 30 days after it's deleted.
 
 ## Related
 
 - [War rooms overview](../): what responders see once a room is open.
 - [Troubleshooting](../troubleshooting/): scope banners, connection states, and missing call links.
-- [Connections](/platform/settings/connections/): where the Slack, Microsoft 365, Google Meet, and Zoom credentials live.
+- [Connections](/platform/settings/connections/): where the Slack, Google Meet, and Zoom credentials live, and your connected Teams teams.

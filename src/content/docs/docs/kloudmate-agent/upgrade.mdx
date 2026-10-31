@@ -11,7 +11,7 @@ The bundled instrumentation agents are versioned with the KloudMate agent, so th
 
 ## Upgrade from the dashboard
 
-1. Open **Settings → Agents**. An agent with a newer release has an **Update available** tag in the **Agent Version** column.
+1. Open **Settings → Agents & Pipelines**. When a newer release is out, the **Agent version** column shows the current version, an up arrow, and the newer version in blue, for example 2.4.0 ↑ 2.7.0. Hover over it to see how to upgrade that agent.
 2. Click the agent to open its page.
 3. In the **Agent version** card, click **Upgrade to vX.Y.Z** and confirm.
 
@@ -64,7 +64,7 @@ On Kubernetes, install or upgrade the chart with `--set selfUpdate.enabled=false
 
 ## Upgrade manually
 
-Run the install command again. The install script always fetches the latest release, so the command you used to install the agent also upgrades it. Copy the install command for your platform from **Settings → Agents → Add Agent**, using the same API key and collector endpoint as the existing agent.
+Run the install command again. The install script always fetches the latest release, so the command you used to install the agent also upgrades it. Copy the install command for your platform from **Settings → Agents & Pipelines → Add Agent**, using the same API key and collector endpoint as the existing agent.
 
 ### Linux
 
@@ -74,7 +74,7 @@ Your existing `/etc/kmagent/agent.yaml` is kept as it is, including any settings
 
 ### Windows
 
-Download the latest installer from **Settings → Agents → Add Agent → Windows** and run it from an elevated (Administrator) PowerShell prompt:
+Download the latest installer from **Settings → Agents & Pipelines → Add Agent → Windows** and run it from an elevated (Administrator) PowerShell prompt:
 
 ```powershell
 .\kmagent-setup.exe /VERYSILENT /SUPPRESSMSGBOXES /NORESTART
@@ -103,4 +103,4 @@ Each chart version ships the matching agent image, so upgrading the chart rolls 
 
 ## Confirm the upgrade
 
-Open **Settings → Agents** and check the **Agent Version** of the upgraded agent. If it still shows the old version or the agent goes offline, see [Troubleshooting](../troubleshooting/).
+Open **Settings → Agents & Pipelines** and check the **Agent version** of the upgraded agent. If it still shows the old version or the agent goes offline, see [Troubleshooting](../troubleshooting/).

@@ -182,11 +182,11 @@ There are two ways to enable **Application Performance Monitoring (APM)** in you
 
 ### 1.  Enable APM via Dashboard
 
-- After installing the agent, go to **Settings → Agents**, open the cluster's actions menu (⋮), and select **Configure** to open its **APM** tab.
+- After installing the agent, go to **Settings → Agents & Pipelines**, open the cluster's actions menu (⋮), and select **Configure** to open its **APM** tab.
 - The agent lists the workloads it discovered, grouped by namespace, with each workload's detected language. Use the namespace filter or the search box to find one in a large cluster.
 - For each workload, choose **Off**, **eBPF**, or **SDK**, then apply. eBPF starts tracing on the next check-in with no restart; SDK rolls that workload's pods. Workloads with no SDK injector — Go, Ruby, or an unrecognized runtime — offer **Off** or **eBPF** only.
 
-![The cluster's APM tab, with the Application instrumentation card listing workloads grouped by namespace, each with Off, eBPF, and SDK options, and the Apply button](./images/kubernetes-agent-1.png)
+![The cluster's APM tab, with the Application Performance Monitoring card listing workloads grouped by namespace, each with Off, eBPF, and SDK options or Off and eBPF for Go workloads, an Instrumented badge on traced workloads, and the Apply button](./images/kubernetes-agent-1.png)
 
 - After you turn a workload on, wait a few minutes for its traces to start, then verify them on the dashboard.
 

@@ -1,21 +1,21 @@
 ---
 title: "Incident War Rooms"
-description: "Open a dedicated Slack channel or Microsoft Teams chat for an incident, with the responders already in it and a call link attached."
+description: "Open a dedicated Slack or Microsoft Teams channel for an incident, with the responders already in it and a call link attached."
 sidebar:
   label: "Overview"
   order: 1
 ---
 
-Some incidents need a room, not another notification. A war room is a Slack channel or a Microsoft Teams group chat that belongs to one incident. KloudMate creates it, invites the responders and the on-call engineers, posts an incident card at the top, and attaches a conference call link.
+Some incidents need a room, not another notification. A war room is a Slack or Microsoft Teams channel that belongs to one incident. KloudMate creates it, brings in the responders and the on-call engineers, posts an incident card at the top, and attaches a conference call link.
 
-The card tracks the incident. It shows the current severity and status, and in Slack you can acknowledge, resolve, add responders, and leave a note without opening KloudMate.
+The card tracks the incident. It shows the current severity and status, and you can acknowledge, resolve, add responders, and leave a note from it without opening KloudMate.
 
 An incident gets one room. If a routing rule, a Slack button, and the incident page all ask for a room in the same minute, you still end up with one channel.
 
 ## Open a war room
 
 - **From the incident.** Click **Start war room** on the **Incident War Room** panel. You can change the channel name, paste a call link, and invite extra people before it opens.
-- **From Slack.** Click **Start war room** on the incident alert in your shared channel.
+- **From Slack or Teams.** Click **Start war room** on the incident alert in your shared channel.
 - **From a routing rule.** Turn on **Start War Room** in the rule's actions, and every incident it creates opens with a room.
 - **From an escalation step.** Check **Start War Room on this step**, and the room opens when the incident escalates that far.
 
@@ -47,35 +47,43 @@ KloudMate also replies in that thread as the incident moves: acknowledged or una
 
 ## What responders see in Microsoft Teams
 
-The room is a group chat owned by the Microsoft 365 account you connected. The card shows the same incident facts, the people who were invited, the ones who couldn't be added, and buttons for **Join Call** and **View Incident**. It's rewritten in place as the incident changes, the same as in Slack.
+The room is a new standard channel in the team your war room channel belongs to, so everyone in that team can see it. The first post is the incident card, and KloudMate mentions the responders in the channel so Teams notifies them.
+
+The card shows the severity, status, service, and responders, with links to **View Incident** and, when the incident has a call link, **Join Call**. Its buttons are **Acknowledge** (or **Unack**), **Resolve** (or **Unresolve**), **Add Responders**, and **Note**. Only a Developer can use **Add Responders**. A note is posted as a reply under the card and saved on the incident's **Notes** tab. The card is rewritten in place as the incident changes, the same as in Slack.
+
+The card also names responders KloudMate couldn't bring in:
+
+- **Not in this team:** they aren't members of the team, so they can't see the channel. A team owner has to add them to the team. KloudMate never adds people to a team.
+- **Not linked to Teams:** KloudMate couldn't match them to a Teams account yet. To link, they click a button on the card and choose **Link my account**. See [Link your Teams account](../microsoft-teams-integration/#link-your-teams-account).
 
 :::note
-Teams rooms don't carry the action buttons, the thread replies, or RCA. Acknowledge, resolve, and add notes from the incident page instead. Teams group chats also have no public or private setting, so **Private room** has no effect on them.
+Teams rooms don't have **Run RCA** or the timeline replies. **Private room** has no effect on them: a Teams room is always a standard channel.
 :::
 
 ## The incident alert turns into a pointer
 
-Once a Slack war room exists, the incident alert in your shared channel stops carrying its own buttons and becomes a signpost: **Open war room** and **Open in KloudMate**. It isn't rewritten again after that, so read the room's card for the current state. That keeps the conversation in one place instead of splitting it between the alert thread and the room.
+Once a war room exists, the incident alert in the same app stops carrying its own buttons and becomes a signpost: **Open war room** and **Open in KloudMate**. A Slack room does this to the Slack alert, and a Teams room to the Teams alert. An alert in the other app keeps its buttons. The signpost isn't rewritten again after that, so read the room's card for the current state. That keeps the conversation in one place instead of splitting it between the alert thread and the room.
 
 ## Follow the room from the incident page
 
-The **Incident War Room** panel on the incident shows the room as **Active** or **Archived**, links to the channel or chat, and lists the members. A member KloudMate couldn't match to a chat account is tagged **Unmapped**, and hovering it tells you why.
+The **Incident War Room** panel on the incident shows the room as **Active**, or as **Archived** (Slack) or **Closed** (Teams), links to the channel, and lists the members. A member KloudMate couldn't match to a chat account is tagged **Unmapped**, and hovering it tells you why.
 
-**Conference call** sits beside it. Use the edit icon to add or replace the **Meeting link** and the **Dial-in** at any point while the incident is open, and KloudMate updates the card and the topic. A Developer can also end the room early with **Archive war room**, which posts the closing summary and archives the channel straight away.
+**Conference call** sits beside it. Use the edit icon to add or replace the **Meeting link** and the **Dial-in** at any point while the incident is open, and KloudMate updates the card, plus the channel topic in Slack. A Developer can also end the room early with **Archive war room** (**Close war room** for Teams), which posts the closing summary and closes the room straight away.
 
 ## When the incident resolves
 
-KloudMate marks the card resolved, then starts the clock on the archive delay, which is one hour unless you've changed it. When the delay runs out, it posts a closing summary and archives the Slack channel. A Teams chat stays in place, because group chats can't be archived, so the closing summary is what tells responders the room is done. Either way the history stays in your chat workspace.
+KloudMate marks the card resolved, then starts the clock on the archive delay, which is one hour unless you've changed it. When the delay runs out, it posts a closing summary and closes the room.
 
-Set the delay to **Keep the room open** if you'd rather archive rooms yourself.
+- **Slack:** the channel is archived, and its history stays in your Slack workspace.
+- **Teams:** the channel is renamed `closed-<name>` and deleted 7 days later. Before that, KloudMate posts a record of the room in the incident's alert thread in your shared Teams channel, with the AI resolution summary, so the summary outlives the channel. A team owner can restore a deleted channel in Teams for 30 days.
 
-:::caution
-Reopening an incident doesn't cancel an archive that's already scheduled. If you unresolve an incident inside the delay window, the Slack channel is still archived on time, and starting the war room again returns the archived room. Unarchive the channel in Slack to carry on in it.
-:::
+Set the delay to **Keep the room open** if you'd rather archive Slack rooms yourself. Teams rooms always need a delay, because every channel counts toward the team's limit of 1,000 channels.
+
+If you unresolve the incident inside the delay window, the room stays open while the incident is open, in Slack and in Teams. Resolving it again schedules another close. A close scheduled by the earlier resolve still runs at its original time, so the room can close sooner than the full delay after the second resolve.
 
 ## Related
 
 - [Set up war rooms](./setup/): what to connect, which permissions it needs, and the defaults for every room.
 - [Troubleshooting](./troubleshooting/): what to do when a room won't open or opens without a call.
-- [Slack Integration](../slack-integration/): the install that war rooms use, and per-user account linking for ChatOps.
+- [Slack Integration](../slack-integration/) and [Microsoft Teams Integration](../microsoft-teams-integration/): the installs that war rooms use, and how people link their chat accounts.
 - [Routing Rules](../routing-rules/) and [Escalation Policies](../escalation-policy/): the two places a room can open on its own.

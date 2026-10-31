@@ -54,7 +54,7 @@ View all collected data in these KloudMate sections:
 
 ## Install Agent
 
-**Step 1:** Navigate to the **Settings → Agents** section in your KloudMate account.
+**Step 1:** Navigate to the **Settings → Agents & Pipelines** section in your KloudMate account.
 
 **Step 2:** Click **Add Agent**, select **Windows**, and click **Continue**. On the **API key** step, click **Create backend key**, or select **Use existing key** and paste your backend ingest key. Then click **Continue**.
 
@@ -79,7 +79,7 @@ To install without prompts (for Intune, Group Policy, or a configuration-managem
 ```
 
 - `/APIKEY=` sets your workspace API key. Required.
-- `/ENDPOINT=` sets the collector endpoint. Optional; defaults to `https://otel.kloudmate.com:4318`. Use your workspace's endpoint from **Settings → Agents**.
+- `/ENDPOINT=` sets the collector endpoint. Optional; defaults to `https://otel.kloudmate.com:4318`. Use your workspace's endpoint from **Settings → Agents & Pipelines**.
 - `/VERYSILENT /SUPPRESSMSGBOXES /NORESTART` suppress the wizard, dialog prompts, and reboot.
 
 The service installs and starts the same as the interactive install. Replace `kmagent-setup.exe` with the file you downloaded.

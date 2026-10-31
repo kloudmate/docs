@@ -1,0 +1,50 @@
+---
+title: "Pipeline rule recipes"
+description: "Ready-made KloudMate pipeline rules for dropping noisy telemetry, masking personal data, cleaning up attributes, and sampling traces."
+sidebar:
+  label: "Recipes"
+  order: 7
+---
+
+Each recipe is a single rule for one kind of data. Copy it for traces or metrics where the same problem applies, and [test the conditions](../create-a-rule/#test-the-conditions-on-live-data) on a live sample before you publish.
+
+## Cut noise and cost
+
+| Goal | Type and data | Conditions | Notes |
+|---|---|---|---|
+| Drop health-check logs | Drop, logs | `body` matches regex `health\|readiness\|liveness` | Add a `service.name` condition if the words also appear in real messages. |
+| Drop debug logs from one service | Drop, logs | `service.name` equals `alarms-service` and `severity` is below `INFO` | Keeps the service's info, warning, and error logs. |
+| Drop a namespace's logs in dev | Drop, logs | `k8s.namespace.name` is one of `kube-system, cert-manager` | Apply it to a group such as `env = dev`, so production keeps those logs. |
+| Drop health-check spans | Drop, traces | `http.route` is one of `/health, /ready, /metrics` | The endpoint's request rate and latency also disappear from APM. |
+| Drop spans of static assets | Drop, traces | `span.name` matches regex `^(GET\|HEAD) /static/` | |
+| Drop metrics from a test environment | Drop, metrics | `deployment.environment` equals `test` | Or apply a rule with no conditions to a group of test hosts. |
+| Drop one kind of JSON log | Drop, logs | A top-level key of the JSON body, such as `type` equals `http-log` | [Add the condition from a sampled record](../create-a-rule/#add-a-condition-from-a-record). |
+
+Not sure what a drop catches? Publish it in [shadow mode](../rollouts/#try-a-rule-in-shadow-mode) and check **Activity** before you drop anything.
+
+## Protect sensitive data
+
+| Goal | Type and data | Settings | Notes |
+|---|---|---|---|
+| Mask payment and contact data | Mask, logs | Card numbers, email addresses, and phone numbers, replaced with `****`. **Enforce** on. | Enforce keeps the mask even when an agent has a custom config override. |
+| Keep users countable but unreadable | Mask, logs | Email addresses, replaced with **Keyed hash (HMAC)** | The same email always produces the same hash. Needs a redaction key on the agent. |
+| Mask India identifiers | Mask, logs | Aadhaar numbers and PAN (India) | Add IBANs for banking payloads. |
+| Mask your own token format | Mask, traces | **Custom regex**, for example `sk_live_[A-Za-z0-9]{24}` | Masked values show a lock in the sample preview. |
+| Mask personal data in metric attributes | Mask, metrics | Email addresses and IP addresses | Series that become identical after masking are merged. |
+
+## Clean up attributes
+
+| Goal | Type and data | Settings | Notes |
+|---|---|---|---|
+| Strip auth headers from spans | Edit attributes, traces | Remove `http.request.header.authorization` and `http.request.header.cookie` | |
+| Rename to the standard name | Edit attributes, traces | Rename `userId` to `user.id` | Dashboards and alerts that use `user.id` then work across services. |
+| Label data with its owner | Edit attributes, logs | Set `team` to `payments` | Apply it to the group of that team's hosts. |
+| Remove a high-cardinality metric label | Edit attributes, metrics | Remove `user.id`, merge series with **Sum** | Use **Max**, **Min**, or **Mean** for gauges. |
+
+## Sample traces
+
+| Goal | Type and data | Settings | Notes |
+|---|---|---|---|
+| Keep 10% of traces, all errors, and slow requests | Sample, traces | Keep 10%, always keep traces with errors, keep traces slower than `2000` ms | Tail sampling, on the sampling gateway. |
+| Head-sample a busy environment | Sample, traces | Keep 20%, no keep options | One head-sampling rate per environment. |
+| Sample one service's traces | Sample, traces | `service.name` equals `checkout`, keep 25%, always keep traces with errors | Conditions need tail sampling, so turn on a keep option first. |

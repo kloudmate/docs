@@ -1,0 +1,50 @@
+---
+title: "Data retention"
+description: "How long KloudMate keeps each kind of data, from the logs and traces your plan sets to the windows you can't see in the product."
+sidebar:
+  label: "Data retention"
+  order: 2.5
+---
+
+How long KloudMate keeps your data depends on what it is. Logs and traces are kept for the window your plan sets, metrics for a year, and several other kinds of data have their own window.
+
+This page lists every retention window, including the ones you can't see in the product.
+
+## Plan retention
+
+Logs and traces are kept for the window your plan sets. This is the data you can query directly in the Log Explorer and the trace views.
+
+| Data | Retention |
+| --- | --- |
+| Logs and traces | Free 7 days, Pro 14 days |
+| Metrics | 1 year |
+
+Metrics are billed by sample count rather than by how long they're kept, so they're kept for a year on every plan.
+
+Logs and traces retention is set by your plan. See [Subscription & Billing](../settings/subscription-billing/).
+
+## Metrics are tiered by resolution
+
+A metric isn't kept at full resolution for the whole year. Raw samples are kept for about 3 hours, then served from rollups at coarser resolution: a 15-day tier, a 63-day tier, and a long rollup kept for the full year. KloudMate picks the resolution for the range you query, so a chart over the last hour reads raw samples and a chart over the last quarter reads the long rollup.
+
+## Other retention windows
+
+These apply to everyone, regardless of plan.
+
+| Data | Kept for | Notes |
+| --- | --- | --- |
+| Session replay recordings | 7 days | The rrweb recordings behind a RUM session. Not archivable to Cold Storage. |
+| Continuous profiling | 7 days | |
+| Anomaly forecast bands | 7 days | The predicted band a forecast alert compares against. |
+| Issue occurrences | 30 days | |
+| Metric cardinality analytics | 45 days | |
+| Endpoint (RED) history | 90 days | An hourly rollup, kept so request-rate, error, and duration history outlives raw trace retention. |
+| RUM route metrics | 90 days | An hourly rollup of per-route performance. |
+| RUM custom events | 400 days | An hourly rollup, so you can compare this quarter against last quarter. |
+| RUM release health | 400 days | An hourly rollup, so you can compare a release against an earlier one after their raw sessions have aged out. |
+
+Raw RUM data follows your plan retention. That covers sessions, errors, journeys, raw events, route visits, and the raw custom events behind the 400-day rollup.
+
+## Keeping logs longer
+
+To keep logs beyond your plan retention, archive them to your own S3 bucket with [Cold Storage](../settings/cold-storage/). The archive lives in your AWS account at S3 storage prices, and you rehydrate a time range into the Log Explorer when you need to search it. Cold Storage archives logs only. Traces, metrics, and RUM aren't archived.

@@ -44,16 +44,14 @@ If you need to keep an attribute but redact portions of its value (e.g., masking
 
 ### Example: Mask Passwords in HTTP URLs
 
-This configuration uses a regex pattern to find `password=...` in the `http.url` attribute and replaces the value with `password=***`.
+This configuration uses a regex pattern to find `password=...` in the `url.full` attribute and replaces the value with `password=***`.
 
 ```yaml
 processors:
   transform/mask_passwords:
     error_mode: ignore
     trace_statements:
-      - context: span
-        statements:
-          - replace_pattern(attributes["http.url"], "password=[^&]*", "password=***")
+      - replace_pattern(span.attributes["url.full"], "password=[^&]*", "password=***")
 
 service:
   pipelines:
@@ -75,12 +73,10 @@ This configuration evaluates incoming spans and logs. If a span targets the `/he
 processors:
   filter/drop_healthchecks:
     error_mode: ignore
-    traces:
-      span:
-        - 'attributes["http.target"] == "/health"'
-    logs:
-      log_record:
-        - 'body == "Healthcheck passed"'
+    trace_conditions:
+      - span.attributes["url.path"] == "/health"
+    log_conditions:
+      - log.body == "Healthcheck passed"
 
 service:
   pipelines:
@@ -105,11 +101,11 @@ service:
   pipelines:
     traces:
       receivers: [otlp]
-      processors: 
-        - filter/drop_healthchecks # 1. Drop noisy spans completely
-        - attributes/drop_pii      # 2. Delete sensitive attributes
-        - transform/mask_passwords # 3. Regex replacement on remaining spans
-        - batch                    # 4. Batch for export
+      processors:
+        - filter/drop_healthchecks   # 1. Drop noisy spans completely
+        - attributes/drop_pii        # 2. Delete sensitive attributes
+        - transform/mask_passwords   # 3. Regex replacement on remaining spans
+        - batch                      # 4. Batch for export
       exporters: [otlphttp]
 ```
 

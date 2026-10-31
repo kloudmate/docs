@@ -7,7 +7,9 @@ sidebar:
 
 import { Steps, Tabs, TabItem } from '@astrojs/starlight/components';
 
-Production JavaScript is minified, so a browser error's stack points at a position such as `index-4f2a.js:1:84210`. Upload the source maps from each build, and the stack trace on the issue page and in the error drawer shows the original file, line, and column instead, along with the lines of source around it.
+Production JavaScript is minified, so a browser error's stack points at a position such as `index-4f2a.js:1:84210`. Upload the source maps from each build, and the stack trace on the issue page and in the error drawer shows the original file, line, and column instead, along with the lines of source around it. Switch to **Raw** to see the stack as the browser reported it.
+
+![The error drawer for a TypeError, with the Stacktrace panel set to Original, showing app.js:308:25 with the source lines around it and an in app badge, followed by frames with a KloudMate SDK badge.](./images/source-maps-error-stack.png)
 
 You upload the maps from your build, usually in CI, with the `@kloudmate/sourcemaps` package. They're stored in your workspace and never served publicly. Stacks are mapped when you open an error, not when it's reported, so maps you upload after a deploy also apply to errors that build has already reported.
 

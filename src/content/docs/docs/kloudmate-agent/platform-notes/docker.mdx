@@ -19,33 +19,103 @@ Container monitoring isn't unique to Docker mode. A [Linux agent](../../installa
 
 ## Docker mode vs the Linux agent
 
-For monitoring containers, the two are equivalent. A Linux (systemd) agent on a Docker host and a containerized Docker-mode agent both collect container metrics and logs automatically, and both trace containers per service with eBPF (**Off** or **eBPF**). Pick between them by how you want to run the agent, not by what they can see:
+For monitoring containers, the two are equivalent. A Linux (systemd) agent on a Docker host and a containerized Docker-mode agent both collect container metrics and logs automatically, and both trace containers per service with eBPF or the OpenTelemetry SDK. Pick between them by how you want to run the agent, not by what they can see:
 
 - **Host processes.** The Linux agent also instruments the host's own non-containerized processes with the OpenTelemetry SDK, through systemd. A Docker-mode agent is itself a container, so it can't do that, and the host's processes are traced with eBPF only.
-- **PHP containers.** A PHP container can offer an **SDK** option that injects the tracer with no redeploy. That option is on by default in Docker mode. On the Linux agent it's opt-in: set `KM_CONTAINER_INSTRUMENT_ENABLED=true`.
+- **SDK for containers.** The **SDK** option on containers is on by default in both. On the Linux agent, PHP containers are opt-in: see [Container SDK on the Linux agent](#container-sdk-on-the-linux-agent).
 - **How the agent runs.** Docker mode runs the agent as a container and needs the Docker socket mounted, plus a privileged container with host access for eBPF. The Linux agent runs as a systemd service on the host and already has that access.
 
 ## Application traces
 
-Application tracing (Rate, Errors, and Duration metrics and trace spans) is **not** automatic. The agent lists every host process and container it finds in the **Application instrumentation** card on the agent's **APM** tab, and for each one you choose how it's traced:
+Application tracing (Rate, Errors, and Duration metrics and trace spans) is **not** automatic. The agent lists every host process and container it finds in the **Application Performance Monitoring** card on the agent's **APM** tab, and for each one you choose how it's traced:
 
 - **Off:** not traced. This is the default, so nothing is traced (and nothing costs) until you turn it on, which matters on a host running many containers.
 - **eBPF:** RED metrics and trace spans, captured in the host kernel with no code change and no restart.
-- **SDK:** offered for PHP containers. It injects the tracer and reloads the web server, so tracing starts with no redeploy and no container restart. See [Instrument PHP containers](#instrument-php-containers).
+- **SDK:** deep spans from the OpenTelemetry SDK running inside the app, including database queries and internal calls.
 
-The in-process OpenTelemetry SDK can't be injected into a running container, because it reads its configuration from the process's start-time environment, and that can't change without recreating the container. So Java, Node.js, Python, .NET, and Go containers offer **Off** or **eBPF** only. For full SDK depth on those runtimes, add OpenTelemetry to the app yourself (below), or run it on a [Linux host](../../installation/linux-agent/) or [Amazon ECS](../../installation/ecs-agent/), where the agent injects it for you.
+![The APM tab on a Docker host, listing host processes and containers with Off and eBPF options, or Off, eBPF, and SDK for containers, above the Redeploy-safe SDK card](./images/docker-apm-tab.png)
 
-| Runtime | On the APM tab | Full SDK depth |
+| Runtime | On the APM tab | How the SDK is added |
 |---|---|---|
-| Java, Node.js, Python, .NET | **Off / eBPF**: RED and spans, opt-in, no restart | Not injectable on Docker. [Add OpenTelemetry yourself](#send-full-opentelemetry-traces-from-your-containers), or run on Linux or ECS. |
+| Java, Node.js, Python, .NET | **Off / eBPF / SDK** | The agent recreates the container with the SDK, which restarts it for a few seconds. See [Instrument Java, Node.js, Python, and .NET containers](#instrument-java-nodejs-python-and-net-containers). |
+| PHP 7 and 8 | **Off / eBPF / SDK** | The agent injects the tracer and reloads the web server, with no restart. See [Instrument PHP containers](#instrument-php-containers). |
 | Go | **Off / eBPF** | eBPF only. Go is a static binary with no runtime to attach. |
-| PHP 7 and 8 | **Off / eBPF / SDK**: SDK injects the tracer, no redeploy | Covered by the SDK option, no redeploy |
+
+## Instrument Java, Node.js, Python, and .NET containers
+
+These runtimes read their instrumentation settings when the process starts, so the agent adds the SDK by recreating the container. Set the container to **SDK** on the **APM** tab and click **Apply**. On its next check-in, within a minute, the agent:
+
+1. Recreates the container under the same name with the same settings, plus the OpenTelemetry SDK. Environment variables that the app already sets, such as `NODE_OPTIONS` or `JAVA_TOOL_OPTIONS`, keep their values, and the SDK's settings are added to them.
+2. Waits for the new container to stay up for 30 seconds, and for its healthcheck to pass if the image has one.
+3. Removes the original container. If the new one exits, restarts, or fails its healthcheck, the agent removes it and starts the original container again, and the row shows **Failed** with the reason.
+
+Volumes keep their data, including anonymous volumes. Networks, static IP and MAC addresses, published ports, the restart policy, the healthcheck, resource limits, the user, and security options carry over unchanged. The container keeps running the same image even if its tag has been pulled again since it started.
+
+Setting the container back to **Off** or **eBPF** recreates it once more without the SDK, with its original settings.
+
+One-click SDK for these runtimes needs agent version 2.6.0 or later, installed with the current Docker install command, which shares the SDK files and the agent's OpenTelemetry socket with your containers. Node.js containers send traces over that socket; the other runtimes send them to the agent on port `4318`.
+
+### When the agent won't recreate a container
+
+The agent leaves a container as it is and shows the reason on its row in these cases:
+
+| Reason | What to do |
+|---|---|
+| Managed by Docker Compose or Docker Swarm | Add the SDK settings to the Compose file or service definition and redeploy. Click **View SDK settings** on the row for the exact settings. |
+| Started with `--rm` or `--volumes-from`, or another container shares its network | Apply the SDK settings at the container's next deploy. |
+| Paused | Unpause the container, then set it to **SDK** again. |
+| Another APM agent is already loaded, such as dd-trace or a `-javaagent` | Remove the other agent, or keep using it. |
+| Unsupported runtime: Node.js older than 18.19, a Python version the bundle doesn't include, or Python and .NET on Alpine (musl) images | Use eBPF for the container, or a supported image. |
+| `JAVA_TOOL_OPTIONS` would exceed 1024 characters | Shorten the existing options. The JVM ignores longer values. |
+| The agent was installed without the shared folders | Reinstall the agent with the current Docker install command. |
+| The container's network can't reach the agent, such as a macvlan or ipvlan network | Set `KM_CONTAINER_OTLP_URL` on the agent. See [How containers reach the agent](#how-containers-reach-the-agent). |
+
+If the container's entrypoint overwrites `NODE_OPTIONS` or another instrumentation variable, the app runs without the SDK and the row shows the reason. Set the variable in the image instead of in the entrypoint script.
+
+To keep the agent from recreating containers on a host, set `KM_CONTAINER_SDK_RECREATE=false` in the agent's environment. The **View SDK settings** option still works.
+
+### Container SDK on the Linux agent
+
+A Linux agent on a Docker host adds the SDK to Java, Node.js, Python, and .NET containers the same way a Docker-mode agent does, and it keeps instrumenting the host's own services too. This is on by default. Older agent versions need it turned on with the setting below.
+
+PHP containers are opt-in on the Linux agent. Their tracer reports to port `8126`, which a Datadog agent on the same host may already use.
+
+To turn on PHP containers, or container SDK on an older agent, set `KM_CONTAINER_INSTRUMENT_ENABLED=true` with a systemd override, then restart the agent. To turn container SDK off, set it to `false` instead.
+
+```bash
+sudo mkdir -p /etc/systemd/system/kmagent.service.d
+printf '[Service]\nEnvironment=KM_CONTAINER_INSTRUMENT_ENABLED=true\n' | sudo tee /etc/systemd/system/kmagent.service.d/override.conf
+sudo systemctl daemon-reload
+sudo systemctl restart kmagent
+```
+
+To check that the agent picked it up, run `systemctl show kmagent -p Environment`. It should list the variable you set.
+
+Don't run a Linux agent and a Docker-mode agent on the same host. Both listen on ports `4317` and `4318`, so the second agent's collector can't start.
+
+### How containers reach the agent
+
+Node.js containers send traces over the agent's OpenTelemetry socket. The other runtimes send them over OTLP/HTTP, to an address the agent picks for each container:
+
+- **Host network:** `http://127.0.0.1:4318`.
+- **Bridge network:** the network's gateway, for example `http://172.17.0.1:4318`, which reaches the agent on the host.
+
+On a network with no route to the host, such as macvlan or ipvlan, the agent leaves the container as it is and its row says the container can't reach the agent. Set `KM_CONTAINER_OTLP_URL` to an address your containers can reach, and the agent uses it for every container:
+
+- **Docker-mode agent:** add `-e KM_CONTAINER_OTLP_URL=http://10.0.0.5:4318` to the agent container.
+- **Linux agent:** add `Environment=KM_CONTAINER_OTLP_URL=http://10.0.0.5:4318` as a second line of the agent's `override.conf`, created as in [Container SDK on the Linux agent](#container-sdk-on-the-linux-agent), then restart the agent.
+
+The same address is used for containers that get the SDK through [redeploy-safe SDK](../redeploy-safe-sdk/).
+
+### Keep the SDK across redeploys
+
+A recreated container loses the SDK when it's redeployed, because the next deploy creates it from your original settings. Turn on [redeploy-safe SDK](../redeploy-safe-sdk/) to add the SDK as Docker creates each container instead. It also covers Compose and Swarm containers, with no change to their files.
 
 ## Instrument PHP containers
 
 A PHP container offers an **SDK** option on the agent's **APM** tab. Turn it on for a container and the agent injects the tracer, matches it to the container's PHP build, and reloads the web server (an Apache graceful reload or a php-fpm reload). Tracing starts with no redeploy and no container restart.
 
-The SDK option appears whenever the PHP-container instrumentation path is enabled. It's on by default in Docker mode. On a [Linux host agent](../../installation/linux-agent/) it's opt-in: set `KM_CONTAINER_INSTRUMENT_ENABLED=true`.
+The SDK option appears whenever the PHP-container instrumentation path is enabled. It's on by default in Docker mode. On a [Linux host agent](../../installation/linux-agent/) it's opt-in: see [Container SDK on the Linux agent](#container-sdk-on-the-linux-agent).
 
 For automated or immutable deployments, instrument PHP containers without picking each one:
 
@@ -57,24 +127,28 @@ KM_CONTAINER_INSTRUMENT_ALL=true
 KM_CONTAINER_INSTRUMENT_NAMES=app1,app2
 KM_CONTAINER_INSTRUMENT_IMAGES=wordpress,my-php-app
 
-# Turn the PHP-container SDK path off entirely
+# Turn container SDK off entirely, PHP included
 KM_CONTAINER_INSTRUMENT_ENABLED=false
 ```
 
 ### What is supported
 
-- **Web servers:** Apache with mod_php, and PHP-FPM. The agent reloads them gracefully, so tracing starts without a restart. WordPress and the official `php:8.x-apache` images work this way.
+- **Web servers:** Apache with mod_php, and PHP-FPM. The agent reloads Apache gracefully and signals the PHP-FPM master to reload, so tracing starts without a restart. The official `php:8.x-apache` and `php:8.x-fpm` images and WordPress work this way.
+- **PHP-FPM behind nginx:** set the PHP-FPM container to **SDK**, not the nginx container. PHP runs in PHP-FPM, so that's where the tracer goes.
 - **PHP versions:** 7.0 through 8.x. The tracer is matched to the container's exact PHP build automatically.
+- **Network access:** the agent downloads the tracer installer from GitHub inside the container, so the container needs outbound internet access and `curl` or `wget`. The official `php` images include `curl`.
 
-The agent cannot instrument a container that serves requests from the **PHP built-in server** (`php -S`), because that server does not reload configuration without a full restart. The official Adminer image is one example. Alpine (musl) images are also a problem, because the bundled tracer assets target glibc.
+The agent can't instrument a container that serves requests from the **PHP built-in server** (`php -S`). It runs no Apache or PHP-FPM to reload, so the agent leaves the container unchanged and its row shows why. The official Adminer image is one example. Alpine (musl) images are also a problem, because the bundled tracer assets target glibc.
+
+Traces from a container built on an official `php` image are reported under the container's name. Other images, such as WordPress, are reported under the image name.
 
 ### How PHP-container tracing is selected
 
-By default, a PHP container is traced when you set it to **SDK** on the **APM** tab, the same per-service choice as any other service. The environment variables above override that for automated rollouts: `KM_CONTAINER_INSTRUMENT_ALL`, `KM_CONTAINER_INSTRUMENT_NAMES`, or `KM_CONTAINER_INSTRUMENT_IMAGES` instrument a fixed set with no UI step, and [autonomous mode](../../advanced-configuration/) instruments every PHP container. Setting `KM_CONTAINER_INSTRUMENT_ENABLED=false` turns the SDK path off, so PHP containers fall back to **Off** or **eBPF**.
+By default, a PHP container is traced when you set it to **SDK** on the **APM** tab, the same per-service choice as any other service. The environment variables above override that for automated rollouts: `KM_CONTAINER_INSTRUMENT_ALL`, `KM_CONTAINER_INSTRUMENT_NAMES`, or `KM_CONTAINER_INSTRUMENT_IMAGES` instrument a fixed set with no UI step, and [autonomous mode](../../advanced-configuration/) instruments every PHP container. Setting `KM_CONTAINER_INSTRUMENT_ENABLED=false` turns container SDK off, so containers fall back to **Off** or **eBPF**.
 
 ## Send full OpenTelemetry traces from your containers
 
-For Java, Node.js, Python, and .NET, **eBPF** (the per-service toggle above) already gives you RED metrics and spans with no code change. For full SDK depth — client spans, database and library instrumentation, custom spans — run OpenTelemetry inside the application. Add it once, at build or deploy time, and point it at the agent. The agent already listens for OpenTelemetry (OTLP) data:
+For a container the agent won't recreate, such as one managed by Docker Compose, add OpenTelemetry at build or deploy time and point it at the agent. Click **View SDK settings** on the container's row for the exact environment variables and volume, as a Compose override and as `docker run` flags. To set it up by hand instead, add OpenTelemetry to the application and point it at the agent. The agent already listens for OpenTelemetry (OTLP) data:
 
 - gRPC on port `4317`
 - HTTP on port `4318`
@@ -98,13 +172,15 @@ To send over HTTP instead of gRPC, use port `4318` and add `OTEL_EXPORTER_OTLP_P
 
 **3. Restart the service** so the instrumentation loads. Its traces then appear in KloudMate, joined to the service's eBPF spans on one trace.
 
-The agent produces this same result automatically on a [Linux host](../../installation/linux-agent/) or on [Amazon ECS](../../installation/ecs-agent/). In plain Docker you add the instrumentation yourself, because the agent cannot change a running container's startup environment without recreating it.
+For containers it can recreate, the agent does all of this for you when you set them to **SDK**.
 
 ## Deployment posture
 
-PHP container instrumentation reaches the containers through the Docker socket, so it works from a host-process agent or from the containerized collector, as long as the socket is mounted.
+Container SDK instrumentation reaches the containers through the Docker socket, so it works from a host-process agent or from the containerized collector, as long as the socket is mounted.
 
 eBPF monitoring is different: it needs host kernel access, so a plain, non-privileged agent container cannot produce the eBPF signals. Run the agent on the host, or as a privileged container with host mounts.
+
+With eBPF on, the agent uses about 300 MiB of memory, and briefly more while it applies a tracing change. Hosts with at least 2 GB of RAM are recommended. On a smaller host, such as a 1 GB AWS t3.micro, the agent holds itself to about a third of the host's memory, so your apps keep the rest.
 
 ## PHP 7 in containers
 

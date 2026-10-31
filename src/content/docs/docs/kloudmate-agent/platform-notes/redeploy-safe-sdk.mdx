@@ -1,0 +1,103 @@
+---
+title: "Redeploy-safe SDK"
+description: "Keep the OpenTelemetry SDK on Docker containers when they're redeployed, by adding it as Docker creates each container."
+sidebar:
+  order: 4
+---
+
+import { LinkCard, CardGrid } from '@astrojs/starlight/components';
+
+Redeploy-safe SDK keeps the OpenTelemetry SDK on your containers when they're redeployed. Without it, the agent adds the SDK by [recreating a running container](../docker/#instrument-java-nodejs-python-and-net-containers), and the next `docker compose up`, `docker run` with a new tag, or CI deploy creates a fresh container from your original settings, without the SDK. With it on, the SDK is added while Docker creates the container, so a container you've set to **SDK** starts instrumented every time.
+
+It also covers containers that the agent won't recreate, such as those managed by Docker Compose or Docker Swarm. They get the SDK the next time they're deployed or restarted, with no change to your Compose file.
+
+Redeploy-safe SDK is set per host and is off by default. It works on Docker-mode agents and on [Linux agents](../docker/#container-sdk-on-the-linux-agent) running on a Docker host, for the runtimes that the agent adds the SDK to by recreating: Java, Node.js, Python, and .NET.
+
+## Turn it on
+
+1. Open the agent's **APM** tab.
+2. In the **Redeploy-safe SDK** card, turn on **Add the SDK when containers are created**, and confirm.
+
+The agent applies the change on its next check-in, within a minute. Turning it on doesn't restart Docker or any container. Containers that already have the SDK keep it, and Compose and Swarm containers set to **SDK** get it at their next deploy.
+
+To turn it on at install time instead, set `KM_DOCKER_RUNTIME_SHIM=true` in the install command's environment, or pass `--runtime-shim` to the Docker install script. A choice you make later on the **APM** tab replaces it.
+
+## What changes on the host
+
+The agent registers a KloudMate runtime, `kmagent-runc`, as Docker's default runtime:
+
+- It adds a `kmagent` entry under `runtimes` in Docker's `daemon.json` (`/etc/docker/daemon.json` on most hosts) and sets `default-runtime` to `kmagent`. The original file is saved first as `daemon.json.kmagent-backup`, and every other setting in it stays as it was.
+- Docker reloads its configuration, without a restart.
+
+From then on, Docker starts every new container through `kmagent-runc`:
+
+- A container that you've set to **SDK** gets the SDK files, the SDK's environment variables, and the agent's endpoint. Environment variables that the image or your deploy already sets, such as `NODE_OPTIONS` or `JAVA_TOOL_OPTIONS`, keep their values, and the SDK's settings are added to them.
+- Every other container is passed unchanged to the runtime that Docker used before, usually `runc`.
+- If `kmagent-runc` hits any error, or can't decide within 200 milliseconds, it starts the container unchanged.
+
+If a container with the SDK keeps failing to start, the agent stops adding the SDK to it. Set the container to **Off** and back to **SDK** to try again.
+
+The rules that tell `kmagent-runc` which containers get the SDK are valid for one hour, and the agent renews them every 15 minutes. If the agent is removed or stops running, the rules expire and every new container starts unchanged.
+
+A container that asks for a runtime explicitly, for example with `--runtime=nvidia`, doesn't go through Docker's default runtime. The agent adds the SDK to it by recreating it, the same way it does with this setting off.
+
+## Turn it off
+
+Turn off **Add the SDK when containers are created** on the **APM** tab. The agent sets `default-runtime` back to the runtime Docker used before and reloads Docker.
+
+- Running containers keep running, and any that have the SDK keep it until they're recreated.
+- After a redeploy, the agent adds the SDK back to a container set to **SDK** by recreating it, which restarts the container for a few seconds.
+- Compose and Swarm containers need the SDK settings in their Compose file or service definition again. Click **View SDK settings** on the container's row for the exact settings.
+
+The `kmagent` entry stays in `daemon.json`, now pointing at the original runtime. Docker records the default runtime on every container it creates, so containers created while the setting was on still name `kmagent`, and they need that entry to start. The `kmagent-runc` binary stays on the host until Docker next restarts, and the agent removes it after that.
+
+Uninstalling the agent turns the setting off the same way.
+
+## When it isn't available
+
+In these cases the agent leaves `daemon.json` as it was, and containers set to **SDK** are instrumented by recreating them.
+
+| Reason | What to do |
+|---|---|
+| Rootless Docker or Docker Desktop | Not supported. For Compose and Swarm containers, add the SDK settings to their files. |
+| `dockerd` is started with `--default-runtime` | A configuration reload can't change a flag. Remove the flag from the Docker service, set `default-runtime` in `daemon.json` instead, and restart Docker once. |
+| The default runtime can't be chained, for example gVisor or Kata | Not supported. Only `runc` and runc-compatible runtimes such as `nvidia-container-runtime` can be chained. |
+| `daemon.json` isn't valid JSON | Fix the file, then turn the setting off and on again. |
+| Docker rejected the reload | The agent restored `daemon.json` and reloaded Docker again. Check Docker's log (`journalctl -u docker`) for the error. A flag on the Docker service that conflicts with `daemon.json`, such as `--add-runtime`, causes this. |
+
+## Pause it on a host
+
+To stop `kmagent-runc` from changing new containers right away, without waiting for the agent, create a file named `disabled` in its runtime directory:
+
+| Agent | Runtime directory |
+|---|---|
+| Linux agent | `/var/lib/kmagent-runtime` |
+| Docker-mode agent | `/var/lib/kmagent/docker/runtime` |
+| Snap Docker | `/var/snap/docker/common/kmagent/runtime` |
+
+```bash
+sudo touch /var/lib/kmagent-runtime/disabled
+```
+
+Delete the file to resume. The same directory holds `runc-shim.log`, which records why a container did or didn't get the SDK.
+
+## Remove it by hand
+
+If the agent is already gone and Docker still names `kmagent` as its default runtime, edit `daemon.json`:
+
+1. Set `default-runtime` back to the previous runtime, usually `"runc"`.
+2. Keep the `kmagent` entry under `runtimes`, and set its `path` to the previous runtime's binary, for example `/usr/bin/runc`. Containers created while the setting was on need it to start.
+3. Reload Docker:
+
+   ```bash
+   sudo systemctl reload docker
+   ```
+
+On a Linux host where the agent package is still installed, `sudo kmagent runtime-shim uninstall` does the same.
+
+## Next steps
+
+<CardGrid>
+  <LinkCard title="Docker platform notes" href="../docker/" description="How the agent adds the SDK to containers." />
+  <LinkCard title="Application APM overview" href="../../auto-instrumentation/overview/" description="How opt-in tracing works." />
+</CardGrid>
