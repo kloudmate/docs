@@ -20,6 +20,15 @@ The settings live on **Incidents → Settings**, under **War rooms**, below the 
 - Your workspace has a Slack channel, or a Microsoft Teams channel in a team connected through the KloudMate app. See [Slack Integration](../../slack-integration/) and [Microsoft Teams Integration](../../microsoft-teams-integration/).
 - For a conference call that's created per incident, you've connected Google Meet or Zoom under **Settings → Connections**.
 
+## Connect ChatOps
+
+The **ChatOps** card on **Incidents → Settings** connects Slack and Microsoft Teams to Incident Management, so responders can act on incidents from chat. War rooms open in the workspaces and channels connected here, so set this up first.
+
+![The ChatOps card with the Slack panel, showing the Add ChatOps channel button, and the Microsoft Teams panel, showing the Manage teams button](./images/war-room-chatops-card.png)
+
+- **Slack:** Click **Connect** on the **Slack** panel. If Slack is already installed for notifications, click **Add ChatOps channel** instead. See [Slack Integration](../../slack-integration/).
+- **Microsoft Teams:** Add the KloudMate app to a team in Teams, and have a team owner click **Connect** on the card it posts. Then add one of the team's channels under **Manage teams**. See [Microsoft Teams Integration](../../microsoft-teams-integration/).
+
 ## Set up Slack rooms
 
 Slack needs more permissions to open a war room than it does to post a notification. Creating a channel, reading a member's email address, and inviting people all sit behind permissions that a notifications-only install was never granted.
@@ -69,6 +78,8 @@ Every room takes one of the team's 1,000 channel slots, and Teams keeps counting
 | **The same link every time** | KloudMate uses your **Call link**, rendered per incident, plus an optional **Dial-in**. Use a standing bridge, or a link with the incident key in it, such as `https://meet.google.com/lookup/inc-{{ key }}`. |
 | **A new meeting per incident** | KloudMate creates a fresh meeting on the connection you pick. |
 
+![The Conference call dropdown open, with No call, The same link every time, and A new meeting per incident](./images/war-room-conference-call.png)
+
 For a new meeting per incident, connect one of these under **Settings → Connections** and select it in the war room settings. The picker lists connections granted for **Meetings**, so a Slack or AWS connection never shows up there.
 
 Teams rooms use the same options. KloudMate doesn't create Teams meetings, so for a Teams call, put a standing Teams meeting link under **The same link every time**.
@@ -89,6 +100,8 @@ Account-level Zoom settings override what KloudMate asks for. If responders land
 
 ## Set the defaults for every room
 
+![The War rooms settings, with Where rooms open, Room name template, Private room, Who gets invited, Conference call, After the incident resolves, and the Save war room settings button](./images/war-room-settings.png)
+
 | Setting | What it controls |
 |---|---|
 | **Room name template** | The channel name. Use `{{ number }}`, `{{ key }}`, `{{ title }}`, `{{ severity }}`, and `{{ service }}`. The default is `inc-{{ number }}-{{ title }}`. Slack names are lowercased and stripped to letters, numbers, hyphens, and underscores, up to 80 characters. Teams names can run to 50 characters, without the characters Teams doesn't allow in a channel name, such as `#`, `/`, and `?`. |
@@ -97,6 +110,8 @@ Account-level Zoom settings override what KloudMate asks for. If responders land
 | **On-call engineers** | Invites whoever is on call. Leave the schedule picker empty to follow the incident's escalation policy, or name specific [schedules](../../oncall/) to use those instead. |
 | **Always invite** | People who join every room, on call or not. An incident commander, for example. |
 | **After the incident resolves** | How long a resolved room stays open before KloudMate closes it. **Keep the room open** turns the automatic archive off for Slack rooms. Teams rooms need a delay. |
+
+Click **Save war room settings** to apply your changes.
 
 If a name is already taken by another incident's channel, KloudMate adds a short suffix and uses that. A name you type yourself is never changed for you, so you're told it's taken instead.
 

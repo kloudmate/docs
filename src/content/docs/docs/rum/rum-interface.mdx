@@ -35,16 +35,14 @@ Every platform gets the same tabs, but what's inside them depends on the applica
 
 Start on **Overview** to find out whether anything needs attention right now.
 
-![The RUM Overview tab: a Needs attention list of findings above Core Web Vitals cards for LCP, INP, CLS, page views, and error rate](./images/rum-overview.png)
+![The RUM Overview tab, top to bottom: a Needs attention list of findings, Core Web Vitals cards for LCP, INP, CLS, page views, and error rate, the Page Views & Errors and Network Requests & Errors charts, Worst pages by impact, Recent errors, and Audience breakdowns](./images/rum-overview.png)
 
 - **Needs attention** lists what changed, with the evidence behind each finding: `70 errors in this window, 3.7x the norm of 19 for the previous 7 days`.
 - **Core Web Vitals** reports LCP, INP, and CLS at p75 with the boundary each is judged against, plus page views and error rate. Web applications only.
 - **Release health** reports the crash-free rate, on applications that can crash.
-- **Volume and failures** plots sessions, page views, and errors over the range.
+- **Volume and failures** charts page views and errors, and network requests and errors, over the range.
 - **Worst pages by impact**, **Recent errors**, and **Delivery** each link through to the tab they come from.
 - **Audience** breaks sessions down by browser or device, version, **Screen resolution**, and country. Counts are distinct sessions, so a long session that fired a thousand spans still counts once.
-
-![The Audience row with Browser, Browser version, Screen resolution, and Country breakdowns](./images/rum-overview-audience.png)
 
 ### Core Web Vitals thresholds
 
@@ -62,7 +60,7 @@ INP replaced First Input Delay as a Core Web Vital in March 2024, and the RUM vi
 
 **Sessions** lists individual visits, most recent first.
 
-![The Sessions tab listing sessions with client, date, ANR signal badges, errors, screens, duration, and a Play button](./images/rum-sessions-list.png)
+![The Sessions tab for a web application, listing anonymous sessions with client, date, frustration signal badges, errors, actions, pages, duration, and a Play button](./images/rum-sessions-list.png)
 
 **Signals** badges the crashes, ANRs, and frustration clicks in each session, worst first and with counts, so you can tell which sessions are worth opening without opening them. See [Frustration signals](../session-detail/#frustration-signals).
 
@@ -112,9 +110,9 @@ On Android and iOS the tab has **App start**, **Screen loads**, **Who is slow**,
 
 **Errors** lists every error, crash, and app hang your SDKs reported, with a facet rail for narrowing the list and a volume chart above it.
 
-![The RUM Errors tab with All errors, Crashes, and App Hangs toggles, a Narrow by facet rail, an error volume chart, and a grouped error list](./images/rum-errors.png)
+![The RUM Errors tab for a web application in the Raw events view, with a Narrow by facet rail, an error volume chart, and a table of individual errors](./images/rum-errors.png)
 
-**All errors**, **Crashes**, and **App Hangs** split the list by kind, with **ANRs** in place of App Hangs on Android. **Grouped by issue** collapses identical errors into a single row with its count and its first and last occurrence. Switch to **Raw events** when you're chasing one specific failure rather than a pattern.
+On iOS, **All errors**, **Crashes**, and **App Hangs** split the list by kind, with **ANRs** in place of App Hangs on Android. **Grouped by issue** collapses identical errors into a single row with its count and its first and last occurrence. Switch to **Raw events** when you're chasing one specific failure rather than a pattern.
 
 Opening an error shows its stack trace, its attributes, and the sessions it happened in.
 
@@ -134,6 +132,8 @@ Every number on the tab opens the rows behind it, scoped to that version.
 :::caution
 Releases needs the SDK to send a `version`. Without one there's nothing to compare. Set it in the init call for your platform, in the [Instrumentation Guide](../instrumentation-guide/).
 :::
+
+![The Current release card with an example comparison of 2.4.1 against 2.4.0 and a How to set it button, shown when the SDK doesn't send a version](./images/rum-releases-no-version.png)
 
 Release data is counted hourly and kept for 400 days. You can still compare 4.2 against 4.1 weeks later, after the raw sessions behind both have aged out. A release that hasn't collected enough sessions yet isn't compared at all.
 

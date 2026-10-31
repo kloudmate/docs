@@ -1,39 +1,50 @@
 ---
 title: "AWS Account Setup"
-description: "Connect your AWS account to KloudMate using the built-in AWS integration flow."
+description: "Connect your AWS account to KloudMate from Settings → Data Sources with a pre-configured CloudFormation stack, then edit or delete it later."
 sidebar:
   label: "AWS Account Setup"
   order: 2
 ---
-Use the AWS integration flow when you want to connect an AWS account to KloudMate without instrumenting each workload individually.
+Connect an AWS account to KloudMate so it can read CloudWatch metrics and logs from that account, with no code changes. KloudMate gives you a pre-configured CloudFormation stack that creates a delegation role in your account, and you paste the role's ARN back into KloudMate.
 
 ## Connect Your AWS Account
 
-1. Sign in to KloudMate and choose **AWS Integration** in the **Send Data to KloudMate** step.
-2. Enter a name for the AWS account you want to connect.
-3. Open the hyperlink shown in step 1 of the KloudMate onboarding flow.
+1. Go to **Settings → Data Sources** and click **Connect AWS account**.
 
-![image](../images/setting-up-kloudmate-6.png)
+![The Data Sources page with the Accounts counter and the Connect AWS account button.](../images/aws-account-setup-data-sources.png)
 
-4. Sign in to AWS with an administrator account if required.
-5. Review the generated CloudFormation stack and click **Create Stack**.
+2. Enter an **Account name** and click **Continue**. The name identifies the account in KloudMate, so use one you'll recognize, such as `prod-aws`.
 
-![image](../images/setting-up-kloudmate-7.png)
+![The Name your AWS account step, with the Account name field and the Continue button.](../images/aws-account-setup-name.png)
 
-6. Wait for the IAM role to be created. This usually takes up to two minutes.
-7. Open the **Outputs** tab in CloudFormation and copy the generated **ARN Value**.
+3. Click **Open AWS Console**. It opens CloudFormation with the stack template and external ID already filled in. Sign in to AWS with an administrator account if you're asked to.
 
-![image](../images/setting-up-kloudmate-8.png)
+![The Connect AWS account page, with the Open AWS Console button, the steps to follow in AWS, and the Role ARN field.](../images/aws-account-setup-connect.png)
 
-8. Paste the ARN into the **Role ARN** field in KloudMate and click **Next**.
+4. In AWS, check **I acknowledge that AWS CloudFormation might create IAM resources** at the bottom of the **Quick create stack** page, and click **Create stack**.
+5. Wait for the stack to be created. This takes about a minute.
+6. Open the stack's **Outputs** tab and copy the value of **KloudMateAppDelegationRoleArn**.
+7. Back in KloudMate, paste the ARN into the **Role ARN** field and click **Connect**.
 
-![image](../images/setting-up-kloudmate-9.png)
+The account appears on the **Data Sources** page. To add another account, repeat these steps.
 
-Your AWS account is now connected to KloudMate.
+## Edit or Delete an Account
+
+Each account on the **Data Sources** page has an **Edit** button.
+
+![A Pending AWS account card with no account ID and an Edit button, and the Accounts counter at 1 of 1 with Connect AWS account turned off.](../images/aws-account-setup-edit.png)
+
+Click **Edit** to open **Edit Account Details**. It shows the account's AWS account ID and external ID.
+
+- To update the account, change the **AWS Account Name** or paste the **Role ARN**, then click **Update**. If you don't have a role yet, **Click here to add KloudMate CloudFormation stack to AWS** opens the stack in AWS.
+- To remove the account, click **Delete account**. You need the **Owner** role, and the account's data is deleted permanently. See [Remove an AWS Account](../../platform/settings/deleting-your-aws-account-from-kloudmate/) to also remove the stack from AWS.
+
+![The Edit Account Details screen, with the AWS account ID, external ID, account name, Role ARN field, Update button, and Delete account section.](../images/aws-account-setup-edit-details.png)
 
 ## Related Resources
 
 - [AWS Integration](../)
+- [Data Sources](../../platform/settings/data-sources/)
 - [CloudWatch Logs](../cloudwatch-logs/)
 - [AWS Lambda Monitoring](../lambda-monitoring/)
 - [Troubleshoot AWS sync](../../platform/settings/troubleshoot-aws-sync/)

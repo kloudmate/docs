@@ -27,11 +27,13 @@ For monitoring containers, the two are equivalent. A Linux (systemd) agent on a 
 
 ## Application traces
 
-Application tracing (Rate, Errors, and Duration metrics and trace spans) is **not** automatic. The agent lists every host process and container it finds in the **Application instrumentation** card on the agent's **APM** tab, and for each one you choose how it's traced:
+Application tracing (Rate, Errors, and Duration metrics and trace spans) is **not** automatic. The agent lists every host process and container it finds in the **Application Performance Monitoring** card on the agent's **APM** tab, and for each one you choose how it's traced:
 
 - **Off:** not traced. This is the default, so nothing is traced (and nothing costs) until you turn it on, which matters on a host running many containers.
 - **eBPF:** RED metrics and trace spans, captured in the host kernel with no code change and no restart.
 - **SDK:** deep spans from the OpenTelemetry SDK running inside the app, including database queries and internal calls.
+
+![The APM tab on a Docker host, listing host processes and containers with Off and eBPF options, or Off, eBPF, and SDK for containers, above the Redeploy-safe SDK card](./images/docker-apm-tab.png)
 
 | Runtime | On the APM tab | How the SDK is added |
 |---|---|---|

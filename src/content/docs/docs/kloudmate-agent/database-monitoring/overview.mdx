@@ -53,20 +53,20 @@ The wizard is one form, top to bottom:
 
 Click **Save and apply**. The change reaches the agent within a minute.
 
-![The "Add database monitoring" wizard for MySQL, with Query performance turned on, the setup steps it needs, and the connection fields with the credential mode selector (environment variable or entered value).](./images/wizard-add-database.png)
+![The "Add database monitoring" wizard for MySQL, top to bottom: the engine picker and coverages with Query performance turned on, the setup steps it needs, the connection fields with the credential mode selector (environment variable or entered value), and the collapsed Advanced section with Save and apply.](./images/wizard-add-database.png)
 
 ## What's checked when you save
 
 The wizard checks that required fields are filled in and that any **Advanced** override is a YAML mapping. It doesn't connect to the database, so it can't test your password or grants.
 
 - **A wrong password or a missing grant** shows up as errors in the agent log, and as empty tabs in the Databases module. If a tab stays empty, run the setup steps again and check the agent log.
-- **A database the agent can't generate** is skipped on its own. The other databases and the rest of your telemetry keep working. Skipped integrations and the reason are listed on the agent's **Collector config** tab.
+- **A database the agent can't generate** is skipped on its own. The other databases and the rest of your telemetry keep working. Skipped integrations and the reason are listed on the agent's **Collector Config** tab.
 
 ## Edit or remove a database
 
 Monitored databases are edited from the agent that monitors them, not from the Databases module. Go to **Settings → Agents & Pipelines**, open the agent, and go to its **Databases** tab.
 
-![An agent's Databases tab listing its monitored databases, each with a feature count, an Edit (pencil) button, and a Remove (trash) button.](./images/agent-databases-tab.png)
+![An agent's Databases tab listing its monitored databases, each with a feature count, an Edit (pencil) button, and a Remove (trash) button, and one database expanded to show its enabled coverage and the ones to turn on with Edit to enable.](./images/agent-databases-tab.png)
 
 Click **Edit** on a monitored database to change its coverages, connection, or overrides. Stored passwords stay in place unless you replace them. To turn on a coverage you haven't enabled yet, expand the database's feature list and follow **Edit to enable**.
 

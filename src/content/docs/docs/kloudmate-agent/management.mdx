@@ -9,25 +9,25 @@ The KloudMate Agent is managed centrally from the web UI, so there is no need to
 
 ## Agents Overview
 
-The KloudMate agent's landing page lets you view, add, and manage agents. After an agent is integrated, it appears in the table:
+The **Agents & Pipelines** page lets you view, add, and manage agents. After an agent is integrated, it appears in the table:
 
-![image](./images/managing-kloudmate-agents-3.png)
+![The Agents & Pipelines page, listing each agent's host, status, mode, agent version with an arrow to the newer release where one is available, and when it was last seen.](./images/managing-kloudmate-agents-3.png)
 
 - **Host:** The agent's host machine name, with its platform and architecture underneath (for example, `Linux · amd64`).
 - **Status:** The agent's current reachability, such as **Healthy** or **Unreachable**, plus a **Restart pending** tag while a restart is in progress.
 - **Mode:** Whether the agent is in **Managed** or **Manual** configuration mode. See [Managed and manual mode](#managed-and-manual-mode).
-- **Agent Version:** Version of the KloudMate agent used during integration.
+- **Agent Version:** The version the agent is running. When a newer release is out, an arrow and the new version number appear next to it. See [Upgrade the agent](#upgrade-the-agent).
 - **Last Seen:** How long ago the agent last checked in.
 
 ## Adding a New Agent
 
 1. Click the **Add Agent** button located at the top-right corner of the page.
 
-![image](./images/managing-kloudmate-agents-1.png)
+![The Add Agent button at the top right of the Agents & Pipelines page.](./images/managing-kloudmate-agents-1.png)
 
 2. Choose where you want to install the agent.
 
-![image](./images/managing-kloudmate-agents-2.png)
+![The Install KloudMate Agent page asking where the agent should be installed, with Linux, Docker, Windows, Kubernetes, and Amazon ECS options.](./images/managing-kloudmate-agents-2.png)
 
 :::note
   After choosing a platform, refer to the corresponding installation guide:
@@ -46,11 +46,11 @@ The agent watches for remote configuration changes over a secure connection and 
 
 Open the actions menu (⋮) for an agent to manage it:
 
-![image](./images/managing-kloudmate-agents-4.png)
+![An agent's actions menu with Configure, Restart agent, Uninstall, and Delete.](./images/managing-kloudmate-agents-4.png)
 
-- **Configure:** Opens the agent's Configuration page, with tabs for **APM**, **Databases**, **Logs**, **Processes**, **Runbook scripts**, and **Collector config**. Updates apply automatically wherever the agent is installed.
+- **Configure:** Opens the agent's Configuration page, with tabs for **APM**, **Databases**, **Logs**, **Processes**, **Runbook Scripts**, and **Collector Config**. Updates apply automatically wherever the agent is installed.
 - **Restart agent:** Restart the agent when needed.
-- **Delete:** Remove the agent from the KloudMate Agent landing page and clear all of its configuration.
+- **Delete:** Remove the agent from the **Agents & Pipelines** page and clear all of its configuration.
 
 :::caution
 Deleting an agent decommissions it. Its instrumented applications restart so their instrumentation is removed, and its database and log monitoring stop. If the agent is still running on the host, it checks back in and reappears as a new, unconfigured agent. To remove it for good, also uninstall it from the host. See the [installation guides](../installation/linux-agent/) for the uninstall command.
@@ -69,11 +69,11 @@ You can switch an agent between modes. Switching from manual to managed replaces
 
 To undo a managed change, turn the toggle back. There is no separate history or rollback button. Switching an agent from manual to managed mode saves your hand-edited YAML first, so you never lose it. See the [configuration model](../concepts/config-model/).
 
-### Runbook scripts
+### Runbook Scripts
 
-The **Runbook scripts** tab decides whether a [workflow](../../workflows/) can run commands on this host with the [Run Command on Host](../../workflows/actions/#run-command-on-host) step. Scripts are off until someone with the **Developer** role turns on **Allow runbook scripts on this host**. The agent picks up the change within a minute. Only Linux host agents have this setting.
+The **Runbook Scripts** tab decides whether a [workflow](../../workflows/) can run commands on this host with the [Run Command on Host](../../workflows/actions/#run-command-on-host) step. Scripts are off until someone with the **Developer** role turns on **Allow runbook scripts on this host**. The agent picks up the change within a minute. Only Linux host agents have this setting.
 
-![Runbook scripts tab for a Linux host agent](./images/agent-runbook-scripts-tab.png)
+![The Runbook Scripts tab with Allow runbook scripts on this host turned on](./images/agent-runbook-scripts-tab.png)
 
 Scripts run as root and can access anything the host can already access, such as a kubeconfig, a cloud instance profile, or an SSH key on disk. Allow them only on hosts where that's acceptable.
 
@@ -163,7 +163,7 @@ Error-log shipping is on by default. It reuses the same `KM_API_KEY` and `KM_COL
 
 ## Agent health and status
 
-Beyond the status shown on the landing page, each agent reports on its own health so you can confirm it is running and see when something goes wrong:
+Beyond the status shown on the **Agents & Pipelines** page, each agent reports on its own health so you can confirm it is running and see when something goes wrong:
 
 - **Health metrics** tell you whether the agent and its collector are up, and classify why the collector is down if it is. See [Agent health metrics](../self-observability/health-metrics/).
 - **Self-logs** bring the agent's own error messages into KloudMate, so you can diagnose a failure without logging in to the host. See [Agent self-logs](../self-observability/self-logs/).
@@ -182,6 +182,6 @@ Upgrade an agent from its page in the dashboard with one click, or rerun its ins
 
 ## Best Practices
 
-- Use filters and search on the Agents landing page to quickly locate agents by **host**, **platform**, or **status**.
+- Use filters and search on the **Agents & Pipelines** page to quickly locate agents by **host**, **platform**, or **status**.
 - For clusters with multiple agents, consider **bulk restarting** or **updating collectors** where supported.
 - Always confirm that agent configurations have applied successfully by checking your dashboards.

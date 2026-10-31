@@ -15,7 +15,7 @@ The Java agent ships inside the KloudMate agent package and upgrades with it, so
 
 ### systemd services
 
-This is the main method on Linux. When you turn on SDK tracing for a systemd service, the agent writes a small startup config that loads the Java agent through `JAVA_TOOL_OPTIONS`, then restarts the service after you confirm. Because the service restarts, the agent sets everything up front: a fixed `service.name` (the name shown in the **Application instrumentation** card), the sampling rate, and where to send traces.
+This is the main method on Linux. When you turn on SDK tracing for a systemd service, the agent writes a small startup config that loads the Java agent through `JAVA_TOOL_OPTIONS`, then restarts the service after you confirm. Because the service restarts, the agent sets everything up front: a fixed `service.name` (the name shown in the **Application Performance Monitoring** card), the sampling rate, and where to send traces.
 
 Turning tracing off removes the config and restarts the service, leaving it as it was. Running the same action twice changes nothing, so it's safe to repeat.
 
@@ -52,7 +52,7 @@ On Amazon ECS, the agent injects the OpenTelemetry Java agent into the services 
 
 ## On Docker
 
-When the agent monitors Docker containers, whether in Docker mode or as a Linux service on a Docker host, each Java container offers **Off**, **eBPF**, and **SDK** in the **Application instrumentation** card. eBPF needs no code change and no restart.
+When the agent monitors Docker containers, whether in Docker mode or as a Linux service on a Docker host, each Java container offers **Off**, **eBPF**, and **SDK** in the **Application Performance Monitoring** card. eBPF needs no code change and no restart.
 
 **SDK** adds the OpenTelemetry Java agent by recreating the container with the same settings, which restarts it for a few seconds. If the new container doesn't come up healthy, the agent starts the original again. If the container already sets `JAVA_TOOL_OPTIONS`, the agent adds `-javaagent` to the existing value, as long as the result stays within the 1024 characters the JVM reads. Containers managed by Docker Compose or Swarm aren't recreated: their row shows the settings to add at the next deploy. See [Instrument Java, Node.js, Python, and .NET containers](../../platform-notes/docker/#instrument-java-nodejs-python-and-net-containers).
 

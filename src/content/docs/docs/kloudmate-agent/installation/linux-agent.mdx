@@ -88,7 +88,7 @@ For a hand-written `filelog` receiver in manual mode, see [Collect File Logs wit
 
 If the host runs Docker, the agent finds the Docker socket and starts collecting **container metrics and container logs** on its own, the same telemetry a Docker-mode agent collects. This happens as soon as the agent starts, before and independent of application tracing. To turn it off, set `KM_DOCKER_STATS=false` for metrics or `KM_DOCKER_LOGS=false` for logs.
 
-Each container also shows up in the **Application instrumentation** card on the agent's **APM** tab, where you choose **Off**, **eBPF**, or **SDK** per container, the same as for host processes. eBPF captures RED metrics and trace spans in the kernel, with no code change and no restart. **SDK** adds the OpenTelemetry SDK to Java, Node.js, Python, and .NET containers by recreating them with the same settings. It's on by default.
+Each container also shows up in the **Application Performance Monitoring** card on the agent's **APM** tab, where you choose **Off**, **eBPF**, or **SDK** per container, the same as for host processes. eBPF captures RED metrics and trace spans in the kernel, with no code change and no restart. **SDK** adds the OpenTelemetry SDK to Java, Node.js, Python, and .NET containers by recreating them with the same settings. It's on by default.
 
 PHP containers get the **SDK** option without a redeploy: the agent injects the tracer and reloads the web server (Apache or php-fpm). On a Linux host this is opt-in, because the tracer reports to port `8126`, which a Datadog agent may already use. See [Container SDK on the Linux agent](../../platform-notes/docker/#container-sdk-on-the-linux-agent). In Docker mode it's on by default.
 

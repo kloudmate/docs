@@ -73,7 +73,7 @@ On Amazon ECS, the agent injects the .NET instrumentation into the services you 
 
 ## On Docker
 
-When the agent monitors Docker containers, whether in Docker mode or as a Linux service on a Docker host, each .NET container offers **Off**, **eBPF**, and **SDK** in the **Application instrumentation** card. eBPF needs no code change and no restart.
+When the agent monitors Docker containers, whether in Docker mode or as a Linux service on a Docker host, each .NET container offers **Off**, **eBPF**, and **SDK** in the **Application Performance Monitoring** card. eBPF needs no code change and no restart.
 
 **SDK** adds the OpenTelemetry .NET profiler by recreating the container with the same settings, which restarts it for a few seconds. If the new container doesn't come up healthy, the agent starts the original again. It needs a glibc-based image, such as `mcr.microsoft.com/dotnet/aspnet`. Alpine (musl) images use eBPF. Containers managed by Docker Compose or Swarm aren't recreated: their row shows the settings to add at the next deploy. See [Instrument Java, Node.js, Python, and .NET containers](../../platform-notes/docker/#instrument-java-nodejs-python-and-net-containers).
 

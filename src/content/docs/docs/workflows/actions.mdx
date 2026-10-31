@@ -237,12 +237,12 @@ When you test this step on its own, it shows the shape of its output without run
 Runbook scripts are off on every host until someone with the **Developer** role allows them, one host at a time:
 
 1. Open **Settings → Agents & Pipelines**.
-2. Open the host's actions menu (⋮), select **Configure**, and open the **Runbook scripts** tab.
+2. Open the host's actions menu (⋮), select **Configure**, and open the **Runbook Scripts** tab.
 3. Turn on **Allow runbook scripts on this host** and confirm.
 
 The agent picks up the change within a minute. Only Linux host agents have this setting, so Docker, Amazon ECS, Kubernetes, and Windows agents can't run runbook scripts.
 
-To keep scripts off a host regardless of its **Runbook scripts** setting, set `job-types` to `none` in the host's `agent.yaml` (or set `KM_JOB_TYPES=none`), then restart the agent. See [agent configuration](../../kloudmate-agent/reference/agent-config/#runbook-scripts).
+To keep scripts off a host regardless of its **Runbook Scripts** setting, set `job-types` to `none` in the host's `agent.yaml` (or set `KM_JOB_TYPES=none`), then restart the agent. See [agent configuration](../../kloudmate-agent/reference/agent-config/#runbook-scripts).
 
 ## AI
 
