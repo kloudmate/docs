@@ -33,6 +33,8 @@ Application tracing (Rate, Errors, and Duration metrics and trace spans) is **no
 - **eBPF:** RED metrics and trace spans, captured in the host kernel with no code change and no restart.
 - **SDK:** deep spans from the OpenTelemetry SDK running inside the app, including database queries and internal calls.
 
+![The APM tab on a Docker host, listing host processes and containers with Off and eBPF options, or Off, eBPF, and SDK for containers, above the Redeploy-safe SDK card](./images/docker-apm-tab.png)
+
 | Runtime | On the APM tab | How the SDK is added |
 |---|---|---|
 | Java, Node.js, Python, .NET | **Off / eBPF / SDK** | The agent recreates the container with the SDK, which restarts it for a few seconds. See [Instrument Java, Node.js, Python, and .NET containers](#instrument-java-nodejs-python-and-net-containers). |
