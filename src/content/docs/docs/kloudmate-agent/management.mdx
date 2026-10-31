@@ -14,7 +14,7 @@ The **Agents & Pipelines** page lets you view, add, and manage agents. After an 
 ![The Agents & Pipelines page, listing each agent's host, status, mode, agent version with an arrow to the newer release where one is available, and when it was last seen.](./images/managing-kloudmate-agents-3.png)
 
 - **Host:** The agent's host machine name, with its platform and architecture underneath (for example, `Linux · amd64`).
-- **Status:** **Healthy** when the agent is checking in and its collector is running, **Stopped** when the agent is checking in but its collector isn't running, or **Unreachable** when the agent has stopped checking in. A **Restart pending** tag appears while a restart is in progress.
+- **Status:** The agent's current reachability, such as **Healthy** or **Unreachable**, plus a **Restart pending** tag while a restart is in progress.
 - **Mode:** Whether the agent is in **Managed** or **Manual** configuration mode. See [Managed and manual mode](#managed-and-manual-mode).
 - **Agent Version:** The version the agent is running. When a newer release is out, an arrow and the new version number appear next to it. See [Upgrade the agent](#upgrade-the-agent).
 - **Last Seen:** How long ago the agent last checked in.

@@ -22,7 +22,7 @@ Connect an AWS account to KloudMate so it can read CloudWatch metrics and logs f
 ![The Connect AWS account page, with the Open AWS Console button, the steps to follow in AWS, and the Role ARN field.](../images/aws-account-setup-connect.png)
 
 4. In AWS, check **I acknowledge that AWS CloudFormation might create IAM resources** at the bottom of the **Quick create stack** page, and click **Create stack**.
-5. Wait for the stack to be created. This takes about a minute.
+5. Wait for the stack to be created. This usually takes up to two minutes.
 6. Open the stack's **Outputs** tab and copy the value of **KloudMateAppDelegationRoleArn**.
 7. Back in KloudMate, paste the ARN into the **Role ARN** field and click **Connect**.
 
@@ -37,7 +37,7 @@ Each account on the **Data Sources** page has an **Edit** button. An account you
 Click **Edit** to open **Edit Account Details**. It shows the account's AWS account ID and external ID.
 
 - To rename the account or finish connecting it, change the **AWS Account Name** or paste the **Role ARN**, then click **Update**. If you don't have a role yet, **Click here to add KloudMate CloudFormation stack to AWS** opens the stack in AWS.
-- To remove the account, click **Delete account**. You need the **Owner** role, and the account's data is deleted permanently. See [Remove an AWS Account](../../platform/settings/deleting-your-aws-account-from-kloudmate/) to also remove the stack from AWS.
+- To remove the account, click **Delete account**. You need the **Owner** role. See [Remove an AWS Account](../../platform/settings/deleting-your-aws-account-from-kloudmate/) to also remove the stack from AWS.
 
 ![The Edit Account Details screen, with the AWS account ID, external ID, account name, Role ARN field, Update button, and Delete account section.](../images/aws-account-setup-edit-details.png)
 
