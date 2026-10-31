@@ -9,7 +9,7 @@ Connect an AWS account to KloudMate so it can read CloudWatch metrics and logs f
 
 ## Connect Your AWS Account
 
-1. Go to **Settings → Data Sources** and click **Connect AWS account**. The **Accounts** counter beside it shows how many accounts you've connected out of the number your plan allows.
+1. Go to **Settings → Data Sources** and click **Connect AWS account**.
 
 ![The Data Sources page with the Accounts counter and the Connect AWS account button.](../images/aws-account-setup-data-sources.png)
 
@@ -22,7 +22,7 @@ Connect an AWS account to KloudMate so it can read CloudWatch metrics and logs f
 ![The Connect AWS account page, with the Open AWS Console button, the steps to follow in AWS, and the Role ARN field.](../images/aws-account-setup-connect.png)
 
 4. In AWS, check **I acknowledge that AWS CloudFormation might create IAM resources** at the bottom of the **Quick create stack** page, and click **Create stack**.
-5. Wait for the stack to be created. This usually takes up to two minutes.
+5. Wait for the stack to be created. This takes about a minute.
 6. Open the stack's **Outputs** tab and copy the value of **KloudMateAppDelegationRoleArn**.
 7. Back in KloudMate, paste the ARN into the **Role ARN** field and click **Connect**.
 
@@ -30,14 +30,14 @@ The account appears on the **Data Sources** page. To add another account, repeat
 
 ## Edit or Delete an Account
 
-Each account on the **Data Sources** page has an **Edit** button. An account you named but haven't finished connecting shows **Pending**, with no account ID. When you reach your plan's account limit, **Connect AWS account** is turned off.
+Each account on the **Data Sources** page has an **Edit** button.
 
-![A Pending AWS account card with no account ID and an Edit button, and the Accounts counter at its 1 of 1 limit with Connect AWS account turned off.](../images/aws-account-setup-edit.png)
+![A Pending AWS account card with no account ID and an Edit button, and the Accounts counter at 1 of 1 with Connect AWS account turned off.](../images/aws-account-setup-edit.png)
 
 Click **Edit** to open **Edit Account Details**. It shows the account's AWS account ID and external ID.
 
-- To rename the account or finish connecting it, change the **AWS Account Name** or paste the **Role ARN**, then click **Update**. If you don't have a role yet, **Click here to add KloudMate CloudFormation stack to AWS** opens the stack in AWS.
-- To remove the account, click **Delete account**. You need the **Owner** role. See [Remove an AWS Account](../../platform/settings/deleting-your-aws-account-from-kloudmate/) to also remove the stack from AWS.
+- To update the account, change the **AWS Account Name** or paste the **Role ARN**, then click **Update**. If you don't have a role yet, **Click here to add KloudMate CloudFormation stack to AWS** opens the stack in AWS.
+- To remove the account, click **Delete account**. You need the **Owner** role, and the account's data is deleted permanently. See [Remove an AWS Account](../../platform/settings/deleting-your-aws-account-from-kloudmate/) to also remove the stack from AWS.
 
 ![The Edit Account Details screen, with the AWS account ID, external ID, account name, Role ARN field, Update button, and Delete account section.](../images/aws-account-setup-edit-details.png)
 

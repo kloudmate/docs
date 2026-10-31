@@ -32,16 +32,17 @@ The **Overview** tab includes:
 
 - **Requests, errors, and latency over time:** timeline charts that help identify traffic spikes, error bursts, and latency regressions
 - **Service dependencies:** tables of downstream dependencies, outbound calls, and upstream callers, including request rate, error percentage, and latency
+- **Internal operations:** work with no traced caller, such as jobs, scheduled tasks, and startup work, with its runs, errors, and latency
 - **Related issues, alerts, and dashboards:** links to broader operational context for that service
 
 ## Traces and Logs
 
 Use the **Traces** and **Logs** tabs to inspect the traces and logs for a selected service.
 
-The **Traces** tab shows recent traces with details such as start time, span name, kind, and duration. Click **View Trace** to open the full trace for end-to-end request analysis, or **Explore traces** to search across them.
+The **Traces** tab shows recent traces with details such as start time, span name, kind, duration, and a link to the full trace for end-to-end request analysis.
 
 ![The Traces tab of a service's APM dashboard, with a table of start time, span name, kind, duration, and a View Trace action on each row](./images/apm-and-services-3.png)
 
-The **Logs** tab lists recent logs with time, severity, and message. Click **View Trace** on a log line to open the trace it belongs to, or **Explore logs** to investigate further.
+The **Logs** tab lists recent logs with time, severity, and message, along with actions to explore logs in detail and correlate them with traces and issues for faster root-cause investigation.
 
 ![The Logs tab of a service's APM dashboard, with a table of time, severity, and message, and a View Trace action on log lines that carry a trace](./images/apm-and-services-4.png)
