@@ -65,6 +65,25 @@ A histogram metric that doesn't return a distribution is read as percentiles, **
 
 Group by, filters, **Ranking**, and **Legend Format** work the same way as in Explore. See the [Explore walkthrough](../../../explore/) and [Metrics Aggregations](../../../explore/metrics-aggregations/) for **Aggregation within series** and **Aggregation across series**.
 
+### Filter by value
+
+**Where value** keeps only the values that match a condition. Click **Add condition**, pick an operator (`=`, `!=`, `>`, `<`, `>=`, or `<=`), and enter a number. Filters match attributes, while **Where value** matches the metric's value itself.
+
+The condition is checked against each series' value at every time step, after **Aggregation within series** and before **Aggregation across series**. For example, `k8s_pod_phase` with **Last** within series, **Count** across series, and **Where value** `= 2` counts the pods that are running right now.
+
+### Combine groups a second time
+
+**Then** aggregates the grouped results again, by fewer fields. For example, group CPU usage by `node` and `pod`, then use **Sum** by `node` to get the total for each node.
+
+1. Group by at least one field.
+2. Next to **Then**, click **Combine groups**.
+3. Pick the operation: **Sum**, **Avg**, **Min**, **Max**, **Count groups**, **Last**, or a percentile from **P25** to **P99**.
+4. Pick the fields to keep. Leave it on **All groups** to merge every group into one value.
+
+**Then** can only keep fields that are in the group-by, so removing a field from the group-by removes it from **Then** as well. While **Then** is set, **Ranking** is turned off.
+
+**Where value** and **Then** are offered on **Metrics** queries that return a **Time series**, except on histogram metrics.
+
 ### Write PromQL
 
 On the **Metrics** data set, switch to the **PromQL** tab to write a [PromQL](https://prometheus.io/docs/prometheus/latest/querying/basics/) query. The tab isn't offered when **Returns** is **Distribution**.

@@ -20,6 +20,7 @@ A Stats panel reduces each series to one number and shows it as a tile. Use it f
 - **Range** sets the **Min** and **Max** a value is measured against. You need it when a percentage threshold uses **The field's own range** (see [Stat options](#stat-options)).
 - **Format** sets the unit and how the number is written. If you leave **Unit** on **Auto**, the tile uses the unit the metric declares.
 - **Color scheme** sets the tile color: **Single color**, **From thresholds**, or a palette that gives every tile its own color. A **Single color** takes priority over thresholds.
+- **No-data value** sets what a tile shows when its query returns no value, for example `0` for a count that matched nothing. Without it, the tile shows **No Data**.
 
 See [Format values and units](../../panel-options/format-and-units/) and [Colors and value mappings](../../panel-options/colors-and-value-mappings/).
 

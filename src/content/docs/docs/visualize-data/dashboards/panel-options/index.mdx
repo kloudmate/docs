@@ -30,6 +30,7 @@ Every panel type that draws values has a **Standard options** section on the **O
 | **Range** | Sets the **Min** and **Max** a value is drawn against, such as the ends of a gauge's arc. | Stats, Gauge, Table |
 | **Format** | Sets the unit and how numbers are written. Histogram and Heatmap panels have **Bucket format** instead, which formats the bucket boundaries. | All except Alerts List and Issues List |
 | **Color scheme** | Picks how values or series are colored. | TimeSeries, Stats, Gauge, Table |
+| **No-data value** | Sets what a tile shows when its query returns no value, such as `0`. | Stats |
 
 A **Display name** set on the **Options** tab renames every series in the panel. To rename a single series or column, set **Display name** in an [override rule](./overrides/) instead.
 
