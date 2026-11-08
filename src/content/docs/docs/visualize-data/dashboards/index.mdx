@@ -5,80 +5,60 @@ sidebar:
   order: 1
   label: "Introduction"
 ---
-KPI metrics come in all shapes and sizes and are often specific to businesses and applications. Pre-defined default metrics cannot always capture what matters most to your team. KloudMate’s custom metric dashboards let you cut through the noise and focus on only the metrics relevant to your application and business.
-
-Navigate to **Dashboards** from the left navigation menu to view all your existing dashboards and folders.
+Build dashboards to track the metrics that matter to your application and business. Open **Dashboards** in the left navigation to see all of them. To build one, see [Create a dashboard](./create-a-dashboard/).
 
 ![image](./images/dashboards-overview-1.png)
 
-The Dashboards screen lists every dashboard with its name, description, and tags. Search for a dashboard or folder by name with the search bar. Use the **List** and **Folders** toggle to switch between one flat list and a view grouped by folder. In **List**, a dashboard that's in a folder shows the folder name before its own.
+## Find a dashboard
 
-From the more options (⋯) icon on a dashboard, you can **Move to folder**, **Share**, or **Delete** it. Sharing offers both a copyable public link and the dashboard's JSON. See [Sharing a Dashboard](./dashboard-details/#sharing-a-dashboard).
+Search by dashboard or folder name. Switch to **Folders** to group dashboards by folder, or to **List** to see them all in one list.
+
+To move, share, or delete a dashboard, open its more options (⋯) menu and click **Move to folder**, **Share**, or **Delete**. See [Sharing a Dashboard](./dashboard-details/#sharing-a-dashboard).
 
 ### Tag dashboards
 
-Click a dashboard's **Tags** cell to add a tag, or to create a new one. To show only the dashboards with certain tags, click **Tags** in the toolbar and pick one or more. Tags aren't case-sensitive and are saved in lowercase, so `Prod` and `prod` are the same tag.
+Click a dashboard's **Tags** cell to add a tag or create a new one. To show only dashboards with certain tags, click **Tags** in the toolbar and pick one or more. Tags aren't case-sensitive, so `Prod` and `prod` are the same tag.
 
-### User Permissions
+## Organize dashboards in folders
+
+Group related dashboards in a folder, for example one folder per team or service. Folders are optional.
+
+1. Click the arrow next to **Create Dashboard**, then click **Create folder**.
+
+   ![image](./images/dashboards-overview-2.png)
+
+2. Enter a **Name** and an optional **Description**, then click **Create**.
+
+![image](./images/dashboards-overview-1.jpeg)
+
+To put a dashboard in a folder, open its more options (⋯) menu, click **Move to folder**, and pick the folder. Pick **Ungrouped** to take it out of a folder.
+
+To rename or remove a folder, use its more options (⋯) menu to **Edit folder** or **Delete folder**. Deleting a folder doesn't delete its dashboards. They move to **Ungrouped**.
+
+## Manage public dashboards
+
+A public link gives read-only access to people outside your workspace, such as stakeholders or external teams, without a KloudMate login. To create one, see [Sharing a Dashboard](./dashboard-details/#sharing-a-dashboard).
+
+To manage your public links, click **Public Dashboards**. From there you can copy a link, open it to see what others see, or click **Delete** to revoke it. A deleted link stops working immediately.
+
+![image](./images/dashboards-overview-3.png)
+
+## Importing a Dashboard
+
+Import a dashboard from its JSON to copy it from one workspace to another, or to reuse a dashboard someone shared with you. To get the JSON of an existing dashboard, see [Sharing a Dashboard](./dashboard-details/#sharing-a-dashboard).
+
+1. Copy the dashboard's JSON.
+2. On the Dashboards page, click **Import**.
+3. Paste the JSON and click **Submit**.
+
+![image](./images/dashboards-overview-4.png)
+
+To create, update, or delete dashboards from a script instead, or to read the JSON format, see [Dashboard JSON and API](./dashboard-json-and-api/).
+
+## User Permissions
 
 | **Role**      | **Permissions**                                |
 | ------------- | ---------------------------------------------- |
 | **Admin**     | Create, edit, or delete dashboards and folders. Turn a public link on or off. |
 | **Developer** | Create, edit, or delete dashboards and folders |
 | **Viewer**    | View dashboards and folders only |
-
-## Dashboard Folders
-
-Folders help you organize related dashboards in one place, making it easier to navigate and manage dashboards across teams or services.
-
-1. Click the arrow next to **Create Dashboard** at the top of the Dashboards screen, then click **Create folder**.
-
-![image](./images/dashboards-overview-2.png)
-
-2. Enter a **Name** and an optional **Description**, then click **Create**.
-
-Switch to **Folders** to see the new folder. Click the arrow next to it to expand and view the dashboards inside. Dashboards that aren't in a folder are listed under **Ungrouped**, at the bottom.
-
-![image](./images/dashboards-overview-1.jpeg)
-
-To put a dashboard in a folder, open its more options (⋯) icon, click **Move to folder**, and pick the folder. Pick **Ungrouped** to take it out of a folder.
-
-Use a folder's more options (⋯) icon to **Edit folder** or **Delete folder**. Deleting a folder doesn't delete its dashboards. They move to **Ungrouped**.
-
-:::info
-Creating a folder is not mandatory. Standalone dashboards do not need to be added to a folder.
-:::
-
-***
-
-### Public Dashboards
-
-Sharing a dashboard publicly lets you give read-only access to people outside your workspace, for example, stakeholders or external teams, without requiring them to log in to KloudMate.
-
-Click **Public Dashboards** at the top of the Dashboards screen to view all dashboards you have shared publicly. 
-
-![image](./images/dashboards-overview-3.png)
-
-The list shows the dashboard name, who shared it, and whether the link is currently active.
-
-From this screen you can:
-
-- **Copy link:** Copy the shareable URL to send to others.
-- **View:** Open the public dashboard to preview what others will see.
-- **Delete:** Revoke access. Deleting the link will make it stop working immediately.
-
-***
-
-## Importing a Dashboard
-
-You can import a dashboard from its JSON definition, so you don't have to build it from scratch. For example, you can export a dashboard from one workspace and import it into another. To get the JSON of an existing dashboard, see [Sharing a Dashboard](./dashboard-details/#sharing-a-dashboard).
-
-1. Copy the dashboard's JSON definition.
-
-2. In KloudMate, click the **Import** button at the top-right of the Dashboards screen, paste the copied JSON into the Import Dashboard dialog, and click **Submit**.
-
-![image](./images/dashboards-overview-4.png)
-
-The dashboard will appear in your Dashboards list, ready to open and use with your data.
-
-To create, update, or delete dashboards from a script instead, or to read the JSON format, see [Dashboard JSON and API](./dashboard-json-and-api/).
