@@ -1,0 +1,70 @@
+---
+title: "Colors and Value Mappings"
+description: "Pick a color scheme for a panel's series and values, and replace values with text and colors of your own."
+sidebar:
+  order: 4
+---
+
+A color scheme decides how a panel colors its series and values. A value mapping replaces a specific value with text and a color you choose, so a status of `0` can read **Down** in red. Both are on the **Options** tab of TimeSeries, Stats, Gauge, and Table panels.
+
+## Choose a color scheme
+
+**Color scheme** is under **Standard options**:
+
+| Option | What it does |
+|---|---|
+| **Single color** | Draws every value in one color, picked with the swatch. |
+| **From thresholds** | Colors each value by the [threshold](../thresholds/) step it reaches. On a TimeSeries panel, each line takes the color of its last value. |
+| **Default palette**, **Palette 2**, **Palette 3** | Gives each series or tile its own color from the palette. On a Table panel, each distinct value in a column gets its own color, which suits a **Chip** column of statuses. |
+
+On a Table panel, the column's **Cell type** under **Cell options** decides where the color lands: **Colored text**, **Colored background**, and **Chip** all take the column's color.
+
+When more than one source could color a value, the most specific one wins:
+
+1. A value mapping's color.
+2. **Single color**.
+3. A palette.
+4. Thresholds. These color a value when the field has no other color scheme.
+
+To give one series a fixed color while the rest keep the palette, add an [override](../overrides/#give-one-series-a-fixed-color) that sets **Color scheme** to **Single color** for that series.
+
+Heatmap panels color their cells with a separate **Color scheme** in the **Display** section. See [Heatmap panel](../../adding-a-panel/heatmap-panel/).
+
+### Series keep their color
+
+With a palette, a series gets its color from its name. It keeps the same color each time the panel refreshes, and when other series appear or drop out. Series on the same chart get colors that are easy to tell apart: if two would land on the same or a similar color, one of them moves to another. When a chart has more series than the palette has colors, colors start to repeat.
+
+## Map values to text and colors
+
+Use value mappings to show a meaningful label in place of a raw value, or to color specific values. For example, map `1` to **Up** in green and `0` to **Down** in red on a health check.
+
+1. In the **Value mappings** section, click **Edit**.
+2. In the **Edit value mappings** dialog, click **Add** for each mapping.
+3. Choose a **Type** and fill in its **Condition**.
+4. Enter the text to show in **Replace with (optional)**, pick a color, or both. Leave the text empty to keep the value and only color it. Click **Remove color** to show the text without a color.
+5. Click **Update**. A row without a complete condition is dropped.
+
+Mappings are checked from the top of the list, and the first one that matches applies.
+
+### Mapping types
+
+- **Value** matches one value. Matching is loose: typing `0` matches the number 0, `down` matches a text cell that reads `down`, and `true` or `false` matches a boolean.
+- **Range** matches numbers from **From** to **To**. Leave either end empty for an open range: **From** `500` with no **To** matches 500 and above. A range never matches text.
+- **No data** matches an empty value, or one that isn't a finite number, such as `NaN`. It never matches text.
+
+### Where mappings apply
+
+- **Table**: cells in number, text, and boolean columns. A mapping's color shows whatever the column's **Cell type** is, including chips.
+- **Stats** and **Gauge**: the tile's value.
+- **TimeSeries**: values in the tooltip, on the Y axis, and in the legend.
+
+Value mappings on the **Options** tab apply to every series or column. To map values for one series or column, add an [override](../overrides/) with the **Value mappings** property. The override's mappings replace the panel's mappings for that field.
+
+***
+
+## Related
+
+- [Thresholds](../thresholds/)
+- [Overrides](../overrides/)
+- [Table panel](../../adding-a-panel/table-panel/)
+- [Panel options](../)

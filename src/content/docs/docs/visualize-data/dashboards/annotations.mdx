@@ -1,0 +1,137 @@
+---
+title: "Annotations"
+description: "Mark deploys, incidents, and other events on TimeSeries panels, and show firing alerts, issues, and query results on the time axis."
+sidebar:
+  order: 5.5
+---
+
+Annotations mark events on the time axis of a **TimeSeries** panel, so you can see what was happening when a line changed. You can mark a moment or a time range by hand, show the alerts and issues related to the panel, draw events from any query, and post deploy markers from a CI pipeline.
+
+Only TimeSeries panels draw annotations.
+
+## Mark a moment or a region
+
+On a saved dashboard, hold **Cmd** (macOS) or **Ctrl** (Windows and Linux), then:
+
+- Click the chart to mark a moment.
+- Drag across the chart to mark a region, for example the length of a deploy or an incident.
+
+A dialog opens showing the time you marked. Add a **Description** and comma-separated **Tags**, such as `deploy, incident`, then click **Add**. Both fields are optional.
+
+A mark belongs to the panel you drew it on, so it doesn't appear on other panels. You can't add marks to a dashboard that hasn't been saved yet. Any workspace member can add a mark, including a **Viewer**.
+
+## Read and delete a mark
+
+Hover a mark to see its time, description, and service. For a region, hover the bar along the bottom of the plot. The shaded area itself doesn't respond to the pointer, so you can still read the values under it. Marks that sit close together are grouped into one, and the card lists every event in the group.
+
+If the event is an alert or an issue, its title in the card links to that alert or issue in a new tab.
+
+To delete a mark, hover it and click the delete icon in the card. You can delete the **Custom annotations** you added yourself, and an **Admin** can delete anyone's. Alerts, issues, and events drawn from a query can't be deleted from the chart.
+
+## Choose what a panel shows
+
+Open the panel editor and expand **Options** → **Annotations**. Every source is on by default, and each one has a **Band**, **Point**, or **Off** setting:
+
+| Source | What it draws | Default |
+| --- | --- | --- |
+| **Alerts** | Alerts related to this panel, while they're firing | Band |
+| **Issues** | Issues from the services the panel shows | Point |
+| **Custom annotations** | Marks added on this panel, by hand or through the API | Band |
+
+**Band** shades the time between an event's start and end. **Point** draws a marker on the time axis at the start of each event. **Off** hides the source on this panel.
+
+Alerts and issues take their color from the alert state or the issue severity, for example red for a firing alert. Custom annotations always use the same color, so they look the same on every panel.
+
+### Which alerts appear
+
+An alert is drawn while it's firing, as a band from the moment it started firing to the right edge of the chart. Resolved and pending alerts aren't drawn.
+
+A panel shows an alert when either of these is true:
+
+- The alert is linked to the panel. An alert you [create from the panel](../../../alerts/create-alerts/#create-an-alert-from-a-dashboard-panel) is linked automatically. Any alert whose **Responder context** names this dashboard and panel is linked too.
+- The alert shares a label with what the panel shows. For example, an alert firing for `service.name = checkout` appears on a panel filtered or grouped by `service.name = checkout`. Service name keys match each other whichever spelling they use: `service.name`, `service_name`, or `serviceName`.
+
+### Which issues appear
+
+An issue appears when its service matches a service the panel shows. It's drawn as a point at its most recent occurrence. Muted issues aren't shown.
+
+## Add events from a query
+
+A query source draws events from any query whose rows carry a time column, such as error spans, log lines that record a deploy, or rows from an HTTP endpoint.
+
+1. In **Options** → **Annotations**, click **Add annotation**. The **Query annotation** dialog opens.
+2. Build the query, then click **Run query**.
+3. Under **What each row means**, pick the column for each field:
+   - **When it happened:** the timestamp of each event. This field is required.
+   - **When it ended:** the end time. Leave it empty to draw each row as a point.
+   - **Label:** the text shown on the chart and in the hover card.
+   - **Tags:** optional tags for each event.
+4. Click **Save**.
+5. Give the source a **Name** and pick its color.
+
+A column that's already named `time`, `endTime`, `text`, or `tags` is used for that field without being set. You can also type a column name. To read a key inside a JSON column, write it as `column.key`, for example `attributes.http.route`.
+
+The query runs on the panel's time range each time the panel refreshes. Query sources are the only ones with their own color. Drag a source to reorder it, or click its delete icon to remove it.
+
+### Example: mark failed requests
+
+To show each failed request as a band on a latency panel:
+
+1. Click **Add annotation**.
+2. Select the **KloudMate** data source, the **Traces** data set, and the **Records** tab.
+3. Add the filter `status_code = 2`. OpenTelemetry sets status code `2` on a span that failed.
+4. Click **Run query**.
+5. Set **When it happened** to the span's start time column and **When it ended** to its end time column, so each band is as long as the request. Set **Label** to the span name.
+6. Click **Save**, and name the source `Failed requests`.
+
+## When a source fails
+
+If a source can't be drawn, a warning icon appears in the panel header. Hover it to see which source failed and why. The chart and the other sources still draw.
+
+## Add annotations from the API
+
+Post a mark from a CI pipeline to record every deploy on your dashboards. Send `POST /annotations` with a [personal API key](../../../platform/settings/api-keys/) in the `x-api-key` header:
+
+```bash
+curl -X POST https://api.kloudmate.com/annotations \
+  -H "x-api-key: YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "workspaceId": "YOUR_WORKSPACE_ID",
+    "time": 1762588800000,
+    "text": "Deploy checkout v2.14.0",
+    "tags": ["deploy", "checkout"],
+    "dashboardId": "YOUR_DASHBOARD_ID"
+  }'
+```
+
+For an organization in the India region, use `https://api.in.kloudmate.com`.
+
+| Field | Required | Description |
+| --- | --- | --- |
+| `workspaceId` | Yes | The workspace to add the mark to. |
+| `time` | Yes | When the event happened, in epoch milliseconds. In a shell, `$(($(date +%s) * 1000))` gives the current time. |
+| `endTime` | No | When the event ended, in epoch milliseconds. Set it to draw a region. It can't be earlier than `time`. |
+| `text` | No | The description, up to 2,000 characters. |
+| `tags` | No | Up to 50 tags. |
+| `dashboardId` | No | Show the mark on this dashboard only. |
+| `panelId` | No | Show the mark on this panel only. Requires `dashboardId`. |
+
+Where the mark appears depends on the IDs you send. It's drawn by the **Custom annotations** source:
+
+- Without `dashboardId`, on every TimeSeries panel in the workspace.
+- With `dashboardId` only, on every TimeSeries panel on that dashboard.
+- With both `dashboardId` and `panelId`, on that panel only.
+
+The workspace ID and dashboard ID are both in the dashboard's URL: `.../<workspace ID>/dashboards/<dashboard ID>`. To find a panel's ID, open the panel menu, click **Inspect**, and read `id` on the **Panel JSON** tab.
+
+A successful request returns `201` with the new mark, including its `id`. The mark belongs to the person who created the API key, so that person can delete it from the chart. To change a mark, send `PATCH /annotations/{id}` with `workspaceId` and the fields to change (`time`, `endTime`, `text`, or `tags`; an `endTime` of `null` turns a region into a point). To remove one, send `DELETE /annotations/{id}?workspaceId=YOUR_WORKSPACE_ID`.
+
+***
+
+## Related
+
+- [Managing Panels](../managing-panels/)
+- [Creating Alerts](../../../alerts/create-alerts/)
+- [Dashboard JSON and API](../dashboard-json-and-api/)
+- [API Keys](../../../platform/settings/api-keys/)

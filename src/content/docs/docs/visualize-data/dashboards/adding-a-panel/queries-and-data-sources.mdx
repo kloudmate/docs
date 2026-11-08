@@ -1,0 +1,122 @@
+---
+title: "Queries and Data Sources"
+description: "Choose a data source for each query, build KloudMate, CloudWatch, and HTTP endpoint queries, and read query errors on a panel."
+sidebar:
+  order: 2
+---
+
+A panel draws the result of one or more queries. You build them in the query editor under the panel preview, and each query reads from its own data source, so one panel can put a KloudMate metric next to a CloudWatch metric.
+
+The same query editor appears in [Explore](../../../explore/) and in [alert rules](../../../../alerts/create-alerts/), so everything on this page applies there too, except where a section says otherwise.
+
+## Choose a data source
+
+Open the data source picker at the top of a query. It lists:
+
+- **KloudMate**, for the metrics, logs, and traces your workspace sends to KloudMate.
+- Each connected AWS account, by account name, with **CloudWatch** under it. AWS accounts are connected under [Settings → Data Sources](../../../../platform/settings/data-sources/).
+- Each [HTTP endpoint](../../../../platform/settings/connections/http-endpoint/) connection, by connection name, with **HTTP endpoint** under it. A connection is listed when it can be used for **Data source**.
+
+The picker shows only the sources your plan includes. To connect another one, click **Add a data source** at the bottom of the picker. Settings → Connections opens in a new tab.
+
+When a connection isn't healthy, its state replaces the source kind under its name:
+
+| State | Can you pick it? |
+|---|---|
+| **Access revoked** | No. The provider refused the credential. Edit or reconnect the connection first. |
+| **Disabled** | No. Someone switched the connection off. |
+| **Degraded** | Yes. The last check failed, but queries still run through it. |
+| **Not verified yet** | Yes. The connection hasn't been checked yet. |
+
+See [Connections](../../../../platform/settings/connections/) for what each state means and how to fix it.
+
+Switching a query to a different kind of source starts the query over with that source's fields. Switching between two AWS accounts keeps the query as it is.
+
+## Build a KloudMate query
+
+### Pick a data set
+
+Choose **Metrics**, **Traces**, or **Logs** in the data set picker. Each one has its own tabs:
+
+- **Metrics** has **Query Builder** and **PromQL**.
+- **Logs** and **Traces** have **Aggregation** and **Records**. **Aggregation** computes values from the records, such as the count of error logs per service. **Records** returns the individual log records or spans as rows.
+
+To list logs or traces on a dashboard, use a [Table panel](../table-panel/) with the **Records** tab. Switching between **Aggregation** and **Records** starts the query over, and only the filters carry over.
+
+### Choose what the query returns
+
+**Returns** sets what the query computes:
+
+- **Time series:** a value for each time step. This is the default.
+- **Single value:** one number for the whole time range, for a Stats or Gauge panel, for example.
+- **Distribution:** bucket counts from a histogram metric. It's offered only for histogram metrics, and picking a metric that isn't a histogram switches the query back to **Time series**.
+
+On a TimeSeries panel and in alert rules, **Returns** isn't shown, because those always need a time series. A **Records** query has no **Returns** either.
+
+For a **Metrics** query that returns a time series, **Interval** sets the time between data points. Leave it on **Auto**, or set a longer interval to get fewer, coarser points.
+
+### Pick a metric and a statistic
+
+Each metric in the picker shows how many series it has and its instrument type, such as `gauge`, `sum`, or `histogram`. As you move through the list, a detail pane shows the metric's description, **Unit**, **Temporality**, and **Series** count before you pick it.
+
+Each field offers only the statistics it can compute. A numeric field offers all of them. A text or boolean field offers **Count (series)**, **Count (datapoints)**, **Count (distinct)**, **Last**, **Any value**, **Min**, and **Max**. If you change the field and the current statistic doesn't apply to the new one, the query switches to one that does. For example, **Avg** becomes **Count (datapoints)** when you move from a numeric field to a text field. **Rate** and **Increase** aren't offered on logs and traces.
+
+A histogram metric that doesn't return a distribution is read as percentiles, **P25** through **P99**, or as **Sum**. Choosing **Sum** also applies **Increase** (the default) or **Rate**.
+
+Group by, filters, **Ranking**, and **Legend Format** work the same way as in Explore. See the [Explore walkthrough](../../../explore/) and [Metrics Aggregations](../../../explore/metrics-aggregations/) for **Aggregation within series** and **Aggregation across series**.
+
+### Write PromQL
+
+On the **Metrics** data set, switch to the **PromQL** tab to write a [PromQL](https://prometheus.io/docs/prometheus/latest/querying/basics/) query. The tab isn't offered when **Returns** is **Distribution**.
+
+**Type** sets how the query runs. `range` returns values over the whole time range, and `instant` returns one value at the end of it. On a TimeSeries panel and in alert rules, the toggle is hidden and the query always runs as `range`. Everywhere else it defaults to `range`.
+
+## Build a CloudWatch query
+
+Pick an AWS account in the data source picker, then fill in:
+
+- **Region**: the AWS region to read from. When the dashboard has variables, you can pick a region variable here. See [Dashboard variables](../../dashboard-variables/).
+- **Namespace**: for example, `AWS/EC2`.
+- **Select metric**: the metric in that namespace.
+- **Statistic**: **Maximum**, **Minimum**, **Average**, or **Sum**.
+- **Dimensions**: click **Add dimension**, pick a key, and pick one or more values. **All** matches every value of the key.
+- **Legend Format**: how each series is named on the chart.
+
+The query runs once **Namespace** and the metric are set.
+
+## Query an HTTP endpoint
+
+Pick an HTTP endpoint connection to read JSON, CSV, or TSV from a URL: a REST API, a CSV file in a GitHub repository, or a Google Sheet. The query holds the method, the path, and how to turn the response into rows and columns. The base URL, credential, and allowed hosts live on the connection. An HTTP endpoint query has no data set, **Returns**, or **Interval**. See [HTTP Endpoint](../../../../platform/settings/connections/http-endpoint/) for the connection, every query field, and a worked example.
+
+## Add several queries
+
+Click **Add Query** to add another query to the panel, for example to compare request counts from two services on one chart. Each query gets a name, `A`, `B`, and so on. Adding a query collapses the others, and you can expand any of them again to edit it. The buttons on a query's header copy, hide, or delete it.
+
+A query's name is how expressions refer to it, as in `$A`. You can rename a query using letters, numbers, underscores, and spaces, and each name must be unique. When you rename a query, every expression that refers to it is updated to the new name. In an alert rule, so is the alert condition.
+
+Histogram, Heatmap, Alerts List, and Issues List panels take a single query, so **Add Query** and **Add Expression** aren't offered on them.
+
+## Combine queries with expressions
+
+Click **Add Expression** to compute a new result from your queries. Choose **Math expression** to calculate with the results, such as `$A / $B * 100`, **Reduce** to turn a time series into a single number, or **Condition expression** to compare values and return true or false. See [Expressions](../../../../alerts/expressions/) for the full syntax.
+
+## When a query fails
+
+A query that fails doesn't stop the others. Its error appears in a strip at the top of the panel, with the query's name and the message, and the other queries still draw. Click **Show details** for the full error, such as the parser output. The strip is amber when some queries still drew and red when none did.
+
+A query can also succeed with an incomplete result. The panel header then shows a badge:
+
+| Badge | What happened | What to do |
+|---|---|---|
+| **Partial** | The query ran out of time and returned results only from a point in the range onward. Hover over the badge to see that point. | Narrow the time range to get the full result. |
+| **Query timed out** | The query ran out of time before it returned anything. | Narrow the time range. |
+| **Rows cut** | The result hit its row limit, so some rows are missing. | Narrow the query, for example with a filter. |
+
+On a dashboard, warnings from the data source appear as an icon in the panel header. Hover over it to read them. For example, an HTTP endpoint query that stopped at 10,000 rows shows a warning there.
+
+## Related
+
+- [Adding a Panel](../)
+- [Panel Options](../../panel-options/)
+- [HTTP Endpoint](../../../../platform/settings/connections/http-endpoint/)
+- [Expressions](../../../../alerts/expressions/)

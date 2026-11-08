@@ -56,7 +56,7 @@ export const redirects = {
   '/llm-observability/ai-trace-observability': '/ai-observability/agent-traces/',
   '/llm-observability/what-is-openllmetry':
     '/guides/ai-observability/instrument-python-app-with-openllmetry/',
-  '/logs-list-panel': '/visualize-data/dashboards/adding-a-panel/logs-list-panel/',
+  '/logs-list-panel': '/visualize-data/dashboards/adding-a-panel/table-panel/',
   '/logs-management': '/kloudmate-agent/log-monitoring/',
   '/managing-dashboards': '/visualize-data/dashboards/managing-dashboards/',
   '/managing-kloudmate-agents': '/kloudmate-agent/management/',
@@ -71,5 +71,9 @@ export const redirects = {
   '/tcp-monitor-test-tcp-port-connectivity': '/synthetic/monitors/tcp-monitor/',
   '/udp-monitor-monitor-udp-port-availability': '/synthetic/monitors/udp-monitor/',
   '/usage': '/kloudmate-assistant/usage/',
+  '/visualize-data/dashboards/adding-a-panel/logs-list-panel':
+    '/visualize-data/dashboards/adding-a-panel/table-panel/',
+  '/visualize-data/dashboards/adding-a-panel/spans-list-panel':
+    '/visualize-data/dashboards/adding-a-panel/table-panel/',
   '/websocket-monitor-monitor-websocket-connections': '/synthetic/monitors/websocket-monitor/',
 };

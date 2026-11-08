@@ -1,58 +1,93 @@
 ---
 title: "Table Panel"
-description: "Learn how to configure and use this visualization feature in KloudMate."
+description: "Show query results, log records, or spans as rows and columns, with per-column formatting and cell types."
 ---
-The Table Panel displays your data in a structured table format, making it easy to read and compare values across rows. It includes a query box to define the data and settings to control how columns and values are presented.
 
-When the panel type is set to Table, the following settings are available under the **General tab**:
+A Table panel shows query results as rows and columns. Use it to compare values across hosts, pods, or services, or to list individual log records and spans.
 
-![image](./images/table-panel-1.jpeg)
+![Table panel settings](./images/table-panel-1.jpeg)
 
-### Panel
+## Show logs and traces
 
-- **Name:** Enter a name for your panel. This appears as the panel title on the dashboard.
-- **Description:** Enter a description to provide additional context about what the panel displays.
-- **Links:** Click **Add link** to connect the panel to related resources, such as a runbook or an external dashboard.
-- **Repeat options:** Set **Repeat by variable** to render one copy of this panel for each value of the selected variable. Only the first 20 values are used, and the copies show on the dashboard, not in this editor.
+To list log records or spans, use a Table panel. In the query, choose the **Logs** or **Traces** data set and open the **Records** tab. Each record becomes a row.
 
-### Columns
-Configure the appearance and formatting of each column in the table individually. Each column detected from your query result appears here and can be expanded to access its settings.
+Dashboards that had Logs List or Spans List panels show them as Table panels.
 
-- **Rename to:** Enter a custom display name for the column heading.
-- **Width:** Set a fixed width for the column or leave it as Auto to size automatically.
-- **Format:** Choose how the column values are formatted.
-- You can also set the maximum number of decimal places, multiply values by a number, and add a prefix or suffix to the displayed values.
+## Sort and limit rows
 
-![image](./images/table-panel-3.jpeg)
+Below the query editor, **Order by** sorts the rows by a column (**Select column**) in the direction you pick under **Order**. **Limit** caps the number of rows. Both apply to every query the table joins.
 
-### Cell options
-Control the visual style applied to table cells.
+## Choose a query or series
 
-- **Cell style:** Choose a display style for the cells.
-- **Color scheme:** Apply a color scheme to the cells for visual emphasis.
+When the panel returns more than one table, or a query returns several series, a picker at the foot of the panel lets you choose which one to show. The choice isn't saved with the panel.
 
-### Value Mappings
-Map specific data values to custom display text and colors based on defined conditions. When a value meets a condition, it is replaced with the mapped text and displayed in the mapped color. Click Edit to add or modify mappings.
+## Panel
 
-### Threshold
-Add thresholds to highlight values that cross important boundaries.
+- **Name** is the title shown on the dashboard.
+- **Description** appears behind the info icon in the panel header.
+- **Links** connect the panel to related resources, such as a runbook or another dashboard. Click **Add link** to add one.
+- **Repeat by variable** draws one copy of the panel for each value of a dashboard variable, up to the first 20 values. Choose a **Direction**, and for horizontal repeats, a **Max per row**. The copies appear on the dashboard, not in the editor.
 
-- Click **Add Threshold** to define a threshold value and assign a color to it.
-- **Threshold Mode:** Choose between Absolute Value (based on the actual data value) or Relative Percentage (based on a percentage of the range).
+## Standard options
 
-![image](./images/table-panel-4.jpeg)
+Every option in this section applies to all columns when you set it in the **Options** tab. To set it for one column, use an override.
 
-### Data links & actions
-Add URL links that users can access from within the panel.
+- **Display name** renames a column. Set it in an override, for example to rename `A:LAST` to `Memory limit`.
+- **Range** sets the **Min** and **Max** that a **Gauge** cell fills against. Each column keeps its own range.
+- **Format** sets the unit and how numbers are written. A number column with no unit and no format shows plain digits, such as `90331`.
+- **Color scheme** sets the color that cells and chips use: **Single color**, **From thresholds**, or a palette.
 
-### Time Range
-Configure time range behavior for this panel independently from the dashboard.
+See [Format values and units](../../panel-options/format-and-units/) and [Colors and value mappings](../../panel-options/colors-and-value-mappings/).
 
-- **Override Dashboard Time Range:** Individual panels can use their own time range configuration. Enable this to override the time range set at the dashboard level.
-- **Time Shift:** Shift the panel’s start and end time by a specified time shift expression. Use the minus (`-`) operator to subtract time, with the same units supported by the dashboard time range expressions. 
+## Cell options
 
-Refer to [Time Range Expressions and Settings](../time-range-expressions-and-settings/) for supported units and syntax.
+**Cell type** sets how a cell draws. Set it here for every column, or per column with an override, so one table can show a duration as a bar, a status as a chip, and a count as text.
 
-:::info
-At the query level, the Table panel also includes **Order By** to sort results by a selected field in ascending or descending order, and **Limit** to restrict the number of rows displayed.
-:::
+| Cell type | What the cell shows |
+| --- | --- |
+| **Auto** (default) | The formatted value as text. |
+| **Colored text** | The text in the threshold color. |
+| **Colored background** | The threshold color behind the cell. Turn on **Apply to entire row** to color the whole row. |
+| **Gauge** | A bar that fills its share of the column's **Range**. **Bar** is **Basic** (a flat bar) or **Gradient** (shaded along the threshold steps). **Value** is **Show value** or **Bar only**. |
+| **Chip** | Each value in a chip, colored by the column's **Color scheme**. |
+| **Links** | The column's data links, drawn in the cell. |
+| **JSON** | The value as pretty-printed JSON. |
+| **Image** | The image at the URL the value holds. |
+
+A cell type draws only on the columns it suits. **Gauge** needs a number column, **Chip** a text, true or false, or enum column, **Image** a text column, and **JSON** a JSON or text column. Any other column keeps drawing as text.
+
+## Column layout
+
+**Width** sets a fixed column width; leave it on **Auto** to size the column automatically. **Align** places the content **Left**, **Center**, or **Right**. Set both per column with an override.
+
+## Value mappings
+
+Value mappings replace a cell's value with text and a color. They work on text and true or false columns as well as numbers. For example, map `down` to `Down` in red on a status column. The mapping color shows on every cell type, including chips. See [Colors and value mappings](../../panel-options/colors-and-value-mappings/).
+
+## Threshold
+
+Thresholds set the color for **Colored text** and **Colored background** cells, and the shading of a **Gradient** gauge. See [Thresholds](../../panel-options/thresholds/).
+
+![Table Threshold section](./images/table-panel-4.jpeg)
+
+## Data links & actions
+
+A cell with one data link turns its value into the link. A cell with several opens a list of them when you click the value. To draw the links inside the cell instead, use the **Links** cell type. See [Data links](../../panel-options/data-links/).
+
+## Time range
+
+Turn on **Override dashboard time range** to give this panel its own time range. **Time shift** moves the panel's range back in time, for example `-1d` to show the same window yesterday. See [Time Range Expressions and Settings](../time-range-expressions-and-settings/) for the supported units and syntax.
+
+## Overrides
+
+Per-column settings live in the **Overrides** tab. A rule picks columns with **Applies to**, for example **Fields with names**, and can set **Display name**, **Range**, **Cell options**, **Column layout**, **Format**, **Color scheme**, **Value mappings**, **Threshold**, and **Data links & actions**. For example, one rule can rename a `duration` column, format it in milliseconds, and draw it as a **Gauge**. See [Overrides](../../panel-options/overrides/).
+
+## Transform
+
+To reorder columns, add an **Organize fields** step in the **Transform** tab. See [Transformations](../../panel-options/transformations/).
+
+## Related
+
+- [Panel options](../../panel-options/)
+- [Queries and data sources](../queries-and-data-sources/)
+- [Transformations](../../panel-options/transformations/)

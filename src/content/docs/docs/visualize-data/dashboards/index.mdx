@@ -11,9 +11,13 @@ Navigate to **Dashboards** from the left navigation menu to view all your existi
 
 ![image](./images/dashboards-overview-1.png)
 
-The Dashboards screen lists every dashboard and folder with its name, folder, description, and tags. Search for a specific dashboard using the search bar. Use the view toggle at the top-right to switch between the flat list and a folder view.
+The Dashboards screen lists every dashboard with its name, description, and tags. Search for a dashboard or folder by name with the search bar. Use the **List** and **Folders** toggle to switch between one flat list and a view grouped by folder. In **List**, a dashboard that's in a folder shows the folder name before its own.
 
-From the more options (⋯) icon on any dashboard or folder, you can **edit**, **delete**, or **share** it. Sharing offers both a copyable public link and a copy of the dashboard's JSON — see [Sharing a Dashboard](./dashboard-details/#sharing-a-dashboard).
+From the more options (⋯) icon on a dashboard, you can **Move to folder**, **Share**, or **Delete** it. Sharing offers both a copyable public link and the dashboard's JSON. See [Sharing a Dashboard](./dashboard-details/#sharing-a-dashboard).
+
+### Tag dashboards
+
+Click a dashboard's **Tags** cell to add a tag, or to create a new one. To show only the dashboards with certain tags, click **Tags** in the toolbar and pick one or more. Tags aren't case-sensitive and are saved in lowercase, so `Prod` and `prod` are the same tag.
 
 ### User Permissions
 
@@ -27,15 +31,19 @@ From the more options (⋯) icon on any dashboard or folder, you can **edit**, *
 
 Folders help you organize related dashboards in one place, making it easier to navigate and manage dashboards across teams or services.
 
-1. Click **Create Folder** at the top of the Dashboards screen.
+1. Click the arrow next to **Create Dashboard** at the top of the Dashboards screen, then click **Create folder**.
 
 ![image](./images/dashboards-overview-2.png)
 
-2. Enter a **Folder Name** and an optional **Description** , then click **Create**. 
+2. Enter a **Name** and an optional **Description**, then click **Create**.
 
-Switch to the folder view to see the new folder. Click the arrow next to it to expand and view the dashboards inside.
+Switch to **Folders** to see the new folder. Click the arrow next to it to expand and view the dashboards inside. Dashboards that aren't in a folder are listed under **Ungrouped**, at the bottom.
 
 ![image](./images/dashboards-overview-1.jpeg)
+
+To put a dashboard in a folder, open its more options (⋯) icon, click **Move to folder**, and pick the folder. Pick **Ungrouped** to take it out of a folder.
+
+Use a folder's more options (⋯) icon to **Edit folder** or **Delete folder**. Deleting a folder doesn't delete its dashboards. They move to **Ungrouped**.
 
 :::info
 Creating a folder is not mandatory. Standalone dashboards do not need to be added to a folder.
@@ -72,3 +80,5 @@ You can import a dashboard from its JSON definition, so you don't have to build 
 ![image](./images/dashboards-overview-4.png)
 
 The dashboard will appear in your Dashboards list, ready to open and use with your data.
+
+To create, update, or delete dashboards from a script instead, or to read the JSON format, see [Dashboard JSON and API](./dashboard-json-and-api/).

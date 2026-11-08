@@ -1,0 +1,315 @@
+---
+title: "Dashboard JSON and API"
+description: "Export and import dashboards as JSON, read the dashboard and panel JSON format, and create, update, share, and delete dashboards with the REST API."
+sidebar:
+  order: 7.5
+---
+
+Every dashboard can be exported as JSON and imported into another workspace. You can also create, update, share, and delete dashboards from a script or a CI pipeline with the REST API, using the same JSON.
+
+## Export and import in the app
+
+To export a dashboard, open it, click **Share**, and open the **Export** tab. Click **Copy JSON**, or **Download** to save it as a `.json` file. See [Sharing a Dashboard](../dashboard-details/#sharing-a-dashboard).
+
+To import one, click **Import** on the Dashboards screen, paste the JSON, and click **Submit**. See [Importing a Dashboard](../#importing-a-dashboard).
+
+An export doesn't name any specific AWS account. CloudWatch queries point at a `$Datasource` data source variable instead, so after you import the dashboard, pick an account in the destination workspace from that variable's dropdown.
+
+The export holds four keys:
+
+```json
+{
+  "name": "Checkout service",
+  "description": "Latency, errors, and throughput for checkout",
+  "data": { },
+  "tags": ["checkout", "prod"]
+}
+```
+
+`data` is the dashboard itself:
+
+| Key | Description |
+| --- | --- |
+| `timeRange` | The default time range, for example `"4h"`. |
+| `tz` | The time zone, for example `"local"`. |
+| `variables` | The [dashboard variables](../dashboard-variables/). |
+| `panels` | The panels, in the format below. |
+| `panel_layouts` | Where each panel sits on the grid. `i` is the panel's `id`, `x` and `y` are its position, and `w` and `h` are its width and height. |
+
+## The panel JSON format
+
+This `data` holds one TimeSeries panel with one query, a dashboard variable, and the panel's place on the grid:
+
+```json
+{
+  "variables": [
+    {
+      "name": "ds",
+      "type": "query",
+      "kind": "dataset",
+      "datasourceId": "kloudmate",
+      "dataset": "logs",
+      "query": {},
+      "default": "logs",
+      "show_all_option": false,
+      "sort": "none"
+    }
+  ],
+  "panels": [
+    {
+      "id": "p1",
+      "panelType": "timeseries",
+      "title": "CPU utilization",
+      "node_configs": [
+        {
+          "refId": "A",
+          "type": "query",
+          "datasourceId": "kloudmate",
+          "dataset": "metrics",
+          "query": {
+            "interval": 300,
+            "responseType": "series",
+            "aggregation": { "stat": "AVG", "metric": "system_cpu_utilization" },
+            "filters": []
+          }
+        }
+      ],
+      "timeseries": { "lineWidth": 2, "tooltip": { "mode": "multi" } },
+      "fieldConfig": {
+        "defaults": { "unit": "%", "decimals": 2 },
+        "overrides": [
+          { "matcher": { "id": "byRefId", "options": "A" }, "config": { "custom": { "axisPlacement": "left" } } }
+        ]
+      },
+      "transformations": [],
+      "annotations": [{ "id": "alarms", "kind": "auto-alarms", "enabled": false }]
+    }
+  ],
+  "panel_layouts": [{ "i": "p1", "x": 0, "y": 0, "w": 4, "h": 2 }]
+}
+```
+
+A panel has these keys:
+
+| Key | Description |
+| --- | --- |
+| `id` | The panel's ID, unique on the dashboard. `panel_layouts` refers to it as `i`. |
+| `panelType` | One of `timeseries`, `stats`, `gauge`, `table`, `pie_chart`, `bar_chart`, `histogram`, `heatmap`, `alarms` (Alerts List), `issues` (Issues List), or `text`. |
+| `title`, `description` | The panel's title and description. |
+| `node_configs` | The panel's queries and expressions, described below. |
+| An option set named after the panel type | Options that belong to that type, for example `timeseries` for a TimeSeries panel or `stats` for a Stats panel. Alerts List and Issues List panels have none. |
+| `fieldConfig` | Display settings. `defaults` apply to every field. Each rule in `overrides` has a `matcher` that picks fields (`byNames`, `byRegex`, `byRefId`, `byType`, or `byLabel`) and the `config` to apply to them. Units use UCUM codes, such as `%` for percent and `By` for bytes. See [Panel Options](../panel-options/). |
+| `transformations` | [Transformation](../panel-options/transformations/) steps that reshape the query results, run in order. Each step has a `type` and `options`, and `"disabled": true` switches it off. |
+| `annotations` | The panel's [annotation](../annotations/) sources. In the example, `"enabled": false` turns off the **Alerts** source. |
+
+Each query node in `node_configs` has these keys:
+
+| Key | Description |
+| --- | --- |
+| `refId` | The node's ID, such as `A`. Expressions refer to other nodes by this ID. |
+| `type` | `query`, or `expression` for a math, reduce, or condition node. |
+| `datasourceId` | Where the query runs: `kloudmate`, a connection ID, an AWS account ID, or a data source variable such as `$Datasource`. Every query node needs one. |
+| `dataset` | The data set, such as `metrics`, `logs`, or `traces`. |
+| `query` | The query itself, in the data source's own format. |
+| `hidden` | Set to `true` to run the query but leave it out of the panel. |
+
+Dashboards saved in an older format are upgraded to this one automatically, and they render as before. The exception is Logs List and Spans List panels, which become Table panels showing the same records.
+
+## Manage dashboards with the API
+
+The dashboard API creates, updates, shares, and deletes dashboards. Use the base URL for your organization's region:
+
+| Region | Base URL |
+| --- | --- |
+| US | `https://api.kloudmate.com` |
+| India | `https://api.in.kloudmate.com` |
+
+A key sent to the other region's URL gets a `421` response, with `apiUrl` naming the URL to use.
+
+### Authenticate
+
+Send a [personal API key](../../../platform/settings/api-keys/) in the `x-api-key` header. The API doesn't accept the key as `Authorization: Bearer`. The key acts as you, with the permissions you have in each workspace.
+
+Every request names the workspace in `workspace_id`: in the body for `POST` and `PUT`, and in the query string for `DELETE`.
+
+### Permissions
+
+| Routes | Permission on Dashboards | Built-in roles |
+| --- | --- | --- |
+| Create, update, and delete | **Manage** (`dashboards.manage`) | **Developer**, **Admin** |
+| Turn a public link on, change it, or turn it off | **Share** (`dashboards.share`) | **Admin** |
+
+Without the permission, the request fails with `403`, and the error names the permission it needs:
+
+```json
+{
+  "code": "missing_permission",
+  "message": "You need the dashboards.manage permission to do this.",
+  "permission": "dashboards.manage"
+}
+```
+
+See the [permission reference](../../../platform/settings/roles/permission-reference/) for custom roles.
+
+### Create a dashboard
+
+`POST /dashboards`
+
+| Field | Type | Required | Description |
+| --- | --- | --- | --- |
+| `workspace_id` | string | Yes | The workspace to create the dashboard in. |
+| `name` | string | Yes | The dashboard name. It can't be empty. |
+| `description` | string or null | No | The description. |
+| `data` | object or null | No | The dashboard JSON: variables, panels, and layout. |
+| `tags` | array of strings or null | No | Tags for the dashboard. |
+| `folder_id` | string or null | No | The folder to put the dashboard in. |
+| `is_folder` | boolean | No | Set to `true` to create a folder instead of a dashboard. |
+
+```bash
+curl -X POST https://api.kloudmate.com/dashboards \
+  -H "x-api-key: YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "workspace_id": "YOUR_WORKSPACE_ID",
+    "name": "CPU",
+    "data": {
+      "timeRange": "4h",
+      "tz": "local",
+      "variables": [],
+      "panels": [{
+        "id": "p1",
+        "panelType": "timeseries",
+        "title": "CPU utilization",
+        "node_configs": [{
+          "refId": "A",
+          "type": "query",
+          "datasourceId": "kloudmate",
+          "dataset": "metrics",
+          "query": { "aggregation": { "stat": "AVG", "metric": "system_cpu_utilization" }, "filters": [] }
+        }],
+        "timeseries": {},
+        "fieldConfig": { "defaults": {}, "overrides": [] }
+      }],
+      "panel_layouts": [{ "i": "p1", "x": 0, "y": 0, "w": 4, "h": 2 }]
+    }
+  }'
+```
+
+The response is the new dashboard, including its `id`.
+
+Keys the API doesn't recognize are ignored, so you can post an exported file as it is after adding `workspace_id`. For example, with `jq`:
+
+```bash
+jq '. + {workspace_id: "YOUR_WORKSPACE_ID"}' checkout.json | \
+  curl -X POST https://api.kloudmate.com/dashboards \
+    -H "x-api-key: YOUR_API_KEY" \
+    -H "Content-Type: application/json" \
+    -d @-
+```
+
+### Update a dashboard
+
+`PUT /dashboards/{id}`
+
+| Field | Type | Required | Description |
+| --- | --- | --- | --- |
+| `workspace_id` | string | Yes | The dashboard's workspace. |
+| `name` | string | No | The new name. |
+| `description` | string or null | No | The new description. |
+| `data` | object or null | No | The dashboard JSON. It replaces the whole of the current `data`. |
+| `tags` | array of strings or null | No | The new tags. |
+| `folder_id` | string or null | No | The folder to move the dashboard to. |
+
+Only the fields you send change. `data` is the exception to partial updates: it replaces everything the dashboard holds, so to change one panel, send the full `data` with that panel changed. You can't turn a dashboard into a folder or a folder into a dashboard.
+
+```bash
+curl -X PUT https://api.kloudmate.com/dashboards/YOUR_DASHBOARD_ID \
+  -H "x-api-key: YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{"workspace_id": "YOUR_WORKSPACE_ID", "name": "CPU (prod)"}'
+```
+
+The last write wins. If someone saves the dashboard in the app after you exported it, your `PUT` overwrites their changes.
+
+### Delete a dashboard
+
+`DELETE /dashboards/{id}?workspace_id=YOUR_WORKSPACE_ID`
+
+```bash
+curl -X DELETE "https://api.kloudmate.com/dashboards/YOUR_DASHBOARD_ID?workspace_id=YOUR_WORKSPACE_ID" \
+  -H "x-api-key: YOUR_API_KEY"
+```
+
+The response is `{ "id": "<id>" }`. Deleting a folder doesn't delete its dashboards. They move out of the folder.
+
+### Turn on a public link
+
+`PUT /dashboards/{id}/share`
+
+| Field | Type | Required | Description |
+| --- | --- | --- | --- |
+| `workspace_id` | string | Yes | The dashboard's workspace. |
+| `is_enabled` | boolean | Yes | Whether the public link works. |
+| `allow_time_selection` | boolean | Yes | Whether people with the link can change the time range. |
+| `allow_variables_selection` | boolean | Yes | Whether people with the link can change variables. |
+| `variable_values` | object or null | No | The variable values the link opens with. |
+
+```bash
+curl -X PUT https://api.kloudmate.com/dashboards/YOUR_DASHBOARD_ID/share \
+  -H "x-api-key: YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{"workspace_id": "YOUR_WORKSPACE_ID", "is_enabled": true, "allow_time_selection": true, "allow_variables_selection": false}'
+```
+
+Send every setting each time, because the request replaces the previous settings. A dashboard has one public link. Sending `PUT` again changes its settings and keeps the same link. The response includes `access_token`, and the public link ends in `/d/public/<access_token>`.
+
+### Turn off a public link
+
+`DELETE /dashboards/{id}/share?workspace_id=YOUR_WORKSPACE_ID`
+
+```bash
+curl -X DELETE "https://api.kloudmate.com/dashboards/YOUR_DASHBOARD_ID/share?workspace_id=YOUR_WORKSPACE_ID" \
+  -H "x-api-key: YOUR_API_KEY"
+```
+
+The link stops working right away. To replace a link with a new one, delete it and then send `PUT /dashboards/{id}/share` again.
+
+### Validation
+
+When you create or update a dashboard, every query node in `node_configs` is checked. A query node must name a `datasourceId`, and its `query` must match that data source's format. Everything else, including panel options, `fieldConfig`, transformations, annotations, and variables, is stored as you send it. A PromQL query is checked when it runs, not when it's saved.
+
+An invalid query node fails the request with `400`. The message names the panel by its position in `panels`, counting from `0`, and the node by its `refId`:
+
+```json
+{
+  "code": "BadRequestError",
+  "message": "1 panel query is invalid: panel 0 node A — datasourceId: a query node must name its datasource; without one it falls back to the built-in source, which may not be what the query means"
+}
+```
+
+On `PUT`, a query node that was already invalid before your update, and that you didn't change, is saved anyway. The response lists it in `misconfigured`, with its `panelIndex`, `nodeIndex`, `refId`, and `issues`. A query node you add or change must be valid. Imports in the app run the same check.
+
+### Errors
+
+Every error response has a `code` and a `message`.
+
+| Status | When |
+| --- | --- |
+| `400` | `workspace_id` is missing, the body doesn't match the fields above (`ValidationError`, with the problems in `issues`), or a query node is invalid (`BadRequestError`). |
+| `401` | The key is missing, unknown, or sent as `Authorization: Bearer`. |
+| `403` | You aren't a member of the workspace, the key belongs to a different organization, or you don't have the permission the route needs. |
+| `404` | The dashboard isn't in the workspace you named. |
+| `421` | The key belongs to the other region. Use the URL in `apiUrl`. |
+
+### Reading dashboards
+
+No API endpoint reads or lists dashboards. To get a dashboard's JSON, export it in the app. Because `PUT` replaces the whole of `data`, keep the JSON you deploy in source control and send it in full.
+
+***
+
+## Related
+
+- [API Keys](../../../platform/settings/api-keys/)
+- [Dashboard Variables](../dashboard-variables/)
+- [Annotations](../annotations/)
+- [Roles and permissions](../../../platform/settings/roles/)

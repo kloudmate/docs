@@ -79,7 +79,7 @@ Select **From Scratch** in the **Create Alert** dialog and click **Create Alert*
 - **Simple mode** builds the rule from one query and one condition, on a single page. It's the only mode with the **Detection method** toggle for Anomaly and Forecast alerts. See [Build an alert in Simple mode](#build-an-alert-in-simple-mode).
 - **Advanced mode** lets you add more queries and combine them with math, reduce, and condition expressions. It's also the only mode with custom annotations. See [Build an alert in Advanced mode](#build-an-alert-in-advanced-mode).
 
-To switch, click **Advanced mode**. You can't switch back to Simple mode afterward. Editing or duplicating an existing rule always opens it in Advanced mode.
+To switch, click **Advanced mode**. You can't switch back to Simple mode afterward. Editing or duplicating an existing rule always opens it in Advanced mode, and so does an alert you [create from a dashboard panel](#create-an-alert-from-a-dashboard-panel).
 
 ## Build an alert in Simple mode
 
@@ -124,11 +124,19 @@ Advanced mode is for rules that need more than one query, or expressions that tr
 
 ### 1. Setup query conditions and expressions
 
-Create more queries and expressions with the **Add Query** and **Add Expression** buttons. KloudMate assigns each one a letter, such as **A**, **B**, or **C**, and you can duplicate any block with its copy icon.
+Create more queries and expressions with the **Add Query** and **Add Expression** buttons. Each one gets an ID, such as **A**, **B**, or **C**, which you can rename. See [Nodes](../expressions/#nodes). Duplicate a block with its copy icon.
 
-#### Setting up query conditions for OpenTelemetry / KloudMate
+To remove a block, click its delete icon. If other steps read that block, you're asked to confirm first, and the rule can't be saved until those steps read a different one.
 
-![OpenTelemetry / KloudMate query setup](./images/setting-up-kloudmate-alarms-2.png)
+#### Choose a data source
+
+Each query starts with a data source picker, the same one the panel editor and Explore use. Pick **KloudMate** for the telemetry your workspace collects, or an AWS account, listed by its account name, to query CloudWatch. **Add a data source**, at the bottom of the list, opens **Settings → Connections** in a new tab. For the full list of sources, see [Queries and data sources](../../visualize-data/dashboards/adding-a-panel/queries-and-data-sources/).
+
+Next to the picker, set how far back the query reads with the **Time Range** dropdown, or enter a custom value in seconds.
+
+#### KloudMate queries
+
+![KloudMate query setup](./images/setting-up-kloudmate-alarms-2.png)
 
 - **Data Set:** select the dataset you want to retrieve from your data source.
 - **Metric to Aggregate:** select the metric you want to monitor from that dataset.
@@ -137,18 +145,18 @@ Create more queries and expressions with the **Add Query** and **Add Expression*
 - **Filters:** add filters to narrow the retrieved data points.
 - **Ranking:** control how the series are ordered.
 
-OpenTelemetry users can also use **Prometheus query language** to retrieve data and configure alerts.
+To write the query in Prometheus query language instead, select the **Metrics** data set and open the **PromQL** tab. In an alert rule, a PromQL query always runs as a range query.
 
-#### Setting up query conditions for AWS (CloudWatch)
+#### CloudWatch queries
 
 ![AWS CloudWatch query setup](./images/setting-up-kloudmate-alarms-3.png)
 
-- **Time Range:** set how far back to fetch data with the dropdown, or enter a custom value in seconds.
 - **Region:** select the AWS region of the service you want to monitor.
 - **Namespace:** select the AWS service namespace you want to alert on.
-- **Metric:** select the metric from that namespace.
-- **Statistic:** select the statistical function to apply when calculating data points.
-- **Dimensions:** optionally scope the alert to grouped resources within the namespace. For EC2, for example, you can filter by autoscaling group name, image ID, instance type, and more.
+- **Select metric:** select the metric from that namespace.
+- **Statistic:** select **Maximum**, **Minimum**, **Average**, or **Sum**.
+- **Dimensions:** optionally scope the alert to resources within the namespace. Click **Add dimension**, pick a key, then pick one or more values, or **All** to match every value. For EC2, for example, you can filter by autoscaling group name, image ID, instance type, and more.
+- **Legend Format:** optionally set how each series is named in the chart.
 
 Click **Run Query** to fetch data.
 
@@ -242,6 +250,26 @@ If you're migrating a rule that used notification tags, it keeps working; routin
 
 Click **Save** to save the alert, or **Save & Close** to save it and return to the **Rules** tab.
 
+If a field is missing or invalid, its message appears on the field, and the first one scrolls into view. Each message clears as soon as you fix the field. Problems with the rule as a whole, such as a rule with no condition expression or a step that reads a step that doesn't exist, appear as a toast.
+
+## Create an alert from a dashboard panel
+
+You can start an alert from a panel on a saved dashboard, with the panel's query already filled in. You need permission to create alerts.
+
+- From the panel menu (⋯), click **Create alert**. This works on any panel type.
+- On a TimeSeries panel, click a point to pin the tooltip, then click **Create alert at this value**.
+
+The alert editor opens in Advanced mode with:
+
+- Query **A**: the panel's first query.
+- Condition expression **B**: the `last` value of **A** **IS ABOVE** a threshold. From the tooltip, the threshold is the value you clicked. From the panel menu, it's empty, so enter one before you save.
+- **Alert name**: the panel title. From the tooltip, the series name is added, for example `CPU utilization: web-1`.
+- **Dashboard** and **Panel** in **Responder context**: the dashboard and panel you started from.
+
+Because the alert is linked to the panel, it appears on that panel's chart while it's firing. See [Annotations](../../visualize-data/dashboards/annotations/).
+
+The pre-filled values aren't kept if you reload the editor before saving.
+
 ## Viewing an alert
 
 To open an alert, select its name on the **Rules** tab. The detail page has these tabs:
@@ -256,3 +284,5 @@ To open an alert, select its name on the **Rules** tab. The detail page has thes
 To see which resources the firing alerts affect, and what else is alerting around them, open their [alert group](../alert-groups/#affected-resources).
 
 The instance tables on **Overview** and **Instances** also show each instance's last evaluated value and when it was **Last seen**.
+
+The condition's threshold and each instance's value are shown in the unit of the query result, for example `14.13GB > 13B`. When the query result has no single unit, such as when its series use different units, the raw number is shown.

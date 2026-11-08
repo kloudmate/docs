@@ -1,65 +1,81 @@
 ---
 title: "Stats Panel"
-description: "Learn how to configure and use this visualization feature in KloudMate."
+description: "Show one headline number per series as a tile, colored by thresholds."
 ---
-The Stats Panel displays your data as a single prominent value. It includes a query box to define the data and a set of settings to control how that value is calculated and visually presented.
 
-When the panel type is set to Stats, the following settings are available under the **General tab**:
+A Stats panel reduces each series to one number and shows it as a tile. Use it for headline values such as the error count over the last hour or the current p95 latency of a service.
 
-![image](./images/stats-panel-1.jpeg)
+![Stats panel settings](./images/stats-panel-1.jpeg)
 
-### Panel
-- **Name:** Enter a name for your panel. This appears as the panel title on the dashboard.
-- **Description:** Enter a description to provide additional context about what the panel displays.
-- **Links:** Click **Add link** to connect the panel to related resources, such as a runbook or an external dashboard.
-- **Repeat options:** Set **Repeat by variable** to render one copy of this panel for each value of the selected variable. Only the first 20 values are used, and the copies show on the dashboard, not in this editor.
+## Panel
 
-### Calculations
-Select the aggregate calculation you want the panel to display. Available options include Count, Mean, Max, Min, Total, and others. This determines the single value shown prominently in the panel.
+- **Name** is the title shown on the dashboard.
+- **Description** appears behind the info icon in the panel header.
+- **Links** connect the panel to related resources, such as a runbook or another dashboard. Click **Add link** to add one.
+- **Repeat by variable** draws one copy of the panel for each value of a dashboard variable, up to the first 20 values. Choose a **Direction**, and for horizontal repeats, a **Max per row**. The copies appear on the dashboard, not in the editor.
 
-### Rename
-Click **Add** to rename a field for display, mapping its raw name to the label you want shown in the panel.
+## Standard options
 
-### Stat Config
-Control the formatting of the value displayed in the panel.
+- **Display name** renames a tile's label.
+- **Range** sets the **Min** and **Max** a value is measured against. You need it when a percentage threshold uses **The field's own range** (see [Stat options](#stat-options)).
+- **Format** sets the unit and how the number is written. If you leave **Unit** on **Auto**, the tile uses the unit the metric declares.
+- **Color scheme** sets the tile color: **Single color**, **From thresholds**, or a palette that gives every tile its own color. A **Single color** takes priority over thresholds.
 
-- Use the Format dropdown to choose how the value is presented, such as Number, Percentage, or Duration.
-- Set the maximum number of decimal places to control precision.
-- Optionally multiply the value by a number, or add a prefix and suffix to the displayed value.
+See [Format values and units](../../panel-options/format-and-units/) and [Colors and value mappings](../../panel-options/colors-and-value-mappings/).
 
-![image](./images/stats-panel-2.jpeg)
+![Stats Standard options section](./images/stats-panel-2.jpeg)
 
-### Standard options
-Configure the visual presentation of the stat panel.
+## Calculations
 
-- **Display Mode:** Choose between Grid view, which presents multiple values in a grid layout, or Table view, which displays values in a sortable table format.
-- **Graph mode:** Show the value alone (None) or with a small area chart behind it (Area).
-- **Text mode:** Choose what information appears in the panel: the label only, the value only, or both together.
-- **Color mode:** Choose whether the color is applied to the value text only, or to the entire panel background.
-- **Color scheme:** Select a single color to apply uniformly to all values, or use threshold-based coloring so the color automatically changes when a value crosses a defined threshold.
+**Choose a Calculation** sets how each series is reduced to one number: **Min**, **Max**, **Mean**, **Total**, **First**, **Last**, or **Count**. When you leave it empty, the tile shows the last value.
 
-### Threshold
-Define threshold values to visually indicate when a stat crosses an important boundary.
+To use a different calculation for some series, set **Calculations** in an override. For example, show **Total** for a request count and **Last** for a queue depth on the same panel.
 
-- A default color is shown for values that do not cross any threshold.
-- Click **Add Threshold** to define additional threshold values, each with its own color.
-- **Threshold Mode:** Choose between Absolute Value (based on the actual data value) or Relative Percentage (based on a percentage of the range).
-- When the stat value crosses a threshold, the panel color updates to the corresponding threshold color.
+## Rename
 
-![image](./images/stats-panel-3.jpeg)
+Click **Add**, pick a tile label under **Rename**, and type the new label in **To**. The list offers the labels the panel currently draws.
 
-### Data links & actions
-Add URL links that users can access from within the panel.
+## Stat options
 
-### Value Mappings
-Map specific data values to custom display text and colors based on defined conditions. When a value meets a condition, it is replaced with the mapped text and displayed in the mapped color. Click Edit to add or modify mappings.
+- **Display Mode:** **Grid** lays the tiles out in a grid, **Stack** puts them in a single column, and **Inline** places them side by side in one row.
+- **Graph mode:** **None** shows the value alone. **Area** draws a small area chart of the series behind it.
+- **Text mode:** what each tile shows: **Auto**, **Value**, **Label**, or **Label & Value**.
+- **Color mode:** where the tile's color goes: **None**, **Value** (the number), or **Background** (the whole tile).
+- **Threshold range** appears when a threshold uses **Relative Percentage**. It sets what the percentage is measured against:
+  - **Whole panel** (the default) runs from the smallest to the largest tile on the panel.
+  - **Per query** runs from the smallest to the largest tile of the same query.
+  - **The field's own range** uses the **Range** set in Standard options. A tile with no range set stays in the default color.
 
-![image](./images/stats-panel-4.jpeg)
+## Threshold
 
-### Time Range
-Configure time range behavior for this panel independently from the dashboard.
+Thresholds change a tile's color when its value crosses a step, and **Color mode** decides whether the number or the whole tile takes that color. Click **Add Threshold** for each step, and click **Set default color** to choose the color for values below every step. See [Thresholds](../../panel-options/thresholds/).
 
-- **Override Dashboard Time Range:** Enable this to allow the panel to use its own time range instead of the one selected at the dashboard level.
-- **Time Shift:** Shift the panel’s start and end time by a specified expression. Use the minus (`-`) operator to subtract time, with the same units supported by the dashboard time range expressions.
+![Stats Threshold section](./images/stats-panel-3.jpeg)
 
-Refer to [Time Range Expressions and Settings](../time-range-expressions-and-settings/) for supported units and syntax.
+## Data links & actions
+
+Clicking a tile opens a menu of its data links. Add links to every tile here, or to selected tiles with an override. See [Data links](../../panel-options/data-links/).
+
+## Value mappings
+
+Value mappings replace a tile's value with text and a color. For example, map `0` to `Healthy` in green. See [Colors and value mappings](../../panel-options/colors-and-value-mappings/).
+
+![Stats Value mappings section](./images/stats-panel-4.jpeg)
+
+## Time range
+
+Turn on **Override dashboard time range** to give this panel its own time range. **Time shift** moves the panel's range back in time, for example `-1d` to show the same window yesterday. See [Time Range Expressions and Settings](../time-range-expressions-and-settings/) for the supported units and syntax.
+
+## Overrides
+
+Use the **Overrides** tab to change options for some tiles only. A rule picks series with **Applies to** and can set **Display name**, **Range**, **Calculations**, **Format**, **Color scheme**, **Threshold**, **Data links & actions**, and **Value mappings**. See [Overrides](../../panel-options/overrides/).
+
+## Transform
+
+Use the **Transform** tab to reshape the query results before the panel draws them. See [Transformations](../../panel-options/transformations/).
+
+## Related
+
+- [Gauge Panel](../gauge-panel/)
+- [Panel options](../../panel-options/)
+- [Queries and data sources](../queries-and-data-sources/)
