@@ -1,0 +1,135 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="740" height="732" viewBox="0 0 740 732" role="img" aria-label="Aggregation within series, then across series">
+<rect x="0.5" y="0.5" width="739" height="731" rx="12" fill="#fafafa" stroke="#e5e7eb"/>
+<text x="24.0" y="36.0" font-family="ui-sans-serif, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="14" fill="#1f2937" text-anchor="start" font-weight="700" >Aggregation within series, then across series</text>
+<text x="110.0" y="64.0" font-family="ui-sans-serif, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="11" fill="#6b7280" text-anchor="start" font-weight="600" letter-spacing="0.06em">RAW POINTS EVERY MINUTE · ACTIVE_CONNECTIONS</text>
+<g transform="translate(110.0,74)">
+<rect width="520" height="150" rx="6" fill="#ffffff" stroke="#d1d5db"/>
+<path d="M0 6a6 6 0 0 1 6-6h508a6 6 0 0 1 6 6v24h-520z" fill="#f3f4f6"/>
+<rect x="186" y="32" width="108" height="26" rx="4" fill="none" stroke="#f45b26" stroke-width="1.5" stroke-dasharray="4 3"/>
+<line x1="0" x2="520" y1="30" y2="30" stroke="#e5e7eb"/>
+<line x1="0" x2="520" y1="60" y2="60" stroke="#e5e7eb"/>
+<line x1="0" x2="520" y1="90" y2="90" stroke="#e5e7eb"/>
+<line x1="0" x2="520" y1="120" y2="120" stroke="#e5e7eb"/>
+<line x1="100" x2="100" y1="0" y2="150" stroke="#e5e7eb" stroke-dasharray="2 3"/>
+<line x1="184" x2="184" y1="0" y2="150" stroke="#e5e7eb"/>
+<line x1="296" x2="296" y1="0" y2="150" stroke="#e5e7eb"/>
+<line x1="408" x2="408" y1="0" y2="150" stroke="#e5e7eb"/>
+<text x="10.0" y="19.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace" font-size="11.5" fill="#6b7280" text-anchor="start" font-weight="600" >service</text>
+<text x="110.0" y="19.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace" font-size="11.5" fill="#6b7280" text-anchor="start" font-weight="600" >region</text>
+<text x="240.0" y="19.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace" font-size="11.5" fill="#6b7280" text-anchor="middle" font-weight="600" >10:00</text>
+<text x="352.0" y="19.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace" font-size="11.5" fill="#6b7280" text-anchor="middle" font-weight="600" >10:05</text>
+<text x="464.0" y="19.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace" font-size="11.5" fill="#6b7280" text-anchor="middle" font-weight="600" >10:10</text>
+<circle cx="12" cy="45.0" r="3.5" fill="#2563eb"/>
+<text x="22.0" y="49.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace" font-size="12" fill="#1f2937" text-anchor="start" font-weight="600" >checkout</text>
+<text x="110.0" y="49.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace" font-size="12" fill="#1f2937" text-anchor="start" font-weight="600" >us-east</text>
+<text x="240.0" y="49.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace" font-size="11.5" fill="#1f2937" text-anchor="middle" font-weight="400" >6 7 7 8 7</text>
+<text x="352.0" y="49.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace" font-size="11.5" fill="#1f2937" text-anchor="middle" font-weight="400" >7 8 9 8 8</text>
+<text x="464.0" y="49.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace" font-size="11.5" fill="#1f2937" text-anchor="middle" font-weight="400" >8 9 8 7 8</text>
+<circle cx="12" cy="75.0" r="3.5" fill="#2563eb"/>
+<text x="22.0" y="79.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace" font-size="12" fill="#1f2937" text-anchor="start" font-weight="600" >checkout</text>
+<text x="110.0" y="79.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace" font-size="12" fill="#1f2937" text-anchor="start" font-weight="600" >eu-west</text>
+<text x="240.0" y="79.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace" font-size="11.5" fill="#1f2937" text-anchor="middle" font-weight="400" >3 4 5 4 4</text>
+<text x="352.0" y="79.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace" font-size="11.5" fill="#1f2937" text-anchor="middle" font-weight="400" >4 5 6 5 5</text>
+<text x="464.0" y="79.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace" font-size="11.5" fill="#1f2937" text-anchor="middle" font-weight="400" >5 6 7 6 6</text>
+<circle cx="12" cy="105.0" r="3.5" fill="#15803d"/>
+<text x="22.0" y="109.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace" font-size="12" fill="#1f2937" text-anchor="start" font-weight="600" >payments</text>
+<text x="110.0" y="109.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace" font-size="12" fill="#1f2937" text-anchor="start" font-weight="600" >us-east</text>
+<text x="240.0" y="109.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace" font-size="11.5" fill="#1f2937" text-anchor="middle" font-weight="400" >1 2 3 2 2</text>
+<text x="352.0" y="109.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace" font-size="11.5" fill="#1f2937" text-anchor="middle" font-weight="400" >2 3 4 3 3</text>
+<text x="464.0" y="109.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace" font-size="11.5" fill="#1f2937" text-anchor="middle" font-weight="400" >3 2 1 2 2</text>
+<circle cx="12" cy="135.0" r="3.5" fill="#15803d"/>
+<text x="22.0" y="139.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace" font-size="12" fill="#1f2937" text-anchor="start" font-weight="600" >payments</text>
+<text x="110.0" y="139.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace" font-size="12" fill="#1f2937" text-anchor="start" font-weight="600" >eu-west</text>
+<text x="240.0" y="139.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace" font-size="11.5" fill="#1f2937" text-anchor="middle" font-weight="400" >1 1 2 1 0</text>
+<text x="352.0" y="139.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace" font-size="11.5" fill="#1f2937" text-anchor="middle" font-weight="400" >0 1 1 2 1</text>
+<text x="464.0" y="139.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace" font-size="11.5" fill="#1f2937" text-anchor="middle" font-weight="400" >0 0 0 0 0</text>
+</g>
+<line x1="350.0" x2="350.0" y1="232" y2="294" stroke="#f45b26" stroke-width="2"/>
+<path d="M344.0 292 L350.0 302 L356.0 292 z" fill="#f45b26"/>
+<rect x="284.4" y="244.0" width="131.1" height="44" rx="10" fill="#fff4ef" stroke="#f45b26"/>
+<text x="350.0" y="262.0" font-family="ui-sans-serif, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="12.5" fill="#c2410c" text-anchor="middle" font-weight="700" >Within series</text>
+<text x="350.0" y="279.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace" font-size="10.5" fill="#9a3412" text-anchor="middle" font-weight="400" >Avg · Interval 5m</text>
+<text x="462.0" y="257.0" font-family="ui-sans-serif, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="12" fill="#6b7280" text-anchor="start" font-weight="400" >Combines the points in one series</text>
+<text x="462.0" y="272.0" font-family="ui-sans-serif, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="12" fill="#6b7280" text-anchor="start" font-weight="400" >and one interval into one value.</text>
+<text x="110.0" y="320.0" font-family="ui-sans-serif, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="11" fill="#6b7280" text-anchor="start" font-weight="600" letter-spacing="0.06em">FOUR SERIES · ONE VALUE PER INTERVAL</text>
+<g transform="translate(110.0,330)">
+<rect width="520" height="150" rx="6" fill="#ffffff" stroke="#d1d5db"/>
+<path d="M0 6a6 6 0 0 1 6-6h508a6 6 0 0 1 6 6v24h-520z" fill="#f3f4f6"/>
+<rect x="296" y="30" width="112" height="30" fill="#fde7dd"/>
+<rect x="296" y="60" width="112" height="30" fill="#fde7dd"/>
+<rect x="296" y="90" width="112" height="30" fill="#fde7dd"/>
+<rect x="296" y="120" width="112" height="30" fill="#fde7dd"/>
+<rect x="186" y="32" width="108" height="26" rx="4" fill="none" stroke="#f45b26" stroke-width="1.5" stroke-dasharray="4 3"/>
+<line x1="0" x2="520" y1="30" y2="30" stroke="#e5e7eb"/>
+<line x1="0" x2="520" y1="60" y2="60" stroke="#e5e7eb"/>
+<line x1="0" x2="520" y1="90" y2="90" stroke="#e5e7eb"/>
+<line x1="0" x2="520" y1="120" y2="120" stroke="#e5e7eb"/>
+<line x1="100" x2="100" y1="0" y2="150" stroke="#e5e7eb" stroke-dasharray="2 3"/>
+<line x1="184" x2="184" y1="0" y2="150" stroke="#e5e7eb"/>
+<line x1="296" x2="296" y1="0" y2="150" stroke="#e5e7eb"/>
+<line x1="408" x2="408" y1="0" y2="150" stroke="#e5e7eb"/>
+<text x="10.0" y="19.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace" font-size="11.5" fill="#6b7280" text-anchor="start" font-weight="600" >service</text>
+<text x="110.0" y="19.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace" font-size="11.5" fill="#6b7280" text-anchor="start" font-weight="600" >region</text>
+<text x="240.0" y="19.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace" font-size="11.5" fill="#6b7280" text-anchor="middle" font-weight="600" >10:00</text>
+<text x="352.0" y="19.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace" font-size="11.5" fill="#6b7280" text-anchor="middle" font-weight="600" >10:05</text>
+<text x="464.0" y="19.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace" font-size="11.5" fill="#6b7280" text-anchor="middle" font-weight="600" >10:10</text>
+<circle cx="12" cy="45.0" r="3.5" fill="#2563eb"/>
+<text x="22.0" y="49.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace" font-size="12" fill="#1f2937" text-anchor="start" font-weight="600" >checkout</text>
+<text x="110.0" y="49.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace" font-size="12" fill="#1f2937" text-anchor="start" font-weight="600" >us-east</text>
+<text x="240.0" y="49.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace" font-size="12.5" fill="#1f2937" text-anchor="middle" font-weight="700" >7</text>
+<text x="352.0" y="49.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace" font-size="12.5" fill="#1f2937" text-anchor="middle" font-weight="700" >8</text>
+<text x="464.0" y="49.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace" font-size="12.5" fill="#1f2937" text-anchor="middle" font-weight="700" >8</text>
+<circle cx="12" cy="75.0" r="3.5" fill="#2563eb"/>
+<text x="22.0" y="79.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace" font-size="12" fill="#1f2937" text-anchor="start" font-weight="600" >checkout</text>
+<text x="110.0" y="79.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace" font-size="12" fill="#1f2937" text-anchor="start" font-weight="600" >eu-west</text>
+<text x="240.0" y="79.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace" font-size="12.5" fill="#1f2937" text-anchor="middle" font-weight="700" >4</text>
+<text x="352.0" y="79.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace" font-size="12.5" fill="#1f2937" text-anchor="middle" font-weight="700" >5</text>
+<text x="464.0" y="79.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace" font-size="12.5" fill="#1f2937" text-anchor="middle" font-weight="700" >6</text>
+<circle cx="12" cy="105.0" r="3.5" fill="#15803d"/>
+<text x="22.0" y="109.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace" font-size="12" fill="#1f2937" text-anchor="start" font-weight="600" >payments</text>
+<text x="110.0" y="109.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace" font-size="12" fill="#1f2937" text-anchor="start" font-weight="600" >us-east</text>
+<text x="240.0" y="109.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace" font-size="12.5" fill="#1f2937" text-anchor="middle" font-weight="700" >2</text>
+<text x="352.0" y="109.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace" font-size="12.5" fill="#1f2937" text-anchor="middle" font-weight="700" >3</text>
+<text x="464.0" y="109.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace" font-size="12.5" fill="#1f2937" text-anchor="middle" font-weight="700" >2</text>
+<circle cx="12" cy="135.0" r="3.5" fill="#15803d"/>
+<text x="22.0" y="139.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace" font-size="12" fill="#1f2937" text-anchor="start" font-weight="600" >payments</text>
+<text x="110.0" y="139.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace" font-size="12" fill="#1f2937" text-anchor="start" font-weight="600" >eu-west</text>
+<text x="240.0" y="139.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace" font-size="12.5" fill="#1f2937" text-anchor="middle" font-weight="700" >1</text>
+<text x="352.0" y="139.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace" font-size="12.5" fill="#1f2937" text-anchor="middle" font-weight="700" >1</text>
+<text x="464.0" y="139.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace" font-size="12.5" fill="#1f2937" text-anchor="middle" font-weight="700" >0</text>
+</g>
+<line x1="462.0" x2="462.0" y1="488" y2="550" stroke="#f45b26" stroke-width="2"/>
+<path d="M456.0 548 L462.0 558 L468.0 548 z" fill="#f45b26"/>
+<rect x="401.9" y="500.0" width="120.2" height="44" rx="10" fill="#fff4ef" stroke="#f45b26"/>
+<text x="462.0" y="518.0" font-family="ui-sans-serif, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="12.5" fill="#c2410c" text-anchor="middle" font-weight="700" >Across series</text>
+<text x="462.0" y="535.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace" font-size="10.5" fill="#9a3412" text-anchor="middle" font-weight="400" >Sum by service</text>
+<text x="558.0" y="513.0" font-family="ui-sans-serif, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="12" fill="#6b7280" text-anchor="start" font-weight="400" >Adds up the series that share</text>
+<text x="558.0" y="528.0" font-family="ui-sans-serif, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="12" fill="#6b7280" text-anchor="start" font-weight="400" >a service, in each interval.</text>
+<text x="110.0" y="576.0" font-family="ui-sans-serif, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="11" fill="#6b7280" text-anchor="start" font-weight="600" letter-spacing="0.06em">TWO SERIES · ONE PER SERVICE</text>
+<g transform="translate(110.0,586)">
+<rect width="520" height="90" rx="6" fill="#ffffff" stroke="#d1d5db"/>
+<path d="M0 6a6 6 0 0 1 6-6h508a6 6 0 0 1 6 6v24h-520z" fill="#f3f4f6"/>
+<rect x="296" y="30" width="112" height="30" fill="#fde7dd"/>
+<rect x="296" y="60" width="112" height="30" fill="#fde7dd"/>
+<line x1="0" x2="520" y1="30" y2="30" stroke="#e5e7eb"/>
+<line x1="0" x2="520" y1="60" y2="60" stroke="#e5e7eb"/>
+<line x1="184" x2="184" y1="0" y2="90" stroke="#e5e7eb"/>
+<line x1="296" x2="296" y1="0" y2="90" stroke="#e5e7eb"/>
+<line x1="408" x2="408" y1="0" y2="90" stroke="#e5e7eb"/>
+<text x="10.0" y="19.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace" font-size="11.5" fill="#6b7280" text-anchor="start" font-weight="600" >service</text>
+<text x="240.0" y="19.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace" font-size="11.5" fill="#6b7280" text-anchor="middle" font-weight="600" >10:00</text>
+<text x="352.0" y="19.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace" font-size="11.5" fill="#6b7280" text-anchor="middle" font-weight="600" >10:05</text>
+<text x="464.0" y="19.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace" font-size="11.5" fill="#6b7280" text-anchor="middle" font-weight="600" >10:10</text>
+<circle cx="12" cy="45.0" r="3.5" fill="#2563eb"/>
+<text x="22.0" y="49.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace" font-size="12" fill="#1f2937" text-anchor="start" font-weight="600" >checkout</text>
+<text x="240.0" y="49.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace" font-size="12.5" fill="#1f2937" text-anchor="middle" font-weight="700" >11</text>
+<text x="352.0" y="49.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace" font-size="12.5" fill="#1f2937" text-anchor="middle" font-weight="700" >13</text>
+<text x="464.0" y="49.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace" font-size="12.5" fill="#1f2937" text-anchor="middle" font-weight="700" >14</text>
+<circle cx="12" cy="75.0" r="3.5" fill="#15803d"/>
+<text x="22.0" y="79.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace" font-size="12" fill="#1f2937" text-anchor="start" font-weight="600" >payments</text>
+<text x="240.0" y="79.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace" font-size="12.5" fill="#1f2937" text-anchor="middle" font-weight="700" >3</text>
+<text x="352.0" y="79.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace" font-size="12.5" fill="#1f2937" text-anchor="middle" font-weight="700" >4</text>
+<text x="464.0" y="79.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace" font-size="12.5" fill="#1f2937" text-anchor="middle" font-weight="700" >2</text>
+</g>
+<text x="24.0" y="712.0" font-family="ui-sans-serif, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="12" fill="#6b7280" text-anchor="start" font-weight="400" >Grouping by service drops region, so the four series become two.</text>
+</svg>
