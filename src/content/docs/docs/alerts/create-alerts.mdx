@@ -138,14 +138,18 @@ Next to the picker, set how far back the query reads with the **Time Range** dro
 
 ![KloudMate query setup](./images/setting-up-kloudmate-alarms-2.png)
 
-- **Data Set:** select the dataset you want to retrieve from your data source.
-- **Metric to Aggregate:** select the metric you want to monitor from that dataset.
-- **Aggregation:** choose the function applied to the metric, such as `Avg` or `Rate`. Click **Customize aggregation** to set **Aggregation within series** and **Aggregation across series** separately. See [Metrics Aggregations](../../visualize-data/explore/metrics-aggregations/).
-- **Group By:** enter the attributes used to group the data points.
-- **Filters:** add filters to narrow the retrieved data points.
-- **Ranking:** control how the series are ordered.
+- **Data Set:** select **Metrics**, **Logs**, or **Traces**.
+- **Metric:** select the metric you want to monitor.
+- **Filter:** add filter chips to narrow the data. An **OR group** matches when any one of its conditions matches. See [KMQL](../../visualize-data/kmql/) for every operator.
+- **Aggregate:** choose the statistic applied to the metric, such as **Avg** or **Rate**. Click **customize** to set **Within series** and **Across series** separately, or choose **Each series** to keep every series apart. See [Metrics Aggregations](../../visualize-data/explore/metrics-aggregations/).
+- **Where value:** keep only the values that match a condition, such as `= 2`.
+- **Group by:** pick the labels used to split the result into series.
+- **Rank:** keep only the top or bottom K series.
+- **Then:** combine the grouped results again, by fewer labels.
 
-To write the query in Prometheus query language instead, select the **Metrics** data set and open the **PromQL** tab. In an alert rule, a PromQL query always runs as a range query.
+See [Queries and data sources](../../visualize-data/dashboards/adding-a-panel/queries-and-data-sources/#build-the-query-step-by-step) for each step. To move a query between alert rules, dashboards, and Explore as text, use **Copy as KMQL** and **Paste KMQL** in the query's menu.
+
+To write the query in Prometheus query language instead, select the **Metrics** data set and open the **PromQL** tab. In an alert rule, a PromQL query always runs as a range query. A query that uses `or vector(N)` can't be switched to the **Builder** tab in an alert rule, because alert rules have no no-data value. Use **Alert state if No data** to decide what happens when the query returns nothing.
 
 #### CloudWatch queries
 

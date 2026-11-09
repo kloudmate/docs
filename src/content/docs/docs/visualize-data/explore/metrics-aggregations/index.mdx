@@ -25,13 +25,13 @@ Both Delta and Cumulative temporalities are supported across all applicable metr
 
 ## How aggregation works
 
-A metric query aggregates in two steps. **Aggregation within series** combines the points of each series into one value per interval. **Aggregation across series** then combines those series into the result the panel draws. These steps are also known as temporal and spatial aggregation.
+A metric query aggregates in two steps. **Within series** combines the points of each series into one value per interval. **Across series** then combines those series into the result the panel draws. These steps are also known as temporal and spatial aggregation.
 
 A series is one combination of attribute values. For example, `active_connections` reported with a `service` attribute (`checkout` or `payments`) and a `region` attribute (`us-east` or `eu-west`) makes four series, one for each service in each region.
 
 ![Raw points for four active_connections series, averaged within each series into one value per 5-minute interval, then summed across series by service into one series for checkout and one for payments](./images/aggregation-overview.svg)
 
-Choosing a single function such as **Avg** or **Sum** in the Query Builder covers most queries. Click **Customize aggregation** to pick the operation for each step yourself.
+Choosing a single function such as **Avg** or **Sum** under **Aggregate** in the builder covers most queries. Click **customize** under **Aggregate** to pick the operation for each step yourself.
 
 ## Aggregation within series
 
@@ -41,13 +41,15 @@ Aggregation within series reduces the points of one series in each interval to a
 
 Each series is aggregated on its own, so a query that matches four series still has four series after this step.
 
-The right operation depends on the metric type. For a [gauge](./gauge/), use **Avg**, **Min**, **Max**, or **Last**. For a [sum](./sum/) such as a request counter, use **Rate** or **Increase**.
+The right operation depends on the metric type. For a [gauge](./gauge/), use **Avg**, **Min**, **Max**, or **Last**. For a [sum](./sum/) such as a request counter, use **Rate** or **Increase**. **Instant rate** is offered only for cumulative counters.
 
 ## Aggregation across series
 
 Aggregation across series combines the series in each interval. Without **Group by**, every matching series is combined into one. For example, **Sum** adds the four `active_connections` series into a single total.
 
 ![Four active_connections series added by Sum into one total series](./images/aggregation-across-series.svg)
+
+To skip this step, choose **Each series** under **Across series**. Every series is kept apart with all of its labels, so **Group by** and **Then** aren't available, while **Rank** still ranks the series one by one.
 
 ### Keep one series per group
 
@@ -58,3 +60,5 @@ Aggregation across series combines the series in each interval. Without **Group 
 Grouping by both `service` and `region` keeps all four series, because each series already has its own combination of the two.
 
 To keep only the series whose value matches a condition between the two steps, use [Where value](../../dashboards/adding-a-panel/queries-and-data-sources/#filter-by-value).
+
+In [KMQL](../../kmql/), each step is written in order. The query in the diagrams above reads `active_connections | within avg | sum by service`.

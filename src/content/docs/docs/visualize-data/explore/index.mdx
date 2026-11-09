@@ -42,28 +42,29 @@ This walkthrough focuses on metrics.
 
    Keep **Interval** on **Auto** unless you need a specific rollup interval. On panel types other than TimeSeries, **Returns** sets whether the query computes a value for each time step or a single value for the whole range.
 
-   For logs or traces, choose the **Logs** or **Traces** data set instead. The **Aggregation** tab computes values, such as an error count per service, and the **Records** tab lists the individual log records or spans in a **Table** panel.
+   For logs or traces, choose the **Logs** or **Traces** data set instead. The **Builder** tab computes values, such as an error count per service, and the **Records** tab lists the individual log records or spans in a **Table** panel.
 
 4. **Build the Query**
-   In the Query Builder, select a metric name and choose an aggregation function such as `Avg`, `Sum`, `Min`, or `Max`.
+   On the **Builder** tab, the query is a row of labeled steps. Pick a metric under **Metric**, then choose a statistic such as **Avg**, **Sum**, or **Rate** under **Aggregate**.
 
    ![Query Builder](./images/explore-query-builder.png)
 
-   - Click **Customize aggregation** to set **Aggregation within series** and **Aggregation across series** separately. See [Metrics Aggregations](./metrics-aggregations/) for details.
-   - Use **Group by** to break down the metric by one or more attributes, such as `host_id` or `host_name`.
+   - Click **customize** under **Aggregate** to set **Within series** and **Across series** separately. Choose **Each series** under **Across series** to keep every series apart. See [Metrics Aggregations](./metrics-aggregations/) for details.
+   - Use **Group by** to break down the metric by one or more labels, such as `host_id` or `host_name`.
 
    ![Group By](./images/explore-groupby.png)
 
-   - Use **Add filters** to narrow the results by attributes. Each filter needs a field, an operator, and a value, for example `service_name = checkout-api`.
+   - Use **Filter** to narrow the results. Each chip is a condition with a label, an operator, and a value, for example `service_name = checkout-api`. An **OR group** matches when any one of its conditions matches. See [KMQL](../kmql/) for every operator.
 
    ![Add Filters](./images/explore-filters.png)
 
-   - Use **Ranking** to control how series are ordered.
+   - Use **Rank** to keep only the top or bottom K series.
 
    ![Ranking](./images/explore-ranking.png)
 
-   - Use **Legend Format** to customize series labels.
-   - Switch to the **PromQL** tab to write a raw query expression instead. Use its search bar to jump to a keyword in a long query.
+   - Click **display options** to set **Display**, the name each series shows.
+   - Switch to the **PromQL** tab to write the query in PromQL instead. Use its search bar to jump to a keyword in a long query. See [Write PromQL](../dashboards/adding-a-panel/queries-and-data-sources/#write-promql) for how the two tabs convert a query.
+   - Use **Copy as KMQL** and **Paste KMQL** in the query's menu to move a query between Explore, dashboards, and alert rules as text.
 
 5. **Add Queries and Expressions**
    Use **Add Query** to compare multiple metric series in one panel. If one query fails, its error shows under the header and the other queries still draw.

@@ -58,6 +58,7 @@ export const redirects = {
     '/guides/ai-observability/instrument-python-app-with-openllmetry/',
   '/logs-list-panel': '/visualize-data/dashboards/adding-a-panel/table-panel/',
   '/logs-management': '/kloudmate-agent/log-monitoring/',
+  '/logs/log-explorer/syntax-for-log-querying': '/visualize-data/kmql/',
   '/managing-dashboards': '/visualize-data/dashboards/managing-dashboards/',
   '/managing-kloudmate-agents': '/kloudmate-agent/management/',
   '/managing-panels': '/visualize-data/dashboards/managing-panels/',

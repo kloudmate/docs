@@ -11,11 +11,11 @@ Log Explorer indexes logs from all connected services and applications. Use it t
 
 ## Log Explorer Walkthrough
 
-The main view combines a log volume graph with a result list. Each row in the list represents a single log entry and shows the most useful attributes for quick triage.
-
-The graph shows log volume over time. The x-axis represents time and the y-axis represents the number of ingested log entries.
+The main view lists log entries in a table. Each row represents a single log entry and shows the most useful attributes for quick triage.
 
 ![The Log Explorer main view, with the log volume graph above the field filters and a list of log entries showing time, service, and message.](./images/log-explorer-1.jpeg)
+
+To see log volume over time, click the chart icon next to **Saved**. The **Log volume** chart stacks errors, warnings, and all other logs in each interval.
 
 Select any log entry to inspect its full payload, labels, and metadata.
 
@@ -23,11 +23,27 @@ Select any log entry to inspect its full payload, labels, and metadata.
 
 ### Search
 
-Use the search bar at the top of Log Explorer to find matching log entries across your environment.
+The search bar at the top of Log Explorer shows your search as chips. Each chip is one condition, and a log entry must match every chip to appear.
 
 ![The Log Explorer search bar highlighted at the top of the page.](./images/log-explorer-2.jpeg)
 
-Refine results further by adjusting the selected time range from the time scale menu.
+To search for text anywhere in a log entry, type it in the bar and press Enter. The text becomes a free-text chip that searches every string field, so `timeout` finds entries with that word in the message or in any text attribute.
+
+To filter on a field, click the bar and pick a field, then an operator, then a value. For example, pick `severity`, then `=`, then `ERROR`. If the field or value you want isn't listed, type it.
+
+The `in` and `not in` operators take several values. Select them from the list, or type them separated by commas, such as `ERROR, WARN`, and press Enter.
+
+On string fields, `matches` and `not matches` compare the value against a regular expression. The expression must match the whole value, so `http.route matches "/api/v[0-9]+/.*"` matches `/api/v2/users` but not `/internal/api/v2/users`.
+
+To remove a condition, click the **×** on its chip.
+
+### Edit the search as KMQL
+
+Click the `</>` icon at the end of the search bar to see and edit the search as [KMQL](../../visualize-data/kmql/) text. In the text view, put free text in double quotes. For example, `severity = ERROR "timeout"` finds error logs that contain the word `timeout`. Press Enter to run the search, and click `</>` again to go back to chips.
+
+Use the text view to build an OR group, such as `(k8s.namespace.name = default or service.name = checkout)`. An OR group shows as a single chip, and you can only change it in the text view. A search that can't be shown as chips stays in the text view.
+
+If the text doesn't parse, Log Explorer shows the reason and doesn't run the search until you fix it. Links that use the previous filter format show a warning and don't run either. Rewrite the search in KMQL to run it.
 
 ### Filter
 
@@ -35,15 +51,23 @@ Use the sidebar filters to narrow the result set by relevant dimensions. Combine
 
 ![The field filters highlighted in the Log Explorer sidebar, grouped into categories such as Common, Kubernetes, Host, and Container.](./images/log-explorer-3.jpeg)
 
+You can also filter from a log entry. In the log detail panel, click **Filter by value** (the filter icon) next to a field to add that field and value to the search. A filter added from the sidebar or the detail panel is combined with the current search using AND.
+
+Refine results further by adjusting the selected time range from the time picker.
+
 ## Saved Queries
 
-To save a query, click the dropdown arrow next to **Saved Queries** in the top-right area of Log Explorer. Enter a query name, description, and folder, then click **Save**.
+Save, reuse, and browse queries from the **Saved** menu next to the search bar:
+
+- **Save this query** saves the current search. Enter a name, description, and folder, then click **Save**.
+- **Recent** lists the most recently saved queries. Click one to run it.
+- **All saved queries** opens every saved query, organized in folders.
 
 ![The Saved queries dialog, with a folder on the left and a list of saved queries showing each name and description.](./images/log-explorer-4.jpeg)
 
-Saved queries remain available from the **Saved Queries** section for quick reuse.
-
 Use folders to keep saved queries organized by service, team, or use case.
+
+When you edit a saved query, you write its **Filters** as KMQL text. If a saved query's filters can't be written as KMQL, Log Explorer shows the reason and doesn't run the query. Edit the query and rewrite its filters in KMQL to use it again.
 
 ## Inspect Log Entries
 
@@ -71,5 +95,5 @@ See [Rehydrate archived logs](../../platform/settings/cold-storage/rehydrate-log
 
 ## Related Resources
 
-- [Log Query Syntax](./syntax-for-log-querying/)
+- [KMQL](../../visualize-data/kmql/)
 - [Collect File Logs with KloudMate Agent](../collect-file-logs/)
