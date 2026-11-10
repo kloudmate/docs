@@ -36,7 +36,7 @@ Each Y axis writes its labels in the unit of the series drawn on it. For example
 
 ## Legend
 
-**Mode** shows the legend as a **Table** or a **List**, or turns it **Off**. **Values** adds summary values next to each series: **Min**, **Max**, **Mean**, **Total**, **First**, **Last**, or **Count**.
+**Mode** shows the legend as a **Table** or a **List**, or turns it **Off**. **Values** adds summary values next to each series: **Min**, **Max**, **Mean**, **Total**, **First**, **Last**, or **Count**. A series with no values in the time range shows `-` for each one.
 
 ## Graph options
 
@@ -54,7 +54,7 @@ Choose what the tooltip shows when the cursor is over the chart: **Single** show
 
 ### Pin the tooltip and create an alert
 
-Click a point to pin the tooltip in place. The pinned tooltip lists the [data links](../../panel-options/data-links/) of the series you clicked. Click elsewhere, or scroll the page, to unpin it.
+Click a point to pin the tooltip in place. The pinned tooltip lists the [data links](../../panel-options/data-links/) of the series you clicked. Click elsewhere, or scroll the page, to unpin it. A refresh that moves the pinned time step also unpins it. A missing value in the pinned tooltip shows as `-`.
 
 On a saved dashboard, the pinned tooltip offers **Create alert at this value**. It opens a new alert rule built from the panel's query, with the clicked value as the threshold. See [Create alerts](../../../../alerts/create-alerts/).
 
