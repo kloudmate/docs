@@ -43,7 +43,7 @@ Click the `</>` icon at the end of the search bar to see and edit the search as 
 
 Use the text view to build an OR group, such as `(k8s.namespace.name = default or service.name = checkout)`. An OR group shows as a single chip, and you can only change it in the text view. A search that can't be shown as chips stays in the text view.
 
-If the text doesn't parse, Log Explorer shows the reason and doesn't run the search until you fix it. Links that use the previous filter format show a warning and don't run either. Rewrite the search in KMQL to run it.
+If the text doesn't parse, Log Explorer shows the reason and doesn't run the search until you fix it. The search is kept in the address as KMQL in the `q` parameter. Links that use the old `filter` or `query` parameters aren't read, so they open Log Explorer with no search applied. Rewrite the search as KMQL in `q`.
 
 ### Filter
 
@@ -80,6 +80,12 @@ Select any log entry to view detailed information and analysis.
 ![The log detail panel beside KloudMate Assistant, which shows the log it was asked about and a Log & Trace Summary.](./images/log-explorer-6.jpeg)
 
 Refer to the [KloudMate Assistant](../../kloudmate-assistant/) documentation for more details.
+
+### Open one log from a link
+
+A link with `?logId=<log id>&ts=<time in epoch milliseconds>` opens that log's detail panel. Log Explorer looks for the log within 5 seconds of `ts`, or across the page's time range when there's no usable `ts`. If no log matches, Log Explorer says the log wasn't found. Closing the panel removes both parameters from the address.
+
+The **View log** link on a logs **Records** table builds this link for you. See [Data links](../../visualize-data/dashboards/panel-options/data-links/).
 
 ## Stream Logs
 

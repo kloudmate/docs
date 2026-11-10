@@ -24,6 +24,16 @@ The search bars and the Filter step take filters only. A `|` there is an error.
 
 If the text doesn't parse, you see the reason, and the query doesn't run. Pasted KMQL that doesn't parse changes nothing.
 
+## KMQL in links and page addresses
+
+Log Explorer, Traces, and RUM keep the current search in the `q` URL parameter as KMQL, so a copied address opens the same search. The trace group drawer keeps its search in `group_q`. If `q` doesn't parse, the page shows the reason and runs nothing.
+
+Old Logs links that use `filter=`, `filter[]=`, or `query=` aren't read, and the page opens without that filter. Old Traces and RUM links that carry `filters=` still open, and the address switches to `q` on your next change.
+
+When a filter can't be written as KMQL, such as `in` with no values, no link to Logs or Traces is offered. For example, clicking a Kubernetes value with such a filter tells you it has no Logs link.
+
+To build a KMQL search into a panel's data link, use the `:kmql` format. See [Data links](../dashboards/panel-options/data-links/).
+
 ## Filters
 
 A filter is a field, an operator, and a value: `severity = ERROR`.

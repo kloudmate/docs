@@ -25,6 +25,8 @@ Search across traces using span attributes. Click the search bar or start typing
 
 The operators are the ones [KMQL](../../visualize-data/kmql/) uses. The `in` and `not in` operators take several values, which you can type separated by commas. On string attributes, `matches` and `not matches` compare the value against a regular expression that must match the whole value.
 
+The search is kept in the address as KMQL in the `q` parameter, so a copied address opens the same search. A search that doesn't parse shows the reason with **Clear filters**, runs nothing, and can't be saved. The group drawer keeps its search in `group_q`.
+
 ### Sidebar Filters
 
 Use the left sidebar to filter results by:
@@ -43,6 +45,8 @@ Each filter section includes a search box for quick lookup. When filters are act
 ## Saved Queries
 
 Open the **Saved** menu next to the search bar. Select **Save this query** to save the current search, pick a query under **Recent** to run it, or select **All saved queries** to browse every saved query.
+
+When you edit a saved search that has OR groups or free text, they appear in a read-only **Other filters** field and stay in the search when you save it.
 
 ![image](./images/traces-5.jpeg)
 
