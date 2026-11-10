@@ -93,7 +93,7 @@ For example:
 Leave **Columns** empty and every field in a row becomes a column. Add columns to choose which fields show, what they're called, and what type they are. Click **Add column**, then set:
 
 - **Selector**: the field to read, written as a dot path into the row. For example, `user.address.city`, `metrics[0].value`, or `attributes["service.name"]`. This is a plain path, not JMESPath.
-- **Column name**: the column's heading. It fills in from the last part of the selector, and each name must be unique.
+- **Column name**: the column's heading. It fills in from the last part of the selector, and each name must be unique. A column with no **Column name** yet is left out, so the query keeps running while you fill it in.
 - **Type**: **Text**, **Number**, **True or false**, or **Time**.
 
 For a **Time** column, choose how the value is written: **Detect**, **ISO 8601**, **Seconds**, **Milliseconds**, **Microseconds**, **Nanoseconds**, or a pattern you type, such as `YYYY-MM-DD HH:mm`. When the query has a **Time** column, rows are sorted by it, oldest first.
@@ -119,7 +119,7 @@ For example, this transform counts open issues per label:
 
 Besides the standard operators, you can hash or encode a value with `$sha256`, `$md5`, `$base64Encode`, and `$urlEncode`. A null input stays null. `$$NOW` gives the current time, and it's the same value for every row in the run. As you type, the editor suggests stages, operators, and the field names from the last result.
 
-If the transform has a mistake, the editor shows it under the field. Until the text is valid JSON, the query runs without the transform.
+If the transform has a mistake, the editor shows it under the field, and the query fails until you fix it. The dashboard can't be saved until the transform parses. The text stays as you typed it, so reopening the panel shows it unchanged.
 
 A `$project` or `$group` stage returns its fields in alphabetical order, so the table shows them alphabetically until **Columns** sets an order. When the last stage's fields don't match your columns, click **Set columns from the pipeline** to fill **Columns** in the order the stage lists them.
 
