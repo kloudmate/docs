@@ -53,7 +53,23 @@ A filter is a field, an operator, and a value: `severity = ERROR`.
 | `has field` | is present | `has exception.type` |
 | `missing field` | isn't present | `missing retries` |
 
-`not` only goes before `in`, `contains`, and `matches`. To exclude a single value, use `!=`.
+`not` only goes before `in`, `contains`, and `matches`. To exclude a single value, use `!=`. To exclude values that start with some text, use `not matches` with `.*` after the text, for example `http.route not matches "/internal/.*"`. KMQL has no "ends with" operator, so put `.*` before the text instead: `http.route matches ".*/health"`.
+
+### Case and regular expressions
+
+`=`, `!=`, and `in` compare the whole value and match case exactly, so `severity = error` doesn't find `ERROR`. `contains` and `startswith` ignore case. They also read the text literally, so `%` and `_` have no special meaning.
+
+`matches` takes an [RE2](https://github.com/google/re2/wiki/Syntax) regular expression, and the expression must match the whole value. For example, `http.route matches "api"` doesn't match `/api/v1`, while `http.route matches ".*api.*"` does. `matches` is case-sensitive, so start the expression with `(?i)` to ignore case: `host matches "(?i)web-.*"`. A `(` or `)` without its pair is an error, so write a literal parenthesis as `\(` or `\)`.
+
+### Records without the field
+
+A record that doesn't have the field matches `!=`, `not in`, `not contains`, and `not matches`. For example, `k8s.namespace.name != kube-system` also finds records that have no `k8s.namespace.name`. To keep only records that have the field, add `has`:
+
+```text
+has k8s.namespace.name k8s.namespace.name != kube-system
+```
+
+On logs and traces, a comparison reads a missing number attribute as `0`. So `retries < 5` also finds every record that has no `retries` attribute. Add `has number(retries)` to leave those records out. For a number attribute, `has` needs `number( )`.
 
 ### Combine filters
 
@@ -67,11 +83,13 @@ severity = ERROR (k8s.namespace.name = default or has exception.type)
 
 ### Search free text
 
-A term in double quotes with no field searches the whole record. This finds error logs that mention `timeout` anywhere:
+A term in double quotes with no field searches every text attribute of the record and ignores case. This finds error logs that mention `timeout` anywhere:
 
 ```text
 severity = ERROR "timeout"
 ```
+
+Inside the quotes, `*` matches any run of characters, so `"conn*refused"` finds both `connection refused` and `conn refused`.
 
 Free text works on logs and traces, not metrics. A bare word with no operator, such as `timeout` without quotes, is an error, because KMQL reads it as a field name and expects an operator after it.
 
@@ -82,6 +100,8 @@ A value that is a single word, such as `ERROR`, `dev-ovh`, or `/api/`, needs no 
 Inside quotes, write `\"` for a double quote and `\\` for a backslash. A backslash before any other character stays as written, so a regular expression such as `"api\.example"` works without extra escaping.
 
 An unquoted number is compared as a number, and a quoted one as text. For example, `code = "200"` compares `code` as text, while `duration > 1000000000` compares `duration` as a number.
+
+Durations are numbers without a unit. On traces, `duration` is in nanoseconds, so `duration > 1000000000` finds spans that took longer than one second, and `duration > 500000000` finds spans longer than 500 ms.
 
 When the value doesn't show that a field is numeric, wrap the field in `number( )`. This matters most with a dashboard variable, whose value is only known when the query runs:
 
