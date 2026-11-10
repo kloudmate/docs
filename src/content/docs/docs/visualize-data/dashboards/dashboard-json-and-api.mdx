@@ -32,7 +32,7 @@ The export holds four keys:
 | --- | --- |
 | `timeRange` | The default time range, for example `"4h"`. |
 | `tz` | The time zone, for example `"local"`. |
-| `variables` | The [dashboard variables](../dashboard-variables/). |
+| `variables` | The [dashboard variables](../dashboard-variables/). A variable starts on its `default`. A `value` key on a variable is ignored, and the app never writes one. Saving in the app drops `usedInPanels`, `usedInVariables`, and `usesVariables`. |
 | `panels` | The panels, in the format below. |
 | `panel_layouts` | Where each panel sits on the grid. `i` is the panel's `id`, `x` and `y` are its position, and `w` and `h` are its width and height. |
 
@@ -252,7 +252,7 @@ The response is `{ "id": "<id>" }`. Deleting a folder doesn't delete its dashboa
 | `is_enabled` | boolean | Yes | Whether the public link works. |
 | `allow_time_selection` | boolean | Yes | Whether people with the link can change the time range. |
 | `allow_variables_selection` | boolean | Yes | Whether people with the link can change variables. |
-| `variable_values` | object or null | No | The variable values the link opens with. |
+| `variable_values` | object or null | No | The variable values the link opens with. A variable missing from it opens on its default. |
 
 ```bash
 curl -X PUT https://api.kloudmate.com/dashboards/YOUR_DASHBOARD_ID/share \

@@ -53,7 +53,7 @@ Query variables have these settings:
 - **Multi value:** Lets viewers select more than one value. It's offered for **Attribute key**, **Attribute values**, **Dimension key**, and **Dimension values**.
 - **Show All option:** Adds an **All** choice at the top of the dropdown that matches every value. It's offered only where the data source can match every value at once, which is **Dimension values** on CloudWatch.
 
-Every variable also has **None** at the bottom of its dropdown. Selecting **None** removes that filter from the query entirely, rather than filtering on an empty value.
+Every variable also has **None** at the bottom of its dropdown. Selecting **None** removes that filter from the query entirely, rather than filtering on an empty value. This also applies to a filter inside an OR group and to a filter in an aggregation.
 
 ## How a viewer's selection is kept
 
@@ -63,7 +63,17 @@ When someone opens a dashboard, each variable starts on the first of these that 
 2. The value last chosen for this dashboard in this browser.
 3. The variable's default value.
 
-Viewers can change variables without edit access, and changing one doesn't change the dashboard for anyone else.
+The value in the link is the `var-<name>` URL parameter, for example `?var-service=checkout`. A multi-value variable takes a comma-separated list, such as `?var-service=checkout,payments`. Picking a value in the variable bar updates the parameter.
+
+The last pick is remembered for each dashboard, in this browser only.
+
+Picking a value never changes the saved dashboard, in view mode or in edit mode, and saving the dashboard doesn't save your picks. Viewers can change variables without edit access, and their picks don't affect anyone else. To change what a **Text box** variable starts on, set its **Default value** in the variable settings.
+
+A [dashboard link](../adding-links-to-dashboards/) with **Add variables** turned on, the **Export** button in the dashboard toolbar, and scheduled reports all use each variable's current value.
+
+A public link opens on the values picked in its own settings. See [Public link](../dashboard-details/#public-link).
+
+**Share** → **Export** copies the saved dashboard definition, so its JSON carries each variable's default and none of your picks.
 
 When you create a dashboard from an AWS template, the **Default Region** you pick becomes the default value of the dashboard's region variable.
 
