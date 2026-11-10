@@ -130,7 +130,7 @@ To remove a block, click its delete icon. If other steps read that block, you're
 
 #### Choose a data source
 
-Each query starts with a data source picker, the same one the panel editor and Explore use. Pick **KloudMate** for the telemetry your workspace collects, or an AWS account, listed by its account name, to query CloudWatch. **Add a data source**, at the bottom of the list, opens **Settings → Connections** in a new tab. For the full list of sources, see [Queries and data sources](../../visualize-data/dashboards/adding-a-panel/queries-and-data-sources/).
+Each query starts with a data source picker, the same one the panel editor and Explore use. Pick **KloudMate** for the telemetry your workspace collects, or an AWS account, listed by its account name, to query CloudWatch. **Add a data source**, at the bottom of the list, opens **Settings → Connections** in a new tab. An alert rule reads from **KloudMate** or an AWS account (CloudWatch) only. HTTP endpoint connections aren't offered, and the **Logs** and **Traces** data sets have the **Builder** tab only, with no **Records**. For the query fields, see [Queries and data sources](../../visualize-data/dashboards/adding-a-panel/queries-and-data-sources/).
 
 Next to the picker, set how far back the query reads with the **Time Range** dropdown, or enter a custom value in seconds.
 
@@ -158,7 +158,7 @@ To write the query in Prometheus query language instead, select the **Metrics** 
 - **Region:** select the AWS region of the service you want to monitor.
 - **Namespace:** select the AWS service namespace you want to alert on.
 - **Select metric:** select the metric from that namespace.
-- **Statistic:** select **Maximum**, **Minimum**, **Average**, or **Sum**.
+- **Statistic:** select **Maximum**, **Minimum**, **Average**, or **Sum**. It starts on **Average**.
 - **Dimensions:** optionally scope the alert to resources within the namespace. Click **Add dimension**, pick a key, then pick one or more values, or **All** to match every value. For EC2, for example, you can filter by autoscaling group name, image ID, instance type, and more.
 - **Legend Format:** optionally set how each series is named in the chart.
 

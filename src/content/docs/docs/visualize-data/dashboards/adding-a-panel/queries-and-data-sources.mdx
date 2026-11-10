@@ -17,6 +17,8 @@ Open the data source picker at the top of a query. It lists:
 - Each connected AWS account, by account name, with **CloudWatch** under it. AWS accounts are connected under [Settings → Data Sources](../../../../platform/settings/data-sources/).
 - Each [HTTP endpoint](../../../../platform/settings/connections/http-endpoint/) connection, by connection name, with **HTTP endpoint** under it. A connection is listed when it can be used for **Data source**.
 
+In an alert rule, the picker lists only **KloudMate** and AWS accounts (CloudWatch). HTTP endpoint connections aren't offered.
+
 The picker shows only the sources your plan includes. To connect another one, click **Add a data source** at the bottom of the picker. Settings → Connections opens in a new tab.
 
 When a connection isn't healthy, its state replaces the source kind under its name:
@@ -39,7 +41,7 @@ Switching a query to a different kind of source starts the query over with that 
 Choose **Metrics**, **Traces**, or **Logs** in the data set picker. Each one has its own tabs:
 
 - **Metrics** has **Builder** and **PromQL**. See [Write PromQL](#write-promql).
-- **Logs** and **Traces** have **Builder** and **Records**. **Builder** computes values from the records, such as the count of error logs per service. **Records** returns the individual log records or spans as rows.
+- **Logs** and **Traces** have **Builder** and **Records**. **Builder** computes values from the records, such as the count of error logs per service. **Records** returns the individual log records or spans as rows. Alert rules have no **Records** tab.
 
 To list logs or traces on a dashboard, use a [Table panel](../table-panel/) with the **Records** tab. Switching between **Builder** and **Records** starts the query over, and only the filters carry over.
 
@@ -53,7 +55,7 @@ To list logs or traces on a dashboard, use a [Table panel](../table-panel/) with
 
 On a TimeSeries panel and in alert rules, **Returns** isn't shown, because those always need a time series. A **Records** query has no **Returns** either.
 
-For a **Metrics** query that returns a time series, **Interval** sets the time between data points. Leave it on **Auto**, or set a longer interval to get fewer, coarser points.
+For a query that returns a time series, **Interval** sets the time between data points. It's shown on **Metrics** queries and on **Logs** and **Traces** **Builder** queries. Leave it on **Auto**, or set a longer interval to get fewer, coarser points.
 
 ### Build the query step by step
 
@@ -135,7 +137,7 @@ Click **display options** under the steps to set **Display**, the name each seri
 
 On the **Metrics** data set, open the **PromQL** tab to write a [PromQL](https://prometheus.io/docs/prometheus/latest/querying/basics/) query. The tabs aren't offered when **Returns** is **Distribution**.
 
-The PromQL tab has no data set picker, because PromQL reads metrics only, and no **Interval**, because the step follows the panel's time range. On a panel without a time axis, such as a Stats or Gauge panel, **Type** sets how the query runs: **Range** returns a value for each step, and **Instant** returns one value at the end of the time range. On a TimeSeries panel and in alert rules, **Type** isn't shown and the query always runs as a range query.
+The PromQL tab has no data set picker, because PromQL reads metrics only, and no **Interval**, because the step follows the panel's time range. On a panel without a time axis, such as a Stats or Gauge panel, **Type** sets how the query runs: **Range** returns a value for each step, and **Instant** returns one value at the end of the time range. Until you pick one, a query whose **Returns** is **Single value** runs as **Instant**, and any other query runs as **Range**. On a TimeSeries panel and in alert rules, **Type** isn't shown and the query always runs as a range query.
 
 #### Switch between Builder and PromQL
 
@@ -158,7 +160,7 @@ Open the query's menu (**⋮**) and choose one of these:
 - **Copy as KMQL** copies the query to the clipboard. It isn't available on the **PromQL** tab, so switch to **Builder** first.
 - **Paste KMQL** opens an editor. Paste the text and click **Apply**.
 
-Pasting replaces the query's metric, filters, and aggregation steps with what the text says. **Returns**, **Interval**, and the series display name stay as they were, and the metric keeps its type and unit. If the text doesn't parse, the error appears under the editor and the query doesn't change.
+Pasting replaces the query's metric, filters, and aggregation steps with what the text says. **Returns**, **Interval**, and the series display name stay as they were, and the metric keeps its type and unit. A pasted `sort` shows under **Order by**. If the text doesn't parse, the error appears under the editor and the query doesn't change.
 
 ## Build a CloudWatch query
 
@@ -167,7 +169,7 @@ Pick an AWS account in the data source picker, then fill in:
 - **Region**: the AWS region to read from. When the dashboard has variables, you can pick a region variable here. See [Dashboard variables](../../dashboard-variables/).
 - **Namespace**: for example, `AWS/EC2`.
 - **Select metric**: the metric in that namespace.
-- **Statistic**: **Maximum**, **Minimum**, **Average**, or **Sum**.
+- **Statistic**: **Maximum**, **Minimum**, **Average**, or **Sum**. It starts on **Average**.
 - **Dimensions**: click **Add dimension**, pick a key, and pick one or more values. **All** matches every value of the key.
 - **Legend Format**: how each series is named on the chart.
 
