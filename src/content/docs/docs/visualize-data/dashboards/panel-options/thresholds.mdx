@@ -24,15 +24,17 @@ A step's value is the lowest value that takes its color, and a value takes the c
 - **Absolute** compares the value itself. A step at `90` fires at 90.
 - **Relative Percentage** compares where the value sits in its range, from `0` at the smallest value to `100` at the largest. A step at `80` fires for values in the top fifth of the range.
 
-On a Gauge panel, the range is the gauge's **Range** under **Standard options**, so set **Min** and **Max** when you use **Relative Percentage**.
+On a Gauge panel, the range is the gauge's **Range** under **Standard options**. With no **Range**, the arc runs over the values the series reported, and a **Relative Percentage** step is measured along that same arc, so the gauge's color always matches the band it sits in.
 
 ### Threshold range on Stats panels
 
 When any threshold on a Stats panel uses **Relative Percentage**, **Stat options** shows **Threshold range**. It decides which values a tile's percentage is measured against:
 
-- **Whole panel** measures each tile against the smallest and largest tile on the panel. This is the default.
-- **Per query** measures each tile against the other tiles from the same query. Use it when one panel shows two different measurements, such as bytes and a percentage, so one doesn't flatten the other.
+- **Whole panel** measures each tile against the smallest and largest value of every series behind the panel's tiles: every point in the time range, plus each tile's value. This is the default.
+- **Per query** does the same with the series of the tile's own query. Use it when one panel shows two different measurements, such as bytes and a percentage, so one doesn't flatten the other.
 - **The field's own range** measures each tile against its own **Range** under **Standard options**. A tile without a **Range** takes the default color.
+
+A panel with one tile is measured within its own series. A tile with no series behind it, such as a lone **Single value**, takes the default color.
 
 ## Where thresholds show
 

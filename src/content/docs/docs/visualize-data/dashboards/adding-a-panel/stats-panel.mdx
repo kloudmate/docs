@@ -43,8 +43,8 @@ Click **Add**, pick a tile label under **Rename**, and type the new label in **T
 - **Text mode:** what each tile shows: **Auto**, **Value**, **Label**, or **Label & Value**.
 - **Color mode:** where the tile's color goes: **None**, **Value** (the number), or **Background** (the whole tile).
 - **Threshold range** appears when a threshold uses **Relative Percentage**. It sets what the percentage is measured against:
-  - **Whole panel** (the default) runs from the smallest to the largest tile on the panel.
-  - **Per query** runs from the smallest to the largest tile of the same query.
+  - **Whole panel** (the default) runs from the smallest to the largest value of every series behind the panel's tiles, counting every point in the time range and each tile's value.
+  - **Per query** does the same with the series of the tile's own query.
   - **The field's own range** uses the **Range** set in Standard options. A tile with no range set stays in the default color.
 
 ## Threshold
