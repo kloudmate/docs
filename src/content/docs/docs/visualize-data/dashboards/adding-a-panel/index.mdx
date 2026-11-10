@@ -7,7 +7,6 @@ sidebar:
 ---
 
 import { Image } from 'astro:assets';
-import panelTypeDropdown from './images/adding-a-panel-panel-type.png';
 import overridesDropdown from './images/adding-a-panel-overrides.png';
 import generalSettings from './images/adding-a-panel-general-settings.png';
 
@@ -45,11 +44,7 @@ From your dashboard, click **Add** at the top right and choose what to add:
 
    The available types are **TimeSeries**, **Stats**, **Gauge**, **Table**, **Pie Chart**, **Bar Chart**, **Histogram**, **Heatmap**, **Alerts List**, **Issues List**, and **Text**.
 
-   A type that can't draw your query is greyed out, with the reason under its name. For example, **Alerts List** needs individual records, so it's greyed out for a query that returns aggregated values.
-
-   <Image src={panelTypeDropdown} alt="Panel Type dropdown with one type greyed out and the reason under its name" width={291} densities={[1, 2]} />
-
-   Switching the panel type keeps your queries and the last result, so you don't need to run the query again.
+   Switching the panel type keeps your queries and the last result, so you don't need to run the query again. It also keeps the **Transform** steps, and the **Options** and **Overrides** settings that the new type has. Switching to **Alerts List** or **Issues List** replaces the queries with the list's own query. A query whose **Returns** is **Single value** is changed to **Time series** when you switch to **TimeSeries**, and runs again.
 
    If the panel can't draw the result, it explains why in place of the chart, and the editor offers a button for each type that can, such as **Switch to table**. On a dashboard, the same panel names the types to try instead. When only some of the queries fit, the panel draws those and notes how many were left out.
 
