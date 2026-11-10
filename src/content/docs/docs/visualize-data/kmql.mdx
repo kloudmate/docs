@@ -42,7 +42,7 @@ A filter is a field, an operator, and a value: `severity = ERROR`.
 |---|---|---|
 | `=` | equals the value | `severity = ERROR` |
 | `!=` | doesn't equal the value | `k8s.namespace.name != kube-system` |
-| `>` `<` `>=` `<=` | is greater or less than the value | `duration > 1000000000` |
+| `>` `<` `>=` `<=` | is greater or less than the value | `duration > 1s` |
 | `in ( )` | equals any value in the list | `http.status_code in (500, 502, 503)` |
 | `not in ( )` | equals none of the values | `kind not in (commit, rollback)` |
 | `contains` | contains the text | `body contains "connection refused"` |
@@ -53,7 +53,7 @@ A filter is a field, an operator, and a value: `severity = ERROR`.
 | `has field` | is present | `has exception.type` |
 | `missing field` | isn't present | `missing retries` |
 
-`not` only goes before `in`, `contains`, and `matches`. To exclude a single value, use `!=`. To exclude values that start with some text, use `not matches` with `.*` after the text, for example `http.route not matches "/internal/.*"`. KMQL has no "ends with" operator, so put `.*` before the text instead: `http.route matches ".*/health"`.
+`not` only goes before `in`, `contains`, and `matches`. To exclude a single value, use `!=`. To exclude values that start with some text, use `not matches` with `.*` after the text, and start with `(?i)` to ignore case as `startswith` does: `http.route not matches "(?i)/internal/.*"`. KMQL has no "ends with" operator, so put `.*` before the text instead: `http.route matches ".*/health"`.
 
 ### Case and regular expressions
 
@@ -63,13 +63,15 @@ A filter is a field, an operator, and a value: `severity = ERROR`.
 
 ### Records without the field
 
-A record that doesn't have the field matches `!=`, `not in`, `not contains`, and `not matches`. For example, `k8s.namespace.name != kube-system` also finds records that have no `k8s.namespace.name`. To keep only records that have the field, add `has`:
+A record that doesn't have the field never matches a test of its value, such as `=`, `in`, `<`, `contains`, or `matches`. For example, `retries < 5` and `retries = 0` both skip records that have no `retries` attribute.
+
+The negative operators, `!=`, `not in`, `not contains`, and `not matches`, do match a record without the field. For example, `k8s.namespace.name != kube-system` also finds records that have no `k8s.namespace.name`. To keep only records that have the field, add `has`:
 
 ```text
 has k8s.namespace.name k8s.namespace.name != kube-system
 ```
 
-On logs and traces, a comparison reads a missing number attribute as `0`. So `retries < 5` also finds every record that has no `retries` attribute. Add `has number(retries)` to leave those records out. For a number attribute, `has` needs `number( )`.
+A missing text attribute counts as empty, so `x = ""` finds records where `x` has no value, and `x != ""` finds records where it has one.
 
 ### Combine filters
 
@@ -99,9 +101,9 @@ A value that is a single word, such as `ERROR`, `dev-ovh`, or `/api/`, needs no 
 
 Inside quotes, write `\"` for a double quote and `\\` for a backslash. A backslash before any other character stays as written, so a regular expression such as `"api\.example"` works without extra escaping.
 
-An unquoted number is compared as a number, and a quoted one as text. For example, `code = "200"` compares `code` as text, while `duration > 1000000000` compares `duration` as a number.
+An unquoted number is compared as a number, and a quoted one as text. For example, `code = "200"` compares `code` as text, while `retries > 3` compares `retries` as a number.
 
-Durations are numbers without a unit. On traces, `duration` is in nanoseconds, so `duration > 1000000000` finds spans that took longer than one second, and `duration > 500000000` finds spans longer than 500 ms.
+On traces, write a `duration` value with a unit: `ns`, `us`, `ms`, `s`, `m`, or `h`. For example, `duration > 500ms` finds spans that took longer than 500 milliseconds. A plain number is read as nanoseconds, so `duration > 1000000000` is the same as `duration > 1s`. Other fields don't take a unit, so compare them with a plain number.
 
 When the value doesn't show that a field is numeric, wrap the field in `number( )`. This matters most with a dashboard variable, whose value is only known when the query runs:
 
