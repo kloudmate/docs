@@ -7,7 +7,7 @@ sidebar:
 
 Install the **KloudMate Agent** on a Linux machine.
 
-**Supported Platforms:** Debian/Ubuntu, RHEL/CentOS 7 and later. RHEL and CentOS 7 have [some limits](#rhel-and-centos-7).
+**Supported Platforms:** Debian/Ubuntu, RHEL/CentOS 7 and later, SLES 15, and openSUSE Leap 15. RHEL and CentOS 7 have [some limits](#rhel-and-centos-7).
 
 If your outbound traffic is restricted, see [Before you start](../before-you-start/) for the URLs and permissions to allow first.
 
@@ -75,6 +75,18 @@ View all data in these KloudMate sections:
 **Step 5:** Execute the "Check Logs" command to confirm the agent is functioning correctly.
 
 ![image](./images/linux-agent-3.png)
+
+## Check a host before installing
+
+To find out whether a host can run the agent without changing anything on it, run the install script with `--check`:
+
+```bash
+curl -fsSL https://cdn.kloudmate.com/scripts/install_linux.sh | bash -s -- --check
+```
+
+The check doesn't need an API key. It checks the OS, CPU architecture, kernel version, and systemd, then downloads the latest package to confirm that the host can reach the release server and that its `dpkg` or `rpm` can read the package. Each problem it finds is printed with its fix. If you can't fix one, send the output to [support@kloudmate.com](mailto:support@kloudmate.com).
+
+The install command runs the same checks first, and stops before it changes anything on the host if one fails.
 
 ## **Log Integration**
 
