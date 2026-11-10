@@ -23,7 +23,14 @@ For links in the dashboard header, see [Adding links to dashboards](../../adding
 
    ![The link editor](../images/adding-links-to-dashboards-3.png)
 
-A link added on the **Options** tab appears on every series, column, or tile in the panel. To add a link to only some fields, such as one table column, add an [override](../overrides/) with the **Data links & actions** property. A field matched by the rule shows both the panel's links and the rule's links.
+A link added on the **Options** tab appears on every series, column, or tile in the panel. To add a link to only some fields, such as one table column, add an [override](../overrides/) with the **Data links & actions** property.
+
+Some data sources put links on a field themselves (see [Links from the data source](#links-from-the-data-source)). On a field:
+
+- Links from the **Options** tab are added to the data source's links.
+- Links from an override rule are added to the **Options** tab links, and **replace** the data source's links on the fields the rule matches. Remove the rule's last link to bring the data source's links back.
+
+A link with the same title and URL appears once.
 
 ## Variables you can use in the URL
 
@@ -39,6 +46,12 @@ A link added on the **Options** tab appears on every series, column, or tile in 
 | **From** (`${__from}`), **To** (`${__to}`) | The start and end of the dashboard's time range, in epoch milliseconds. |
 | **Workspace ID** (`${__workspace_id}`) | The ID of the current workspace. |
 
+You can also type these by hand. They aren't in the `$` list:
+
+- `${__value.raw}` is the clicked value before formatting, such as the id in a table cell.
+- `${__data.fields.<name>}` is another value from the same table row, including hidden columns.
+- `:kmql` writes a value as a [KMQL](../../../kmql/) value, quoted when needed, and a list as comma-separated values for `in ( )`. For example, `/logs?q=service.name = ${__field.labels["service.name"]:kmql}`.
+
 For example, this URL opens a runbook page for the host a value belongs to:
 
 ```text
@@ -46,6 +59,8 @@ https://runbooks.example.com/hosts/${__field.labels["host.name"]}
 ```
 
 Every value inserted into the URL is URL-encoded, so a series named `checkout api` arrives as `checkout%20api`. Values in the title aren't encoded. To insert a value without encoding, add `:raw` inside the braces, for example `${__field.name:raw}`.
+
+A variable at the very start of the URL is inserted as it is, so it can supply the scheme and host, as in `${base}/status` or a `${__value.raw}` that holds a full URL. Values after it are still encoded, and the result still has to be one of the URLs below.
 
 ## URLs a link can use
 
@@ -62,6 +77,16 @@ The link editor won't save any other URL, such as `example.com/status` with no s
 - **TimeSeries**: click a point to pin the tooltip. It lists the data links of the series you clicked.
 - **Stats** and **Gauge**: click a tile to open a menu of its links.
 - **Table**: when a cell has one link, the cell's value is the link. When it has several, clicking the value opens a list of them. Set the column's **Cell type** to **Links** under **Cell options** to show the links in the cell itself. Empty cells don't get links.
+
+## Links from the data source
+
+A **Records** table of logs or traces comes with links on its id columns:
+
+- `id` opens the log in Log Explorer (**View log**).
+- `traceId` opens the trace (**View trace**).
+- `spanId` opens the trace with that span selected (**View span**).
+
+An empty id cell has no link. To replace these links on a column, add an override with **Data links & actions** on that column. Links on the **Options** tab are added beside them.
 
 ***
 
