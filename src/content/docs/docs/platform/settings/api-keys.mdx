@@ -10,7 +10,7 @@ import { Steps } from '@astrojs/starlight/components';
 
 KloudMate has two kinds of API key, each for a different job:
 
-- **Personal API Keys** authenticate *you*. Use one to read your data through the KloudMate API, or to connect a script or tool to the [MCP server](../../../kloudmate-assistant/mcp-server/). The key carries your own account's permissions.
+- **Personal API Keys** authenticate *you*. Use one to call the KloudMate REST API from a script, or to connect a tool to the [MCP server](../../../kloudmate-assistant/mcp-server/). The key carries your own account's permissions.
 - **Ingest Keys** authenticate a *workspace's data pipeline*. Your OpenTelemetry collectors, SDKs, and the KloudMate agent use one to send logs, metrics, and traces into a single workspace.
 
 ## Personal API Keys
@@ -19,19 +19,15 @@ A personal key acts on your behalf. It's tied to **your** account and pinned to 
 
 Find your personal keys in the account menu (top-right) under **API keys**, on the **Personal API Keys** screen in your profile. Anyone can create one, whatever their [role](../roles/), because the key can only do what you can already do.
 
-Pass it as a bearer token:
-
-```http
-Authorization: Bearer YOUR_API_KEY
-```
-
-...or in the `x-api-key` header:
+For the REST API, send the key in the `x-api-key` header:
 
 ```http
 x-api-key: YOUR_API_KEY
 ```
 
-Use it for any script or service that queries your observability data. It also connects the [KloudMate MCP server](../../../kloudmate-assistant/mcp-server/) to a client that can't sign in with OAuth. A client that supports OAuth, such as Claude, Cursor, or VS Code, can sign in to the MCP server instead, without a key. Because the key carries your access, treat it like a password. Anyone holding it can act as you.
+The REST API doesn't accept the key as `Authorization: Bearer`. A request sent that way fails with `401 Invalid token`. The [MCP server](../../../kloudmate-assistant/mcp-server/) is different: it takes the key as a bearer token.
+
+Use it for any script or service that queries your observability data. A key can also create, update, and delete dashboards and add annotations, within the permissions you have. See [Dashboard JSON and API](../../../visualize-data/dashboards/dashboard-json-and-api/). It also connects the [KloudMate MCP server](../../../kloudmate-assistant/mcp-server/) to a client that can't sign in with OAuth. A client that supports OAuth, such as Claude, Cursor, or VS Code, can sign in to the MCP server instead, without a key. Because the key carries your access, treat it like a password. Anyone holding it can act as you.
 
 :::note
 A personal key spans every workspace you can reach, so a tool that reads from **one** workspace at a time, like the MCP server, also needs the target workspace on each request. The [MCP server](../../../kloudmate-assistant/mcp-server/#connect-with-an-api-key) setup shows how to send it in the `x-workspace-id` header.
@@ -43,7 +39,7 @@ Ingest keys send telemetry into a single workspace. A key belongs to the workspa
 
 There are two kinds.
 
-### Ingest Key — Backend
+### Ingest Key: Backend
 
 A Backend ingest key is for server-side telemetry. Your OpenTelemetry collectors, SDKs, and the KloudMate agent use it to ship logs, metrics, and traces. It bypasses CORS and puts no restriction on where data comes from, so keep it on your servers — never ship it in a browser or mobile app.
 
@@ -57,7 +53,7 @@ exporters:
       Authorization: "Bearer YOUR_API_KEY"
 ```
 
-### Ingest Key — Frontend
+### Ingest Key: Frontend
 
 A Frontend ingest key is for telemetry sent straight from a browser or mobile app, such as [Real-User Monitoring](../../../rum/). Because the key ships in client code where anyone can read it, you must list the **allowed hosts** it can send from. Data from any other origin is rejected, which limits the damage if the key leaks.
 
@@ -97,7 +93,7 @@ Either way, the key is shown **once**, right after you create it:
 
 > Please copy and save the API key below as it will not be shown again.
 
-Copy it then and store it somewhere safe — a secret manager, your client's config, or a CI secret. There's no way to retrieve it later; if you lose it, create a new one and delete the old.
+Copy it then and store it somewhere safe, such as a secret manager, your client's config, or a CI secret. There's no way to retrieve it later; if you lose it, create a new one and delete the old.
 
 ## Edit or delete a key
 

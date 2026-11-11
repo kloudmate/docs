@@ -1,0 +1,204 @@
+---
+title: "HTTP Endpoint"
+description: "Connect a JSON, CSV, or TSV endpoint and query it from dashboard panels and Explore."
+sidebar:
+  order: 5.5
+---
+
+An **HTTP endpoint** connection lets a dashboard panel read data from any URL that returns JSON, CSV, or TSV: a REST API, a CSV file in a GitHub repository, or a Google Sheet. The connection holds the base URL, the credential, and the hosts it's allowed to reach. Each query holds only the path and how to turn the response into rows and columns, so you can point many panels at one connection and rotate its credential in one place.
+
+## Create the connection
+
+You need the **Admin** role to create a connection.
+
+1. Open **Settings → Connections** and click **Connect**.
+2. Choose **HTTP endpoint**.
+3. Enter a **Connection name**, for example `GitHub API`. This is the name you pick in a panel's data source picker.
+4. Under **Authentication**, choose how requests authenticate:
+   - **None** sends no credential.
+   - **Bearer token** sends the **Token** you enter as a bearer token.
+   - **Username and password** sends a **Username** and **Password** with basic authentication.
+   - **API key in a header** sends the **API key** in the header you name under **Header name**, such as `X-API-Key`. Only the key is encrypted. The header name isn't a secret, so other admins can see it.
+5. Enter the **Base URL**, for example `https://api.example.com/v1`. Queries store a path relative to it, so you can move to a new host later without editing every panel.
+6. Fill in **Allowed hosts**, **Requests outside the allowed hosts**, and **Additional methods** if you need them. The sections below explain each one.
+7. Click **Connect**.
+
+The connection can be used for **Data source** and appears in the data source picker in dashboard panels and Explore.
+
+### Allowed hosts
+
+Leave **Allowed hosts** empty to let queries reach only the base URL's host. To reach more than one host, list them, separated by commas. When you fill it in, the list replaces the default, so include the base URL's host as well if queries still use it.
+
+A wildcard matches subdomains. `*.example.com` matches one level, such as `api.example.com`. `**.example.com` matches any number of levels, such as `eu.api.example.com`.
+
+A connection that sends a credential must name the hosts it can reach, either in the base URL or in **Allowed hosts**. That stops a query from sending your credential to a host you didn't choose. Queries can never reach internal addresses.
+
+### Requests outside the allowed hosts
+
+This setting applies only to a connection with **Authentication** set to **None**. A connection that sends a credential always refuses a host it doesn't allow.
+
+- **Refuse (default)** blocks the query, and the panel shows an error.
+- **Run, and show a warning on the panel** runs the query and adds a warning icon to the panel header.
+- **Run silently** runs the query with no warning.
+
+With **Refuse**, the connection needs a base URL or at least one allowed host, or every query is refused.
+
+### Additional methods
+
+Queries can always use `GET` and `POST`. To allow `PUT`, `PATCH`, or `DELETE`, add them under **Additional methods**. Add them only when you mean to, because a query with one of these methods can change data at the endpoint.
+
+### Verification
+
+When you save, KloudMate sends a `GET` request to the base URL. Any HTTP response counts as reachable, even an error status. If nothing answers, the connection is still saved but marked **Degraded**, and queries still run through it. Click **Edit** beside it to fix the base URL or the credential. A connection without a base URL has nothing to check, so it's saved as **Verified**.
+
+## Query the endpoint in a panel
+
+In the panel editor or Explore, pick the connection in the data source picker. See [Queries and Data Sources](../../../../visualize-data/dashboards/adding-a-panel/queries-and-data-sources/) for how the picker and the rest of the query editor work.
+
+### Method and URL
+
+Choose the **Method**: `GET`, `POST`, `PUT`, `PATCH`, or `DELETE`. `PUT`, `PATCH`, and `DELETE` work only when the connection allows them under **Additional methods**.
+
+Enter the **URL** as a path, such as `/orgs/kloudmate/repos`. The path is added to the connection's base URL. A full URL also works, as long as its host is allowed on the connection.
+
+For any method other than `GET`, a **Request body** field appears. Enter the body the endpoint expects, for example `{ "query": "status:open" }`.
+
+### Format
+
+**Format** sets how the response is read and what the request asks for:
+
+| Format | Request header | How the response is read |
+|---|---|---|
+| **Auto** | `Accept: application/json` | As CSV or TSV when the response says it is, otherwise as JSON. |
+| **JSON** | `Accept: application/json` | As JSON. |
+| **CSV** | `Accept: text/csv` | As CSV. |
+| **TSV** | `Accept: text/tab-separated-values` | As TSV. |
+
+**Auto** suits most APIs. Some endpoints send CSV only when the request asks for CSV, so choose **CSV** or **TSV** for those.
+
+### Rows
+
+For a JSON response, **Rows** says which part of the response holds the rows, written as [JMESPath](https://jmespath.org/). Leave it empty to use the whole response: an array becomes the rows, and an object becomes one row. An array of plain values becomes a one-column table with a column named `value`.
+
+For example:
+
+- `data.results` reads the rows from the `results` array inside `data`.
+- `results[?active]` keeps only the rows where `active` is true.
+- `data."my-key"` reads a key that contains a dash. Put double quotes around any key that contains anything other than letters, digits, or underscores.
+
+**Rows** is shown only when **Format** is **Auto** or **JSON**.
+
+### Columns
+
+Leave **Columns** empty and every field in a row becomes a column. Add columns to choose which fields show, what they're called, and what type they are. Click **Add column**, then set:
+
+- **Selector**: the field to read, written as a dot path into the row. For example, `user.address.city`, `metrics[0].value`, or `attributes["service.name"]`. This is a plain path, not JMESPath.
+- **Column name**: the column's heading. It fills in from the last part of the selector, and each name must be unique. A column with no **Column name** yet is left out, so the query keeps running while you fill it in.
+- **Type**: **Text**, **Number**, **True or false**, or **Time**.
+
+For a **Time** column, choose how the value is written: **Detect**, **ISO 8601**, **Seconds**, **Milliseconds**, **Microseconds**, **Nanoseconds**, or a pattern you type, such as `YYYY-MM-DD HH:mm`. When the query has a **Time** column, rows are sorted by it, oldest first.
+
+Drag a column to change the order the columns appear in. To set a unit on a column, use an [override](../../../../visualize-data/dashboards/panel-options/overrides/).
+
+### Transform
+
+Use **Transform** when the rows need more than picking fields: one row per element of an array, arithmetic, an aggregation, a filter, or an order. Write it as a JSON array of stages in the [MongoDB aggregation syntax](https://www.mongodb.com/docs/manual/reference/mql/aggregation-stages/). The stages run in order, after **Rows** selects the rows and before **Columns** reads them.
+
+The allowed stages are `$unwind`, `$project`, `$addFields`, `$match`, `$sort`, `$limit`, and `$group`, and a transform can have at most 12 of them. A response isn't a MongoDB collection, so rows don't carry an `_id` field and a stage can't read from another collection.
+
+For example, this transform counts open issues per label:
+
+```json
+[
+  { "$match": { "state": "open" } },
+  { "$unwind": "$labels" },
+  { "$group": { "_id": "$labels.name", "issues": { "$sum": 1 } } },
+  { "$sort": { "issues": -1 } }
+]
+```
+
+Besides the standard operators, you can hash or encode a value with `$sha256`, `$md5`, `$base64Encode`, and `$urlEncode`. A null input stays null. `$$NOW` gives the current time, and it's the same value for every row in the run. As you type, the editor suggests stages, operators, and the field names from the last result.
+
+If the transform has a mistake, the editor shows it under the field, and the query fails until you fix it. The dashboard can't be saved until the transform parses. The text stays as you typed it, so reopening the panel shows it unchanged.
+
+A `$project` or `$group` stage returns its fields in alphabetical order, so the table shows them alphabetically until **Columns** sets an order. When the last stage's fields don't match your columns, click **Set columns from the pipeline** to fill **Columns** in the order the stage lists them.
+
+### Row and size limits
+
+When a query has a transform, it stops at 10,000 rows or 16 MB of rows after the transform, whichever comes first. The panel then shows the **Rows cut** badge and a warning in its header. Narrow the query, or project fewer fields, to see the rest. A query without a transform has no row limit.
+
+## Example: list GitHub releases in a table
+
+This example shows the 10 most recent stable releases of a public repository.
+
+1. Create an **HTTP endpoint** connection named `GitHub API` with the **Base URL** `https://api.github.com`. Set **Authentication** to **None**, or to **Bearer token** with a GitHub personal access token. GitHub rate-limits unauthenticated API requests heavily, so use a token for a dashboard that refreshes often.
+2. Add a panel to a dashboard and pick `GitHub API` in the data source picker.
+3. Set **Method** to `GET` and **URL** to `/repos/open-telemetry/opentelemetry-collector/releases?per_page=50`. Leave **Format** on **Auto** and **Rows** empty, because the response is an array of releases.
+4. In **Transform**, drop the pre-releases and keep the first 10:
+
+   ```json
+   [
+     { "$match": { "prerelease": false } },
+     { "$limit": 10 }
+   ]
+   ```
+
+5. Add these columns:
+
+   | Selector | Column name | Type |
+   |---|---|---|
+   | `tag_name` | `Release` | **Text** |
+   | `published_at` | `Published` | **Time**, **ISO 8601** |
+   | `author.login` | `Author` | **Text** |
+   | `html_url` | `Link` | **Text** |
+
+6. Choose the **Table** panel type and click **Run Query**.
+
+The table lists one release per row. Because `Published` is a **Time** column, the rows are sorted oldest first.
+
+## Paste a link from your browser
+
+You can paste the link you see in your browser for a file on GitHub, GitLab, or Google Sheets. KloudMate rewrites it to the link that serves the raw data:
+
+| You paste | The query reads |
+|---|---|
+| A GitHub file page: `https://github.com/<owner>/<repo>/blob/<branch>/<path>` | The raw file from `raw.githubusercontent.com` |
+| A Google Sheet: `https://docs.google.com/spreadsheets/d/<id>/edit#gid=<tab>` | The sheet's CSV export, for the tab in the link |
+| A GitLab file page: `https://gitlab.com/<project>/-/blob/<branch>/<path>` | The raw file from `gitlab.com` |
+
+For example, to read a Google Sheet that's shared with **Anyone with the link**, create a connection with the **Base URL** `https://docs.google.com` and **Authentication** set to **None**. In the query, paste the sheet's link into **URL** and set **Format** to **CSV**. Each row of the sheet becomes a row, with the first row as the column names.
+
+The raw data for GitHub and Google Sheets is served from a different host than the one you pasted. A connection with **Authentication** set to **None** is allowed to reach that host automatically. A connection that sends a credential isn't, so add `raw.githubusercontent.com` or `**.googleusercontent.com` to its **Allowed hosts**, or the query is refused.
+
+## Fix a query error
+
+When a query fails, the panel shows the error with the query's name. Click **Show details** for more, such as the exact parser error.
+
+| Message starts with | What to do |
+|---|---|
+| This connection cannot reach that host. | Add the host to **Allowed hosts** on the connection. |
+| That host resolves to an internal address. | Use a public address. Queries can't reach internal addresses. |
+| The endpoint redirected to a host that this connection cannot reach. | Add the host it redirects to under **Allowed hosts**. |
+| `<METHOD>` is not enabled on this connection. | Add the method under **Additional methods** on the connection. |
+| This connection sends a credential, so it must name the hosts it can reach. | Set a **Base URL** or **Allowed hosts** on the connection. |
+| This connection refuses requests outside its allowed hosts, but names no hosts. | Set a **Base URL** or **Allowed hosts**, or change **Requests outside the allowed hosts**. |
+| The credential on this connection could not be read. | Edit the connection and enter the credential again. |
+| The endpoint did not answer. | Check the URL, and that the endpoint is running and reachable from the internet. |
+| The endpoint did not answer in time. | Make the query smaller, for example with a narrower time range or fewer results per page. |
+| The response is larger than this connection allows. | Make the query smaller. |
+| The endpoint answered `<status>`. | Read the status. A `401` or `403` usually means the credential is wrong or lacks access. A `404` usually means the URL is wrong. |
+| A query can use only an http or https URL. | Start the URL with `http://` or `https://`, or enter a path. |
+| The query does not make a valid URL. | Check the URL for typos and characters that need encoding. |
+| The endpoint redirected too many times. | Use the final URL the endpoint redirects to. |
+| The response could not be read as rows. | Read the detail. An HTML page means the URL opens a web page, not the data behind it. Find the endpoint's raw-data or API URL instead. XML isn't supported. A `Nothing was found at` detail means **Rows** points at a key that isn't in the response. |
+| The row selector is not valid. | Put double quotes around keys that contain anything other than letters, digits, or underscores, as in `data."my-key"`. |
+| The transform could not run. | Read the detail after the message, and fix the stage it names. |
+
+The header warning **This connection does not enforce its host allowlist.** means the connection is set to **Run, and show a warning on the panel**. Add the host to **Allowed hosts**, or change the setting to **Refuse (default)**.
+
+## Related
+
+- [Queries and Data Sources](../../../../visualize-data/dashboards/adding-a-panel/queries-and-data-sources/)
+- [Connect an account](../connect-an-account/)
+- [Manage a connection](../manage-connections/)
+- [Providers](../providers/)

@@ -1,0 +1,65 @@
+---
+title: "Gauge Panel"
+description: "Show each series' value on a dial, arc, or meter against a fixed range, colored by thresholds."
+---
+
+A Gauge panel reduces each series to one number and draws it against a range, as a dial, an arc, or a straight meter. Use it for values with known bounds, such as disk usage in percent or connection pool saturation, where the position on the scale matters as much as the number.
+
+## Panel
+
+- **Name** is the title shown on the dashboard.
+- **Description** appears behind the info icon in the panel header.
+- **Links** connect the panel to related resources, such as a runbook or another dashboard. Click **Add link** to add one.
+- **Repeat by variable** draws one copy of the panel for each value of a dashboard variable, up to the first 20 values. Choose a **Direction**, and for horizontal repeats, a **Max per row**. The copies appear on the dashboard, not in the editor.
+
+## Standard options
+
+- **Display name** renames a gauge's label.
+- **Range** sets the **Min** and **Max** at the two ends of the gauge. For a percentage, set `0` and `100`. Leave it empty and the ends come from the values the series reported. Threshold colors and the end labels follow the same range.
+- **Format** sets the unit and how the number is written. If you leave **Unit** on **Auto**, the gauge uses the unit the metric declares.
+- **Color scheme** sets the gauge color: **Single color**, **From thresholds**, or a palette that gives every gauge its own color.
+
+See [Format values and units](../../panel-options/format-and-units/) and [Colors and value mappings](../../panel-options/colors-and-value-mappings/).
+
+## Calculations
+
+**Choose a Calculation** sets how each series is reduced to one number: **Min**, **Max**, **Mean**, **Total**, **First**, **Last**, or **Count**. When you leave it empty, the gauge shows the last value. To use a different calculation for some series, set **Calculations** in an override.
+
+## Gauge
+
+- **Style:** **Dial** draws a three-quarter arc, **Half** a half circle, **Circle** a full ring that fills from the top, and **Meter** a straight bar.
+- **Thickness:** **Thin**, **Medium** (the default), or **Thick**.
+- **Segments** cuts the arc into blocks, from 0 (one continuous arc) to 20. It isn't available for **Meter**.
+- **Arrangement** sets how several gauges share the panel: **Grid**, **Stack**, or **Inline**. **Rings** draws all series in one gauge, one ring per series, on a shared range.
+- **Show** sets what's written on each gauge: **Auto**, **Value**, **Name**, or **Both**.
+- **Show threshold bands** marks the threshold steps beside the arc. It's on by default and isn't available for **Meter**.
+
+## Threshold
+
+Thresholds color the gauge when its value crosses a step, and with **Show threshold bands** on, the steps are also marked along the arc. Click **Add Threshold** for each step, and click **Set default color** to choose the color for values below every step. See [Thresholds](../../panel-options/thresholds/).
+
+## Data links & actions
+
+Clicking a gauge opens a menu of its data links. Add links to every gauge here, or to selected gauges with an override. See [Data links](../../panel-options/data-links/).
+
+## Value mappings
+
+Value mappings replace a gauge's value with text and a color. See [Colors and value mappings](../../panel-options/colors-and-value-mappings/).
+
+## Time range
+
+Turn on **Override dashboard time range** to give this panel its own time range. **Time shift** moves the panel's range back in time, for example `-1d` to show the same window yesterday. See [Time Range Expressions and Settings](../time-range-expressions-and-settings/) for the supported units and syntax.
+
+## Overrides
+
+Use the **Overrides** tab to change options for some gauges only. A rule picks series with **Applies to** and can set **Display name**, **Range**, **Calculations**, **Format**, **Color scheme**, **Threshold**, **Data links & actions**, and **Value mappings**. For example, give a memory gauge its own range in bytes while the CPU gauges on the same panel run from 0 to 100. See [Overrides](../../panel-options/overrides/).
+
+## Transform
+
+Use the **Transform** tab to reshape the query results before the panel draws them. See [Transformations](../../panel-options/transformations/).
+
+## Related
+
+- [Stats Panel](../stats-panel/)
+- [Panel options](../../panel-options/)
+- [Queries and data sources](../queries-and-data-sources/)

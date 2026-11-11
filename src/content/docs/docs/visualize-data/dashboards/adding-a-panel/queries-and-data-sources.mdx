@@ -1,0 +1,213 @@
+---
+title: "Queries and Data Sources"
+description: "Choose a data source for each query, build KloudMate, CloudWatch, and HTTP endpoint queries, and read query errors on a panel."
+sidebar:
+  order: 2
+---
+
+A panel draws the result of one or more queries. You build them in the query editor under the panel preview, and each query reads from its own data source, so one panel can put a KloudMate metric next to a CloudWatch metric.
+
+The same query editor appears in [Explore](../../../explore/) and in [alert rules](../../../../alerts/create-alerts/), so everything on this page applies there too, except where a section says otherwise.
+
+## Choose a data source
+
+Open the data source picker at the top of a query. It lists:
+
+- **KloudMate**, for the metrics, logs, and traces your workspace sends to KloudMate.
+- Each connected AWS account, by account name, with **CloudWatch** under it. AWS accounts are connected under [Settings → Data Sources](../../../../platform/settings/data-sources/).
+- Each [HTTP endpoint](../../../../platform/settings/connections/http-endpoint/) connection, by connection name, with **HTTP endpoint** under it. A connection is listed when it can be used for **Data source**.
+
+In an alert rule, the picker lists only **KloudMate** and AWS accounts (CloudWatch). HTTP endpoint connections aren't offered.
+
+The picker shows only the sources your plan includes. To connect another one, click **Add a data source** at the bottom of the picker. Settings → Connections opens in a new tab.
+
+When a connection isn't healthy, its state replaces the source kind under its name:
+
+| State | Can you pick it? |
+|---|---|
+| **Access revoked** | No. The provider refused the credential. Edit or reconnect the connection first. |
+| **Disabled** | No. Someone switched the connection off. |
+| **Degraded** | Yes. The last check failed, but queries still run through it. |
+| **Not verified yet** | Yes. The connection hasn't been checked yet. |
+
+See [Connections](../../../../platform/settings/connections/) for what each state means and how to fix it.
+
+Switching a query to a different kind of source starts the query over with that source's fields. Switching between two AWS accounts keeps the query as it is.
+
+## Build a KloudMate query
+
+### Pick a data set
+
+Choose **Metrics**, **Traces**, or **Logs** in the data set picker. Each one has its own tabs:
+
+- **Metrics** has **Builder** and **PromQL**. See [Write PromQL](#write-promql).
+- **Logs** and **Traces** have **Builder** and **Records**. **Builder** computes values from the records, such as the count of error logs per service. **Records** returns the individual log records or spans as rows. Alert rules have no **Records** tab.
+
+To list logs or traces on a dashboard, use a [Table panel](../table-panel/) with the **Records** tab. Switching between **Builder** and **Records** starts the query over, and only the filters carry over.
+
+### Choose what the query returns
+
+**Returns** sets what the query computes:
+
+- **Time series:** a value for each time step. This is the default.
+- **Single value:** one number for the whole time range, for a Stats or Gauge panel, for example.
+- **Distribution:** bucket counts from a histogram metric. It's offered only for histogram metrics, and picking a metric that isn't a histogram switches the query back to **Time series**.
+
+On a TimeSeries panel and in alert rules, **Returns** isn't shown, because those always need a time series. A **Records** query has no **Returns** either.
+
+For a query that returns a time series, **Interval** sets the time between data points. It's shown on **Metrics** queries and on **Logs** and **Traces** **Builder** queries. Leave it on **Auto**, or set a longer interval to get fewer, coarser points.
+
+### Build the query step by step
+
+The builder lays out a query as a row of labeled steps that you read from left to right: **Metric** and **Filter** first, then **Aggregate**, **Where value**, **Group by**, **Rank**, and **Then**. A step appears only when it applies to the query, so a histogram metric has no **Where value**, and logs and traces have no **Metric** step.
+
+For example, to chart the request rate of each service in one cluster, pick `apm_span_metrics_requests` under **Metric**, add `k8s_cluster_name = prod-big` under **Filter**, choose **Rate** under **Aggregate**, and add `service_name` under **Group by**.
+
+### Pick a metric
+
+Click the **Metric** step and pick a metric from the list. Each metric shows its type, such as `gauge`, `counter`, or `histogram`, along with its series count and description. To browse the full catalog instead, click the book icon next to the step.
+
+Logs and traces don't have a metric. Their **Aggregate** step picks a statistic and the field it reads, such as **Avg** of `duration`.
+
+### Filter the data
+
+The **Filter** step narrows the query with chips, the same way the [Log Explorer](../../../../logs/log-explorer/) filter bar does. Click **filter**, then pick a label on a metric or a field on logs and traces, an operator, and a value. The query keeps only what matches every chip.
+
+To match any one of several conditions, click **OR group** and add the conditions inside it. For example, an OR group with `service_name = checkout` and `service_name = payments` matches either service. Logs and traces also take free text, which matches any string field in the record.
+
+For every operator and how a filter is written as text, see [KMQL](../../../kmql/).
+
+### Choose an aggregation
+
+**Aggregate** sets the statistic computed at each time step, such as **Avg**, **Sum**, or **Rate**. The list offers only what fits the metric's type. For example, **Rate** is offered for counters, and **Instant rate** only for cumulative counters.
+
+A metric query aggregates in two steps. To set each one yourself, click **customize** under **Aggregate**:
+
+- **Within series** combines the points of each series inside a time step.
+- **Across series** combines the series with each other.
+
+Click **collapse** to go back to a single list. A query that the single list can't show, such as **Max** within series and **Sum** across series on a gauge, always opens with both steps. See [Metrics Aggregations](../../../explore/metrics-aggregations/) for how the two steps work together.
+
+#### Keep each series apart
+
+Choose **Each series** under **Across series** to skip the across-series step and keep every series with all of its labels. For a counter, the single **Aggregate** list offers **Each series** too. Each series doesn't combine anything, so choosing it clears **Group by** and **Then**, and both stay off until you pick a different option. **Rank** still works, and ranks the series one by one.
+
+#### Single value
+
+When **Returns** is **Single value**, **Aggregate** is one statistic for the whole time range. **Count (series)** counts the series that match the query. If the query already uses **Where value** or **Then** when you switch it to **Single value**, the builder keeps them and shows **Within series** and **Across series** instead of a single statistic.
+
+#### Fields on logs and traces
+
+Each field offers only the statistics it can compute. A numeric field offers all of them. A text or boolean field offers **Count (series)**, **Count (datapoints)**, **Count (distinct)**, **Last**, **Any value**, **Min**, and **Max**. If you change the field and the current statistic doesn't apply to the new one, the query switches to one that does. For example, **Avg** becomes **Count (datapoints)** when you move from a numeric field to a text field. **Rate** and **Increase** aren't offered on logs and traces.
+
+#### Histogram metrics
+
+A histogram metric that doesn't return a distribution is read as percentiles, **P25** through **P99**, or as **Sum**. Choosing **Sum** also applies **Increase** (the default) or **Rate**.
+
+### Filter by value
+
+**Where value** keeps only the values that match a condition. Click **condition**, pick an operator (`=`, `!=`, `>`, `<`, `>=`, or `<=`), and enter a number. **Filter** matches attributes, while **Where value** matches the metric's value itself.
+
+The condition is checked against each series' value at every time step, after **Within series** and before **Across series**. For example, `k8s_pod_phase` with **Last** within series, **Count** across series, and **Where value** `= 2` counts the pods that are running right now.
+
+### Group and rank the results
+
+**Group by** splits the result into one series for each distinct value of the fields you pick. Click **label** on a metric, or **field** on logs and traces, and pick one or more fields, such as `host_name` or `service_name`.
+
+**Rank** keeps K series: **Top K** keeps the highest values, **Bottom K** the lowest, and **Limit K** the first K returned. It appears once the query has a **Group by** or uses **Each series**.
+
+### Combine groups a second time
+
+**Then** aggregates the grouped results again, by fewer fields. For example, group CPU usage by `node` and `pod`, then use **Sum** by `node` to get the total for each node.
+
+1. Group by at least one field.
+2. Under **Then**, click **combine groups**.
+3. Pick the operation: **Sum**, **Avg**, **Min**, **Max**, **Count groups**, **Last**, or a percentile from **P25** to **P99**.
+4. Click **by** and pick the fields to keep. With no field picked, every group merges into one value.
+
+**Then** can only keep fields that are in the group-by, so removing a field from the group-by removes it from **Then** as well. While **Then** is set, **Rank** isn't available.
+
+**Where value** and **Then** are offered on **Metrics** queries that return a **Time series**, except on histogram metrics.
+
+### Name the series
+
+Click **display options** under the steps to set **Display**, the name each series shows on the chart. `{{label}}` inserts a label's value, so `{{namespace}}` names each series after its namespace.
+
+### Write PromQL
+
+On the **Metrics** data set, open the **PromQL** tab to write a [PromQL](https://prometheus.io/docs/prometheus/latest/querying/basics/) query. The tabs aren't offered when **Returns** is **Distribution**.
+
+The PromQL tab has no data set picker, because PromQL reads metrics only, and no **Interval**, because the step follows the panel's time range. On a panel without a time axis, such as a Stats or Gauge panel, **Type** sets how the query runs: **Range** returns a value for each step, and **Instant** returns one value at the end of the time range. Until you pick one, a query whose **Returns** is **Single value** runs as **Instant**, and any other query runs as **Range**. On a TimeSeries panel and in alert rules, **Type** isn't shown and the query always runs as a range query.
+
+#### Switch between Builder and PromQL
+
+When you switch from **Builder** to **PromQL**, the builder query is written as PromQL. For example, `http_requests_total` with **Rate**, **Sum**, and a 5-minute interval becomes `sum(rate(http_requests_total[5m]))`. If you switch back without editing the text, the builder query comes back exactly as it was.
+
+When you switch edited or pasted PromQL to **Builder**, the builder imports whatever it can represent:
+
+- A range window such as `[5m]` becomes the query's **Interval**.
+- An expression that needs more than one query, such as `sum(rate(a[5m])) / sum(rate(b[5m])) * 100`, is split into one hidden query for each metric and a **Math expression** that combines them. On a panel that takes a single query, the switch is refused.
+- `or vector(0)` becomes the panel's **No-data value**. See [Panel Options](../../panel-options/). Alert rules have no no-data value, so in an alert rule a query that uses `or vector(N)` can't switch to **Builder**.
+
+If a query can't be converted, the switch is refused and the query stays on its current tab. The reason appears above the editor.
+
+### Copy and paste a query as KMQL
+
+[KMQL](../../../kmql/) writes a whole query as one line of text, such as `apm_span_metrics_requests k8s_cluster_name = prod-big | rate | sum by service_name`. Use it to move a query between panels, Explore, and alert rules, or to share it in a message.
+
+Open the query's menu (**⋮**) and choose one of these:
+
+- **Copy as KMQL** copies the query to the clipboard. It isn't available on the **PromQL** tab, so switch to **Builder** first.
+- **Paste KMQL** opens an editor. Paste the text and click **Apply**.
+
+Pasting replaces the query's metric, filters, and aggregation steps with what the text says. **Returns**, **Interval**, and the series display name stay as they were, and the metric keeps its type and unit. A pasted `sort` shows under **Order by**. If the text doesn't parse, the error appears under the editor and the query doesn't change.
+
+## Build a CloudWatch query
+
+Pick an AWS account in the data source picker, then fill in:
+
+- **Region**: the AWS region to read from. When the dashboard has variables, you can pick a region variable here. See [Dashboard variables](../../dashboard-variables/).
+- **Namespace**: for example, `AWS/EC2`.
+- **Select metric**: the metric in that namespace.
+- **Statistic**: **Maximum**, **Minimum**, **Average**, or **Sum**. It starts on **Average**.
+- **Dimensions**: click **Add dimension**, pick a key, and pick one or more values. **All** matches every value of the key.
+- **Legend Format**: how each series is named on the chart.
+
+The query runs once **Namespace** and the metric are set.
+
+## Query an HTTP endpoint
+
+Pick an HTTP endpoint connection to read JSON, CSV, or TSV from a URL: a REST API, a CSV file in a GitHub repository, or a Google Sheet. The query holds the method, the path, and how to turn the response into rows and columns. The base URL, credential, and allowed hosts live on the connection. An HTTP endpoint query has no data set, **Returns**, or **Interval**. See [HTTP Endpoint](../../../../platform/settings/connections/http-endpoint/) for the connection, every query field, and a worked example.
+
+## Add several queries
+
+Click **Add Query** to add another query to the panel, for example to compare request counts from two services on one chart. Each query gets a name, `A`, `B`, and so on. Adding a query collapses the others, and you can expand any of them again to edit it. The buttons on a query's header copy, hide, or delete it, and its menu copies or pastes the query as [KMQL](#copy-and-paste-a-query-as-kmql).
+
+A query's name is how expressions refer to it, as in `$A`. You can rename a query using letters, numbers, underscores, and spaces, and each name must be unique. When you rename a query, every expression that refers to it is updated to the new name. In an alert rule, so is the alert condition.
+
+Histogram, Heatmap, Alerts List, and Issues List panels take a single query, so **Add Query** and **Add Expression** aren't offered on them.
+
+## Combine queries with expressions
+
+Click **Add Expression** to compute a new result from your queries. Choose **Math expression** to calculate with the results, such as `$A / $B * 100`, **Reduce** to turn a time series into a single number, or **Condition expression** to compare values and return true or false. See [Expressions](../../../../alerts/expressions/) for the full syntax.
+
+## When a query fails
+
+A query that fails doesn't stop the others. Its error appears in a strip at the top of the panel, with the query's name and the message, and the other queries still draw. Click **Show details** for the full error, such as the parser output. The strip is amber when some queries still drew and red when none did.
+
+A query can also succeed with an incomplete result. The panel header then shows a badge:
+
+| Badge | What happened | What to do |
+|---|---|---|
+| **Partial** | The query ran out of time and returned results only from a point in the range onward. Hover over the badge to see that point. | Narrow the time range to get the full result. |
+| **Query timed out** | The query ran out of time before it returned anything. | Narrow the time range. |
+| **Rows cut** | The result hit its row limit, so some rows are missing. | Narrow the query, for example with a filter. |
+
+On a dashboard, warnings from the data source appear as an icon in the panel header. Hover over it to read them. For example, an HTTP endpoint query that stopped at 10,000 rows shows a warning there.
+
+## Related
+
+- [Adding a Panel](../)
+- [Panel Options](../../panel-options/)
+- [HTTP Endpoint](../../../../platform/settings/connections/http-endpoint/)
+- [Expressions](../../../../alerts/expressions/)

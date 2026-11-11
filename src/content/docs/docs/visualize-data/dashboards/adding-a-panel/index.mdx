@@ -7,80 +7,76 @@ sidebar:
 ---
 
 import { Image } from 'astro:assets';
-import panelTypeDropdown from './images/adding-a-panel-panel-type.png';
 import overridesDropdown from './images/adding-a-panel-overrides.png';
 import generalSettings from './images/adding-a-panel-general-settings.png';
 
-Panels are the individual widgets on a dashboard. Each panel visualizes a specific metric or query result. Adding panels lets you build up a complete view of the metrics you care about in one place.
+Panels are the individual widgets on a dashboard. Each panel draws the result of one or more queries, and a dashboard puts the metrics, logs, and traces you care about on one page.
 
-From your dashboard, click **Add** at the top right. A menu opens with three options: **Add panel**, **Add section**, and **Import**.
+From your dashboard, click **Add** at the top right and choose what to add:
 
 - **Add panel** opens the panel editor so you can build a new panel from scratch.
 - **Add section** groups panels under a collapsible heading.
-- **Import** reuses a panel from a template or an existing dashboard instead of building one from scratch.
+- **Import** reuses a panel from a template or an existing dashboard.
 
 ## Add a Panel
 
 1. Click **Add panel**. The panel editor opens with a query editor at the bottom.
 
-![image](./images/adding-a-panel-add-menu.png)
+   ![The Add menu on a dashboard, with Add panel, Add section, and Import](./images/adding-a-panel-add-menu.png)
 
-2. Configure your query in the query editor. Queries define what data the panel displays.
+2. Build the query. Pick a data source, such as **KloudMate** or a connected AWS account, then choose the data set and metric, and add any grouping and filters. [Queries and Data Sources](./queries-and-data-sources/) covers each source's fields.
 
-- Select a Data Source, **OpenTelemetry** or **aws/demo** (available if an AWS account is connected).
+   ![The data source picker in the query editor](./images/adding-a-panel-datasource.png)
 
-![image](./images/adding-a-panel-datasource.png)
+   Click **Add Query** to draw several queries on one panel, for example to compare two metrics.
 
-- For OpenTelemetry, select the dataset (**Traces**, **Metrics**, **Logs**, etc.) and configure the metric, aggregation, group by, filters, and legend format using the Query Builder tab. Switch to the **PromQL** tab to write [Prometheus queries](https://prometheus.io/docs/prometheus/latest/querying/basics/) directly.
-- Add multiple queries using **Add Query** when you want to compare or combine multiple metrics in the same panel.
+   ![The Add Query button below a query](./images/adding-a-panel-add-query.png)
 
-![image](./images/adding-a-panel-add-query.png)
+   Click **Add Expression** to calculate with the query results, for example to divide errors by requests. See [Expressions](../../../alerts/expressions/) for the syntax.
 
-- Add expressions using **Add Expression** to apply math, reduce, or condition logic across query results.
+   ![The Add Expression button below the queries](./images/adding-a-panel-add-expression.png)
 
-![image](./images/adding-a-panel-add-expression.png)
+3. Click **Run Query** to run the query and preview the result.
 
-For more on setting up queries, see [Creating Alerts](../../../alerts/create-alerts/). For expressions, see [Alert Expressions](../../../alerts/expressions/).
+   ![The panel preview after running the query](./images/adding-a-panel-run-query.png)
 
-3. Click **Run Query** to execute the query and preview the result in the visualization area. Running the query lets you verify the data looks correct before saving the panel.
+4. Select a **Panel Type** from the dropdown on the right. For example, use **TimeSeries** for trends over time or **Stats** for a single current value.
 
-![image](./images/adding-a-panel-run-query.png)
+   The available types are **TimeSeries**, **Stats**, **Gauge**, **Table**, **Pie Chart**, **Bar Chart**, **Histogram**, **Heatmap**, **Alerts List**, **Issues List**, and **Text**.
 
-4. Select a **Panel Type** from the dropdown on the right to control how the data is visualized.
+   Switching the panel type keeps your queries and the last result, so you don't need to run the query again. It also keeps the **Transform** steps, and the **Options** and **Overrides** settings that the new type has. Switching to **Alerts List** or **Issues List** replaces the queries with the list's own query. A query whose **Returns** is **Single value** is changed to **Time series** when you switch to **TimeSeries**, and runs again.
 
-Choosing the right type makes data easier to interpret, for example, use TimeSeries for trends over time or Stats for a single current value.
+   If the panel can't draw the result, it explains why in place of the chart, and the editor offers a button for each type that can, such as **Switch to table**. On a dashboard, the same panel names the types to try instead. When only some of the queries fit, the panel draws those and notes how many were left out.
 
-*Available types are:* **TimeSeries**, **Stats**, **Table**, **Pie Chart**, **Bar Chart**, **Histogram**, **Logs List**, **Spans List**, **Alerts List**, **Issues List**, and **Text**.
+5. Under **Options** > **Panel**, enter a **Name** and a **Description** so the panel is easy to identify on the dashboard. The description can run over several lines, and it appears behind the info icon in the panel header. Click **Add link** to link the panel to related resources. See [Adding Links to Dashboards](../adding-links-to-dashboards/).
 
-<Image src={panelTypeDropdown} alt="Panel Type dropdown" width={291} densities={[1, 2]} />
+   Under **Repeat options**, set **Repeat by variable** to render one copy of this panel for each value of the selected variable. Only the first 20 values are used, and the copies show on the dashboard, not in the editor.
 
-5. In the right-side settings panel under **General** > **Panel**, enter a Name and Description so the panel is easy to identify on the dashboard. You can also add Links using **Add link** to connect the panel to related resources.
+   ![The Panel section with Name and Description](./images/adding-a-panel-name-description.png)
 
-Under **Repeat options**, set **Repeat by variable** to render one copy of this panel for each value of the selected variable. Only the first 20 values are used, and the copies show on the dashboard, not in the editor.
+6. Customize the panel with the tabs on the right:
 
-![image](./images/adding-a-panel-name-description.png)
+   - **Options** holds the panel's name, **Standard options** such as the unit and color scheme, and the settings for the panel type, such as axes, legend, and thresholds.
+   - **Transform** reshapes the query result before the panel draws it, for example to join two queries or sort rows.
+   - **Overrides** changes the display of specific fields only, matched by name, a regex, type, label, or query.
 
-6. Customize the panel appearance using the General and Overrides tabs on the right:
+   The **Transform** and **Overrides** tabs show how many steps or rules you've added, for example **Overrides (2)**. **Alerts List** and **Issues List** panels have the **Options** tab only. See [Panel Options](../panel-options/) for every setting.
 
-- **General:** Configure Panel name, Axes, Legend, Graph options, Tooltip, Standard options, Threshold, Data links & actions, and Time Range.
+   <Image src={generalSettings} alt="The Options tab with the Panel and Standard options sections" width={289} densities={[1, 2]} />
 
-<Image src={generalSettings} alt="General settings panel" width={289} densities={[1, 2]} />
+   <Image src={overridesDropdown} alt="The Overrides tab with the Applies to list open" width={294} densities={[1, 2]} />
 
-- **Overrides:** Click **Add Field Override** to apply custom display settings to specific fields, by series name, a matching regex, or a query. Useful when different data series need different formatting.
+7. Toggle **Table View** at the top of the panel editor to switch between the chart and a table of the raw values. Use it to inspect exact data points.
 
-<Image src={overridesDropdown} alt="Overrides field override dropdown" width={294} densities={[1, 2]} />
-
-7. Toggle **Table View** at the top of the panel editor to switch between the visual chart and a raw data table showing timestamps and values. This is helpful for inspecting exact data points.
-
-![image](./images/adding-a-panel-table-view.png)
+   ![Table View showing timestamps and values](./images/adding-a-panel-table-view.png)
 
 8. Use the time range picker at the top to set the time window for this panel.
 
-![image](./images/adding-a-panel-time-range.png)
+   ![The time range picker in the panel editor](./images/adding-a-panel-time-range.png)
 
-9. Click **Save & Close** to save the panel and return to the dashboard, or **Save** to save without exiting the editor.
+9. Click **Save & Close** to save the panel and return to the dashboard, or **Save** to save without leaving the editor.
 
-![image](./images/adding-a-panel-save.png)
+   ![The Save and Save & Close buttons](./images/adding-a-panel-save.png)
 
 ***
 
@@ -96,7 +92,7 @@ A new section appears on the dashboard with an editable name. Add panels underne
 
 ## Import a Panel
 
-Select **Import** from the **Add** menu to add a pre-built panel to your dashboard without building it from scratch. The Import Panel dialog offers two tabs:
+Select **Import** from the **Add** menu to add a pre-built panel to your dashboard without building it from scratch. The **Import Panel** dialog has a tab for each place you can import from:
 
 **Import from Templates:** Select a template from the dropdown to import a panel from a pre-built KloudMate template.
 
@@ -104,4 +100,10 @@ Select **Import** from the **Add** menu to add a pre-built panel to your dashboa
 
 ![image](./images/adding-a-panel-import-dashboards.png)
 
-Once imported, you can **edit**, **delete**, or **duplicate** the panel using the panel's more options menu.
+After you import a panel, you can **edit**, **delete**, or **duplicate** it from the panel's more options menu.
+
+## Related
+
+- [Queries and Data Sources](./queries-and-data-sources/)
+- [Panel Options](../panel-options/)
+- [Managing Panels](../managing-panels/)

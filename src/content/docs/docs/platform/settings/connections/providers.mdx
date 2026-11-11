@@ -52,6 +52,9 @@ Meetings hosted by a Basic Zoom account end after 40 minutes, so install the Zoo
 |---|---|---|
 | **Custom MCP Server** | A server URL, a transport of Streamable HTTP or SSE, and one **Authentication** option: **None**, **Bearer token**, **Basic auth** (a username and a password or API token), **API key** (sent in a header you choose), or **OAuth** (sign in on the server's own page). Extra headers can be sent alongside, for a server that wants a routing header as well as a credential. | Workflows, AI |
 | **OAuth 2.0** | Your own authorize and token URLs, scopes, client id, and client secret, with either the client-credentials or the authorization-code grant. | Workflows |
+| **HTTP endpoint** | A base URL and one **Authentication** option: **None**, **Bearer token**, **Username and password**, or **API key in a header**. See [HTTP Endpoint](../http-endpoint/). | Data source |
+
+Use **HTTP endpoint** to query a JSON, CSV, or TSV endpoint from a dashboard panel.
 
 Use **OAuth 2.0** to give an [HTTP Request](/workflows/actions/#http-request) step a credential that's refreshed for you and never stored in the workflow definition.
 

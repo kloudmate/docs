@@ -1,0 +1,59 @@
+---
+title: "Heatmap Panel"
+description: "Draw a histogram metric's buckets over time, with each cell colored by its count."
+---
+
+A Heatmap panel draws a histogram metric's buckets over time. Time runs along the X axis, the bucket boundaries run up the Y axis, and each cell's color shows how many values fell into that bucket at that time. Use it to see how a latency distribution changes over time, for example a second cluster of slow requests appearing after a deployment, which a single percentile line would hide.
+
+## Build the query
+
+A heatmap needs a histogram metric, which shows a `histogram` badge in the metric picker. The panel reads one query.
+
+1. Choose the **Metrics** data set and a histogram metric.
+2. Leave **Returns** on **Time series**.
+3. Group by `le`, the bucket boundary. **Sum** becomes the only aggregation, read with **Increase** (the default) or **Rate**.
+
+You can also set **Returns** to **Distribution** and group by one attribute, such as the service name. The buckets then spread across that attribute's values instead of over time. A **Distribution** with no grouping is a single distribution for the whole time range, so draw it with a [Histogram panel](../histogram-panel/) instead.
+
+See [Queries and data sources](../queries-and-data-sources/) for the query editor.
+
+On a long time range, the query can return more time steps than the panel has pixels across. Adjacent steps are then summed into one column until the columns fit, and a caption above the grid shows how much time each cell covers. A heatmap grouped by an attribute isn't merged.
+
+## Panel
+
+- **Name** is the title shown on the dashboard.
+- **Description** appears behind the info icon in the panel header.
+- **Links** connect the panel to related resources, such as a runbook or another dashboard. Click **Add link** to add one.
+- **Repeat by variable** draws one copy of the panel for each value of a dashboard variable, up to the first 20 values. Choose a **Direction**, and for horizontal repeats, a **Max per row**. The copies appear on the dashboard, not in the editor.
+
+## Standard options
+
+**Display name** renames the series. **Bucket format** sets how the bucket boundaries on the Y axis are written. The counts stay plain numbers.
+
+A histogram metric usually doesn't declare a unit for its bucket boundaries, so set **Unit** yourself. For example, choose **Milliseconds** for a request duration histogram. The top bucket, labeled `+Inf`, holds every value above the highest boundary. See [Format values and units](../../panel-options/format-and-units/).
+
+## Display
+
+- **Color scheme:** **Blues** (the default), **Greens**, **Oranges**, **Purples**, **Reds**, **Viridis**, or **Magma**.
+- **Scale:** how counts map to colors: **Linear**, **Log** (the default), or **Sqrt**. Bucket counts are usually skewed, and on a linear scale most cells end up in nearly the same color. Switch to **Linear** when you want color to be proportional to the count.
+- **Color min** and **Color max** set the counts at the two ends of the color scale. Leave both blank to use the range of the data. Set the same values on two panels to compare them on one scale.
+- **Cell gap** sets the space between cells.
+- **Show color scale** shows the color legend. It's on by default.
+
+## Time range
+
+Turn on **Override dashboard time range** to give this panel its own time range. **Time shift** moves the panel's range back in time, for example `-1d` to show the same window yesterday. See [Time Range Expressions and Settings](../time-range-expressions-and-settings/) for the supported units and syntax.
+
+## Overrides
+
+Use the **Overrides** tab to set **Display name** or **Bucket format** for some fields only. See [Overrides](../../panel-options/overrides/).
+
+## Transform
+
+Use the **Transform** tab to reshape the query results before the panel draws them. See [Transformations](../../panel-options/transformations/).
+
+## Related
+
+- [Histogram Panel](../histogram-panel/)
+- [Queries and data sources](../queries-and-data-sources/)
+- [Panel options](../../panel-options/)
