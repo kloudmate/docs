@@ -1,0 +1,95 @@
+---
+title: "Search"
+description: "Find dashboards, alerts, incidents, services, metrics, and settings in your workspace from the search box in the header, and jump to logs or traces for any text."
+sidebar:
+  label: "Search"
+  order: 2.2
+---
+
+Search finds things in your current workspace by name: the dashboards, alert rules, and incidents your team made, the services and hosts you monitor, your metric names, and the settings pages. Open it from the **Search** field in the header, or press <kbd>⌘</kbd> <kbd>K</kbd> on a Mac or <kbd>Ctrl</kbd> <kbd>K</kbd> on Windows and Linux.
+
+Use the arrow keys to move through the results and <kbd>Enter</kbd> to open one. To open a result in a new tab, hold <kbd>⌘</kbd> or <kbd>Ctrl</kbd> while you press <kbd>Enter</kbd> or click. If you're typing in an editor that has its own <kbd>⌘</kbd> <kbd>K</kbd> shortcut, such as a comment box, the editor keeps it.
+
+Search matches names, titles, and tags. It doesn't read the contents of your logs and traces. To search those, choose **Search logs for** or **Search traces for** at the bottom of the results, which opens the explorer with your text as a free-text filter.
+
+## What you can find
+
+| Type | Matches on |
+| --- | --- |
+| Dashboards | Name and tags. Folders aren't included. |
+| Alert rules | Name and tags. Folders aren't included. |
+| Alerts | Title, for open alerts only. |
+| Incidents | Title and number, for open and resolved incidents. |
+| Issues | The start of the error message and the error type. |
+| SLOs | Name. |
+| Synthetic monitors | Name. |
+| Workflows | Name and tags. |
+| Status pages | Name. |
+| Saved queries | Name and tags. A saved query opens in Logs or Traces with its filters applied. |
+| Reports | Name. |
+| On-call schedules, escalation policies, and incident services | Name. |
+
+You only see results from the modules your role lets you read. For example, if your role can't see incidents, incidents don't appear in your results.
+
+### Services, hosts, and other things you monitor
+
+Search also finds what your workspace monitors: services, hosts, Kubernetes namespaces and workloads, network devices, databases, and cloud resources. Pods, containers, network endpoints, storage mounts, security groups, and subnets aren't included, because they come and go or there are too many of them to be useful. Search for the workload or host instead.
+
+This list updates every hour, so a service you started sending data for a few minutes ago may not show up yet. The APM, Hosts, and Kubernetes pages show it right away.
+
+A network device is identified by its address. If several devices report the same address, they appear as a single result.
+
+### Metric names
+
+Search finds metrics that reported in the last seven days, by name and description. Choosing one opens it in the metric explorer.
+
+If the metric names take longer than half a second to load, search shows the rest of your results without them and tells you that metric names are missing. Search again to retry.
+
+### IDs you paste
+
+Paste an ID to go straight to what it names:
+
+- A trace ID, the 32-character hex ID, opens the trace if it's stored.
+- An incident number, such as `#42` or `42`, opens the incident.
+- An AWS ARN opens the resource in Cloud Inventory.
+
+### Pages, settings, and actions
+
+Search also lists the pages in the sidebar and the settings pages you can open, such as **Users**, **Workspaces**, **Data Sources**, **Ingest Keys**, **Notification Channels**, and **Connections**. These match from the first character you type.
+
+When the search box is empty, it shows shortcuts to create a dashboard, alert rule, SLO, synthetic monitor, or workflow, and to start an investigation. You only see the ones your role lets you create.
+
+### Recent items
+
+When the search box is empty, it also shows the last five things you opened from search and the last five searches you ran in this workspace. They're stored in your browser, so they don't follow you to another browser or device. To remove one, hover over it and click the **×**.
+
+## How results are matched
+
+Results start to appear after you type three characters. The exception is an incident number: `#7` or `7` finds incident 7 straight away.
+
+Every word you type has to appear in the name, in any order. For example, `checkout latency` finds **Checkout p99 latency** but not **Checkout errors**. Search doesn't correct typos, so `chekout` finds nothing.
+
+Each group shows up to five results, best match first:
+
+1. A name that matches your text exactly, or the incident number, ARN, or trace ID you pasted.
+2. A name that starts with your text.
+3. A name with a word that starts with your text.
+4. A name that contains your text.
+5. An item whose tags match but whose name doesn't.
+
+Resolved incidents and closed issues come after the open ones, however well their names match.
+
+:::note
+An issue matches on the start of its raw error message. If the message is a JSON log, a search for a field name such as `level` can match it even though the title shows only the readable message.
+:::
+
+## What search doesn't cover
+
+These aren't searchable yet. Open them from their own pages:
+
+- Investigations and Assistant chats.
+- API endpoints, RUM applications, and RUM routes.
+- Alert sources, maintenance windows, and routing rules.
+- Workflow runs, variables, storage, and templates.
+- Individual users, roles, API keys, notification channels, connections, and data sources. Their settings pages are searchable.
+- Other workspaces in your organization. Search covers the workspace you're in.
