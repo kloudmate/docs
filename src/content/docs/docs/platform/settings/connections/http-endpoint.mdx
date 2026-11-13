@@ -172,7 +172,7 @@ The raw data for GitHub and Google Sheets is served from a different host than t
 
 ## Fix a query error
 
-When a query fails, the panel shows the error with the query's name. Click **Show details** for more, such as the exact parser error.
+When a query fails, the panel shows the error with the query's name. Click **Show details** for more, such as the exact parser error or the endpoint's full answer. The same errors are on the **Errors** tab of **Inspect**.
 
 | Message starts with | What to do |
 |---|---|
@@ -183,10 +183,15 @@ When a query fails, the panel shows the error with the query's name. Click **Sho
 | This connection sends a credential, so it must name the hosts it can reach. | Set a **Base URL** or **Allowed hosts** on the connection. |
 | This connection refuses requests outside its allowed hosts, but names no hosts. | Set a **Base URL** or **Allowed hosts**, or change **Requests outside the allowed hosts**. |
 | The credential on this connection could not be read. | Edit the connection and enter the credential again. |
-| The endpoint did not answer. | Check the URL, and that the endpoint is running and reachable from the internet. |
-| The endpoint did not answer in time. | Make the query smaller, for example with a narrower time range or fewer results per page. |
+| No response from the endpoint. | Check the URL, and that the endpoint is running and reachable from the internet. |
+| No response from the endpoint in time. | Make the query smaller, for example with a narrower time range or fewer results per page. |
 | The response is larger than this connection allows. | Make the query smaller. |
-| The endpoint answered `<status>`. | Read the status. A `401` or `403` usually means the credential is wrong or lacks access. A `404` usually means the URL is wrong. |
+| `<status>`: `<reason>` | The reason is the endpoint's own message, such as `403: API rate limit exceeded` or `401: Bad credentials`. Click **Show details** for the full response. A `401` or `403` usually means the credential is wrong or lacks access, a `404` that the URL is wrong, and a `429`, or a `403` that names a rate limit, that the endpoint wants fewer requests. |
+| Received status code `<status>`. | The endpoint sent no message, so the status is named, such as `404 (Not Found)`, with a note when the response body was empty. Read the status as above. |
+| The connection `"<name>"` is switched off. | Click **Open connection** beside the error, and turn the connection on. |
+| The connection `"<name>"` has been revoked. | Click **Open connection** beside the error, and reconnect it. |
+| The connection `"<name>"` is private. | Share the connection with the workspace, or choose a shared connection for the query. A dashboard query can't use a private connection. |
+| The connection this query uses no longer exists. | Choose another connection for the query. |
 | A query can use only an http or https URL. | Start the URL with `http://` or `https://`, or enter a path. |
 | The query does not make a valid URL. | Check the URL for typos and characters that need encoding. |
 | The endpoint redirected too many times. | Use the final URL the endpoint redirects to. |
