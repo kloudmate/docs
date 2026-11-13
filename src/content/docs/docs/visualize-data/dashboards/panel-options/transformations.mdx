@@ -17,6 +17,18 @@ Steps run from top to bottom, and each step works on the output of the step abov
 
 To see what a step changes, click **Inspect data** on it. The **Input** tab shows the data the step receives, and the **Output** tab shows what it passes on.
 
+## Several queries and expressions
+
+Every step except **Join by field** and **Filter by query** works on each query on its own. Expressions count as queries here. So, on a panel with queries `A` and `B`:
+
+- A column name matches in every query that has it. Renaming `AVG(cpu)` renames it in both queries.
+- **Filter rows** tests each query against the conditions on its own columns. A condition on `A` and one on `B` with **Match all** don't combine into one test.
+- **Series to rows** gives one table per query.
+
+To work across queries, add **Join by field** first. It puts the queries on one row per set of dimension values, with each column named for its query, such as `A:AVG(cpu)` and `B:AVG(mem)`. Steps after it can then rename only `B`'s column, filter on `A` and `B` together, or sort hosts by `B`.
+
+A query or expression that returns a value per group, such as average CPU per host at one point in time, returns one result per group. Steps handle that as one set: **Series to rows** makes one table of it, and **Sort by** orders the groups.
+
 ## Organize fields
 
 Reorder, hide, and rename columns. The step lists one row per column. Drag a row to move the column, turn off its switch to hide it, and type a new name in its box to rename it.
@@ -27,6 +39,8 @@ This is how you set the column order on a Table panel. For example, drag `host.n
 
 A renamed column keeps its original name for [override](../overrides/) rules, so rules that match it by name still apply.
 
+Hiding the only column of a query or expression, such as `C` for an expression `C`, stops the panel drawing it. Hiding every column of every query does nothing.
+
 ## Reduce
 
 Collapse each series over time into one row, with a column per calculation. Pick one or more **Calculations**: **Last**, **First**, **Min**, **Max**, **Mean**, **Total**, **Count**, **Difference**, or **Range**. The step does nothing until you pick at least one.
@@ -35,7 +49,7 @@ Collapse each series over time into one row, with a column per calculation. Pick
 
 For example, a query for CPU usage per host draws a line per host. On a Table panel, add **Reduce** with **Last**, **Max**, and **Mean** to get one row per host, with the host's labels as columns and a column each for **Last**, **Max**, and **Mean**. When the labels don't tell two series apart, a **Field** column holds each series' name.
 
-Only results with a time axis are reduced. Results that already have one value per series pass through unchanged.
+Only results with a time axis are reduced. Results that already have one value per series, and lists of logs or spans, pass through unchanged. A query that returned no points becomes a row with empty calculation cells.
 
 **Total** adds up the points in the series. On a rate series, that sum isn't a count of events.
 
@@ -55,6 +69,8 @@ Merge the queries on the dimensions they share, with one row per set of dimensio
 
 For example, query A returns the request count per service and query B returns the error count per service, both as a single value. **Join by field** gives one row per service, with the request count and the error count side by side.
 
+Each value column is named for its query, such as `A:COUNT` and `B:COUNT`. Use those names in the steps after the join.
+
 Queries that return values over time are left alone, because joining them would give a row per time bucket. Add a **Reduce** step above **Join by field** to join them.
 
 ## Series to rows
@@ -63,7 +79,9 @@ Turn one column per series into rows, with the series' labels as columns beside 
 
 ![Series to rows turning web-1 and web-2 columns into rows with time, host, and cpu columns](./images/transform-series-to-rows.svg)
 
-**Value column name** names the value column. Leave it empty to keep the measurement's own name. A result that already has one value column doesn't change.
+**Value column name** names the value column. Leave it empty to use the measurement's name when every series shares it, such as `AVG(cpu)`, or the query's name, such as `A`, when the series names differ. A result whose columns have no labels doesn't change.
+
+Each query becomes its own table. To put several queries in one table, add **Join by field** instead.
 
 ## Extract fields
 
@@ -81,6 +99,8 @@ Draw only some of the panel's queries. Choose **Draw only these** to keep the qu
 
 For example, choose **Draw everything else** and query `B` to hide a query that only feeds an expression.
 
+With **Draw only these**, a query that returned nothing draws nothing. The panel doesn't fall back to the other queries. Lists of logs and spans are always drawn.
+
 ## Filter rows
 
 Keep only the rows whose values pass a test. Each condition has a **Column**, a **Test**, and a **Value**. The tests are **equals**, **does not equal**, **greater than**, **at least**, **less than**, **at most**, **contains**, **does not contain**, **is empty**, and **is not empty**.
@@ -91,6 +111,10 @@ Click **Add condition** to add more, then choose **Match all** to keep rows that
 
 For example, after a **Reduce** step, set **Column** to **Max**, **Test** to **greater than**, and **Value** to `80` to keep only the hosts that went above 80.
 
+A condition applies to the queries that have its column. To test values from two queries together, add **Join by field** above **Filter rows**.
+
+When a query returns a value per group, a group with no row that passes is removed, so the panel draws nothing for it. A query that returns a single result keeps its columns when no row passes.
+
 ## Sort by
 
 Order the rows by one column. Pick the column in **Column**, then choose **Ascending** or **Descending**.
@@ -98,6 +122,8 @@ Order the rows by one column. Pick the column in **Column**, then choose **Ascen
 ![Sort by ordering hosts by Max in descending order, with web-2 first](./images/transform-sort-by.svg)
 
 For example, after a **Reduce** step, sort by **Max** in **Descending** order to put the busiest host first.
+
+Each query is sorted on its own. To order hosts by one query's values with the other queries beside them, add **Join by field** first.
 
 ***
 
