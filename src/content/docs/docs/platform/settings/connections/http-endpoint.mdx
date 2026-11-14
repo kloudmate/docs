@@ -119,9 +119,9 @@ For example, this transform counts open issues per label:
 
 Besides the standard operators, you can hash or encode a value with `$sha256`, `$md5`, `$base64Encode`, and `$urlEncode`. A null input stays null. `$$NOW` gives the current time, and it's the same value for every row in the run. As you type, the editor suggests stages, operators, and the field names from the last result.
 
-If the transform has a mistake, the editor shows it under the field, and the query fails until you fix it. The panel and the save message name the same mistake, and the dashboard can't be saved until the transform parses. The text stays as you typed it, so reopening the panel shows it unchanged.
+If the transform has a mistake, the editor shows it under the field, and the query fails until you fix it. The panel and the save message name the same mistake, and the dashboard can't be saved until the transform parses. A transform with a mistake stays as you typed it, so reopening the panel shows it unchanged. A transform without one is saved as its stages, so reopening the panel shows it formatted, with one key on each line.
 
-A `$project` or `$group` stage returns its fields in alphabetical order, so the table shows them alphabetically until **Columns** sets an order. When the last stage's fields don't match your columns, click **Set columns from the pipeline** to fill **Columns** in the order the stage lists them.
+A `$project` or `$group` stage returns its fields in alphabetical order, so the table shows them alphabetically until **Columns** sets an order. When the last stage's fields don't match your columns, click **Set columns from the pipeline** to fill **Columns** in the order the stage lists them. Fields that an `$addFields` stage adds after it come next.
 
 ### Row and size limits
 
@@ -194,6 +194,7 @@ When a query fails, the panel shows the error with the query's name. Click **Sho
 | The connection this query uses no longer exists. | Choose another connection for the query. |
 | A query can use only an http or https URL. | Start the URL with `http://` or `https://`, or enter a path. |
 | The query does not make a valid URL. | Check the URL for typos and characters that need encoding. |
+| This connection has no base URL, so the query needs a full URL that starts with http:// or https://. | Enter the full URL, or set a **Base URL** on the connection to use a path. |
 | The endpoint redirected too many times. | Use the final URL the endpoint redirects to. |
 | The response could not be read as rows. | Read the detail. An HTML page means the URL opens a web page, not the data behind it. Find the endpoint's raw-data or API URL instead. XML isn't supported. A `Nothing was found at` detail means **Rows** points at a key that isn't in the response. |
 | The row selector is not valid. | Put double quotes around keys that contain anything other than letters, digits, or underscores, as in `data."my-key"`. |
