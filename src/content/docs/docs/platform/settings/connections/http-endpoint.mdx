@@ -45,7 +45,7 @@ With **Refuse**, the connection needs a base URL or at least one allowed host, o
 
 ### Additional methods
 
-Queries can always use `GET` and `POST`. To allow `PUT`, `PATCH`, or `DELETE`, add them under **Additional methods**. Add them only when you mean to, because a query with one of these methods can change data at the endpoint.
+Queries can always use `GET`. To allow `POST`, `PUT`, `PATCH`, or `DELETE`, add them under **Additional methods**. Add them only when you mean to: any member who can run a query can then send that method with the connection's credential, and it can change data at the endpoint.
 
 ### Verification
 
@@ -57,7 +57,7 @@ In the panel editor or Explore, pick the connection in the data source picker. S
 
 ### Method and URL
 
-Choose the **Method**: `GET`, `POST`, `PUT`, `PATCH`, or `DELETE`. `PUT`, `PATCH`, and `DELETE` work only when the connection allows them under **Additional methods**.
+Choose the **Method**: `GET`, `POST`, `PUT`, `PATCH`, or `DELETE`. `POST`, `PUT`, `PATCH`, and `DELETE` work only when the connection allows them under **Additional methods**.
 
 Enter the **URL** as a path, such as `/orgs/kloudmate/repos`. The path is added to the connection's base URL. A full URL also works, as long as its host is allowed on the connection.
 
@@ -119,7 +119,7 @@ For example, this transform counts open issues per label:
 
 Besides the standard operators, you can hash or encode a value with `$sha256`, `$md5`, `$base64Encode`, and `$urlEncode`. A null input stays null. `$$NOW` gives the current time, and it's the same value for every row in the run. As you type, the editor suggests stages, operators, and the field names from the last result.
 
-If the transform has a mistake, the editor shows it under the field, and the query fails until you fix it. The dashboard can't be saved until the transform parses. The text stays as you typed it, so reopening the panel shows it unchanged.
+If the transform has a mistake, the editor shows it under the field, and the query fails until you fix it. The panel and the save message name the same mistake, and the dashboard can't be saved until the transform parses. The text stays as you typed it, so reopening the panel shows it unchanged.
 
 A `$project` or `$group` stage returns its fields in alphabetical order, so the table shows them alphabetically until **Columns** sets an order. When the last stage's fields don't match your columns, click **Set columns from the pipeline** to fill **Columns** in the order the stage lists them.
 
@@ -163,7 +163,7 @@ You can paste the link you see in your browser for a file on GitHub, GitLab, or 
 | You paste | The query reads |
 |---|---|
 | A GitHub file page: `https://github.com/<owner>/<repo>/blob/<branch>/<path>` | The raw file from `raw.githubusercontent.com` |
-| A Google Sheet: `https://docs.google.com/spreadsheets/d/<id>/edit#gid=<tab>` | The sheet's CSV export, for the tab in the link |
+| A Google Sheet: `https://docs.google.com/spreadsheets/d/<id>/edit#gid=<tab>` | The sheet's CSV export, for the tab in the link. With **Format** set to **TSV**, its TSV export. |
 | A GitLab file page: `https://gitlab.com/<project>/-/blob/<branch>/<path>` | The raw file from `gitlab.com` |
 
 For example, to read a Google Sheet that's shared with **Anyone with the link**, create a connection with the **Base URL** `https://docs.google.com` and **Authentication** set to **None**. In the query, paste the sheet's link into **URL** and set **Format** to **CSV**. Each row of the sheet becomes a row, with the first row as the column names.
@@ -198,6 +198,7 @@ When a query fails, the panel shows the error with the query's name. Click **Sho
 | The response could not be read as rows. | Read the detail. An HTML page means the URL opens a web page, not the data behind it. Find the endpoint's raw-data or API URL instead. XML isn't supported. A `Nothing was found at` detail means **Rows** points at a key that isn't in the response. |
 | The row selector is not valid. | Put double quotes around keys that contain anything other than letters, digits, or underscores, as in `data."my-key"`. |
 | The transform could not run. | Read the detail after the message, and fix the stage it names. |
+| This query cannot run. | Fix what the rest of the message names, such as a transform stage that isn't allowed or a transform that isn't valid JSON. |
 
 The header warning **This connection does not enforce its host allowlist.** means the connection is set to **Run, and show a warning on the panel**. Add the host to **Allowed hosts**, or change the setting to **Refuse (default)**.
 
