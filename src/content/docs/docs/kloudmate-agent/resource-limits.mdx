@@ -1,0 +1,138 @@
+---
+title: "CPU and memory limits"
+description: "Set a hard cap on the CPU and memory the KloudMate agent can use, with systemd on Linux, with Docker, or with Kubernetes resource limits."
+sidebar:
+  order: 12.5
+---
+
+import { LinkCard, CardGrid } from '@astrojs/starlight/components';
+
+You can cap the CPU and memory the KloudMate agent uses with your operating system or container runtime. The kernel enforces the cap. The agent can't use more CPU than you allow, and if it reaches its memory limit, the kernel stops it and the service manager starts it again.
+
+The `kmagent` systemd service and the `km-agent` Docker container are installed without a CPU or memory limit. Add one with the steps for your platform below.
+
+## Set a hard cap on Linux
+
+Add the limits to the `kmagent` service in a systemd drop-in. Open the drop-in editor:
+
+```bash
+sudo systemctl edit kmagent
+```
+
+Add these lines, then save and close the editor:
+
+```ini
+[Service]
+MemoryMax=1G
+MemorySwapMax=0
+CPUQuota=100%
+```
+
+Restart the agent so the limits apply:
+
+```bash
+sudo systemctl restart kmagent
+```
+
+- `MemoryMax=1G` is the most memory the agent can use. When it reaches the limit, the kernel's out-of-memory killer stops the agent, and systemd starts it again.
+- `MemorySwapMax=0` stops the agent from moving memory to swap, so the limit holds on a host that has swap.
+- `CPUQuota=100%` allows one full CPU. Use `50%` for half a CPU or `200%` for two. When the agent reaches its quota, the kernel slows it down. It never stops the agent.
+
+Leave out the lines for a limit you don't want. The drop-in is saved in `/etc/systemd/system/kmagent.service.d/`, so it's kept when you upgrade the agent.
+
+### Check the limits
+
+```bash
+systemctl show kmagent -p MemoryMax -p MemorySwapMax -p CPUQuotaPerSecUSec
+```
+
+With the drop-in above, the output is:
+
+```text
+MemoryMax=1073741824
+MemorySwapMax=0
+CPUQuotaPerSecUSec=1s
+```
+
+### Hosts that use cgroup v1
+
+`MemoryMax=` and `MemorySwapMax=` need cgroup v2, the default on current distributions. To check which version a host uses, run:
+
+```bash
+stat -fc %T /sys/fs/cgroup/
+```
+
+`cgroup2fs` means cgroup v2. Any other output means cgroup v1. On a cgroup v1 host, use `MemoryLimit=` in place of `MemoryMax=` and leave out `MemorySwapMax=`. Swap isn't limited there, so the agent can use swap past its memory limit. `CPUQuota=` works the same on both versions.
+
+```ini
+[Service]
+MemoryLimit=1G
+CPUQuota=100%
+```
+
+## Set a hard cap on Docker
+
+The install command creates a container named `km-agent` with no limits. Add them to the running container:
+
+```bash
+docker update --memory 1g --memory-swap 1g --cpus 1 km-agent
+```
+
+The limits apply right away. `--memory-swap` set to the same value as `--memory` stops the container from using swap past the limit. `--cpus 1` allows one CPU. When the agent reaches its memory limit, the kernel stops it and Docker starts the container again.
+
+To check the limits:
+
+```bash
+docker inspect km-agent --format '{{.HostConfig.Memory}} {{.HostConfig.MemorySwap}} {{.HostConfig.NanoCpus}}'
+```
+
+With the command above, the output is `1073741824 1073741824 1000000000`.
+
+The limits are kept when you upgrade the agent from KloudMate.
+
+:::caution
+Running the install command again replaces the container and drops these limits. Run `docker update` again after a reinstall.
+:::
+
+## Set limits on Kubernetes
+
+On Kubernetes, the agent pods take their CPU and memory limits from Helm values such as `daemonset.resources.limits` and `clusterAgent.resources.limits`. The chart sets limits by default. See [Setting Resources and Priority for Agent Pods](../installation/kubernetes-agent/#setting-resources-and-priority-for-agent-pods) for every value and its default.
+
+For example, to cap the node agent at one CPU and 768Mi of memory:
+
+```bash
+helm upgrade kloudmate-release kloudmate/km-kube-agent --namespace km-agent --reuse-values \
+  --set daemonset.resources.limits.cpu=1 \
+  --set daemonset.resources.limits.memory=768Mi
+```
+
+Kubernetes slows a container down at its CPU limit. When a container reaches its memory limit, Kubernetes stops it with `OOMKilled` and restarts it.
+
+## Windows
+
+The Windows service manager has no setting for a CPU or memory cap on a service, so there's no system-level hard cap for the agent on Windows.
+
+## Choose the limits
+
+Base the limits on what the agent uses on that host under normal load:
+
+- On Linux, `systemctl status kmagent` shows the agent's memory use, and on recent systemd versions its peak since the last start.
+- On Docker, run `docker stats km-agent --no-stream`.
+- On Kubernetes, run `kubectl top pod -n km-agent`.
+
+Set the memory limit well above the peak you see. If the agent reaches its limit under normal load, it's stopped and started again over and over, and you lose data while it's down. Usage grows with the amount of data the agent processes and with [eBPF monitoring](../ebpf-observability/), so check again after you turn on more monitoring.
+
+To see whether the kernel stopped the agent at its limit on Linux, run:
+
+```bash
+journalctl -u kmagent | grep -i oom
+```
+
+## Next steps
+
+<CardGrid>
+  <LinkCard title="Linux installation" href="../installation/linux-agent/" description="Install the agent as a systemd service." />
+  <LinkCard title="Docker installation" href="../installation/docker-agent/" description="Run the agent as a container." />
+  <LinkCard title="Kubernetes installation" href="../installation/kubernetes-agent/" description="Install the agent with Helm." />
+  <LinkCard title="Troubleshooting" href="../troubleshooting/" description="Find the cause when the agent won't start or stay up." />
+</CardGrid>

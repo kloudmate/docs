@@ -13,6 +13,7 @@ Start with two agent features. The [health metrics](../self-observability/health
 
 - **Missing API key.** The agent needs its API key to check in. Confirm the key was provided at install. In the health metrics, a healthy agent emits `kmagent.up`.
 - **Invalid collector configuration.** If a pushed configuration is invalid, the collector will not start. Look for `kmagent.collector.up=0` with `reason=config_invalid`, and read the error text in the self-logs. In managed mode, the agent checks generated configuration before applying it and keeps running the last good one. In manual mode, fix the YAML.
+- **Stopped at a memory limit.** If you set a memory cap, the kernel stops the agent when it reaches the cap, and the service manager starts it again. On Linux, `journalctl -u kmagent | grep -i oom` shows when that happened. Raise the cap as described in [CPU and memory limits](../resource-limits/).
 - **Insufficient privileges.** The agent needs elevated privileges for eBPF (on Linux) and for instrumentation. On Linux, it runs with the privileges it needs by default. On Windows, it runs as Local System. A permissions failure shows up in the self-logs.
 
 ## Metrics are not flowing
