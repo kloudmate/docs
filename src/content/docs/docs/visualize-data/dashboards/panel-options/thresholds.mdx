@@ -1,0 +1,76 @@
+---
+title: "Thresholds"
+description: "Color values by the range they fall in, and draw threshold lines on time series charts."
+sidebar:
+  order: 3
+---
+
+Thresholds color a value by the range it falls in. For example, a CPU tile can stay green below 70, turn amber at 70, and turn red at 90. Set them in the **Threshold** section on the **Options** tab of TimeSeries, Stats, Gauge, and Table panels.
+
+Thresholds on the **Options** tab apply to every series, column, or tile. To give one series or column its own thresholds, add an [override](../overrides/) with the **Threshold** property. The override's steps replace the panel's steps for that field; they aren't merged with them.
+
+## Add threshold steps
+
+1. In the **Threshold** section, click **Add Threshold** for each step you need.
+2. Set each step's value and pick its color.
+3. Click **Set default color** and pick the color for values below the lowest step.
+
+A step's value is the lowest value that takes its color, and a value takes the color of the highest step it reaches. With a green default color, an amber step at `70`, and a red step at `90`, the value `65` is green, `70` is amber, and `95` is red.
+
+## Absolute or relative steps
+
+**Threshold Mode** decides what a step's value means:
+
+- **Absolute** compares the value itself. A step at `90` fires at 90.
+- **Relative Percentage** compares where the value sits in its range, from `0` at the smallest value to `100` at the largest. A step at `80` fires for values in the top fifth of the range.
+
+On a Gauge panel, the range is the gauge's **Range** under **Standard options**. With no **Range**, the arc runs over the values the series reported, and a **Relative Percentage** step is measured along that same arc, so the gauge's color always matches the band it sits in.
+
+### Threshold range on Stats panels
+
+When any threshold on a Stats panel uses **Relative Percentage**, **Stat options** shows **Threshold range**. It decides which values a tile's percentage is measured against:
+
+- **Whole panel** measures each tile against the smallest and largest value of every series behind the panel's tiles: every point in the time range, plus each tile's value. This is the default.
+- **Per query** does the same with the series of the tile's own query. Use it when one panel shows two different measurements, such as bytes and a percentage, so one doesn't flatten the other.
+- **The field's own range** measures each tile against its own **Range** under **Standard options**. A tile without a **Range** takes the default color.
+
+A panel with one tile is measured within its own series. A tile with no series behind it, such as a lone **Single value**, takes the default color.
+
+## Where thresholds show
+
+### Stats and Gauge panels
+
+The tile is colored by the step its value reaches. On a Stats panel, **Color mode** under **Stat options** decides whether the color goes on the value or the tile background.
+
+Thresholds color tiles when **Color scheme** is unset or set to **From thresholds**. A **Single color** or palette scheme takes precedence over thresholds. See [Colors and value mappings](../colors-and-value-mappings/).
+
+### Table panels
+
+A cell shows its threshold color when the column's **Cell type** under **Cell options** is **Colored text** or **Colored background**.
+
+With **Colored background**, turn on **Apply to entire row** to color the whole row. The row takes the color of the highest step that any cell in it reaches. A column whose **Color scheme** is a palette doesn't color the row.
+
+### TimeSeries panels
+
+Set **Color scheme** to **From thresholds** to color each line by the step its last value reaches.
+
+To draw the steps on the chart as horizontal lines, set **Line Type** in the **Threshold** section:
+
+- **Line** draws a solid line at each step. This is the default.
+- **Lines (Dashed)** draws dashed lines.
+- **Off** draws no lines. The steps still color series that use **From thresholds**.
+
+Each step has a **Y-Axis** toggle, **Left** or **Right**, that sets which axis its line is drawn against. For example, put a `500` ms latency step on the right axis when latency is plotted there. A step on an axis with no series draws no line.
+
+With **Relative Percentage**, a step's line is drawn at that percentage of its axis. For example, a step at `10` on an axis from 0 to 72 draws at 7.2.
+
+Threshold lines come from the thresholds on the **Options** tab. A threshold set in an override colors the series it matches, but doesn't draw a line.
+
+***
+
+## Related
+
+- [Colors and value mappings](../colors-and-value-mappings/)
+- [Overrides](../overrides/)
+- [Panel options](../)
+- [Stats panel](../../adding-a-panel/stats-panel/)

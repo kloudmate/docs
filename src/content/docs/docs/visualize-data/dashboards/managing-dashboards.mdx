@@ -32,43 +32,12 @@ Click the **Settings** icon in the toolbar while in edit mode to open the Dashbo
 - **Name:** Update the dashboard name.
 - **Description:** Add or edit a description.
 - **Add to Folder:** Move the dashboard into a folder to keep it organized with related dashboards.
-- **Links:** Add external links that appear as quick-access buttons on the dashboard (e.g., a link to a related service’s traces page). Click **Add Link** to add one.
+- **Links:** Add external links that appear as quick-access buttons on the dashboard (for example, a link to a related service’s traces page). Click **Add Link** to add one.
 - **Tags:** Add tags to make the dashboard easier to search and categorize.
-- **Default AWS Region:** Set the default AWS region for the dashboard.
 - **Delete Dashboard:** Permanently delete the dashboard.
 
 Click **Save** to apply changes or **Cancel** to discard them.
 
 ### Variables tab
-You can add and manage variables in your dashboards. Variables are placeholders for values that help you create dynamic dashboards by avoiding hard-coded values within queries.
 
-![image](./images/managing-dashboards-2.png)
-
-1. Click the **Variables** tab in Dashboard Settings.
-
-2. Enter a **Name** , **Label** , and **Description** for the variable.
-
-3. Select the **Variable Type**:
-
-- **Query:** Dynamically populates values based on a query. When selected, an additional Query Type dropdown appears. Select the appropriate query type from the available options.
-- **Constant:** Sets a fixed value that remains unchanged across the dashboard.
-
-4. Click **Save**.
-
-Once the variable has been added, you can use it by selecting the created variable in the panel query box and saving the new query.
-
-### Variable values from attribute values, filtered by metric
-
-Populating a variable from OTel attribute values adds these fields:
-
-- **OTel Dataset:** Choose the dataset (e.g., Metrics) to pull attribute values from.
-- **OTel Attribute Key:** Choose the attribute whose values populate the variable, such as `host_name`.
-- **Metric (optional):** Reads the attribute off this metric's series, so a label can come from a metric that carries it even when the panels chart a different one. Leave empty to look across every metric. The dropdown lists any existing template variables alongside the available metrics with their type (Gauge, Sum, and so on).
-- **Filters:** Click **Add filter** to narrow the values further by other attributes.
-- **Regex (optional):** Enter a regular expression, such as `/^prod-(.*)/`, to match only values that fit the pattern.
-
-![image](./images/managing-dashboards-4.png)
-
-Turn on **Multi Values** to let viewers select more than one value at once, and **Show All option** to add an **All** choice to the variable dropdown.
-
-The **Preview of values** list updates as you adjust these fields, showing exactly what viewers will see in the variable dropdown.
+Use the **Variables** tab to add variables, such as a service or an AWS account, that viewers can switch from a dropdown on the dashboard. See [Dashboard Variables](../dashboard-variables/).

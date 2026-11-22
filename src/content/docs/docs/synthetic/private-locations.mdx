@@ -1,0 +1,125 @@
+---
+title: "Private Locations"
+description: "Run synthetic monitors from your own network with the KloudMate Agent, for targets that only accept your IP addresses or aren't reachable from the internet."
+sidebar:
+  label: "Private Locations"
+  order: 3
+---
+
+A private location runs your synthetic monitors from a host inside your own network instead of from KloudMate's public locations. Use one when a target can't be reached from the internet, or when it only accepts traffic from your IP addresses.
+
+The most common case: your application calls a third-party API, and that vendor only allows requests from your subnet or your NAT gateway's IP. A check from a KloudMate public location gets blocked. A check from a private location leaves through your network, from an IP the vendor already allows, so it behaves like your application's own request.
+
+Private locations also cover services that are only reachable inside your network, such as an internal API (`http://orders.internal:8080/health`), a database port, or a host on a private IP.
+
+## How it works
+
+The KloudMate Agent on a Linux or Windows machine can act as a private location. You turn the feature on in the agent's config, give the location a name, and restart the agent. The agent then:
+
+1. Opens one outbound WebSocket connection to the synthetics service (`wss://synthetics.kloudmate.com/ws`). It needs no inbound port.
+2. Registers the location in the workspace that owns the agent's API key. Only that workspace sees it.
+3. Runs the checks assigned to that location from the host it's installed on, and sends back the results.
+
+Each check's traffic starts on the agent's machine, so the target sees that machine's IP, or your NAT gateway's IP if the machine sits behind one. That's the address to give your vendor.
+
+## Before you start
+
+- **KloudMate Agent 2.12.0 or later** on a Linux or Windows machine (a VM or a physical server) that can reach your targets. To install it, see [Linux](../../kloudmate-agent/installation/linux-agent/) or [Windows](../../kloudmate-agent/installation/windows-agent/). The Docker and Kubernetes agents don't run private locations.
+- **Outbound HTTPS (port 443)** from that machine to `synthetics.kloudmate.com`, in addition to the hosts the agent already uses.
+- **The right egress IP.** If a vendor allowlists your IPs, make sure this machine's outbound traffic leaves through one of them. Running `curl -s https://ifconfig.me` on it shows the IP the vendor will see.
+
+:::caution
+If the machine only reaches the internet through an HTTP proxy, the agent's connection to KloudMate works, but HTTP checks don't use the proxy yet. They connect to the target directly, so the target has to be reachable from the machine without one.
+:::
+
+## Turn on a private location (Linux)
+
+1. Open the agent's config, `/etc/kmagent/agent.yaml`, and add these two lines. Replace `dc-mumbai-1` with the name you want to see in KloudMate:
+
+   ```yaml
+   synthetic-worker: true
+   synthetic-worker-location: dc-mumbai-1
+   ```
+
+2. Restart the agent:
+
+   ```bash
+   sudo systemctl restart kmagent
+   ```
+
+3. Check that the location is connected:
+
+   ```bash
+   kmagent status
+   ```
+
+   Look for the **Synthetics** line:
+
+   ```text
+   Synthetics:  private location dc-mumbai-1, connected 12s ago → wss://synthetics.kloudmate.com/ws; 0 checks run (0 failed)
+   ```
+
+If the line says `connecting` for more than a minute, or `disconnected`, look under **Problems** at the end of the output. It gives the reason, such as a blocked outbound connection or a rejected API key.
+
+Agent upgrades keep `agent.yaml` as you left it, so the location survives them.
+
+## Turn on a private location (Windows)
+
+1. Open `C:\ProgramData\kmagent\agent.yaml` as an administrator and add the same two lines:
+
+   ```yaml
+   synthetic-worker: true
+   synthetic-worker-location: dc-mumbai-1
+   ```
+
+2. Restart the agent service from an administrator PowerShell:
+
+   ```powershell
+   Restart-Service kmagent
+   ```
+
+The location appears in the monitor form once it connects.
+
+## Settings
+
+Only `synthetic-worker` and `synthetic-worker-location` are required. Add any of the others to `agent.yaml` the same way, then restart the agent.
+
+| `agent.yaml` key | Default | What it does |
+| --- | --- | --- |
+| `synthetic-worker` | `false` | Turns the private location on. |
+| `synthetic-worker-location` | (none, required) | The location's name, as it appears in KloudMate. |
+| `synthetic-worker-key` | The agent's `api-key` | The API key the location connects with. The location belongs to that key's workspace. |
+| `synthetic-worker-concurrency` | `10` | How many checks run at once. The maximum is `100`. |
+| `synthetic-worker-allow-internal` | `true` | Set to `false` to refuse private, loopback and link-local targets on this location. |
+| `synthetic-worker-endpoint` | Your region's synthetics service | Only needed if KloudMate support asks you to change it. |
+
+:::note
+The location belongs to the workspace of the API key it connects with. To serve a different workspace from the same machine, set `synthetic-worker-key` to an API key from that workspace.
+:::
+
+## Run a monitor from the private location
+
+1. Go to **Synthetic Monitoring → Monitors** and click **Add new**, or open an existing monitor.
+2. Under **Monitoring Locations**, select your location. It's listed after the public locations and has a **Private** badge.
+3. Save the monitor.
+
+Within one check interval, results from the location appear on the monitor, and the check count in `kmagent status` goes up.
+
+A monitor that runs **only** on private locations can target internal addresses: private IPs, `localhost`, and hostnames only your network resolves. If it also runs on a public location, its target has to be reachable from the internet, because the public location runs the same check.
+
+## Run several hosts for one location
+
+Give two or more agents the same location name and they share that location's checks. If one host goes down, the others keep running them. Run at least two for anything you'd alert on.
+
+If no agent for a location is connected, the location shows as **Offline** in the location list and its checks don't run until an agent reconnects. A monitor that also runs from other locations keeps getting results from them.
+
+## Limitations
+
+- **Test** on the monitor form runs from public locations only. To see how a check behaves from your private location, save the monitor and watch its results.
+- Browser checks aren't supported on private locations yet.
+- Cloud instance metadata addresses (`169.254.169.254` and its equivalents) are always refused, whatever `synthetic-worker-allow-internal` is set to.
+- HTTP checks don't use an HTTP proxy configured on the host (see the caution under [Before you start](#before-you-start)).
+
+## Turn off a private location
+
+Remove the `synthetic-worker` lines from `agent.yaml` and restart the agent (`sudo systemctl restart kmagent` on Linux, `Restart-Service kmagent` on Windows). The location shows as **Offline**. Remove it from your monitors so they stop expecting results from it.

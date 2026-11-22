@@ -1,23 +1,30 @@
 ---
 title: "Alert List Panel"
-description: "Configure and use the Alert List panel in KloudMate dashboards."
+description: "Show a filtered list of alerts on a dashboard, next to the charts they relate to."
 ---
-The Alert List Panel displays a list of configured alert rules within the selected time range. The list can be filtered based on available attributes to focus on specific alerts relevant to your dashboard.
 
-When the panel type is set to Alerts List, the following settings are available under the **General** tab:
+An Alerts List panel shows a list of alerts for the selected time range, so the alerts for a service sit on the same dashboard as its charts. Filter the list to the alerts that matter for the dashboard, for example those of one service or environment.
+
+The panel always reads alerts. The query editor has no data set picker or aggregation builder: you filter and limit the records. The columns are fixed.
+
+The list is paged. The page size is the query's **Limit** (10 for a new panel), and numbered pages appear under the list when there are more alerts than fit on one page.
 
 ![Alert List panel settings](./images/alert-list-panel-1.jpeg)
 
-### Panel
+The **Options** tab has the **Panel** and **Time range** sections. The panel has no **Overrides** or **Transform** tab.
 
-- **Name:** Enter a name for your panel. This appears as the panel title on the dashboard.
-- **Description:** Enter a description to provide additional context about what the panel displays.
+## Panel
 
-### Time Range
+- **Name** is the title shown on the dashboard.
+- **Description** appears behind the info icon in the panel header.
+- **Links** connect the panel to related resources, such as a runbook or another dashboard. Click **Add link** to add one.
+- **Repeat by variable** draws one copy of the panel for each value of a dashboard variable, up to the first 20 values. Choose a **Direction**, and for horizontal repeats, a **Max per row**. The copies appear on the dashboard, not in the editor.
 
-Configure time range behavior for this panel independently from the dashboard.
+## Time range
 
-- **Override Dashboard Time Range:** Individual panels can use their own time range configuration. Enable this to override the time range set at the dashboard level.
-- **Time Shift:** Shift the panel's start and end time by a specified time shift expression. Use the minus (`-`) operator to subtract time, with the same units supported by the dashboard time range expressions.
+Turn on **Override dashboard time range** to give this panel its own time range. **Time shift** moves the panel's range back in time, for example `-1d` to show the same window yesterday. See [Time Range Expressions and Settings](../time-range-expressions-and-settings/) for the supported units and syntax.
 
-Refer to [Time Range Expressions and Settings](../time-range-expressions-and-settings/) for supported units and syntax.
+## Related
+
+- [Issues List Panel](../issues-list-panel/)
+- [Create alerts](../../../../alerts/create-alerts/)

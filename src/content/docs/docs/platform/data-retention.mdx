@@ -6,22 +6,24 @@ sidebar:
   order: 2.5
 ---
 
-How long KloudMate keeps your data depends on what it is. Logs and traces are kept for the window your plan sets, metrics for a year, and several other kinds of data have their own window.
+How long KloudMate keeps your data depends on what it is. Logs, traces, real user monitoring (RUM) data and continuous profiling are kept for the window your plan sets, metrics for a year, and several other kinds of data have their own window.
 
 This page lists every retention window, including the ones you can't see in the product.
 
 ## Plan retention
 
-Logs and traces are kept for the window your plan sets. This is the data you can query directly in the Log Explorer and the trace views.
+Logs, traces, RUM data and profiles are kept for the window your plan sets. This is the data you can query directly in the Log Explorer, the trace views, RUM and the profiling views.
 
 | Data | Retention |
 | --- | --- |
 | Logs and traces | Free 7 days, Pro 14 days |
+| RUM sessions and replays | Same as traces, unless your plan sets RUM retention separately |
+| Continuous profiling | 7 days, unless your plan sets profiling retention separately |
 | Metrics | 1 year |
 
 Metrics are billed by sample count rather than by how long they're kept, so they're kept for a year on every plan.
 
-Logs and traces retention is set by your plan. See [Subscription & Billing](../settings/subscription-billing/).
+Logs, traces, RUM and profiling retention is set by your plan. See [Subscription & Billing](../settings/subscription-billing/).
 
 ## Metrics are tiered by resolution
 
@@ -33,8 +35,6 @@ These apply to everyone, regardless of plan.
 
 | Data | Kept for | Notes |
 | --- | --- | --- |
-| Session replay recordings | 7 days | The rrweb recordings behind a RUM session. Not archivable to Cold Storage. |
-| Continuous profiling | 7 days | |
 | Anomaly forecast bands | 7 days | The predicted band a forecast alert compares against. |
 | Issue occurrences | 30 days | |
 | Metric cardinality analytics | 45 days | |
@@ -43,7 +43,7 @@ These apply to everyone, regardless of plan.
 | RUM custom events | 400 days | An hourly rollup, so you can compare this quarter against last quarter. |
 | RUM release health | 400 days | An hourly rollup, so you can compare a release against an earlier one after their raw sessions have aged out. |
 
-Raw RUM data follows your plan retention. That covers sessions, errors, journeys, raw events, route visits, and the raw custom events behind the 400-day rollup.
+Raw RUM data follows your plan retention. That covers sessions, session replay recordings, errors, journeys, raw events, route visits, and the raw custom events behind the 400-day rollup.
 
 ## Keeping logs longer
 

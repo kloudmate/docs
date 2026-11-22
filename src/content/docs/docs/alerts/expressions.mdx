@@ -130,18 +130,18 @@ Add more conditions with the **Add condition** button, and choose how they combi
 
 ## Nodes
 
-Nodes represent the individual queries or expressions used to build alerts and dashboards. KloudMate assigns each node a letter by default (for example, A, B, or C), based on the order it was created.
+Nodes represent the individual queries or expressions used to build alerts and dashboards. A node's ID is its name. KloudMate names nodes with a letter by default (for example, A, B, or C), based on the order they were created.
 
 ![image](./images/expressions-8.png)
 
-You reference a node by its letter in other queries and expressions.
+You reference a node by its name in other queries and expressions.
 
 ![image](./images/expressions-9.png)
 
-KloudMate names nodes alphabetically by default, but you can rename them for clarity.
+To rename a node, edit its name in the node header. A name can contain letters, numbers, underscores, and spaces, and it must be unique within the alert or panel. Renaming a node updates every reference to it, including math expressions, the **Input** of a Reduce, the **OF** of a condition, and the alert condition.
 
 ![image](./images/expressions-10.png)
 
-If a custom node name includes spaces, enclose it in **${}**. For example: `${CPU usage}`
+If a node name includes spaces, enclose it in **${}** when you reference it. For example: `${CPU usage}`
 
 ![image](./images/expressions-11.png)

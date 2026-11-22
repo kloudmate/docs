@@ -14,7 +14,7 @@ The Overview leads with problems, not a wall of devices. It covers the time rang
 
 The **health strip** across the top gives the overall state (**Healthy**, **Degraded**, or **Critical**), what's wrong in a few words, and fleet uptime over the range as a bar. Below it, counts summarize your devices by status, your ports by use, the active problems by severity, and the average traffic in and out.
 
-![The Overview tab with the Devices down / Uplinks / BGP-VRF / Interfaces errored tiles, a Current problems row marked Critical, and status-board cards grouped by site](./images/network-overview.png)
+![The Network Monitoring Overview tab: a Healthy status strip with uptime, summary tiles for devices, ports, active problems, and average traffic, an empty Current problems list, and the Highest inbound traffic and Top applications panels](./images/network-overview.png)
 
 The rest of the page shows:
 
@@ -56,7 +56,7 @@ That distinction drives the **poller-not-reporting banner**. If a collector agen
 
 To find where a machine is plugged in, enter its MAC address in **Find a device by MAC address**. The search covers the MAC tables that switches reported in the last 7 days. An address seen on several ports is usually plugged into the port with the fewest devices, and that port is listed first.
 
-![The All devices tab: summary tiles for Devices, Up, Down, Not reporting, and Sites above a table of devices with vendor, site, address, status, and last-seen columns](./images/all-devices.png)
+![The All devices tab: summary tiles for Devices, Up, Down, Not reporting, and Sites, a MAC address search that shows the switch port the address was found on, and device cards with address, status, and ports in use](./images/all-devices.png)
 
 ## Reachability and Traffic tabs
 
@@ -99,7 +99,7 @@ Selecting a device opens its drawer. The header shows the device's status, and t
 - **Traffic**: the flow this device exports, when flow monitoring is set up.
 - **Events**: the [traps and syslog](/network-monitoring/traps-and-syslog/#the-events-tab) this device sent.
 
-![The device drawer Overview tab: an interfaces up/down/disabled summary, an active-issues list, and stat tiles for uptime, CPU, memory, and traffic](./images/device-drawer-overview.png)
+![The device drawer Overview tab: the device details and monitoring status, a port map with ports in use, an active-issues list, and the busiest inbound and outbound ports beside CPU and memory charts](./images/device-drawer-overview.png)
 
 ![The device drawer Interfaces tab: a table of interfaces with status, IP, speed, throughput, utilization, and errors, sorted with down ports first](./images/device-drawer-interfaces.png)
 

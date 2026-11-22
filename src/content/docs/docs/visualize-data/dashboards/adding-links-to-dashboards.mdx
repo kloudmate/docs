@@ -23,13 +23,13 @@ KloudMate dashboards support two kinds of links: internal links to other dashboa
 
 5. Select **Dashboard** as the link type.
 
-6. Optionally, add a **Tag** to reference the target dashboard.
+6. Optionally, add a **Tag** to reference the target dashboard. The link lists the dashboards that carry this tag with exactly the same spelling, case included.
 
 7. Select from the available options:
 
    - **Open in new tab:** Opens the linked dashboard in a separate browser tab.
    - **Add time range:** Transfers the time range selected in the main dashboard to the linked dashboard.
-   - **Add variables:** Transfers variables from the main dashboard to the linked dashboard if the same variables are available.
+   - **Add variables:** Sends each variable's current value to the linked dashboard as `var-<name>`. The current value is the one from the link you opened, your last pick, or the variable's default. A variable with no value is left out, and the linked dashboard uses the values for the variables it has.
    - **Show as dropdown:** Displays multiple dashboard links as a dropdown, useful when several links are added to the same dashboard.
 
 8. Click **Save**.
@@ -59,18 +59,4 @@ Once saved, the link appears as a button in the top-right corner of the dashboar
 
 ## Add a Data Link to a Panel
 
-1. Navigate to the dashboard containing the panel and open it for editing.
-
-2. In the right-hand panel settings, scroll down to **Data links & actions**.
-
-   ![image](./images/adding-links-to-dashboards-3.jpeg)
-
-3. Under **Data links**, click **Add link**.
-
-4. Enter a **Title** and the **URL** for the link.
-
-5. Toggle **Open in new tab** if needed.
-
-   ![image](./images/adding-links-to-dashboards-3.png)
-
-6. Click **Save**.
+Data links are set in the panel editor and open from a panel's values, such as a stat tile or a table cell. See [Data links](../panel-options/data-links/).

@@ -1,6 +1,6 @@
 ---
 title: "Organization"
-description: "Manage your organization's display name, default timezone, overage policy, and your own membership."
+description: "Manage your organization's display name, default timezone, overage policy, and your own membership, or create a new organization."
 sidebar:
   label: "Organization"
   order: 1.5
@@ -14,7 +14,7 @@ Open **Settings → Organization** to view or edit these settings.
 Only an organization owner can edit these settings. Other members see the page in read-only mode.
 :::
 
-![Organization profile page, showing the General, Overage policy, and Danger Zone cards](./images/organization-profile.png)
+![Organization profile page, showing the General, Data retention, Security, Create new organization, and Danger Zone cards](./images/organization-profile.png)
 
 ## General
 
@@ -58,6 +58,16 @@ The **MFA** column in the **Users** list shows whether MFA is on for each member
 :::note
 Sessions that signed in with SSO are exempt at sign-in, when switching organizations, and when accepting an invite, whichever identity provider was used, because the identity provider handles the second factor.
 :::
+
+## Create a New Organization
+
+Create a separate organization when you need its own members, workspaces, and billing. Any member can create one, whatever their role in the current organization.
+
+1. Open **Settings → Organization**.
+2. In the **Create new organization** card, click **Create organization**.
+3. Complete the setup wizard, the same as in [Setting up KloudMate](../../../getting-started/setting-up-kloudmate/).
+
+Nothing carries over from the current organization.
 
 ## Leave an Organization
 

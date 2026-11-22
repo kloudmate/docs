@@ -1,0 +1,78 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="656" height="250" viewBox="0 0 656 250" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace" font-size="12" role="img" aria-label="Filter rows">
+<rect x="0.5" y="0.5" width="655" height="249" rx="12" fill="#fafafa" stroke="#e5e7eb"/>
+<text x="24" y="36" fill="#1f2937" font-family="ui-sans-serif, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="14" font-weight="700">Filter rows</text>
+<text x="24" y="66.0" fill="#6b7280" font-family="ui-sans-serif, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="11" font-weight="600" letter-spacing="0.06em">INPUT</text>
+<g transform="translate(24,74.0)">
+<rect width="196" height="130" rx="6" fill="#ffffff" stroke="#e5e7eb"/>
+<path d="M0 6a6 6 0 0 1 6-6h184a6 6 0 0 1 6 6v20h-196z" fill="#f3f4f6"/>
+<rect x="105" y="52" width="42" height="26" fill="#fde7dd"/>
+<rect x="105" y="78" width="42" height="26" fill="#fde7dd"/>
+<line x1="0" x2="196" y1="26" y2="26" stroke="#e5e7eb"/>
+<line x1="0" x2="196" y1="52" y2="52" stroke="#e5e7eb"/>
+<line x1="0" x2="196" y1="78" y2="78" stroke="#e5e7eb"/>
+<line x1="0" x2="196" y1="104" y2="104" stroke="#e5e7eb"/>
+<line x1="56" x2="56" y1="0" y2="130" stroke="#e5e7eb"/>
+<line x1="105" x2="105" y1="0" y2="130" stroke="#e5e7eb"/>
+<line x1="147" x2="147" y1="0" y2="130" stroke="#e5e7eb"/>
+<rect width="196" height="130" rx="6" fill="none" stroke="#d1d5db"/>
+<text x="10" y="17.0" text-anchor="start" fill="#6b7280" font-weight="600">host</text>
+<text x="66" y="17.0" text-anchor="start" fill="#6b7280" font-weight="600">Last</text>
+<text x="115" y="17.0" text-anchor="start" fill="#f45b26" font-weight="600">Max</text>
+<text x="157" y="17.0" text-anchor="start" fill="#6b7280" font-weight="600">Mean</text>
+<text x="10" y="43.0" text-anchor="start" fill="#b6bcc6" font-weight="400">web-1</text>
+<line x1="9" x2="47.25" y1="39.0" y2="39.0" stroke="#b6bcc6"/>
+<text x="95" y="43.0" text-anchor="end" fill="#b6bcc6" font-weight="400">51</text>
+<line x1="79.5" x2="96.0" y1="39.0" y2="39.0" stroke="#b6bcc6"/>
+<text x="137" y="43.0" text-anchor="end" fill="#b6bcc6" font-weight="400">51</text>
+<line x1="121.5" x2="138.0" y1="39.0" y2="39.0" stroke="#b6bcc6"/>
+<text x="186" y="43.0" text-anchor="end" fill="#b6bcc6" font-weight="400">46.5</text>
+<line x1="156.0" x2="187.0" y1="39.0" y2="39.0" stroke="#b6bcc6"/>
+<text x="10" y="69.0" text-anchor="start" fill="#1f2937" font-weight="400">web-2</text>
+<text x="95" y="69.0" text-anchor="end" fill="#1f2937" font-weight="400">74</text>
+<text x="137" y="69.0" text-anchor="end" fill="#1f2937" font-weight="400">92</text>
+<text x="186" y="69.0" text-anchor="end" fill="#1f2937" font-weight="400">77.5</text>
+<text x="10" y="95.0" text-anchor="start" fill="#1f2937" font-weight="400">db-1</text>
+<text x="95" y="95.0" text-anchor="end" fill="#1f2937" font-weight="400">86</text>
+<text x="137" y="95.0" text-anchor="end" fill="#1f2937" font-weight="400">86</text>
+<text x="186" y="95.0" text-anchor="end" fill="#1f2937" font-weight="400">80.8</text>
+<text x="10" y="121.0" text-anchor="start" fill="#b6bcc6" font-weight="400">db-2</text>
+<line x1="9" x2="40.0" y1="117.0" y2="117.0" stroke="#b6bcc6"/>
+<text x="95" y="121.0" text-anchor="end" fill="#b6bcc6" font-weight="400">60</text>
+<line x1="79.5" x2="96.0" y1="117.0" y2="117.0" stroke="#b6bcc6"/>
+<text x="137" y="121.0" text-anchor="end" fill="#b6bcc6" font-weight="400">64</text>
+<line x1="121.5" x2="138.0" y1="117.0" y2="117.0" stroke="#b6bcc6"/>
+<text x="186" y="121.0" text-anchor="end" fill="#b6bcc6" font-weight="400">58.2</text>
+<line x1="156.0" x2="187.0" y1="117.0" y2="117.0" stroke="#b6bcc6"/>
+</g>
+<line x1="228" x2="421.7" y1="139.0" y2="139.0" stroke="#f45b26" stroke-width="2"/>
+<path d="M419.7 133.0 L429.7 139.0 L419.7 145.0 z" fill="#f45b26"/>
+<rect x="256.0" y="117.0" width="143.7" height="44" rx="10" fill="#fff4ef" stroke="#f45b26"/>
+<text x="327.85" y="135.0" text-anchor="middle" fill="#c2410c" font-family="ui-sans-serif, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="700">Filter rows</text>
+<text x="327.85" y="152.0" text-anchor="middle" fill="#9a3412" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace" font-size="10.5">Max greater than 80</text>
+<text x="435.7" y="92.0" fill="#6b7280" font-family="ui-sans-serif, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="11" font-weight="600" letter-spacing="0.06em">OUTPUT</text>
+<g transform="translate(435.7,100.0)">
+<rect width="196" height="78" rx="6" fill="#ffffff" stroke="#e5e7eb"/>
+<path d="M0 6a6 6 0 0 1 6-6h184a6 6 0 0 1 6 6v20h-196z" fill="#f3f4f6"/>
+<rect x="105" y="26" width="42" height="26" fill="#fde7dd"/>
+<rect x="105" y="52" width="42" height="26" fill="#fde7dd"/>
+<line x1="0" x2="196" y1="26" y2="26" stroke="#e5e7eb"/>
+<line x1="0" x2="196" y1="52" y2="52" stroke="#e5e7eb"/>
+<line x1="56" x2="56" y1="0" y2="78" stroke="#e5e7eb"/>
+<line x1="105" x2="105" y1="0" y2="78" stroke="#e5e7eb"/>
+<line x1="147" x2="147" y1="0" y2="78" stroke="#e5e7eb"/>
+<rect width="196" height="78" rx="6" fill="none" stroke="#d1d5db"/>
+<text x="10" y="17.0" text-anchor="start" fill="#6b7280" font-weight="600">host</text>
+<text x="66" y="17.0" text-anchor="start" fill="#6b7280" font-weight="600">Last</text>
+<text x="115" y="17.0" text-anchor="start" fill="#f45b26" font-weight="600">Max</text>
+<text x="157" y="17.0" text-anchor="start" fill="#6b7280" font-weight="600">Mean</text>
+<text x="10" y="43.0" text-anchor="start" fill="#1f2937" font-weight="400">web-2</text>
+<text x="95" y="43.0" text-anchor="end" fill="#1f2937" font-weight="400">74</text>
+<text x="137" y="43.0" text-anchor="end" fill="#1f2937" font-weight="400">92</text>
+<text x="186" y="43.0" text-anchor="end" fill="#1f2937" font-weight="400">77.5</text>
+<text x="10" y="69.0" text-anchor="start" fill="#1f2937" font-weight="400">db-1</text>
+<text x="95" y="69.0" text-anchor="end" fill="#1f2937" font-weight="400">86</text>
+<text x="137" y="69.0" text-anchor="end" fill="#1f2937" font-weight="400">86</text>
+<text x="186" y="69.0" text-anchor="end" fill="#1f2937" font-weight="400">80.8</text>
+</g>
+<text x="24" y="230" fill="#6b7280" font-family="ui-sans-serif, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="12">Rows that fail the condition are removed.</text>
+</svg>

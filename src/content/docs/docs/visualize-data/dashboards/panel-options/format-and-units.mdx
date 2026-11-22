@@ -1,0 +1,77 @@
+---
+title: "Format Values and Units"
+description: "Choose the unit, number style, decimals, multiplier, and affixes a panel uses to write its values."
+sidebar:
+  order: 2
+---
+
+Use **Format** to tell a panel what its values are and how to write them, so a byte count reads in megabytes instead of as a seven-digit number. **Format** is under **Standard options** on the **Options** tab of every panel type that draws values. Histogram and Heatmap panels have [**Bucket format**](#bucket-format-on-histogram-and-heatmap-panels) instead.
+
+**Format** applies to every series or column in the panel. To give one series or column its own unit, add an [override](../overrides/) with the **Format** property. On a TimeSeries chart, each Y axis is written in the unit of the series on it.
+
+## The metric's unit is used by default
+
+A new panel doesn't set a unit. It uses the unit the metric declares, so a metric reported in bytes is written in bytes and a metric reported in seconds is written as a duration. Picking a metric in the query doesn't change **Format**, so you only need to set **Unit** when the data doesn't declare one or you want a different one.
+
+When neither the data nor the panel sets a unit or a **Display** style, the panel type decides how a number is written:
+
+- A table cell shows the plain digits, for example `90331`.
+- A chart axis shows the number compactly, for example `50k`.
+
+Set **Display** if you want the same style in both.
+
+## Unit
+
+**Unit** says what the values are. **Auto** uses the unit the data declares. In an override, **Auto** keeps the unit set on the **Options** tab. To write values with no unit, even when the data declares one, pick **Dimensionless**.
+
+| Group | Units |
+|---|---|
+| General | **Auto**, **Dimensionless** |
+| Data | **Bytes**, **Bits** |
+| Data rate | **Bytes/sec**, **Bits/sec** |
+| Time | **Nanoseconds**, **Microseconds**, **Milliseconds**, **Seconds** |
+| Proportion | **Percent (0-100)**, **Percent (0.0-1.0)** |
+| Throughput | **Requests/sec**, **Operations/sec**, **Events/sec** |
+
+Pick the unit the values arrive in, not the one you want to read. For example, if a metric reports latency in seconds, choose **Seconds**, and the panel writes each value as a duration. Likewise, a ratio between 0 and 1 takes **Percent (0.0-1.0)**, and a value already between 0 and 100 takes **Percent (0-100)**.
+
+## Display
+
+**Display** says how the number is written:
+
+| Group | Options |
+|---|---|
+| Automatic | **Auto** |
+| Number | **Short, 1.2M**, **Full, 1,234,567**, **Unformatted, 1234567**, **Currency (USD)** |
+| Size | **Binary prefixes, KiB and MiB** |
+| Date & time | **Date & time**, **Date & time (UTC)**, **Date**, **Time**, **Relative (ago)** |
+
+A unit that scales, such as bytes or a duration, is written in its own terms, so **Short** and **Full** mostly affect plain numbers. **Unformatted** always writes the digits exactly as they are.
+
+Use the **Date & time** options for a value that holds a timestamp, such as a table column of epoch times. **Relative (ago)** writes it as the time elapsed since then.
+
+### Binary prefixes for bytes and bits
+
+**Bytes** and **Bits** step up in multiples of 1,000 by default. To step up in multiples of 1,024 instead (KiB, MiB, GiB), keep **Unit** set to **Bytes** or **Bits** and set **Display** to **Binary prefixes, KiB and MiB**. This option changes how the unit is written; it doesn't replace the unit.
+
+## Decimals, multiplier, prefix, and suffix
+
+- **Decimals** fixes the number of decimal places. Leave it empty to trim trailing zeros.
+- **Multiplier** scales every value before it's written. Leave it empty for no scaling. For example, a **Multiplier** of `60` with a **Suffix** of `/min` turns a per-second rate into a per-minute rate.
+- **Prefix** adds text before the value, for example `~`.
+- **Suffix** adds text after the value, for example `/s`.
+
+## Bucket format on Histogram and Heatmap panels
+
+Histogram and Heatmap panels have **Bucket format** in place of **Format**. It has the same fields, and it formats the bucket boundaries. The counts in each bucket stay plain numbers.
+
+Bucket boundaries don't carry the metric's unit, so set **Unit** yourself. For example, a latency histogram measured in milliseconds needs **Unit** set to **Milliseconds** for its buckets to read as durations.
+
+***
+
+## Related
+
+- [Panel options](../)
+- [Overrides](../overrides/)
+- [Thresholds](../thresholds/)
+- [Colors and value mappings](../colors-and-value-mappings/)

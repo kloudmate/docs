@@ -1,0 +1,80 @@
+---
+title: "Heatmap Panel"
+description: "Draw how a metric's values are distributed over time, with each cell colored by how many values fell into it."
+---
+
+A Heatmap panel draws how a metric's values are distributed over time. Time runs along the X axis, value buckets run up the Y axis, and each cell's color shows how many values fell into that bucket at that time. Use it to see how a latency distribution changes over time, for example a second cluster of slow requests appearing after a deployment, which a single percentile line would hide. It works the same way for a gauge, such as CPU usage across many containers.
+
+## Build the query
+
+The panel reads one **Metrics** query. Click **Metric** and pick any metric. On a Heatmap panel, histogram metrics are listed first, and every metric shows its type.
+
+- **A histogram metric** has its own buckets. When you pick one, the query is set up for you: **Sum** with **Increase**, grouped by `le`, the bucket boundary. You can change **Increase** to **Rate** to color cells by count per second.
+- **Any other metric**, such as a gauge or a counter, is read with **Group by** set to **Each series**, so every series adds one value per time step. The panel then puts those values into buckets itself. See [Value buckets](#value-buckets).
+
+Switching a panel to **Heatmap** sets up its query the same way, so a **TimeSeries** panel showing a percentile becomes a heatmap of the same metric. A query you've grouped by a label keeps its grouping, and each group adds one value per time step.
+
+With a histogram metric, you can also set **Returns** to **Distribution** and group by one attribute, such as the service name. The buckets then spread across that attribute's values instead of over time. A **Distribution** with no grouping is a single distribution for the whole time range, so draw it with a [Histogram panel](../histogram-panel/) instead.
+
+See [Queries and data sources](../queries-and-data-sources/) for the query editor.
+
+On a long time range, the query can return more time steps than the panel has pixels across. Adjacent steps are then summed into one column until the columns fit, and a caption above the grid shows how much time each cell covers. A heatmap grouped by an attribute isn't merged.
+
+## If the panel can't draw the query
+
+After you run the query, the panel says why in place of the grid.
+
+| Message | What to do |
+| --- | --- |
+| A heatmap needs values over time. This query returns none. | **Returns** is **Single value**. Set it to **Time series**. |
+| This query returns one set of buckets for the whole time range. | **Returns** is **Distribution** with no grouping. Set **Returns** to **Time series**, or switch to a [Histogram panel](../histogram-panel/). |
+| Each bucket is also split by service.name. Group by le only. | Remove the other **Group by** labels, or filter to one value of them. |
+| A heatmap spreads buckets over one attribute. This query groups by service.name and host.name. | With **Returns** set to **Distribution**, group by one attribute only. |
+
+## Panel
+
+- **Name** is the title shown on the dashboard.
+- **Description** appears behind the info icon in the panel header.
+- **Links** connect the panel to related resources, such as a runbook or another dashboard. Click **Add link** to add one.
+- **Repeat by variable** draws one copy of the panel for each value of a dashboard variable, up to the first 20 values. Choose a **Direction**, and for horizontal repeats, a **Max per row**. The copies appear on the dashboard, not in the editor.
+
+## Standard options
+
+**Display name** renames the series. **Bucket format** sets how the bucket boundaries on the Y axis are written. The counts stay plain numbers.
+
+When the metric declares a unit, the bucket boundaries use it, for example `400 ms`. If they show plain numbers, set **Unit** yourself. For example, choose **Milliseconds** for a request duration histogram. The top bucket, labeled `+Inf`, holds every value above the highest boundary. See [Format values and units](../../panel-options/format-and-units/).
+
+## Display
+
+- **Color scheme:** **Blues** (the default), **Greens**, **Oranges**, **Purples**, **Reds**, **Viridis**, or **Magma**.
+- **Scale:** how counts map to colors: **Linear**, **Log** (the default), or **Sqrt**. Bucket counts are usually skewed, and on a linear scale most cells end up in nearly the same color. Switch to **Linear** when you want color to be proportional to the count.
+- **Color min** and **Color max** set the counts at the two ends of the color scale. Leave both blank to use the range of the data. Set the same values on two panels to compare them on one scale.
+- **Cell gap** sets the space between cells.
+- **Show color scale** shows the color legend. It's on by default.
+
+### Value buckets
+
+For a metric that isn't a histogram, the panel makes the value buckets itself, with round boundaries such as 10, 20, and 50.
+
+- **Value buckets:** **Auto** (the default) uses a log scale when the values span two orders of magnitude or more, as latencies and CPU usage across containers usually do, and a linear scale otherwise. **Log** spaces the boundaries 1, 2, 5, 10, 20, 50, and so on. **Linear** uses buckets of equal width.
+- **Bucket count** caps the number of linear buckets. It's 20 when left blank.
+
+A histogram metric always uses its own buckets, so these settings don't change it.
+
+## Time range
+
+Turn on **Override dashboard time range** to give this panel its own time range. **Time shift** moves the panel's range back in time, for example `-1d` to show the same window yesterday. See [Time Range Expressions and Settings](../time-range-expressions-and-settings/) for the supported units and syntax.
+
+## Overrides
+
+Use the **Overrides** tab to set **Display name** or **Bucket format** for some fields only. See [Overrides](../../panel-options/overrides/).
+
+## Transform
+
+Use the **Transform** tab to reshape the query results before the panel draws them. See [Transformations](../../panel-options/transformations/).
+
+## Related
+
+- [Histogram Panel](../histogram-panel/)
+- [Queries and data sources](../queries-and-data-sources/)
+- [Panel options](../../panel-options/)

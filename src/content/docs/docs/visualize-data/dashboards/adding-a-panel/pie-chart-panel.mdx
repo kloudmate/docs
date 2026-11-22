@@ -1,48 +1,58 @@
 ---
 title: "Pie Chart Panel"
-description: "Learn how to configure and use this visualization feature in KloudMate."
+description: "Show how a total splits across series or values as a pie or donut chart."
 ---
-The Pie Chart Panel displays data as a pie or donut chart, making it easy to visualize the proportional breakdown of values across categories. It includes a query box to define the data you want to visualize, and a set of settings to customize how that data is presented.
 
-When the panel type is set to Pie Chart, the following settings are available under the **General** tab:
+A Pie Chart panel shows how a total splits into parts, as a pie or a donut. Use it for a share at a glance, such as the requests each service handled over the selected time range.
 
-![image](./images/pie-chart-panel-1.jpeg)
+![Pie Chart panel settings](./images/pie-chart-panel-1.jpeg)
 
-### Panel
+## Panel
 
-- **Name:** Enter a name for your panel. This appears as the panel title on the dashboard.
-- **Description:** Enter a description to provide additional context about what the panel displays.
-- **Links:** Click **Add link** to connect the panel to related resources, such as a runbook or an external dashboard.
-- **Repeat options:** Set **Repeat by variable** to render one copy of this panel for each value of the selected variable. Only the first 20 values are used, and the copies show on the dashboard, not in this editor.
+- **Name** is the title shown on the dashboard.
+- **Description** appears behind the info icon in the panel header.
+- **Links** connect the panel to related resources, such as a runbook or another dashboard. Click **Add link** to add one.
+- **Repeat by variable** draws one copy of the panel for each value of a dashboard variable, up to the first 20 values. Choose a **Direction**, and for horizontal repeats, a **Max per row**. The copies appear on the dashboard, not in the editor.
 
-### Value Options
+## Standard options
 
-Configure how values from your query are calculated and represented in the chart.
+**Display name** renames a slice. **Format** sets the unit and how slice values are written. If you leave **Unit** on **Auto**, the panel uses the unit the metric declares. See [Format values and units](../../panel-options/format-and-units/).
 
-- **Reduce**: Aggregates all data points for each series into a single value using a Reduce Function (such as Min, Max, Mean, or Total). Use the Columns option to specify which columns are included in the calculation.
-- **All Values**: Displays every individual data point in the chart without aggregation.
+![Pie Chart Standard options section](./images/pie-chart-panel-3.jpeg)
 
-### Display
+## Value options
 
-Choose between **Pie** and **Donut** as the chart style. Use the **Labels** setting to control what is shown on the chart slices, including Value, Percentage, and Name.
+- **Reduce** turns each series into one slice. **Reduce Function** sets how: **Max**, **Min**, **Last**, **Total**, or **Mean**.
+- **All Values** draws one slice per data point. **Limit** caps the number of values each series contributes. Leave it blank to show every value.
 
-![image](./images/pie-chart-panel-2.jpeg)
+**Columns** sets which series appear: **All Columns**, **Numeric Columns**, or the series you pick by name.
 
-### Legend
+Slice shares are rounded for display. Slices take their colors from the same palette as the other charts on the dashboard. Each slice keeps its color by name, so a series keeps its color when the data changes, and no two slices share a color.
 
-Toggle the legend on or off using the **Show legend** option. When enabled, choose between **List** or **Table** mode, set the placement to **Right** or **Bottom** , and use the **Legend Values** dropdown to select what is shown alongside each legend entry, such as Percentage.
+## Display
 
-### Format
+Choose **Pie** or **Donut**. **Labels** sets what's written on each slice: **Value**, **Percentage**, or **Name**.
 
-Use the Format dropdown to choose how values are displayed. Available options include Number, Bytes (SI), Bytes (IEC), Percentage, Duration (Milliseconds), Duration (Nanoseconds), and Unformatted. You can also set the maximum number of decimal places, multiply values by a number, and add a prefix or suffix.
+![Pie Chart Display section](./images/pie-chart-panel-2.jpeg)
 
-![image](./images/pie-chart-panel-3.jpeg)
+## Legend
 
-### Time Range
+Turn on **Show legend** to add a legend. **Mode** shows it as a **List** or a **Table**, **Placement** puts it on the **Right** or at the **Bottom**, and **Legend Values** adds the **Value** or **Percentage** next to each entry.
 
-Configure time range behavior for this panel independently from the dashboard.
+## Time range
 
-- **Override Dashboard Time Range:** Individual panels can use their own time range configuration. Enable this to override the time range set at the dashboard level.
-- **Time Shift:** Shift the panel’s start and end time by a specified time shift expression. Use the minus (`-`) operator to subtract time, with the same units supported by the dashboard time range expressions. 
+Turn on **Override dashboard time range** to give this panel its own time range. **Time shift** moves the panel's range back in time, for example `-1d` to show the same window yesterday. See [Time Range Expressions and Settings](../time-range-expressions-and-settings/) for the supported units and syntax.
 
-Refer to [Time Range Expressions and Settings](../time-range-expressions-and-settings/) for supported units and syntax.
+## Overrides
+
+Use the **Overrides** tab to set **Display name** or **Format** for some series only. See [Overrides](../../panel-options/overrides/).
+
+## Transform
+
+Use the **Transform** tab to reshape the query results before the panel draws them. See [Transformations](../../panel-options/transformations/).
+
+## Related
+
+- [Bar Chart Panel](../bar-chart-panel/)
+- [Panel options](../../panel-options/)
+- [Queries and data sources](../queries-and-data-sources/)

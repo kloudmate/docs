@@ -34,11 +34,14 @@ If your endpoint or service is behind a firewall or blocks requests from public 
 | US     | `100.57.144.150` |
 | US     | `54.166.225.155` |
 
+If you can't allowlist these IPs, or the target only accepts traffic from your own network (for example, a vendor API that allows only your subnet), run the monitor from a [private location](private-locations/) instead.
+
 ## Main Components
 
 <CardGrid>
   <LinkCard title="Monitors" href="monitors/" description="The synthetic monitor types KloudMate supports and how to create them." />
   <LinkCard title="Synthetic Incidents" href="synthetic-incidents/" description="Review incidents opened when synthetic monitors fail." />
   <LinkCard title="Maintenance Windows" href="maintenance-windows/" description="Suppress synthetic alerts during planned maintenance with recurring or one-time windows." />
+  <LinkCard title="Private Locations" href="private-locations/" description="Run monitors from your own network with the KloudMate Agent, for targets that only accept your IP addresses." />
 </CardGrid>
 

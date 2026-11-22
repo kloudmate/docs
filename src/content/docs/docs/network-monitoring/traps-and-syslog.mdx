@@ -23,6 +23,8 @@ In **Network Monitoring**, open the **Add** menu and choose **Traps and syslog**
 
 Select **Add receiver**. The receiver starts within a minute. Then configure each device to send traps or syslog to the agent's address and the port you chose.
 
+![The Traps and syslog form with a collector agent, SNMP traps selected under Receive, port 162, a masked Communities field, and a site label](./images/traps-syslog-add-receiver.png)
+
 You can run several receivers on one agent, for example traps on `162`, syslog over UDP on `514`, and syslog over TCP on `1514` for devices that send RFC 5424. Each receiver needs its own port, and that includes [flow listeners](/network-monitoring/flow-monitoring/). If two listeners on an agent share a port, only one of them is set up.
 
 To change or remove a receiver, open **Traps and syslog** again and pick the agent, or edit the **SNMP traps** or **Syslog** entry from **Configure**.

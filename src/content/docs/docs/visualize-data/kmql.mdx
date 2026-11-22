@@ -1,0 +1,263 @@
+---
+title: "KMQL"
+description: "Reference for KMQL, the text language for filtering and aggregating metrics, logs, and traces in KloudMate."
+sidebar:
+  order: 3
+---
+
+KMQL is the text form of a KloudMate query for metrics, logs, and traces. Use it to filter in the Log Explorer search, or write a full query with aggregations, ranking, and sorting and paste it into any query editor. For example, this query finds error logs that mention `timeout`, counts them per service, and keeps the five services with the most errors:
+
+```text
+severity = ERROR "timeout" (k8s.namespace.name = default or has exception.type)
+  | count by serviceName
+  | top 5
+```
+
+## Where you write KMQL
+
+- **The Log Explorer search.** Each filter you add appears as a chip. Click `</>` in the bar to edit the filter as KMQL text.
+- **The trace search bar,** where each filter you add appears as a chip.
+- **The Filter step of the query builder,** in dashboard panels, Explore, and alert rules. It uses the same chips, and `</>` shows the text.
+- **Copy as KMQL** and **Paste KMQL** in a query's menu. These carry the full query, stages included, so you can move a query between panels, Explore, and alert rules. Pasting keeps the metric's type and unit.
+
+The search bars and the Filter step take filters only. A `|` there is an error.
+
+If the text doesn't parse, you see the reason, and the query doesn't run. Pasted KMQL that doesn't parse changes nothing.
+
+## KMQL in links and page addresses
+
+Log Explorer, Traces, and RUM keep the current search in the `q` URL parameter as KMQL, so a copied address opens the same search. The trace group drawer keeps its search in `group_q`. If `q` doesn't parse, the page shows the reason and runs nothing.
+
+Old Logs links that use `filter=`, `filter[]=`, or `query=` aren't read, and the page opens without that filter. Old Traces and RUM links that carry `filters=` still open, and the address switches to `q` on your next change.
+
+When a filter can't be written as KMQL, such as `in` with no values, no link to Logs or Traces is offered. For example, clicking a Kubernetes value with such a filter tells you it has no Logs link.
+
+To build a KMQL search into a panel's data link, use the `:kmql` format. See [Data links](../dashboards/panel-options/data-links/).
+
+## Filters
+
+A filter is a field, an operator, and a value: `severity = ERROR`.
+
+| Operator | Matches records where the field | Example |
+|---|---|---|
+| `=` | equals the value | `severity = ERROR` |
+| `!=` | doesn't equal the value | `k8s.namespace.name != kube-system` |
+| `>` `<` `>=` `<=` | is greater or less than the value | `duration > 1s` |
+| `in ( )` | equals any value in the list | `http.status_code in (500, 502, 503)` |
+| `not in ( )` | equals none of the values | `kind not in (commit, rollback)` |
+| `contains` | contains the text | `body contains "connection refused"` |
+| `not contains` | doesn't contain the text | `body not contains healthcheck` |
+| `startswith` | starts with the text | `http.route startswith /api/` |
+| `matches` | matches the regular expression | `http.route matches "/api/v[0-9]+/.*"` |
+| `not matches` | doesn't match the regular expression | `host not matches "10\.0\..*"` |
+| `has field` | is present | `has exception.type` |
+| `missing field` | isn't present | `missing retries` |
+
+`not` only goes before `in`, `contains`, and `matches`. To exclude a single value, use `!=`. To exclude values that start with some text, use `not matches` with `.*` after the text, and start with `(?i)` to ignore case as `startswith` does: `http.route not matches "(?i)/internal/.*"`. KMQL has no "ends with" operator, so put `.*` before the text instead: `http.route matches ".*/health"`.
+
+### Case and regular expressions
+
+`=`, `!=`, and `in` compare the whole value and match case exactly, so `severity = error` doesn't find `ERROR`. `contains` and `startswith` ignore case. They also read the text literally, so `%` and `_` have no special meaning.
+
+`matches` takes an [RE2](https://github.com/google/re2/wiki/Syntax) regular expression, and the expression must match the whole value. For example, `http.route matches "api"` doesn't match `/api/v1`, while `http.route matches ".*api.*"` does. `matches` is case-sensitive, so start the expression with `(?i)` to ignore case: `host matches "(?i)web-.*"`. A `(` or `)` without its pair is an error, so write a literal parenthesis as `\(` or `\)`.
+
+### Records without the field
+
+A record that doesn't have the field never matches a test of its value, such as `=`, `in`, `<`, `contains`, or `matches`. For example, `retries < 5` and `retries = 0` both skip records that have no `retries` attribute.
+
+The negative operators, `!=`, `not in`, `not contains`, and `not matches`, do match a record without the field. For example, `k8s.namespace.name != kube-system` also finds records that have no `k8s.namespace.name`. To keep only records that have the field, add `has`:
+
+```text
+has k8s.namespace.name k8s.namespace.name != kube-system
+```
+
+A missing text attribute counts as empty, so `x = ""` finds records where `x` has no value, and `x != ""` finds records where it has one.
+
+### Combine filters
+
+Filters separated by a space or by `and` must all match. Use `or` for alternatives and parentheses to group them:
+
+```text
+severity = ERROR (k8s.namespace.name = default or has exception.type)
+```
+
+`and` binds before `or`, so `a = 1 and b = 2 or c = 3` means `(a = 1 and b = 2) or c = 3`. Keywords work in any case: `AND`, `Or`, and `count BY` all read the same.
+
+### Search free text
+
+A term in double quotes with no field searches every text attribute of the record and ignores case. This finds error logs that mention `timeout` anywhere:
+
+```text
+severity = ERROR "timeout"
+```
+
+Inside the quotes, `*` matches any run of characters, so `"conn*refused"` finds both `connection refused` and `conn refused`.
+
+Free text works on logs and traces, not metrics. A bare word with no operator, such as `timeout` without quotes, is an error, because KMQL reads it as a field name and expects an operator after it.
+
+### Write values
+
+A value that is a single word, such as `ERROR`, `dev-ovh`, or `/api/`, needs no quotes. Put a value in double quotes when it has a space, a quote, an operator character, or a `$`: `body contains "connection refused"`. Single quotes are read the same way as double quotes.
+
+Inside quotes, write `\"` for a double quote and `\\` for a backslash. A backslash before any other character stays as written, so a regular expression such as `"api\.example"` works without extra escaping.
+
+An unquoted number is compared as a number, and a quoted one as text. For example, `code = "200"` compares `code` as text, while `retries > 3` compares `retries` as a number.
+
+On traces, write a `duration` value with a unit: `ns`, `us`, `ms`, `s`, `m`, or `h`. For example, `duration > 500ms` finds spans that took longer than 500 milliseconds. A plain number is read as nanoseconds, so `duration > 1000000000` is the same as `duration > 1s`. Other fields don't take a unit, so compare them with a plain number.
+
+When the value doesn't show that a field is numeric, wrap the field in `number( )`. This matters most with a dashboard variable, whose value is only known when the query runs:
+
+```text
+number(status.code) = "$code"
+```
+
+`number( )` also works in `has`, `by`, `fields`, and inside an aggregation, for example `has number(@coldStartDuration)`.
+
+To use a dashboard variable, put it in double quotes: `host_name = "$Hostname"`.
+
+### Field names
+
+Field names can contain letters, digits, `_`, `.`, `@`, `-`, `/`, and `:` without quotes, so `k8s.pod.ip` and `@type` work as written.
+
+Put any other field name in backticks. This includes names with spaces and names that are KMQL keywords (`and`, `or`, `not`, `in`, `by`, and `as`):
+
+```text
+`http status` = 200 `and` != x
+```
+
+Backticks only ever quote a field name. A value in backticks is an error, so write values in double quotes.
+
+### Match everything
+
+An empty search, or `*` on its own, matches every record.
+
+## Full queries
+
+A full query starts with filters and continues with stages, each after a `|`:
+
+```text
+<filters> | <stage> | <stage>
+```
+
+Line breaks and the spaces around operators and pipes are optional, so `a=1|count` is a valid query. On logs and traces you can leave out the filters and start with a stage, such as `count by severity`.
+
+A `where` stage adds filters to the ones at the start: `a = 1 | where b = 2 | count` reads the same as `a = 1 b = 2 | count`.
+
+### Which stages work on which data
+
+| Stage | Metrics | Logs and traces |
+|---|---|---|
+| `where` (filters) | Yes | Yes |
+| `rate`, `irate`, `increase`, `within` | Yes | No |
+| `where value` | Yes | No |
+| Aggregation with `by` | Yes | Yes |
+| `each` | Yes | No |
+| `then` | Yes | No |
+| `top`, `bottom`, `limitk` | Yes | Yes |
+| `fields` | No | Yes, on lists |
+| `sort`, `limit` | No | Yes |
+
+Except for `where`, a query uses each stage at most once, and only one of `rate`, `irate`, `increase`, and `within`.
+
+## Metrics queries
+
+Start with the metric name, then add label filters:
+
+```text
+container_cpu_usage_seconds_total cluster = dev-ovh
+  | rate
+  | sum by namespace
+  | top 5
+```
+
+A metrics query needs an aggregation. `rate`, `irate`, and `increase` work without one, and average across series.
+
+| Stage | What it does | Example |
+|---|---|---|
+| `rate` | Per-second rate of a counter, within each series | `rate` |
+| `irate` | Instant per-second rate of a counter | `irate` |
+| `increase` | Increase of a counter over the interval | `increase` |
+| `within <op>` | Aggregates within each series, with `avg`, `min`, `max`, `sum`, `last`, or `count` | `within last` |
+| `where value <cmp> <number>` | Keeps a series' value only when it passes the comparison | `where value > 4` |
+| `<op> by <labels>` | Aggregates across series, per group | `avg by pod, namespace` |
+| `each` | Keeps every series apart, with no aggregation across series | `each` |
+| `then <op> by <labels>` | A second aggregation over the first one's groups | `then sum by namespace` |
+| `top N`, `bottom N`, `limitk N` | Keeps the N highest, the N lowest, or any N groups | `top 5` |
+
+Across series, use `avg`, `sum`, `min`, `max`, `count`, `median`, `last`, or a percentile (`p25`, `p50`, `p75`, `p90`, `p95`, `p99`). The metric is the value, so these take no field. To get several percentiles at once, list them: `p50, p95, p99 by http_route`.
+
+`then` takes `last`, `avg`, `min`, `max`, `sum`, `count`, or a percentile. It can't be combined with `top`, `bottom`, or `limitk`, and `each` takes neither `by` nor `then`.
+
+For example, this query takes the average memory of each pod, then adds the averages up per namespace:
+
+```text
+container_memory_working_set_bytes
+  | avg by pod, namespace
+  | then sum by namespace
+```
+
+This one counts the tasks currently in the `running` state:
+
+```text
+container_tasks_state state = running
+  | within last
+  | where value = 1
+  | count
+```
+
+## Logs and traces queries
+
+A logs or traces query either aggregates records or lists them.
+
+### Aggregate
+
+| Aggregation | Result |
+|---|---|
+| `count` | Number of records |
+| `count_distinct(field)` | Number of distinct values of the field |
+| `avg(field)`, `sum(field)`, `min(field)`, `max(field)`, `median(field)` | The statistic over the field |
+| `p25(field)` … `p99(field)` | Percentile of the field: `p25`, `p50`, `p75`, `p90`, `p95`, or `p99` |
+| `last(field)`, `any(field)` | The last value, or any one value, of the field |
+
+Separate several aggregations with commas, and add `by` to group them:
+
+```text
+status.code = 2
+  | p50(duration), p95(duration), p99(duration) by serviceName
+```
+
+Each aggregation can have its own `where` filters and an `as` name. Write `where` before `as`. A name can contain letters, digits, and `_`, must start with a letter or `_`, and can't be the name of an existing field. This query counts spans, errors, and 5xx responses, and takes the p95 duration, for each service:
+
+```text
+serviceName = checkout
+  | count as spans, count where status.code = 2 as errors, count where http.status_code >= 500 as http5xx, p95(duration) as p95 by serviceName
+```
+
+Two aggregations that give the same result, such as `count` twice, need a name on at least one of them.
+
+Rank the groups with `top N`, `bottom N`, or `limitk N`. To order the results instead, sort by a group field or by an aggregation's name:
+
+```text
+count as total by serviceName
+  | sort total desc
+```
+
+### List records
+
+A query with no aggregation lists records. Pick the columns with `fields`, order the rows with `sort`, and cap the count with `limit`:
+
+```text
+severity = ERROR "timeout"
+  | fields timestamp, serviceName, k8s.pod.name
+  | sort timestamp desc
+  | limit 50
+```
+
+`sort` is ascending unless you add `desc`, and it takes several fields separated by commas. `limit` also works after an aggregation.
+
+## Related
+
+- [Log Explorer](../../logs/log-explorer/)
+- [Queries and data sources](../dashboards/adding-a-panel/queries-and-data-sources/)
+- [Dashboard variables](../dashboards/dashboard-variables/)
+- [Explore](../explore/)

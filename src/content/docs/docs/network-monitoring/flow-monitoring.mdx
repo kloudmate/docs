@@ -23,7 +23,7 @@ Add one listener per protocol your devices export. NetFlow and sFlow can run at 
 
 Then configure each device to send flow records to `agent-ip:port`. The form shows an **Exporter setup** snippet for Cisco, Juniper, MikroTik, and Fortinet, filled in with the listener's port.
 
-![The Flow monitoring form with a flow protocol selector, a listener port, a Ship raw flow logs toggle, and a sample-rate field](./images/flow-monitoring-drawer.png)
+![The Flow monitoring form with a flow protocol selector, a listener port, the Ship raw flow logs toggle with a sample rate, a Local networks field, and the Cisco Exporter setup snippet](./images/flow-monitoring-drawer.png)
 
 :::caution
 Flow volume can be high, so turn on sampling at the sending device rather than exporting every flow. Applications are identified by well-known port, not by deep packet inspection. All traffic on port 443 is labeled `https`, so an app on a non-standard port shows up as `other`.

@@ -231,6 +231,8 @@ Not every filter is applicable to every tab. For example, a route filter doesn't
 
 When a filter can't be applied to the current tab, it is shown as struck through with an explanation. It is also excluded from the query rather than being silently ignored.
 
+The filters are kept in the address as [KMQL](../../visualize-data/kmql/) in the `q` parameter, so a copied address opens the same filtered view. Old links that carry `filters=` still open. If `q` doesn't parse, the page shows the reason with **Clear filters** and runs nothing.
+
 ### Filter on a payload attribute
 
 You can filter events using any attribute included in the event payload. Numeric attributes support comparison operators such as `>`, `>=`, `<`, and `<=`. For example, `cart_size > 2` matches events where `cart_size` is greater than 2.

@@ -92,16 +92,16 @@ No. You can start on the Free plan or begin a 14-day Pro trial without a credit 
 Create an account at app.kloudmate.com/signup, then send data using OpenTelemetry, CloudWatch, or one of our integrations. You will start seeing your logs, metrics, and traces within minutes.
 
 ## How does the billing work?
-KloudMate uses purely usage-based pricing. You are billed monthly for the volume of logs and traces you ingest (per GB) and metrics (per million samples), plus any extended data-retention you choose. The Pro plan starts at $99 / month.
+KloudMate uses purely usage-based pricing. You are billed monthly for what you use, such as logs and traces by volume, metrics by sample count, and RUM by session. See [kloudmate.com/pricing](https://www.kloudmate.com/pricing) for current plans and prices.
 
 ## Is pricing per user or per host?
 No. Every plan includes unlimited users, with no per-host or per-agent fees. You pay only for the telemetry you send — logs and traces by volume, and metrics by sample count.
 
-## How does data-retention pricing work?
-Each plan includes a default retention window, and you can extend it. Longer retention for logs and traces raises their storage cost by the multiplier shown in the calculator, so you can trade off how long you keep data against cost. Metrics are billed by sample count, so their retention does not change the price.
+## Does retention change the price?
+No. Each plan has its own retention window, and retention doesn't change the price. To keep logs longer, archive them to your own S3 bucket with [Cold Storage](/platform/settings/cold-storage/).
 
 ## How do AI credits work?
-KloudMate Assistant runs on credits. A chat message costs 1 credit, a full investigation costs 5, and an [Ask KloudMate Assistant](/workflows/actions/#ask-kloudmate-assistant) step in a workflow costs 1. Every plan includes a monthly allowance (5 credits on Free and 20 on Pro), and you can buy prepaid credits any time you need more. Enterprise teams can bring their own AI provider key instead of using credits.
+KloudMate Assistant runs on credits. A chat message costs 1 credit, a full investigation costs 5, and an [Ask KloudMate Assistant](/workflows/actions/#ask-kloudmate-assistant) step in a workflow costs 1. Every plan includes a monthly allowance, listed on [kloudmate.com/pricing](https://www.kloudmate.com/pricing), and you can buy prepaid credits any time you need more. Enterprise teams can bring their own AI provider key instead of using credits.
 
 ## Do you offer annual billing?
 Yes. Annual billing is available at a discount compared with paying monthly. Get in touch and we will set it up for you.
@@ -110,7 +110,7 @@ Yes. Annual billing is available at a discount compared with paying monthly. Get
 We accept all major credit and debit cards. Enterprise customers can also pay by invoice — talk to us and we will set that up.
 
 ## Can I change plans at any time?
-Yes. You can upgrade, downgrade, or adjust retention whenever you need, and the change is reflected in your usage-based bill. There are no long-term lock-ins on the Free or Pro plans.
+Yes. You can upgrade or downgrade whenever you need, and the change is reflected in your usage-based bill. There are no long-term lock-ins on the Free or Pro plans.
 
 ## Can we run KloudMate in our own cloud?
 Yes. KloudMate Infinity runs the full platform inside your own cloud account, deployed and operated by KloudMate, so your telemetry never leaves your network. It is available on Enterprise plans.

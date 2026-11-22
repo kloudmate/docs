@@ -1,0 +1,66 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="441" height="250" viewBox="0 0 441 250" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace" font-size="12" role="img" aria-label="Sort by">
+<rect x="0.5" y="0.5" width="440" height="249" rx="12" fill="#fafafa" stroke="#e5e7eb"/>
+<text x="24" y="36" fill="#1f2937" font-family="ui-sans-serif, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="14" font-weight="700">Sort by</text>
+<text x="24" y="66.0" fill="#6b7280" font-family="ui-sans-serif, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="11" font-weight="600" letter-spacing="0.06em">INPUT</text>
+<g transform="translate(24,74.0)">
+<rect width="98" height="130" rx="6" fill="#ffffff" stroke="#e5e7eb"/>
+<path d="M0 6a6 6 0 0 1 6-6h86a6 6 0 0 1 6 6v20h-98z" fill="#f3f4f6"/>
+<rect x="56" y="26" width="42" height="26" fill="#fde7dd"/>
+<rect x="0" y="52" width="56" height="26" fill="#e8f0fe"/>
+<rect x="56" y="52" width="42" height="26" fill="#fde7dd"/>
+<rect x="56" y="78" width="42" height="26" fill="#fde7dd"/>
+<rect x="56.5" y="104" width="41" height="25.5" rx="5" fill="#fde7dd"/>
+<rect x="56.5" y="104" width="41" height="13.0" fill="#fde7dd"/>
+<rect x="56" y="104" width="20.5" height="25.5" fill="#fde7dd"/>
+<line x1="0" x2="98" y1="26" y2="26" stroke="#e5e7eb"/>
+<line x1="0" x2="98" y1="52" y2="52" stroke="#e5e7eb"/>
+<line x1="0" x2="98" y1="78" y2="78" stroke="#e5e7eb"/>
+<line x1="0" x2="98" y1="104" y2="104" stroke="#e5e7eb"/>
+<line x1="56" x2="56" y1="0" y2="130" stroke="#e5e7eb"/>
+<rect width="98" height="130" rx="6" fill="none" stroke="#d1d5db"/>
+<text x="10" y="17.0" text-anchor="start" fill="#6b7280" font-weight="600">host</text>
+<text x="66" y="17.0" text-anchor="start" fill="#f45b26" font-weight="600">Max</text>
+<text x="10" y="43.0" text-anchor="start" fill="#1f2937" font-weight="400">web-1</text>
+<text x="88" y="43.0" text-anchor="end" fill="#1f2937" font-weight="400">51</text>
+<text x="10" y="69.0" text-anchor="start" fill="#1f2937" font-weight="400">web-2</text>
+<text x="88" y="69.0" text-anchor="end" fill="#1f2937" font-weight="400">92</text>
+<text x="10" y="95.0" text-anchor="start" fill="#1f2937" font-weight="400">db-1</text>
+<text x="88" y="95.0" text-anchor="end" fill="#1f2937" font-weight="400">86</text>
+<text x="10" y="121.0" text-anchor="start" fill="#1f2937" font-weight="400">db-2</text>
+<text x="88" y="121.0" text-anchor="end" fill="#1f2937" font-weight="400">64</text>
+</g>
+<line x1="130" x2="304.8" y1="139.0" y2="139.0" stroke="#f45b26" stroke-width="2"/>
+<path d="M302.8 133.0 L312.8 139.0 L302.8 145.0 z" fill="#f45b26"/>
+<rect x="158.0" y="117.0" width="124.8" height="44" rx="10" fill="#fff4ef" stroke="#f45b26"/>
+<text x="220.4" y="135.0" text-anchor="middle" fill="#c2410c" font-family="ui-sans-serif, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="700">Sort by</text>
+<text x="220.4" y="152.0" text-anchor="middle" fill="#9a3412" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace" font-size="10.5">Max · Descending</text>
+<text x="318.8" y="66.0" fill="#6b7280" font-family="ui-sans-serif, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="11" font-weight="600" letter-spacing="0.06em">OUTPUT</text>
+<g transform="translate(318.8,74.0)">
+<rect width="98" height="130" rx="6" fill="#ffffff" stroke="#e5e7eb"/>
+<path d="M0 6a6 6 0 0 1 6-6h86a6 6 0 0 1 6 6v20h-98z" fill="#f3f4f6"/>
+<rect x="0" y="26" width="56" height="26" fill="#e8f0fe"/>
+<rect x="56" y="26" width="42" height="26" fill="#fde7dd"/>
+<rect x="56" y="52" width="42" height="26" fill="#fde7dd"/>
+<rect x="56" y="78" width="42" height="26" fill="#fde7dd"/>
+<rect x="56.5" y="104" width="41" height="25.5" rx="5" fill="#fde7dd"/>
+<rect x="56.5" y="104" width="41" height="13.0" fill="#fde7dd"/>
+<rect x="56" y="104" width="20.5" height="25.5" fill="#fde7dd"/>
+<line x1="0" x2="98" y1="26" y2="26" stroke="#e5e7eb"/>
+<line x1="0" x2="98" y1="52" y2="52" stroke="#e5e7eb"/>
+<line x1="0" x2="98" y1="78" y2="78" stroke="#e5e7eb"/>
+<line x1="0" x2="98" y1="104" y2="104" stroke="#e5e7eb"/>
+<line x1="56" x2="56" y1="0" y2="130" stroke="#e5e7eb"/>
+<rect width="98" height="130" rx="6" fill="none" stroke="#d1d5db"/>
+<text x="10" y="17.0" text-anchor="start" fill="#6b7280" font-weight="600">host</text>
+<text x="66" y="17.0" text-anchor="start" fill="#f45b26" font-weight="600">Max</text>
+<text x="10" y="43.0" text-anchor="start" fill="#1f2937" font-weight="400">web-2</text>
+<text x="88" y="43.0" text-anchor="end" fill="#1f2937" font-weight="400">92</text>
+<text x="10" y="69.0" text-anchor="start" fill="#1f2937" font-weight="400">db-1</text>
+<text x="88" y="69.0" text-anchor="end" fill="#1f2937" font-weight="400">86</text>
+<text x="10" y="95.0" text-anchor="start" fill="#1f2937" font-weight="400">db-2</text>
+<text x="88" y="95.0" text-anchor="end" fill="#1f2937" font-weight="400">64</text>
+<text x="10" y="121.0" text-anchor="start" fill="#1f2937" font-weight="400">web-1</text>
+<text x="88" y="121.0" text-anchor="end" fill="#1f2937" font-weight="400">51</text>
+</g>
+<text x="24" y="230" fill="#6b7280" font-family="ui-sans-serif, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="12">Rows are reordered by one column. The busiest host comes first.</text>
+</svg>

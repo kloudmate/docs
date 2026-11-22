@@ -45,7 +45,7 @@ An organization Owner is an Admin in every workspace. A [custom role](../roles/c
 ## Pricing
 
 - **Archiving** has no KloudMate charge. AWS bills your account for storing the files in S3.
-- **Rehydration** costs $0.10 per GB, measured on the volume the workspace originally ingested for the hours you load, not on the compressed Parquet size. For example, loading a day in which the workspace ingested 50 GB of logs costs $5.00. The charge appears on your KloudMate bill as **Log Rehydration**.
+- **Rehydration** is charged per GB, measured on the volume the workspace originally ingested for the hours you load, not on the compressed Parquet size. The rate is on [kloudmate.com/pricing](https://www.kloudmate.com/pricing). The charge appears on your KloudMate bill as **Log Rehydration**.
 - **Reading files out of S3** during a rehydration is billed by AWS as data transfer. The estimate shows the size that will be read from S3, but its charge covers only KloudMate's part, not AWS's.
 
 ## Next steps

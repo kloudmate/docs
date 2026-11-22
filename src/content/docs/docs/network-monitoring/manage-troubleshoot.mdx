@@ -16,7 +16,7 @@ In **Network Monitoring**, select **Configure**. Pick a collector agent to see e
 - **Edit** it to change credentials, targets, capabilities, polling intervals, ports, or scan ranges.
 - **Remove** it.
 
-![The Configure drawer, Configured network monitoring, listing ping, discovery, and flow entries with per-row enable toggles and edit and delete controls](./images/configure-integrations.png)
+![The Configure drawer, Configured network monitoring, listing a flow monitoring entry and two SNMP device entries with per-row enable toggles and edit and delete controls](./images/configure-integrations.png)
 
 Enabling and disabling take effect on their own. Any edit that changes what the agent collects, and any add or remove, briefly restarts data collection on that agent, so expect a short gap in that poller's telemetry. The exception is on agent 2.11.0 or later: a change that only affects SNMP devices is applied without a restart, unless it adds the agent's first SNMP device or removes its last one.
 
