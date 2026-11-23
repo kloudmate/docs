@@ -1,0 +1,43 @@
+---
+title: "Gallery"
+description: "Install ready-made dashboards, alert rules, and workflows from the KloudMate gallery into a workspace by pasting an item's ID or link."
+sidebar:
+  label: "Gallery"
+  order: 2.8
+---
+
+The [KloudMate gallery](https://templates.kloudmate.com) has ready-made dashboards, alert rules, and workflows that you can install into any workspace. An item installs as a copy, so you can change it freely after it's installed, and a later version of the item doesn't change your copy unless you install it again.
+
+## Find an item
+
+Browse or search the gallery at [templates.kloudmate.com](https://templates.kloudmate.com). Each item's page lists the resources it contains, what it needs from your workspace, and any setup steps.
+
+Items published by KloudMate carry the **Official** badge. Only KloudMate publishes to the gallery for now.
+
+## Install an item
+
+Every item has an ID, such as `aws-rds`, shown on its page with a button to copy it. To share an item with your team, send its ID or its link.
+
+1. Click **Import** on the **Dashboards**, **Alerts**, or **Workflows** list.
+2. Paste the item's ID or its link.
+3. Click **Check**. Nothing is written yet. Each resource is listed with its action and the fields that would change.
+4. Resolve anything the item needs that isn't found in this workspace. For an AWS account, a connection, or a notification channel, select a match from this workspace in the **Pick a match** list. For a workflow variable that's missing, click **Set value** to create it here.
+5. Click **Apply**.
+
+You can also click **Open in KloudMate** on an item's page in the gallery, then click **Install**.
+
+### Check the setup steps
+
+Some items need something in place before their data shows up, such as a minimum agent version, a collector setting, or a data source. The publisher lists these setup steps on the item's page, and the Import dialog shows them as soon as you paste the item's ID or link.
+
+### What installing changes
+
+- A dashboard or an alert rule installs outside any folder, unless the item was published as a folder. In that case, the folder is created with everything in it.
+- A workflow installs as an unpublished draft that's turned off. Open it, review its steps, then publish it and turn it on.
+- Installing an item again, for example after a new version is published, updates the copy from the first install. **Check** shows each field that would change, including fields you edited yourself. For a workflow, the new version lands as a draft, and the published version keeps running until you publish the draft.
+
+Installing works the same way as [importing a config file](../config-as-code/). Click **Download YAML** on an item's page in KloudMate to keep the item in a [kmctl](../config-as-code/#keep-config-in-git-with-kmctl) directory.
+
+## Permissions
+
+Installing needs permission to change each kind of resource the item contains: **Manage** for dashboards, **Configure** for alerts, and **Configure** for workflows. See the [permission reference](../settings/roles/permission-reference/).

@@ -18,25 +18,25 @@ Renaming a workflow or editing its description doesn't create unpublished change
 
 ## Start from a template
 
-The **Templates** tab holds ready-made workflows that diagnose or fix common problems. Click **Use template** on a card to create a draft and open it in the builder. You need the **Developer** role.
+KloudMate's ready-made workflows, which diagnose or fix common problems, are in the [gallery](../../platform/gallery/). Click **Templates** on the **Workflows** list to browse them. To install one, click **Import**, paste its ID, click **Check**, then click **Apply**. You need the **Developer** role.
 
-| Template | Starts | What it does |
-|---|---|---|
-| Tell a down host from a down agent | When a host alert opens | Reports whether the machine is down, its collector stopped, or the machine is up and the alert is real. |
-| Report disk usage and the largest directories | When a disk alert opens | Lists the mounts by usage, then the largest directories on the fullest mount. |
-| Report the top processes by CPU and memory | When a host load alert opens | Lists the processes by CPU and by memory, with the owner and the PID. |
-| Free disk space, with approval | When a disk alert opens | Shows what uses the space and waits for approval, then vacuums the journal, removes rotated logs, and reports the space it freed. |
-| Report why a Step Function execution failed | When a state machine alert opens | Reports the most recent failed execution's error, its cause, and the states it ran. |
-| Redrive a failed Step Function execution, with approval | When a state machine alert opens | Shows what failed and why, waits for approval, then restarts the execution from the state that failed. |
-| Tell an EC2 instance fault from a host fault | When an EC2 status check fails | Says whether the fault is in the operating system or in the AWS host underneath. |
-| Reboot an EC2 instance, with approval | When an EC2 instance check fails | Asks for approval, then reboots, and stops instead when the fault is in the AWS host underneath. |
-| Report the state of an Azure VM | By hand | Reports what Azure holds for the machine, then what the machine reports about itself. |
-| Restart an Azure VM, with approval | By hand | Asks for approval, restarts the machine, waits for it, then confirms with the machine itself. |
-| Send alerts to your workflows | When an alert group opens or new alerts join it | Runs a workflow you choose for each resource in the group. See [Send alerts to your workflows](../alert-router/). |
+| Template | ID | Starts | What it does |
+|---|---|---|---|
+| Tell a down host from a down agent | `host-reachability` | When a host alert opens | Reports whether the machine is down, its collector stopped, or the machine is up and the alert is real. |
+| Report disk usage and the largest directories | `disk-usage` | When a disk alert opens | Lists the mounts by usage, then the largest directories on the fullest mount. |
+| Report the top processes by CPU and memory | `top-processes` | When a host load alert opens | Lists the processes by CPU and by memory, with the owner and the PID. |
+| Free disk space, with approval | `disk-cleanup` | When a disk alert opens | Shows what uses the space and waits for approval, then vacuums the journal, removes rotated logs, and reports the space it freed. |
+| Report why a Step Function execution failed | `sfn-diagnose` | When a state machine alert opens | Reports the most recent failed execution's error, its cause, and the states it ran. |
+| Redrive a failed Step Function execution, with approval | `sfn-redrive` | When a state machine alert opens | Shows what failed and why, waits for approval, then restarts the execution from the state that failed. |
+| Tell an EC2 instance fault from a host fault | `ec2-status-check` | When an EC2 status check fails | Says whether the fault is in the operating system or in the AWS host underneath. |
+| Reboot an EC2 instance, with approval | `ec2-reboot` | When an EC2 instance check fails | Asks for approval, then reboots, and stops instead when the fault is in the AWS host underneath. |
+| Report the state of an Azure VM | `azure-vm-diagnose` | By hand | Reports what Azure holds for the machine, then what the machine reports about itself. |
+| Restart an Azure VM, with approval | `azure-vm-restart` | By hand | Asks for approval, restarts the machine, waits for it, then confirms with the machine itself. |
+| Send alerts to your workflows | `alert-router` | When an alert group opens or new alerts join it | Runs a workflow you choose for each resource in the group. See [Send alerts to your workflows](../alert-router/). |
 
-Each card shows **Reads only** or **Changes a host**. A card also shows **Needs a host script grant** when the template runs commands on a host (see [Allow runbook scripts on a host](../actions/#allow-runbook-scripts-on-a-host)), and a missing-connection warning when the template calls AWS or Azure and the workspace has no connection for it.
+Each template's page in the gallery says what it needs. A template that runs commands on a host needs [runbook scripts allowed on that host](../actions/#allow-runbook-scripts-on-a-host), and one that calls AWS or Azure needs a connection to it.
 
-The draft isn't published, and it isn't connected to any alerts. Before you publish it:
+The template installs as a draft that's switched off and isn't connected to any alerts. Before you publish it:
 
 - **Fill in the blank fields.** Every template sends its result by email, so set the address on each **Send Email** step. Publishing fails on any field the template left blank, and names the field, for example `notify_email`.
 - **Pick a connection** on each AWS or Azure step.
