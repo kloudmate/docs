@@ -125,6 +125,7 @@ The agent installs as a Windows service running as Local System. It needs that p
 - Host metrics start flowing automatically. Logs and traces don't, so turn on the ones you want. See [Host metrics and logs](../../baseline/host-metrics-and-logs/).
 - eBPF does not apply on Windows. The agent gives you equivalent monitoring through Event Tracing for Windows (ETW). See [Windows platform notes](../../platform-notes/windows/).
 - To add distributed tracing to .NET applications, see [.NET application APM](../../auto-instrumentation/dotnet/).
+- To choose what's traced from a file on the host instead of the UI, for example on servers built from an image, write `C:\ProgramData\kmagent\apm.yaml`. On Windows, `ebpf` in the policy means ETW, which covers IIS application pools only. See [Host policy](../../auto-instrumentation/host-policy/).
 
 ## **Next Steps**
 

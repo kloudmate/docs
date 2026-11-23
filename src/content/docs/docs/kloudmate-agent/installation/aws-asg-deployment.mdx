@@ -1,17 +1,85 @@
 ---
 title: "AWS Auto Scaling & Elastic Beanstalk"
-description: "Run the KloudMate agent in autonomous auto-instrument mode on Auto Scaling groups and Elastic Beanstalk, so each new instance instruments itself with no per-instance UI step."
+description: "Give every instance in an Auto Scaling group, cloned AMI, or Elastic Beanstalk environment its APM settings with no per-instance UI step, with a host policy or autonomous mode."
 sidebar:
   order: 7
 ---
 
 Auto Scaling groups and Elastic Beanstalk environments create and replace instances automatically. The usual install flow assumes a stable host. You install the agent, then choose which apps to instrument in the KloudMate UI. That does not work when instances come and go. There is no lasting host to configure, and a setting made on one instance is not carried to the next.
 
-Autonomous auto-instrument mode removes the per-instance UI step. The agent discovers and instruments everything on the instance itself. You provide its configuration as files through the platform's provisioning step: user-data for an Auto Scaling group, or a `.platform` hook for Elastic Beanstalk. Your API key identifies the telemetry, so a new instance starts reporting as soon as it boots.
+You can give each new instance its APM settings in two ways, both with no UI step:
 
-An Elastic Beanstalk environment runs on an Auto Scaling group underneath. The agent configuration is the same for both. Only the way you deliver it differs.
+| | Host policy | Autonomous mode |
+|---|---|---|
+| What's traced | The applications your rules pick, in the mode you choose | Every application the agent finds, with the SDK where it can |
+| The agent in KloudMate | Registered like any other agent: pipeline rules, configuration changes, and upgrades keep working | Doesn't check in, so it takes no configuration from the UI |
+| Agent version | 2.12 or later | Any |
 
-## What autonomous mode collects
+Use a host policy unless you want everything traced and don't need to manage the agents from KloudMate. You provide either one through the platform's provisioning step: user-data for an Auto Scaling group, the AMI itself, or a `.platform` hook for Elastic Beanstalk. An Elastic Beanstalk environment runs on an Auto Scaling group underneath, so the agent configuration is the same for both.
+
+## Set APM with a host policy
+
+A [host policy](../../auto-instrumentation/host-policy/) is a file, `/etc/kmagent/apm.yaml`, with rules that pick applications by name, runtime, or unit. Every instance reads it when the agent starts, applies it to the applications it finds, and reports to KloudMate as a normal agent. In **Settings → Agents & Pipelines**, each instance's row shows **APM from host policy**.
+
+Before you write the rules, run `sudo kmagent apm check` on an instance that runs your applications. It prints the name, unit, and ports to match on. See [Find the values to match on](../../auto-instrumentation/host-policy/#find-the-values-to-match-on).
+
+### In the launch template
+
+Write the policy before you install the agent, so the agent reads it on its first start:
+
+```bash
+#!/bin/bash
+set -euo pipefail
+
+export KM_API_KEY="YOUR_API_KEY"
+export KM_COLLECTOR_ENDPOINT="https://otel.kloudmate.com:4318"
+
+install -d -m 755 /etc/kmagent
+cat > /etc/kmagent/apm.yaml <<'EOF'
+default: off
+services:
+  - match: { name: orders }
+    mode: sdk
+  - match: { runtime: [go, ruby] }
+    mode: ebpf
+EOF
+
+# Give slow-starting applications longer to come back after the SDK restart.
+echo 'KM_INSTRUMENT_HEALTH_TIMEOUT=10m' >> /etc/kmagent/kmagent.env
+
+curl -fsSL https://cdn.kloudmate.com/scripts/install_linux.sh | bash
+```
+
+Each application set to `sdk` restarts once on the instance's first boot, when the agent adds the SDK.
+
+### In an AMI
+
+To create instances that start with the SDK already set up, with no restart, set it up on one instance and image it:
+
+1. On the source instance, install the agent and write `/etc/kmagent/apm.yaml`. Restart the agent with `sudo systemctl restart kmagent`.
+2. Run `sudo kmagent apm check`. Each application you picked should show `mode sdk` or `mode ebpf`, and its traces should arrive in KloudMate.
+3. Check that `/etc/kmagent/agent.yaml` has no `host-name`. KloudMate tells instances apart by host name, so a fixed name makes every instance report as the same agent.
+4. Create the AMI.
+
+On an instance launched from the AMI, an application run by a systemd unit starts with the SDK, because the unit's drop-in is part of the image. The agent finds the same settings in the policy and leaves the application running. A JVM started from `/etc/rc.local`, `cron`, or a script gets the SDK attached after it starts, with no restart. The instance registers as a new agent. It doesn't take the source instance's UI selection, which belongs to the source instance's agent.
+
+:::caution[Image an instrumented host only with a policy]
+If the source instance's applications were instrumented from the UI and there's no `apm.yaml`, each new instance registers as an agent with nothing selected. On its first check-in, the agent removes the SDK it finds and restarts those applications. Add the policy before you create the AMI.
+:::
+
+### On Elastic Beanstalk
+
+Use the [predeploy hook](#elastic-beanstalk) below, with two changes: write `/etc/kmagent/apm.yaml` before the install step, and remove `export KM_AUTO_INSTRUMENT=true`. On later deploys, the hook restarts the agent, which reads the policy again.
+
+### Change the rules
+
+The agent reads the policy only when it starts. To change it across a fleet, update the launch template or the AMI and replace the instances, or edit `/etc/kmagent/apm.yaml` and restart the agent on each instance, for example with AWS Systems Manager Run Command. A change you save in the UI applies only to the instance you made it on.
+
+## Autonomous mode
+
+Autonomous auto-instrument mode removes the per-instance UI step by instrumenting everything. The agent discovers and instruments every application on the instance itself and doesn't check in with KloudMate for configuration. Your API key identifies the telemetry, so a new instance starts reporting as soon as it boots.
+
+### What autonomous mode collects
 
 With auto-instrument turned on, every instance gets the following, with no UI step:
 
@@ -21,7 +89,7 @@ With auto-instrument turned on, every instance gets the following, with no UI st
 
 Each app's `service.name` comes from its own stable identity, not from the instance. So every instance of one app rolls up as a single service in KloudMate, and a per-instance breakdown is still available. See [Telemetry identity](../../reference/telemetry-identity/).
 
-## Before you start
+### Before you start
 
 You need:
 
@@ -30,9 +98,9 @@ You need:
 - Instances on a supported Linux (Amazon Linux 2 or 2023, Ubuntu, Debian, the RHEL family, or SLES 15). eBPF monitoring needs a modern kernel, which the standard AWS AMIs have.
 - Network access and permissions from [Before you start](../before-you-start/) if your outbound traffic is restricted.
 
-Both examples below put the API key directly into the provisioning step. To keep it out of the launch template, read it from SSM Parameter Store or Secrets Manager instead and set `KM_API_KEY` from there. That is the only line that changes.
+The examples on this page put the API key directly into the provisioning step. To keep it out of the launch template, read it from SSM Parameter Store or Secrets Manager instead and set `KM_API_KEY` from there. That is the only line that changes.
 
-## Auto Scaling group
+### Auto Scaling group
 
 Put this in the launch template's **user-data**. It writes the agent configuration, installs the agent with autonomous mode on, and starts it. Running the script again changes nothing, so it's safe to run on every instance launch.
 
@@ -58,7 +126,7 @@ EOF
 curl -fsSL https://cdn.kloudmate.com/scripts/install_linux.sh | bash
 ```
 
-## Elastic Beanstalk
+### Elastic Beanstalk
 
 Elastic Beanstalk runs a provisioning hook on each instance. On the current Amazon Linux 2 and 2023 platforms, use a platform hook. Your environment properties are available there.
 
@@ -185,16 +253,17 @@ On any instance:
 
 ```bash
 systemctl status kmagent
-journalctl -u kmagent | grep -Ei "auto-instrument mode ON|log monitor"
+sudo kmagent apm check
+journalctl -u kmagent | grep -Ei "APM policy|auto-instrument mode ON|log monitor"
 ```
 
-You should see auto-instrument mode enabled and, if you configured log collection, the log sources being merged. In KloudMate, the host appears with its cloud attributes, your services show traces and RED metrics, and log sources appear under their `service.name`.
+With a host policy, the log shows `APM policy loaded`, and `kmagent apm check` shows the mode each application got. In autonomous mode, the log shows auto-instrument mode enabled. If you configured log collection, it also shows the log sources being merged. In KloudMate, the host appears with its cloud attributes, your services show traces and RED metrics, and log sources appear under their `service.name`.
 
 If an instance isn't reporting, check the agent's own error logs. It ships them under `service.name=kmagent`. See [See the agent's own errors](../../management/#see-the-agents-own-errors).
 
 ## Notes and limits
 
-- **One restart on first boot.** Auto-instrument restarts each app once to inject the SDK. That applies to the SDK languages, not to eBPF monitoring. To skip the restart at boot, bake the agent into your AMI so the instrumentation is already configured when the instance starts.
+- **One restart on first boot.** The agent restarts each app set to the SDK once to inject it. Autonomous mode does this for every app it can. That applies to the SDK languages, not to eBPF monitoring. To skip the restart at boot, bake the agent into your AMI so the instrumentation is already configured when the instance starts.
 - **Configuration is fixed per instance.** In autonomous mode the agent doesn't take configuration from the KloudMate UI. You change what's instrumented, or your log sources, by updating the launch template or the `.platform` hook and redeploying. The agent still reports its health to KloudMate.
 - **Databases aren't auto-instrumented.** They need credentials, which can't be configured automatically, so monitor RDS or a separate database tier through [database monitoring](../../database-monitoring/overview/).
 - **Log sources are read at startup.** The agent reads `logs.d` once, when it starts. Instances that are replaced rather than reconfigured don't need it re-read.

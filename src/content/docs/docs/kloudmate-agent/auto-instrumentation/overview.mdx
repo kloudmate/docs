@@ -67,6 +67,10 @@ The language agents ship inside the KloudMate agent package and are versioned wi
 
 When you instrument a service, the agent tells eBPF monitoring to stop tracing that service's own requests. You get the richer application spans from the language agent, while eBPF keeps tracing the services around it, all on one connected trace.
 
+## Set modes from the host
+
+You can also set each service's mode in a file on the host, `apm.yaml`, instead of on the **APM** tab. Its rules pick services by name, runtime, or unit, so one file works on every instance of an Auto Scaling group or a cloned image, and the agents stay managed from KloudMate. A selection saved on the **APM** tab still takes precedence for that host. See [Host policy (apm.yaml)](../host-policy/).
+
 ## Instrument everything (advanced)
 
 Instrumenting per service is the default and the recommended approach. For automated rollouts, the agent also has an autonomous mode that instruments every eligible service without per-service toggles. This is an advanced option. See [Advanced configuration](../../advanced-configuration/).

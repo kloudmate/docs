@@ -72,6 +72,16 @@ On any host with a Docker socket, the agent collects per-container metrics and l
 | `KM_DOCKER_LOGS_PATH` | `/var/lib/docker/containers/*/*-json.log` | The container-log glob. Set it when Docker uses a non-default data-root. |
 | `KM_CONTAINER_INSTRUMENT_ENABLED` | On; PHP containers off on a host agent | Container SDK, so containers offer an **SDK** option on the **APM** tab. Unset, it's on wherever the agent can reach Docker, for Java, Node.js, Python, and .NET. PHP containers are on in Docker mode and opt-in on a host (systemd) agent: set `true` to turn them on. Set `false` to turn container SDK off. To instrument PHP containers without the per-service UI selection, use `KM_CONTAINER_INSTRUMENT_ALL`, `KM_CONTAINER_INSTRUMENT_NAMES`, or `KM_CONTAINER_INSTRUMENT_IMAGES`. See [Docker platform notes](../../platform-notes/docker/). |
 
+## Application tracing (APM)
+
+These are environment variables only, with no `agent.yaml` key. On a Linux host, put them in `/etc/kmagent/kmagent.env`, one `NAME=value` per line. On the Docker agent, pass them with `-e`, and on the ECS daemon, add them to its task definition. Restart the agent after you change them.
+
+| Environment variable | Default | Description |
+|---|---|---|
+| `KM_APM_POLICY` | None | A [host policy](../../auto-instrumentation/host-policy/), inline: the same YAML as `apm.yaml`, usually on one line in flow style. It takes precedence over the `apm.yaml` file. Agent 2.12 or later. |
+| `KM_APM_CONFIG` | `/etc/kmagent/apm.yaml` on Linux, `C:\ProgramData\kmagent\apm.yaml` on Windows | Where the agent reads the host policy file. The Docker and ECS agents read the host's `/etc/kmagent/apm.yaml` by default. |
+| `KM_INSTRUMENT_HEALTH_TIMEOUT` | `30s` for services, `3m` for containers | How long the agent waits for an application to come back healthy after a restart that turns its SDK on or off, before it undoes the change. A duration such as `10m`, or a number of seconds, up to `30m`. Raise it for applications that take minutes to start. |
+
 ## eBPF opt-out toggles
 
 eBPF monitoring has two independent parts, and each has its own opt-out toggle. Both are on by default. They are separate switches: turning one off leaves the other running, and there is no single eBPF on/off setting.
@@ -85,7 +95,7 @@ Both toggles are ignored on a `noebpf` agent build, which has no eBPF receiver c
 
 ### eBPF application tracing
 
-`ebpf-apm` defaults to on, which allows eBPF application tracing on the host. It doesn't trace anything on its own. In managed mode, you pick which services eBPF traces from the web interface. Under auto-instrument, it traces every service. Set `ebpf-apm: false` to turn eBPF application tracing off on the host.
+`ebpf-apm` defaults to on, which allows eBPF application tracing on the host. It doesn't trace anything on its own. In managed mode, you pick which services eBPF traces from the web interface or with a [host policy](../../auto-instrumentation/host-policy/). Under auto-instrument, it traces every service. Set `ebpf-apm: false` to turn eBPF application tracing off on the host.
 
 ### Collect logs without application tracing
 

@@ -132,6 +132,7 @@ After the agent is running, confirm what it collects and explore what it found:
 - Host metrics and logs start flowing automatically. See [Host metrics and logs](../../baseline/host-metrics-and-logs/).
 - On a supported Linux kernel (4.14 or newer), [eBPF monitoring](../../ebpf-observability/) turns on automatically and adds RED metrics and a service map.
 - To see what the agent found and instrument a service, go to **Settings → Agents & Pipelines**, open the agent's actions menu (⋮), and select **Configure**. See [Discovery](../../concepts/discovery/).
+- To choose what's traced from a file on the host instead, for example on instances built from an image, write `/etc/kmagent/apm.yaml`. See [Host policy](../../auto-instrumentation/host-policy/). `sudo kmagent apm check` lists the applications the agent found and the values a rule can match on.
 
 ## Next Steps
 
