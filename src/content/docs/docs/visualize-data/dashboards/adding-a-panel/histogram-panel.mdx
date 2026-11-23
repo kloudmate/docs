@@ -12,7 +12,7 @@ You can point the panel at either of these:
 
 The last bucket, labeled `+Inf`, holds every value above the highest boundary. In a latency distribution, that bucket is often the slow tail.
 
-![Histogram panel settings](./images/histogram-panel-1.jpeg)
+![A Histogram panel of http_server_duration in the panel editor, with Returns set to Distribution](./images/histogram-panel-1.jpeg)
 
 ## If the panel can't draw the query
 
@@ -44,7 +44,7 @@ A histogram metric usually doesn't declare a unit for its bucket boundaries, so 
 
 **Y-Axis**: **Min** and **Max** pin the ends of the count axis, and **Decimals** sets the decimal places of its labels.
 
-![Histogram Axes section](./images/histogram-panel-3.jpeg)
+![The Axes section of a Histogram panel, with Buckets, Offset, and Min and Max for each axis](./images/histogram-panel-3.jpeg)
 
 ## Legend
 
@@ -52,7 +52,7 @@ A histogram metric usually doesn't declare a unit for its bucket boundaries, so 
 
 ## Time range
 
-Turn on **Override dashboard time range** to give this panel its own time range. **Time shift** moves the panel's range back in time, for example `-1d` to show the same window yesterday. See [Time Range Expressions and Settings](../time-range-expressions-and-settings/) for the supported units and syntax.
+Enter a **Time shift** and turn on **Apply time shift** to move this panel's time range back in time. For example, `-1d` shows the same window yesterday. The shift only goes backwards, so use a value such as `-1h` or `-7d`. See [Time Range Expressions and Settings](../time-range-expressions-and-settings/) for the supported units and syntax.
 
 ## Overrides
 

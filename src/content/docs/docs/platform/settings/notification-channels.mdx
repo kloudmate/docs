@@ -33,7 +33,7 @@ Navigate to **Settings** > **Notification Channels**. The screen displays all ex
 
 ![image](./images/setting-up-notifications-1.png)
 
-Once created, the channel appears in the list. You can **Edit** or **Delete** any channel using the more options (⋯) icon. 
+Once created, the channel appears in the list. You can **Edit** or **Delete** any channel using the more options (⋮) icon.
 
 ![image](./images/setting-up-notifications-2.png)
 
@@ -388,7 +388,7 @@ To wire it into the alert flow, add the channel as a destination on a [Routing R
 
 3. Back on the channel form, enter a **Channel name** and fill in the rest:
 
-![The Jira notification channel form: the Jira account picker with a Connect another Jira account link, then Channel name, Site, Project, and Issue type](./images/jira-3.png)
+![The Jira notification channel form: the Jira account picker with a Connect another Jira account link, then Channel name, Site, Project, Issue type, and the statuses that map to Open and Closed](./images/jira-3.png)
 
 - **Site**: your Jira site
 - **Project**: the Jira project to link
@@ -428,26 +428,3 @@ The Jira integration is one-way. Status changes in KloudMate are reflected in Ji
 | Issue name | Ticket description |
 | Issue comments | Ticket comments |
 
-#### Creating a Manual Jira Ticket
-
-You can create a Jira ticket directly from an issue or alert details page to raise individual tickets that are not bound to a routing rule.
-
-**Prerequisite:** A Jira notification channel must already be configured.
-
-1. Navigate to the **Issue** or **Alert** details page.
-2. Click the **Create in Jira** button. A dialog opens showing all Jira channels integrated with your KloudMate account, along with any previously linked Jira tickets for that issue.
-
-![Create in Jira button highlighted on the Issue details page](./images/create-a-manual-jira-ticket-1.png)
-
-![Jira Tickets dialog, showing linked tickets and the Jira Channels to create a new one in](./images/create-a-manual-jira-ticket-2.png)
-
-3. Under Jira Channels, select the checkbox(es) for the channel(s) you want to raise a ticket in.
-4. Click **Create Ticket**.
-
-#### Unlinking a Jira Ticket
-
-1. On the issue or alert details page, click the **settings** icon next to the Create in Jira button to open the Jira Tickets panel.
-2. The panel displays all Jira tickets currently linked to the issue, showing the Ticket ID, Site, Project, and Issue Type.
-3. Click the **unlink** icon next to the ticket you want to remove to unlink it from KloudMate.
-
-![image](./images/create-a-manual-jira-ticket-3.png)

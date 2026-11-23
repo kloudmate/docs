@@ -5,6 +5,8 @@ description: "Show each series' value on a dial, arc, or meter against a fixed r
 
 A Gauge panel reduces each series to one number and draws it against a range, as a dial, an arc, or a straight meter. Use it for values with known bounds, such as disk usage in percent or connection pool saturation, where the position on the scale matters as much as the number.
 
+![The panel editor with a Gauge panel showing memory use for three nodes as dials, and the Options tab with its sections collapsed](./images/gauge-panel-1.jpeg)
+
 ## Panel
 
 - **Name** is the title shown on the dashboard.
@@ -34,6 +36,8 @@ See [Format values and units](../../panel-options/format-and-units/) and [Colors
 - **Show** sets what's written on each gauge: **Auto**, **Value**, **Name**, or **Both**.
 - **Show threshold bands** marks the threshold steps beside the arc. It's on by default and isn't available for **Meter**.
 
+![The Gauge section with Style set to Dial, Medium thickness, 0 segments, Inline arrangement, and Show threshold bands on](./images/gauge-panel-2.jpeg)
+
 ## Threshold
 
 Thresholds color the gauge when its value crosses a step, and with **Show threshold bands** on, the steps are also marked along the arc. Click **Add Threshold** for each step, and click **Set default color** to choose the color for values below every step. See [Thresholds](../../panel-options/thresholds/).
@@ -48,7 +52,7 @@ Value mappings replace a gauge's value with text and a color. See [Colors and va
 
 ## Time range
 
-Turn on **Override dashboard time range** to give this panel its own time range. **Time shift** moves the panel's range back in time, for example `-1d` to show the same window yesterday. See [Time Range Expressions and Settings](../time-range-expressions-and-settings/) for the supported units and syntax.
+Enter a **Time shift** and turn on **Apply time shift** to move this panel's time range back in time. For example, `-1d` shows the same window yesterday. The shift only goes backwards, so use a value such as `-1h` or `-7d`. See [Time Range Expressions and Settings](../time-range-expressions-and-settings/) for the supported units and syntax.
 
 ## Overrides
 

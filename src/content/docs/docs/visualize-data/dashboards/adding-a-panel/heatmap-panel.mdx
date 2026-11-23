@@ -5,6 +5,8 @@ description: "Draw how a metric's values are distributed over time, with each ce
 
 A Heatmap panel draws how a metric's values are distributed over time. Time runs along the X axis, value buckets run up the Y axis, and each cell's color shows how many values fell into that bucket at that time. Use it to see how a latency distribution changes over time, for example a second cluster of slow requests appearing after a deployment, which a single percentile line would hide. It works the same way for a gauge, such as CPU usage across many containers.
 
+![The panel editor with a Heatmap panel of pod memory use, with bucket boundaries from 1MB to 10GB, and the Options tab with its sections collapsed](./images/heatmap-panel-1.jpeg)
+
 ## Build the query
 
 The panel reads one **Metrics** query. Click **Metric** and pick any metric. On a Heatmap panel, histogram metrics are listed first, and every metric shows its type.
@@ -52,6 +54,8 @@ When the metric declares a unit, the bucket boundaries use it, for example `400 
 - **Cell gap** sets the space between cells.
 - **Show color scale** shows the color legend. It's on by default.
 
+![The Display section with the Blues color scheme, Log scale, Cell gap 1, and Value buckets set to Auto](./images/heatmap-panel-2.jpeg)
+
 ### Value buckets
 
 For a metric that isn't a histogram, the panel makes the value buckets itself, with round boundaries such as 10, 20, and 50.
@@ -63,7 +67,7 @@ A histogram metric always uses its own buckets, so these settings don't change i
 
 ## Time range
 
-Turn on **Override dashboard time range** to give this panel its own time range. **Time shift** moves the panel's range back in time, for example `-1d` to show the same window yesterday. See [Time Range Expressions and Settings](../time-range-expressions-and-settings/) for the supported units and syntax.
+Enter a **Time shift** and turn on **Apply time shift** to move this panel's time range back in time. For example, `-1d` shows the same window yesterday. The shift only goes backwards, so use a value such as `-1h` or `-7d`. See [Time Range Expressions and Settings](../time-range-expressions-and-settings/) for the supported units and syntax.
 
 ## Overrides
 

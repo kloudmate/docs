@@ -7,7 +7,7 @@ sidebar:
 
 Open an instance from the [Databases list](../databases-list/) to see everything KloudMate collects for it. The page opens on the tab you viewed last, and every tab uses the time range in the top-right corner.
 
-![The Overview tab of a PostgreSQL primary, with the instance info card, connection utilization and buffer cache hit ratio gauges, and the Connections and Database Sizes panels.](./images/instance-overview.png)
+![The Overview tab of a PostgreSQL replica, with the tab list on the left, the instance info card, connection utilization and buffer cache hit ratio gauges, and the Connections and Database Sizes panels.](./images/instance-overview.png)
 
 ## The instance header
 
@@ -18,6 +18,8 @@ When alert rules are firing for the instance, the header shows the number of act
 The health icon is the same one shown on the [Databases list](../databases-list/#status-and-health). When the worst category is **CPU**, **Memory**, or **Connections**, click the icon to open the Overview tab with a triage banner for that category. See [Triage from the health icon](#triage-from-the-health-icon).
 
 ## Tabs and page controls
+
+The tabs are listed on the left of the page. Click the arrow next to the list to collapse it and give the tab more room.
 
 The tabs available depend on the engine. See [Supported engines](../#supported-engines) for the full list.
 
@@ -31,7 +33,7 @@ The Overview tab brings together the numbers you usually check first.
 
 ### Instance info and gauges
 
-The info card shows the instance's status, connections, query rate, database size, uptime, and host. When the database doesn't run on the agent's host, the host row is labelled **Monitored from** and shows the agent's host. The card also lists engine settings when the engine reports them:
+The info card shows the instance's status, connections, query rate, database size, uptime, host, and service name. When the database doesn't run on the agent's host, the host row is labelled **Monitored from** and shows the agent's host. The card also lists engine settings when the engine reports them:
 
 | Engine | Settings |
 |---|---|

@@ -7,7 +7,7 @@ sidebar:
 
 A TimeSeries panel plots values over time, one line per series. Use it to follow a trend, such as request rate or CPU usage, and to compare several series on the same time axis.
 
-![TimeSeries panel settings](./images/timeseries-panel-1.jpeg)
+![A TimeSeries panel in the panel editor, with the option sections collapsed](./images/timeseries-panel-1.jpeg)
 
 ## Panel
 
@@ -16,7 +16,7 @@ A TimeSeries panel plots values over time, one line per series. Use it to follow
 - **Links** connect the panel to related resources, such as a runbook or another dashboard. Click **Add link** to add one.
 - **Repeat by variable** draws one copy of the panel for each value of a dashboard variable, up to the first 20 values. Choose a **Direction**, and for horizontal repeats, a **Max per row**. The copies appear on the dashboard, not in the editor.
 
-![TimeSeries Panel section](./images/timeseries-panel-7.jpeg)
+![The Panel section of a TimeSeries panel, with Name, Description, Links, and Repeat options](./images/timeseries-panel-7.jpeg)
 
 ## Standard options
 
@@ -32,7 +32,7 @@ A TimeSeries panel plots values over time, one line per series. Use it to follow
 
 Each Y axis writes its labels in the unit of the series drawn on it. For example, with request rate on the left and memory on the right, the right axis reads in bytes.
 
-![TimeSeries Axes section](./images/timeseries-panel-3.jpeg)
+![The Axes section of a TimeSeries panel, with Date style and Min and Max for the left and right Y axes](./images/timeseries-panel-3.jpeg)
 
 ## Legend
 
@@ -66,7 +66,7 @@ Choose **Auto**, **Left**, or **Right**. Set here, it applies to every series. T
 
 Thresholds draw as horizontal lines across the chart. Click **Add Threshold** for each step, pick its color, and use its **Y-Axis** toggle to draw it against the left or right axis. Then choose the line style with **Line Type**: **Off**, **Line**, or **Lines (Dashed)**. With **Color scheme** set to **From thresholds**, the steps also color the lines. See [Thresholds](../../panel-options/thresholds/).
 
-![TimeSeries Threshold section](./images/timeseries-panel-5.jpeg)
+![The Threshold section of a TimeSeries panel, with a red step at 0.85, Threshold Mode, and Line Type](./images/timeseries-panel-5.jpeg)
 
 ## Data links & actions
 
@@ -82,9 +82,9 @@ Mark firing alerts, issues, custom annotations, or the results of your own query
 
 ## Time range
 
-Turn on **Override dashboard time range** to give this panel its own time range. **Time shift** moves the panel's range back in time, for example `-1d` to show the same window yesterday.
+Enter a **Time shift** and turn on **Apply time shift** to move this panel's time range back in time. For example, `-1d` shows the same window yesterday. The shift only goes backwards, so use a value such as `-1h` or `-7d`.
 
-![TimeSeries Time range section](./images/timeseries-panel-6.jpeg)
+![The Time range section of a TimeSeries panel, with Time shift set to -1d and Apply time shift turned on](./images/timeseries-panel-6.jpeg)
 
 See [Time Range Expressions and Settings](../time-range-expressions-and-settings/) for the supported units and syntax.
 

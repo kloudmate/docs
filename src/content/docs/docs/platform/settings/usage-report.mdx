@@ -1,28 +1,25 @@
 ---
 title: "Usage Report"
-description: "Review ingestion and billing-period usage across logs, traces, and metrics."
+description: "Review usage and cost across logs, traces, metrics, and log rehydration."
 sidebar:
   label: "Usage Report"
   order: 8
 ---
-The usage report provides a consolidated view of platform consumption for the current billing period or past billing cycles.
+The usage report shows usage and cost across all workspaces in your organization for the selected period.
 
 It includes:
 
-- Total logs ingested during the billing period
-- Total traces ingested during the billing period
-- Total metric points ingested during the billing period
-- The billing reset date
-- Any accrued overage
+- **Usage by type:** the amount used, the rate, and the cost for logs, traces, metric points, and log rehydration, with the total cost for the period
+- **Ingest by workspace:** a daily chart of ingested logs, traces, or metrics, broken down by workspace
 
 ![image](./images/usage-report-1.png)
 
-Use the billing period selector to switch between the current cycle and previous cycles.
+Use the period selector to switch between quick ranges (the last 24 hours, 7 days, or 30 days), the current billing period, and previous billing periods.
 
 ![image](./images/usage-report-2.png)
 
 ## Custom Date Range Reports
 
-You can also generate usage reports for a custom date range by selecting a custom window from the billing period selector.
+To report on any other window, select **Custom range…** from the period selector, then enter a start time and an end time in `YYYY-MM-DD HH:mm` format.
 
 ![image](./images/usage-report-3.png)
