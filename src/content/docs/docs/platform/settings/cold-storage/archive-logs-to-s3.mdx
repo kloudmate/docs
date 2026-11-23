@@ -36,7 +36,7 @@ The bucket, region, and prefix can't be changed after you connect. To move the a
     - **KMS key ARN (optional)**: only if the bucket encrypts with SSE-KMS.
     - **Backfill logs already stored**: on by default. It also exports the logs already in the workspace's retention, not only new ones. Turn it off to start the archive from now.
 
-    ![The Connect S3 bucket dialog on the Bucket step, with Bucket name, Bucket region, and Prefix](./images/connect-bucket.png)
+    ![The Connect S3 bucket dialog on the Bucket step, with Bucket name, Bucket region, Prefix, KMS key ARN, and Backfill logs already stored](./images/connect-bucket.png)
 
 3. Click **Open AWS Console**. The CloudFormation quick-create page opens in the bucket's region, with the template, bucket, prefix, KMS key, and external ID filled in. Leave **ExternalId** as it is.
 
@@ -104,7 +104,7 @@ The **Archive** tab shows the connected bucket and its state:
 - **Setup incomplete**: the role hasn't been verified yet. Click **Finish setup** to continue where you left off.
 - **Disabled**: exports are turned off.
 
-![The Archive tab: the connected bucket marked Archiving, a previous bucket, and the Coverage table](./images/archive-tab.png)
+![The Archive tab: the connected bucket marked Archiving, two previous buckets, and the Coverage table](./images/archive-tab.png)
 
 ### Coverage
 

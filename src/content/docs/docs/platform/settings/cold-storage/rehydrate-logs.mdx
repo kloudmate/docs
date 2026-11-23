@@ -39,11 +39,11 @@ You can start one from either place:
 
 </Steps>
 
-The estimate shows the rows and size that will load, how long loading will take, when it will start, how long it stays searchable, and the **Charge**. **Size** shows both the volume originally ingested, which the charge is based on, and the amount read from S3.
+The estimate shows the rows and size that will load, how long loading will take, when it will start, how long it stays searchable, and the **Cost**. The cost is paid from your monthly usage budget first. **Size** shows both the volume originally ingested, which the charge is based on, and the amount read from S3.
 
 Filtering by service narrows what you load and search, but it doesn't reduce the estimate or the charge. Both cover every service in each hour, because the archive is read an hour at a time.
 
-![The estimate review, with Rows, Size, Load time, Queue, and Charge](./images/rehydrate-estimate.png)
+![The estimate review, with Rows, Size, Load time, Queue, and Cost](./images/rehydrate-estimate.png)
 
 ## Limits
 
@@ -78,7 +78,7 @@ The **Rehydrations** tab lists every rehydration in the workspace, newest first,
 | **Cancelled** | Stopped before it finished. It's no longer searchable. |
 | **Expired** | Past its keep-for period. It's no longer searchable. |
 
-![The Rehydrations tab with a Ready rehydration, showing its range, progress, and expiry, and Open in Log Explorer](./images/rehydrations-tab.png)
+![The Rehydrations tab with a Ready rehydration and a Cancelled one, showing their range, progress, and expiry, and Open in Log Explorer on the Ready one](./images/rehydrations-tab.png)
 
 ## Search a rehydration in the Log Explorer
 
@@ -97,7 +97,7 @@ The **Rehydrations** tab lists every rehydration in the workspace, newest first,
 
 Rehydrated logs are searchable only in the Log Explorer. Dashboards, alerts, and other parts of KloudMate keep reading live data. Streaming and **Jump to Now** aren't available while you're reading a rehydration, since it covers a fixed range in the past.
 
-![The Log Explorer reading a rehydration named audit, with the banner showing its range, when it expires, and Back to live](./images/log-explorer-rehydration.png)
+![The Log Explorer reading a rehydration named Checkout errors, 25 Oct, with the banner showing its range, when it expires, and Back to live](./images/log-explorer-rehydration.png)
 
 ## Expiry
 
@@ -118,7 +118,7 @@ Either way, the hours that already loaded are still charged.
 
 Rehydration is charged per GB, measured on the volume the workspace originally ingested for each hour that loads. The rate is on [kloudmate.com/pricing](https://www.kloudmate.com/pricing). Each hour is charged as it loads, so hours that fail to load aren't charged. The charge appears on your KloudMate bill as **Log Rehydration**.
 
-AWS bills your account separately for the data read out of S3. That cost isn't part of the estimate's **Charge**, but the estimate shows the size read from S3, so you can work it out from AWS's data transfer pricing.
+AWS bills your account separately for the data read out of S3. That cost isn't part of the estimate's **Cost**, but the estimate shows the size read from S3, so you can work it out from AWS's data transfer pricing.
 
 ## Logs in Glacier storage classes
 

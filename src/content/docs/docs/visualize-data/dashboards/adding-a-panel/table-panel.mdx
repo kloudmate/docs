@@ -5,7 +5,7 @@ description: "Show query results, log records, or spans as rows and columns, wit
 
 A Table panel shows query results as rows and columns. Use it to compare values across hosts, pods, or services, or to list individual log records and spans.
 
-![Table panel settings](./images/table-panel-1.jpeg)
+![The panel editor with a Table panel showing the last and max memory use of three nodes, and the Options tab with its sections collapsed](./images/table-panel-1.jpeg)
 
 ## Show logs and traces
 
@@ -68,7 +68,7 @@ Value mappings replace a cell's value with text and a color. They work on text a
 
 Thresholds set the color for **Colored text** and **Colored background** cells, and the shading of a **Gradient** gauge. See [Thresholds](../../panel-options/thresholds/).
 
-![Table Threshold section](./images/table-panel-4.jpeg)
+![The Threshold section with a red step at 0.85, a green default color, and Threshold Mode set to Absolute](./images/table-panel-4.jpeg)
 
 ## Data links & actions
 
@@ -76,7 +76,7 @@ A cell with one data link turns its value into the link. A cell with several ope
 
 ## Time range
 
-Turn on **Override dashboard time range** to give this panel its own time range. **Time shift** moves the panel's range back in time, for example `-1d` to show the same window yesterday. See [Time Range Expressions and Settings](../time-range-expressions-and-settings/) for the supported units and syntax.
+Enter a **Time shift** and turn on **Apply time shift** to move this panel's time range back in time. For example, `-1d` shows the same window yesterday. The shift only goes backwards, so use a value such as `-1h` or `-7d`. See [Time Range Expressions and Settings](../time-range-expressions-and-settings/) for the supported units and syntax.
 
 ## Overrides
 

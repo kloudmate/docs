@@ -5,7 +5,7 @@ description: "Compare values across time buckets or categories as vertical or ho
 
 A Bar Chart panel compares values as bars. The X axis can be time or a category, so you can draw request counts per minute, or one bar per service from a query that returns one value for each service.
 
-![Bar Chart panel settings](./images/bar-chart-panel-1.jpeg)
+![The panel editor with a stacked Bar Chart panel of memory use for three nodes, and the Options tab with its sections collapsed](./images/bar-chart-panel-1.jpeg)
 
 ## Panel
 
@@ -14,7 +14,7 @@ A Bar Chart panel compares values as bars. The X axis can be time or a category,
 - **Links** connect the panel to related resources, such as a runbook or another dashboard. Click **Add link** to add one.
 - **Repeat by variable** draws one copy of the panel for each value of a dashboard variable, up to the first 20 values. Choose a **Direction**, and for horizontal repeats, a **Max per row**. The copies appear on the dashboard, not in the editor.
 
-![Bar Chart Panel section](./images/bar-chart-panel-4.png)
+![The Panel section with Name, Description, Links, and Repeat options](./images/bar-chart-panel-4.png)
 
 ## Standard options
 
@@ -25,7 +25,7 @@ A Bar Chart panel compares values as bars. The X axis can be time or a category,
 - **Orientation:** **Vertical** or **Horizontal** bars. Horizontal bars leave more room for long category labels.
 - **Stacking:** **Stacked** puts each series on top of the previous one. **Grouped** places them side by side.
 
-![Bar Chart Display section](./images/bar-chart-panel-2.jpeg)
+![The Display section with Orientation set to Vertical and Stacking set to Stacked](./images/bar-chart-panel-2.jpeg)
 
 ## Axes
 
@@ -36,11 +36,11 @@ A Bar Chart panel compares values as bars. The X axis can be time or a category,
 
 **Mode** shows the legend as a **Table** or a **List**, or turns it **Off**. **Values** adds summary values next to each series: **Min**, **Max**, **Mean**, **Total**, **First**, **Last**, or **Count**.
 
-![Bar Chart Legend section](./images/bar-chart-panel-3.jpeg)
+![The Legend section with Mode set to List and Max selected under Values](./images/bar-chart-panel-3.jpeg)
 
 ## Time range
 
-Turn on **Override dashboard time range** to give this panel its own time range. **Time shift** moves the panel's range back in time, for example `-1d` to show the same window yesterday. See [Time Range Expressions and Settings](../time-range-expressions-and-settings/) for the supported units and syntax.
+Enter a **Time shift** and turn on **Apply time shift** to move this panel's time range back in time. For example, `-1d` shows the same window yesterday. The shift only goes backwards, so use a value such as `-1h` or `-7d`. See [Time Range Expressions and Settings](../time-range-expressions-and-settings/) for the supported units and syntax.
 
 ## Overrides
 

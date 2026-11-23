@@ -23,7 +23,7 @@ This walkthrough focuses on metrics.
 2. **Configure the Visualization**
    Use the **Panel Type** dropdown to choose how results are displayed: **TimeSeries**, **Stats**, **Gauge**, **Table**, **Pie Chart**, **Bar Chart**, **Histogram**, **Heatmap**, **Alerts List**, **Issues List**, or **Text**.
 
-   <Image src={explorePanelType} alt="The Panel Type dropdown, listing TimeSeries, Stats, Gauge, Table, Pie Chart, Bar Chart, Histogram, Heatmap, Alerts List, Issues List, and Text." width={323} densities={[1, 2]} />
+   <Image src={explorePanelType} alt="The Panel Type dropdown, listing TimeSeries, Stats, Gauge, Table, Pie Chart, Bar Chart, Histogram, Heatmap, Alerts List, Issues List, and Text, each with a one-line description." width={411} densities={[1, 2]} />
 
    Below it, the settings panel splits into tabs:
 
@@ -33,9 +33,9 @@ This walkthrough focuses on metrics.
 
    See [Panel Options](../dashboards/panel-options/) for every setting.
 
-   <Image src={exploreGeneral} alt="The Options tab" width={317} densities={[1, 2]} />
+   <Image src={exploreGeneral} alt="The Options tab, with sections for Panel, Standard options, Axes, Legend, Graph options, Tooltip, Axis placement, Threshold, Data links & actions, Value mappings, Annotations, and Time range" width={317} densities={[1, 2]} />
 
-   <Image src={exploreOverrides} alt="The Overrides tab" width={323} densities={[1, 2]} />
+   <Image src={exploreOverrides} alt="The Overrides tab with the Add Field Override menu open, listing Fields with names, Fields with name matching regex, Fields with type, Fields with label, and Fields returned by query" width={317} densities={[1, 2]} />
 
 3. **Choose the Data Source and Signal Type**
    At the top of the query editor, select **KloudMate** as the data source and **Metrics** as the data set. Connected AWS accounts are listed by account name with **CloudWatch** under them, and HTTP endpoint connections with **HTTP endpoint**. See [Queries and Data Sources](../dashboards/adding-a-panel/queries-and-data-sources/) for each source.
@@ -47,21 +47,23 @@ This walkthrough focuses on metrics.
 4. **Build the Query**
    On the **Builder** tab, the query is a row of labeled steps. Pick a metric under **Metric**, then choose a statistic such as **Avg**, **Sum**, or **Rate** under **Aggregate**.
 
-   ![Query Builder](./images/explore-query-builder.png)
+   ![The Builder tab with system_memory_usage under Metric, Avg under Aggregate, and empty Filter, Where value, and Group by steps](./images/explore-query-builder.png)
 
    - Click **customize** under **Aggregate** to set **Within series** and **Across series** separately. See [Metrics Aggregations](./metrics-aggregations/) for details.
    - Use **Group by** to break down the metric by one or more labels, such as `host_id` or `host_name`, or choose **Each series** to keep every series apart.
 
-   ![Group By](./images/explore-groupby.png)
+   ![The Group by picker with Each series at the top and host_name selected](./images/explore-groupby.png)
 
    - Use **Filter** to narrow the results. Each chip is a condition with a label, an operator, and a value, for example `service_name = checkout-api`. An **OR group** matches when any one of its conditions matches. See [KMQL](../kmql/) for every operator.
 
-   ![Add Filters](./images/explore-filters.png)
+   ![A query with two filter conditions, k8s_cluster_name = acme-prod-eks and host_name exists, under Filter](./images/explore-filters.png)
 
-   - Use **Rank** to keep only the top or bottom K series.
+   - Use **Where value** to keep a series only at the time steps where its value matches a condition. **Filter** compares labels, and **Where value** compares the metric's value. Series are combined by **Aggregate** after this check. For example, `k8s_pod_phase` with **Last** within series, **Sum** across series, and `value = 2` counts running pods.
+   - Use **Rank** to keep K series: **Top K** keeps the highest values, **Bottom K** the lowest, and **Limit K** the first K returned.
 
-   ![Ranking](./images/explore-ranking.png)
+   ![The Rank menu open, with No ranking, Top K, Bottom K, and Limit K](./images/explore-ranking.png)
 
+   - Use **Then** to combine the grouped results again by fewer labels. With no label chosen, every group merges into one value. For example, **Avg** across series grouped by node and pod, then **Sum** by node, adds up each pod's average for each node.
    - Click **display options** to set **Display**, the name each series shows.
    - Switch to the **PromQL** tab to write the query in PromQL instead. Use its search bar to jump to a keyword in a long query. See [Write PromQL](../dashboards/adding-a-panel/queries-and-data-sources/#write-promql) for how the two tabs convert a query.
    - Use **Copy as KMQL** and **Paste KMQL** in the query's menu to move a query between Explore, dashboards, and alert rules as text.
@@ -74,12 +76,12 @@ This walkthrough focuses on metrics.
 6. **Run the Query**
    Click **Run Query** to execute the query and render the result.
 
-   ![Run Query](./images/explore-run.png)
+   ![Explore with a TimeSeries chart of system_memory_usage for three hosts, the query below it, and the Options tab on the right](./images/explore-run.png)
 
 7. **Save to a Dashboard**
    When the query looks right, use **Save to Dashboard** to add the panel to an existing dashboard or create a new one.
 
-   ![Save to Dashboard](./images/explore-save.png)
+   ![The Save to Dashboard dialog, with a dashboard picker and a field to name a new dashboard](./images/explore-save.png)
 
 ## Related
 

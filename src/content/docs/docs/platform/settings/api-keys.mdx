@@ -37,6 +37,8 @@ A personal key spans every workspace you can reach, so a tool that reads from **
 
 Ingest keys send telemetry into a single workspace. A key belongs to the workspace it's created in, so create it in the workspace whose data you want to fill. Find them in that workspace under **Settings → Ingest Keys**. Developers and Admins can see the page, and only an Admin can add a key.
 
+![The Ingest Keys list, showing each key's type, note, and created and updated dates](./images/ingest-keys-list.png)
+
 There are two kinds.
 
 ### Ingest Key: Backend
@@ -55,7 +57,7 @@ exporters:
 
 ### Ingest Key: Frontend
 
-A Frontend ingest key is for telemetry sent straight from a browser or mobile app, such as [Real-User Monitoring](../../../rum/). Because the key ships in client code where anyone can read it, you must list the **allowed hosts** it can send from. Data from any other origin is rejected, which limits the damage if the key leaks.
+A Frontend ingest key is for telemetry sent straight from a browser or mobile app, such as [Real-User Monitoring](../../../rum/). Because the key ships in client code where anyone can read it, you must list the **allowed hosts** it can send from. For a mobile app, add the app's ID under **Allowed app IDs**. Data from any other origin is rejected, which limits the damage if the key leaks.
 
 ## Create a key
 
@@ -81,13 +83,17 @@ A Frontend ingest key is for telemetry sent straight from a browser or mobile ap
 
 2. Choose **Ingest Key – Backend** or **Ingest Key – Frontend**. You can't change the type after the key is created, so pick the one that fits.
 
-3. For a Frontend key, add at least one **allowed host**. Include the protocol and port if there is one, for example `https://app.example.com`. Data sent from any other origin is rejected.
+3. For a Frontend key, add at least one **allowed host**. For example, `app.example.com` matches `https://app.example.com`. Add `*.example.com` to also match its subdomains. Data sent from any other origin is rejected.
+
+   To let a mobile app send data with the key, click **Add app ID** under **Allowed app IDs**.
 
 4. Add a **Note** that says what the key is for: `prod-otel-collector`, `rum-web`.
 
 5. Click **Submit**.
 
 </Steps>
+
+![The Add API Key dialog for a Frontend ingest key, with one allowed host and the note rum-web](./images/ingest-key-frontend.png)
 
 Either way, the key is shown **once**, right after you create it:
 

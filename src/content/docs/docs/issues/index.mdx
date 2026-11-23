@@ -19,7 +19,7 @@ To open the list, click **Issues** in the left navigation menu.
 
 ## Find the issues that need attention
 
-![Issue list filtered to RUM issues, with the Trend, Events, Last seen, and Assigned columns](./images/issues-list.png)
+![Issue list filtered to trace issues, with the Source, Trend (24h), Events, Last seen, and Assigned columns](./images/issues-list.png)
 
 The figures in the list cover different time ranges. The event count is the total since the issue was first seen, while the trend and the count under it cover the last 24 hours. For example, an issue with 5,000 events and none in the last 24 hours has probably stopped happening. Sort by **Last seen** to find what's failing now.
 
@@ -33,7 +33,7 @@ To resolve or ignore several issues at once, select them in the list and choose 
 
 ## Investigate an issue
 
-![RUM issue details: tags, summary tiles, actions, context bar, event navigator, stack trace, Tags, and Affected users](./images/issue-details.png)
+![Trace issue details: tags, event counts, first and last seen, actions, context bar, stack trace, and request](./images/issue-details.png)
 
 Log, trace, and RUM issues all show how often the error happens and its stack trace. The rest of a RUM issue comes from what the RUM SDKs report with each error: the user, the session, and what happened before it. Users and sessions, **Before the error**, **Tags**, and **Affected users** appear on RUM issues only.
 
@@ -104,7 +104,6 @@ The event list holds up to 100 of the latest events: from the last 14 days for a
 - **Mark as resolved** moves the issue to **Resolved**. If the error happens again, the issue reopens.
 - **Ignore** stops notifications for the issue and moves it to **Ignored**, out of the unresolved list. Click it again to stop ignoring the issue.
 - **Ask Assistant** opens the [KloudMate Assistant](../kloudmate-assistant/) with a prompt about the issue already written. Nothing is sent until you send it.
-- **Create in Jira** needs a [Jira integration](../platform/settings/notification-channels/#jira).
 - Team members are notified when you assign an issue to them.
 
 ## Comment on an issue
