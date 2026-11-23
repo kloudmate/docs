@@ -87,6 +87,24 @@ In Docker mode, the agent collects host and container metrics and container and 
 
 New agents start in managed mode, so KloudMate generates the collector configuration for you. See the [configuration model](../../concepts/config-model/).
 
+## Set APM with a host policy
+
+To choose which containers are traced without opening the **APM** tab on each host, give the agent a [host policy](../../auto-instrumentation/host-policy/). This needs agent version 2.12 or later. Add `KM_APM_POLICY` to the agent's `docker run` command, with the policy on one line:
+
+```bash
+-e KM_APM_POLICY='{default: off, services: [{match: {container: "checkout*"}, mode: sdk}, {match: {runtime: go}, mode: ebpf}]}'
+```
+
+The agent also reads the host's `/etc/kmagent/apm.yaml` through its read-only mount of the host's filesystem, if you'd rather keep the policy in a file. `KM_APM_POLICY` wins when both are set.
+
+To see the container names and other values a rule can match on, and what the policy does, run:
+
+```bash
+docker exec km-agent kmagent apm check
+```
+
+The agent reads the policy when it starts, so recreate the agent container after you change it.
+
 ## **Next Steps**
 
 - Open **Hosts** to see all running containers and host metrics

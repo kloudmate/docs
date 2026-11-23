@@ -33,11 +33,11 @@ APM is **language-aware**, and the runtime decides how a service gets traced:
 | Runtime | EC2 | Fargate |
 |---|---|---|
 | Java, Node.js, Python, .NET | SDK auto-injection (richer traces) | SDK auto-injection (richer traces) |
-| Go, Rust, and others | eBPF monitoring on the daemon | Logs and metrics only, no traces |
+| Go, Rust, and others | eBPF monitoring on the daemon, for the services `KM_APM_POLICY` selects | Logs and metrics only, no traces |
 
 For **Java, Node.js, Python, and .NET**, the installer injects the OpenTelemetry SDK. This produces richer traces, such as framework spans and database statements. On EC2, it rewrites those services' task definitions to export to the daemon on the instance. On Fargate, it adds the SDK plus a collector sidecar to the task.
 
-For **Go, Rust, and other runtimes**, there's no SDK to inject. On EC2 the daemon's eBPF picks them up automatically, with no task-definition change. On Fargate, which can't run eBPF, those services still get logs and metrics, but no traces.
+For **Go, Rust, and other runtimes**, there's no SDK to inject. On EC2 the daemon traces them with eBPF, with no change to their task definitions, once you choose them with `KM_APM_POLICY` on the daemon. See [Trace non-SDK services with eBPF](#trace-non-sdk-services-with-ebpf). On Fargate, which can't run eBPF, those services still get logs and metrics, but no traces.
 
 :::note
   So a Go service gets full traces on EC2 but logs-and-metrics-only on Fargate. If APM matters for a non-SDK runtime, run it on EC2.
@@ -114,7 +114,7 @@ KM_ECS_SERVICES=web,orders \
   bash -c "$(curl -fsSL https://cdn.kloudmate.com/scripts/install_ecs.sh)"
 ```
 
-`KM_ECS_SERVICES` is optional on EC2. Omit it to deploy just the daemon. eBPF picks up Go and other non-SDK services automatically. Only Java/Node/Python/.NET services need the per-service task-definition rewrite for SDK traces. For any service you SDK-instrument, the daemon's eBPF stands down, so you never get duplicate traces.
+`KM_ECS_SERVICES` is optional on EC2. Omit it to deploy just the daemon. Go and other non-SDK services are traced with eBPF once you [choose them with `KM_APM_POLICY`](#trace-non-sdk-services-with-ebpf). Only Java/Node/Python/.NET services need the per-service task-definition rewrite for SDK traces. For any service you SDK-instrument, the daemon's eBPF stands down, so you never get duplicate traces.
 
 eBPF needs a privileged task with host PID and network access, which the daemon task definition already requests.
 
@@ -123,6 +123,32 @@ eBPF needs a privileged task with host PID and network access, which the daemon 
 :::
 
 The EC2 instances also need their container-instance role to allow pulling images. The AWS-managed `AmazonEC2ContainerServiceforEC2Role` policy covers this. A missing role shows up as image-pull failures on the agent tasks.
+
+### Trace non-SDK services with eBPF
+
+The daemon traces a container with eBPF only when a [host policy](../../auto-instrumentation/host-policy/) selects it, so nothing is traced, and nothing costs, until you choose. On ECS you set the policy in the `KM_APM_POLICY` environment variable of the daemon's `km-agent` container. It needs agent version 2.12 or later.
+
+To trace every container on each instance with eBPF:
+
+```json
+{ "name": "KM_APM_POLICY", "value": "{default: ebpf}" }
+```
+
+To pick services by task-definition family, match on the container name. ECS names containers `ecs-<family>-<revision>-<container>-<random>`:
+
+```json
+{ "name": "KM_APM_POLICY", "value": "{default: off, services: [{match: {container: \"ecs-orders-*\"}, mode: ebpf, sampling: 0.2}, {match: {container: \"ecs-batch-*\"}, mode: off}]}" }
+```
+
+Add the entry to the container's `environment` in the daemon task definition (family `km-agent-ec2` unless you changed `KM_DAEMON_FAMILY`), register the new revision, and update the daemon service to it. The agent reads the policy when it starts, so the new daemon tasks apply it.
+
+The daemon doesn't add the SDK to containers. An `sdk` rule falls back to eBPF here, and SDK traces come from `KM_ECS_SERVICES` or [`kmagent ecs instrument`](#check-whats-instrumented). For any service that already has the SDK, the daemon's eBPF stands down.
+
+Run `docker exec` on an instance to check the policy against the containers running there:
+
+```bash
+docker exec $(docker ps -qf name=km-agent | head -1) kmagent apm check
+```
 
 ### Fargate launch type
 
@@ -171,7 +197,7 @@ Set these as environment variables on the command:
 | `KM_REGION` | No | `aws configure get region` | AWS region for the ECS API, and the `awslogs` region when `KM_ECS_LOG_GROUP` is set. |
 | `KM_ECS_LOG_GROUP` | No | none | CloudWatch log group for the agent's own sidecar and daemon logs, for example `/kmagent/ecs`. Off by default: nothing is written to CloudWatch (no `logs:*` IAM, no extra cost), and the collector self-ships its errors to KloudMate instead. Setting it needs the permissions in the note below. |
 | `KM_API_KEY_SECRET_ARN` | No | none | Reference the key from Secrets Manager instead of inlining it. |
-| `KM_EBPF_ENABLED` | No | `true` | EC2 daemon eBPF monitoring (traces Go and other non-SDK services). |
+| `KM_EBPF_ENABLED` | No | `true` | EC2 daemon eBPF monitoring, for the services `KM_APM_POLICY` selects. |
 | `KM_AGENT_BIN` | No | none | Path to a native `kmagent` binary for the injection step, so Docker isn't needed. |
 | `KM_DAEMON_FAMILY` | No | `km-agent-ec2` | EC2 daemon task-definition family. |
 | `KM_EC2_IMAGE` / `KM_ECS_IMAGE` / `KM_FIRELENS_IMAGE` | No | Pinned defaults | Override the agent or FireLens images. |
@@ -223,13 +249,13 @@ kmagent ecs instrument \
   --region us-east-1
 ```
 
-`instrument` takes `--enable-apm=false` to skip SDK injection (EC2 apps still fall back to eBPF), `--enable-logs=false` to skip Fargate log routing, `--language` to force a runtime the detector missed, and `--dry-run` to preview the task definition.
+`instrument` takes `--enable-apm=false` to skip SDK injection (on EC2, the daemon can still trace the app with eBPF through `KM_APM_POLICY`), `--enable-logs=false` to skip Fargate log routing, `--language` to force a runtime the detector missed, and `--dry-run` to preview the task definition.
 
 ## Where Your Agents and Data Show Up
 
 The two launch types appear differently in KloudMate:
 
-- **EC2 daemon:** each container instance appears in **Settings → Agents & Pipelines** as **Amazon ECS**, one row per instance. Its **APM** tab has no per-service toggle. Instead, it points you to the `kmagent ecs discover` and `instrument` commands and explains the language-aware split (SDK for Java/Node/Python/.NET, eBPF for the rest).
+- **EC2 daemon:** each container instance appears in **Settings → Agents & Pipelines** as **Amazon ECS**, one row per instance. Its **APM** tab has no per-service toggle. Instead, it points you to the `kmagent ecs discover` and `instrument` commands and explains the language-aware split (SDK for Java/Node/Python/.NET, eBPF for the rest). With `KM_APM_POLICY` set, the row shows **APM from host policy**.
 - **Fargate tasks are autonomous:** each collector sidecar ships telemetry on its own and **does not appear as an agent row**. Find that data in **APM & Services** and **Logs**, keyed by service name. Fargate tasks don't appear in **Hosts**. The install flow's verify step accounts for this, so it won't wait for a Fargate check-in that never comes.
 
 ## Log Integration
@@ -253,6 +279,19 @@ To collect additional application log files with the agent, see [Collect File Lo
 ## Re-running the Install
 
 The injector is idempotent. Re-running the script strips its previous additions and re-injects with your current settings. Changing the collector endpoint or upgrading the agent image then applies cleanly, instead of stacking duplicate sidecars. Turning logs off on a later run also reverts the FireLens driver it added, leaving no leftover configuration.
+
+## Keep the SDK when your pipeline deploys
+
+The injector changes a service's task definition once, when you run it. If your CI/CD pipeline registers task definitions from its own template, the next deploy registers a revision without the SDK, and the agent doesn't add it back. Run the injector in the pipeline, between rendering the task definition and registering it:
+
+```bash
+docker run --rm -i -e KM_API_KEY ghcr.io/kloudmate/km-agent-ecs:latest \
+  ecs inject --image ghcr.io/kloudmate/km-agent-ecs:latest --launch-type fargate \
+  < taskdef.json > taskdef.instrumented.json
+aws ecs register-task-definition --cli-input-json file://taskdef.instrumented.json
+```
+
+Set `--launch-type` to `ec2` or `fargate` to match the service. Running it on a task definition that already has the SDK replaces the earlier additions, so it's safe on every deploy. The eBPF tracing that `KM_APM_POLICY` sets on the EC2 daemon needs no task-definition change, so a deploy doesn't affect it.
 
 ## Uninstall Agent
 

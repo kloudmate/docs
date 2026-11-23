@@ -216,6 +216,106 @@ spec:
         - /data/agent-deployment.yaml
 ```
 
+## Upgrade the agent automatically
+
+One-click upgrade from KloudMate doesn't work for an agent that Argo CD manages, because Argo CD reverts the agent to the chart version in its Application. Let Argo CD upgrade the agent instead: set the chart version to a range and turn on automated sync.
+
+With `targetRevision: ">=2.0.0"`, Argo CD installs the newest chart version that is 2.0.0 or later, including future major versions such as 3.0.0, so you don't need to change the Application again. A range such as `2.*` stops at the last 2.x release. To review major versions before they roll out, use `">=2.0.0 <3.0.0"` and raise the upper bound yourself.
+
+### Install a new agent with automatic upgrades
+
+Create a Secret with your API key in the `km-agent` namespace:
+
+```bash
+kubectl create namespace km-agent
+kubectl -n km-agent create secret generic km-agent-api-key --from-literal=API_KEY=<your-api-key>
+```
+
+Then create the Application. Set `clusterName` to the name you want to see in KloudMate, and `monitoredNamespaces` to the namespaces to monitor:
+
+```yaml
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: km-agent
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://charts.kloudmate.com
+    chart: km-kube-agent
+    targetRevision: ">=2.0.0"
+    helm:
+      releaseName: kloudmate-release
+      valuesObject:
+        existingSecretName: km-agent-api-key
+        clusterName: <cluster-name>
+        monitoredNamespaces: "default, prod"
+        featuresEnabled:
+          logs: true
+          apm: true
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: km-agent
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - SkipDryRunOnMissingResource=true
+      - RespectIgnoreDifferences=true
+  ignoreDifferences:
+    - group: ""
+      kind: ConfigMap
+      name: km-agent-configmap-daemonset
+      jsonPointers:
+        - /data/agent-daemonset.yaml
+    - group: ""
+      kind: ConfigMap
+      name: km-agent-configmap-deployment
+      jsonPointers:
+        - /data/agent-deployment.yaml
+```
+
+### Turn on automatic upgrades for an existing agent
+
+If Argo CD already runs the agent, add these settings to its Application. Keep the existing `repoURL`, `chart`, and Helm values:
+
+```yaml
+spec:
+  source:
+    targetRevision: ">=2.0.0"
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - SkipDryRunOnMissingResource=true
+      - RespectIgnoreDifferences=true
+  ignoreDifferences:
+    - group: ""
+      kind: ConfigMap
+      name: km-agent-configmap-daemonset
+      jsonPointers:
+        - /data/agent-daemonset.yaml
+    - group: ""
+      kind: ConfigMap
+      name: km-agent-configmap-deployment
+      jsonPointers:
+        - /data/agent-deployment.yaml
+```
+
+If you installed the agent with `helm install` and Argo CD doesn't manage it, you don't need any of this. Upgrade it from KloudMate, as described in [Upgrade the agent](../../upgrade/).
+
+### When upgrades happen
+
+Argo CD installs a new release the next time it refreshes the chart repository. To install it right away, run a hard refresh on the Application. The `ignoreDifferences` entries and sync options keep the cluster's eBPF and SDK selections through each upgrade, as explained in [Install the agent on a GitOps cluster](#install-the-agent-on-a-gitops-cluster).
+
+If an ApplicationSet or a parent Application generates the agent's Application, make these changes in its source in git. Otherwise the parent overwrites a change you make in the Argo CD UI.
+
+With Flux, set the same range in the HelmRelease's `spec.chart.spec.version`.
+
 ## Next steps
 
 <CardGrid>

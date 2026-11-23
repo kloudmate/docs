@@ -1,0 +1,129 @@
+---
+title: "kmagent command reference"
+description: "The kmagent commands for checking an agent and the applications it traces on a host: status, apm check, discover, eBPF, cleanup, and the ECS helpers."
+sidebar:
+  label: "CLI reference"
+  order: 5
+---
+
+import { LinkCard, CardGrid } from '@astrojs/starlight/components';
+
+The `kmagent` binary runs the agent, and it also has commands you can run on a host to check what the agent sees and does. Run them as root (`sudo`) on Linux, or from an elevated PowerShell on Windows. On the Docker agent, run them inside its container, for example `docker exec km-agent kmagent apm check`.
+
+The read-only commands below change nothing on the host, so they're safe to run on a production instance.
+
+## kmagent status
+
+Shows whether the agent is running and healthy: the service, the collector, and the agent's check-in with KloudMate. It exits with code `1` when something is wrong, so you can use it in a health check.
+
+```bash
+sudo kmagent status
+sudo kmagent status --json
+```
+
+| Flag | Description |
+|---|---|
+| `--json` | Print the status and any problems as JSON. |
+
+`status` doesn't report application tracing. For that, use `kmagent apm check`.
+
+## kmagent apm check
+
+Lists the applications the agent finds on the host, with the values a [host policy](../../auto-instrumentation/host-policy/) rule can match on. With a policy, it also shows the mode each application gets, the rule that set it, and how the agent applies it. It reads the policy the agent reads: `KM_APM_POLICY`, then `apm.yaml`.
+
+```bash
+sudo kmagent apm check
+sudo kmagent apm check --policy ./draft.yaml
+sudo kmagent apm check --init --policy /tmp/apm.yaml
+```
+
+| Flag | Description |
+|---|---|
+| `--policy <file>` | Check this policy file instead of the agent's. With `--init`, the file to write, or `-` to print to the terminal. |
+| `--init` | Write a starting policy that lists every application on the host with mode `off`. It writes to `--policy`, or to the agent's `apm.yaml` when you don't give one, and never overwrites an existing file. |
+| `--json` | Print the result as JSON. |
+| `--proc-root <dir>` | Read processes from another `/proc` tree, for offline testing. Linux only. Also read from `KM_PROC_DIR`. |
+
+Each application is printed with these lines:
+
+| Line | Meaning |
+|---|---|
+| `match` | The values a rule can match on: `name`, `runtime`, `unit`, `container`, `port`, `exe`, and `id`. |
+| `mode` | `off`, `ebpf`, or `sdk`, and the rule that set it, such as `services[0]` or `default`. Shown only with a policy. |
+| `how` | How the agent applies the mode: a systemd drop-in and a restart, a runtime attach, a PM2 restart, a container recreate, ETW, or eBPF when there's no SDK path. |
+| `note` | Another vendor's agent in the application, and whether the rule allows the SDK to replace it. Also a unit, such as `supervisord`, whose drop-in reaches every program it starts. |
+
+It exits with code `1` when the policy is invalid, after printing the error.
+
+:::note
+Writing the agent's own `apm.yaml` with `--init` takes effect at the agent's next restart. Every application in it starts as `off`, so until you change the modes the agent traces nothing on the host, unless a selection is saved for it in the UI.
+:::
+
+## kmagent discover
+
+Scans the host and prints every service the agent discovers as JSON: its ID, runtime, systemd unit, ports, process IDs, and whether it can be instrumented. It's the raw scan behind the **APM** tab. For the names and the values a rule matches on, use `kmagent apm check`.
+
+```bash
+sudo kmagent discover
+```
+
+| Flag | Description |
+|---|---|
+| `--proc-root <dir>` | Read processes from another `/proc` tree. Linux only. Also read from `KM_PROC_DIR`. |
+
+## kmagent ebpf
+
+If eBPF monitoring misbehaves on a host, the agent turns it off there and keeps collecting metrics and logs. These commands show and clear that state.
+
+```bash
+sudo kmagent ebpf status
+sudo kmagent ebpf reset
+```
+
+| Command | Description |
+|---|---|
+| `ebpf status` | Whether eBPF is turned off on this host, and why. |
+| `ebpf reset` | Clear it. Restart the agent afterward to turn eBPF back on. |
+
+## kmagent instrument-cleanup
+
+Removes the instrumentation the agent added to the host: on Linux, its systemd drop-ins, environment files, and PHP ini files, and on Windows, its .NET assemblies. It restarts nothing, so each application drops the SDK at its next restart. The uninstall runs it for you. Run it by hand only when you remove the agent some other way.
+
+```bash
+sudo kmagent instrument-cleanup
+```
+
+## kmagent ecs
+
+Helpers for Amazon ECS. They call the AWS API with your AWS CLI credentials. See [Amazon ECS](../../installation/ecs-agent/#check-whats-instrumented) for when to use each one.
+
+| Command | Description |
+|---|---|
+| `ecs status` | Summarize the instrumentation of every active task-definition family in the region. Read-only. |
+| `ecs discover --task-definition <family>` | Show the instrumentation of one task definition. `--all` covers every active family. Read-only. |
+| `ecs instrument --task-definition <family>` | Add the agent to one task definition and register a new revision. Add `--service` and `--cluster` to roll the service onto it, or `--dry-run` to print it only. |
+| `ecs inject` | Read a task definition on stdin and print it with the agent added. Use it in a pipeline before `aws ecs register-task-definition`. `--check-only` reports whether it's already instrumented. |
+
+Each takes `--region`, which defaults to your AWS CLI configuration.
+
+## kmagent runtime-shim
+
+Manages [Redeploy-safe SDK](../../platform-notes/redeploy-safe-sdk/) on a Docker host. Linux only.
+
+| Command | Description |
+|---|---|
+| `runtime-shim status` | Whether `kmagent-runc` is Docker's default runtime. |
+| `runtime-shim install` | Make it the default runtime. |
+| `runtime-shim uninstall` | Put Docker's previous default runtime back. |
+
+## Commands the agent runs itself
+
+`start`, `stop`, and `update apply` are how the service manager runs the agent and how it upgrades itself. You don't run them by hand. `dbprofiles` and `baseconfig` print the database monitoring catalog and the agent's built-in collector configuration, for support.
+
+## Related
+
+<CardGrid>
+  <LinkCard title="Host policy (apm.yaml)" href="../../auto-instrumentation/host-policy/" description="Write the rules kmagent apm check reads." />
+  <LinkCard title="Configuration reference" href="../agent-config/" description="Every agent.yaml setting and environment variable." />
+  <LinkCard title="Troubleshooting" href="../../troubleshooting/" description="Symptom-first checks for the agent." />
+</CardGrid>

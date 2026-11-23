@@ -13,6 +13,7 @@ Start with two agent features. The [health metrics](../self-observability/health
 
 - **Missing API key.** The agent needs its API key to check in. Confirm the key was provided at install. In the health metrics, a healthy agent emits `kmagent.up`.
 - **Invalid collector configuration.** If a pushed configuration is invalid, the collector will not start. Look for `kmagent.collector.up=0` with `reason=config_invalid`, and read the error text in the self-logs. In managed mode, the agent checks generated configuration before applying it and keeps running the last good one. In manual mode, fix the YAML.
+- **Stopped at a memory limit.** If you set a memory cap, the kernel stops the agent when it reaches the cap, and the service manager starts it again. On Linux, `journalctl -u kmagent | grep -i oom` shows when that happened. Raise the cap as described in [CPU and memory limits](../resource-limits/).
 - **Insufficient privileges.** The agent needs elevated privileges for eBPF (on Linux) and for instrumentation. On Linux, it runs with the privileges it needs by default. On Windows, it runs as Local System. A permissions failure shows up in the self-logs.
 
 ## Metrics are not flowing
@@ -26,6 +27,17 @@ Start with two agent features. The [health metrics](../self-observability/health
 - **The service was not discovered.** Only discovered services can be instrumented. Confirm the service appears in the **Application Performance Monitoring** card on the agent's **APM** tab. See [Discovery](../concepts/discovery/).
 - **The toggle has not applied.** Instrumentation takes effect on restart. Check the service's status chip: `pending restart` means the change is written but the service has not restarted. See [Application APM overview](../auto-instrumentation/overview/).
 - **Injection failed and rolled back.** If the status shows failed and rolled back, the service crash-looped after instrumentation and the agent reverted the change. Read the reason in the self-logs, then retry. eBPF monitoring continues to cover the service throughout.
+
+## Applications aren't traced from the host policy
+
+Run `sudo kmagent apm check` on the host first. It shows the mode each application got from the [host policy](../auto-instrumentation/host-policy/), the rule that set it, and how the agent applies it.
+
+- **The policy is invalid.** The agent applies nothing from an invalid policy. The agents list shows **Host policy not applied**, and the log has `APM policy not applied` with the error, such as an unknown key or a mode other than `off`, `ebpf`, or `sdk`. Fix the file and restart the agent. `kmagent apm check` exits with code `1` and prints the same error.
+- **The change hasn't been read.** The agent reads the policy only when it starts. Restart it after you edit `apm.yaml` or `KM_APM_POLICY`.
+- **A rule doesn't match.** An application that shows `mode off (default)` matched no rule. Compare the rule with the `match` line. A Node.js application under a systemd unit is named after its unit, so an app whose `package.json` says `checkout` but runs as `checkout-api.service` is named `checkout-api`.
+- **A selection saved in the UI overrides it.** When the agents list shows **Host policy overridden**, the selection saved for that host applies. Click **Use host policy** on the agent's **APM** tab to go back to the file.
+- **The SDK was rolled back after a slow start.** If an application takes longer than the agent's wait to come back after the SDK restart, the agent undoes the change and holds off retrying. The status detail names the wait. Raise it with `KM_INSTRUMENT_HEALTH_TIMEOUT`, for example `10m`. See [Slow-starting applications](../auto-instrumentation/host-policy/#slow-starting-applications).
+- **A start script removes the SDK's settings.** Some launchers, such as a service wrapper that switches user with a login shell, start the application with a fresh environment. The agent finds that the application started without the SDK and undoes the change, with the reason in the status. A JVM that runs outside systemd, such as one started from `/etc/rc.local`, gets the SDK by runtime attach instead, which doesn't depend on its environment.
 
 ## Database monitoring is not working
 

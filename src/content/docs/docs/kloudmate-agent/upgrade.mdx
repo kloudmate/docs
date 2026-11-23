@@ -40,7 +40,7 @@ Hover over the button to see why. The usual causes and fixes:
 | Remote upgrades are turned off on the host. | Remove the setting described in [Turn off one-click upgrade on a host](#turn-off-one-click-upgrade-on-a-host), or upgrade manually. |
 | The host can't reach the release download host. | Allow outbound HTTPS to `github.com`, `release-assets.githubusercontent.com`, and `objects.githubusercontent.com`. See [Before you start](../installation/before-you-start/). |
 | The Helm chart was installed with `selfUpdate.enabled=false`. | Set it to `true` with `helm upgrade`, or upgrade manually. |
-| The cluster is managed by Argo CD or Flux. | Upgrade the chart through your GitOps repository. |
+| The cluster is managed by Argo CD or Flux. | Set the chart version to a range so Argo CD or Flux upgrades the agent. See [Upgrade the agent automatically](../auto-instrumentation/gitops-clusters/#upgrade-the-agent-automatically). |
 | The container is part of a Docker Compose project or a Swarm service. | Change the image in the Compose file or service definition, and redeploy. |
 | The container doesn't run the official `ghcr.io/kloudmate/km-agent` image, or doesn't have the Docker socket mounted. | Recreate the container with the KloudMate Docker install command. |
 | The Docker host is arm64. | Upgrade manually. One-click upgrade for Docker agents works on amd64 hosts. |

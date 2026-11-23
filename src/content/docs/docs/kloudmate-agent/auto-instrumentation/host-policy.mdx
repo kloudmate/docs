@@ -1,0 +1,206 @@
+---
+title: "Set APM from the host with apm.yaml"
+description: "Choose which applications the KloudMate agent traces, and how, with a policy file on the host, so autoscaled and cloned instances instrument themselves and stay managed."
+sidebar:
+  label: "Host policy (apm.yaml)"
+  order: 10
+---
+
+import { LinkCard, CardGrid } from '@astrojs/starlight/components';
+
+A host policy lets you choose which applications the agent traces, and how, in a file on the host instead of in the KloudMate UI. Use it when instances are created for you: an Auto Scaling group, a cloned AMI, a Docker or ECS fleet, or any host built by a pipeline. Every instance reads the same rules, applies them to the applications it finds, and stays registered, so pipeline rules, configuration changes, and agent upgrades keep working.
+
+You need agent version 2.12 or later.
+
+## How a host policy works
+
+You write rules that pick applications by what they are, not by an ID that only exists on one host. For example, "the application named `checkout` gets the SDK" or "every Go service gets eBPF." The agent matches each rule against the applications it discovers, so the same file works on every instance.
+
+The policy can come from two places. If both are set, the environment variable wins:
+
+| Source | Where |
+|---|---|
+| `apm.yaml` file | `/etc/kmagent/apm.yaml` on Linux, `C:\ProgramData\kmagent\apm.yaml` on Windows. On the Docker and ECS agents, the host's `/etc/kmagent/apm.yaml`. Set `KM_APM_CONFIG` to read it from somewhere else. |
+| `KM_APM_POLICY` environment variable | The same YAML, inline. Use it for agents that run in a container, where a file on the host is harder to manage. |
+
+The agent reads the policy once, when it starts. After you change it, restart the agent.
+
+## Write the policy
+
+```yaml
+# /etc/kmagent/apm.yaml
+default: off            # mode for applications no rule matches: off, ebpf, or sdk
+services:
+  - match: { name: checkout }
+    mode: sdk
+  - match: { runtime: java, unit: "orders-*.service" }
+    mode: sdk
+    sampling: 0.2
+  - match: { runtime: [go, ruby] }
+    mode: ebpf
+```
+
+Each application gets the mode of the **first** rule that matches it, or `default` when none does. The modes are the same ones the UI offers:
+
+- **`off`:** not traced. This is the default.
+- **`ebpf`:** RED metrics and spans with no code change and no restart. On Windows, this is ETW monitoring, which covers IIS application pools only.
+- **`sdk`:** the OpenTelemetry SDK in the process, for full traces. Turning it on or off restarts the application once.
+
+### Match an application
+
+Every field you set in `match` has to match. A field can be one value or a list, and a list matches any of its values. Values are globs: `*` matches any run of characters except `/`, and `?` matches one character.
+
+| Field | Matches | Example |
+|---|---|---|
+| `name` | The application's name, as the agent lists it on the **APM** tab | `name: checkout` |
+| `runtime` | `java`, `nodejs`, `python`, `dotnet`, `php`, `go`, or `ruby` | `runtime: [go, ruby]` |
+| `unit` | The systemd unit, PM2 app, Windows service, or IIS application pool | `unit: "orders-*.service"` |
+| `container` | The Docker container name | `container: "checkout*"` |
+| `port` | A port the application listens on (a number, not a glob) | `port: 8080` |
+| `exe` | The path of the executable | `exe: "/opt/orders/*"` |
+| `id` | The service ID the agent assigned on this host | `id: "systemd:orders.service"` |
+
+Prefer `name`, `runtime`, `unit`, `container`, and `port`. They're the same on every instance. An `id` is tied to one host, so it doesn't carry to new instances.
+
+On Amazon ECS, the agent names containers `ecs-<task-family>-<revision>-<container>-<random>`, so `container: "ecs-orders-*"` matches every task of the `orders` family on the instance.
+
+### Settings
+
+| Key | Where | Values | Default |
+|---|---|---|---|
+| `default` | Top level | `off`, `ebpf`, `sdk` | `off` |
+| `restart` | Top level or a rule | `on-change` restarts an application to apply the SDK. `never` writes the change and lets it apply at the application's next restart. | `on-change` |
+| `sampling` | Top level or a rule | A ratio from `0` to `1` for SDK traces. For example, `0.2` keeps 20%. | Keep every trace |
+| `service_name` | A rule | The service name the SDK reports, instead of the name the agent works out | The discovered name |
+| `version` | Top level | `1` | `1` |
+
+The agent checks the file when it starts. An unknown key, an invalid mode, or a sampling value outside `0` to `1` makes the whole policy invalid, and then **nothing is traced** from it. The agent logs why, and the UI shows **Host policy not applied** with the error.
+
+If a [pipeline rule](../../pipeline-rules/overview/) sets head sampling, that rule decides sampling, and the policy's `sampling` values are ignored.
+
+## Find the values to match on
+
+Run `kmagent apm check` on a host that runs your applications. It lists each one with the values a rule can match:
+
+```bash
+sudo kmagent apm check
+```
+
+```text
+No APM policy found. These are the values a rule can match on.
+
+checkout
+  match   name=checkout  runtime=nodejs  unit=checkout.service  port=3000  exe=/usr/bin/node  id=systemd:checkout.service
+```
+
+To start from a file that already lists every application, use `--init`. It writes a policy with each application set to `off` and the values you could match on in a comment above it, and it never overwrites an existing file:
+
+```bash
+sudo kmagent apm check --init --policy /tmp/apm.yaml
+```
+
+Set the modes you want, then check what the policy does before you use it:
+
+```bash
+sudo kmagent apm check --policy /tmp/apm.yaml
+```
+
+```text
+Policy: /tmp/apm.yaml
+
+checkout
+  match   name=checkout  runtime=nodejs  unit=checkout.service  port=3000  exe=/usr/bin/node  id=systemd:checkout.service
+  mode    sdk (services[0])
+  how     systemd drop-in on checkout.service, then a restart of checkout.service
+```
+
+The `how` line tells you what the agent will do: write a systemd drop-in and restart the service, attach to a running JVM, restart a PM2 app, recreate a container, or use eBPF when there's no SDK path. When the policy is ready, copy it into place and restart the agent:
+
+```bash
+sudo cp /tmp/apm.yaml /etc/kmagent/apm.yaml
+sudo systemctl restart kmagent
+```
+
+See the [CLI reference](../../reference/cli/#kmagent-apm-check) for every flag.
+
+:::caution[Check the name on the host you'll use]
+An application's name depends on how it's started. A Node.js application under a systemd unit takes the unit's name (`checkout-api` for `checkout-api.service`), while the same application started from a script takes the `name` in its `package.json` (`checkout`). Copy the name from `kmagent apm check` on a host that starts it the same way your instances do.
+:::
+
+## The host policy and the UI
+
+The agent's **APM** tab shows **Set by the host policy** with the file's path, and each application shows the mode the policy gave it. In **Settings → Agents & Pipelines**, the agent's row shows **APM from host policy**.
+
+You can still change a single host from the UI. When you click **Apply** on the **APM** tab, the selection you save replaces the host policy for that host, and its row shows **Host policy overridden**. Click **Use host policy** to remove the saved selection and go back to the file.
+
+So the order is:
+
+1. A selection saved in the UI for this host.
+2. The host policy (`KM_APM_POLICY`, then `apm.yaml`).
+3. `KM_INSTRUMENT_SELECTION` and `KM_INSTRUMENT_ALL`.
+
+In [autonomous mode](../../advanced-configuration/#autonomous-instrumentation), the policy limits what the agent instruments, and the agent doesn't check in.
+
+## Use it on each platform
+
+| Platform | Where the policy goes | What it can do |
+|---|---|---|
+| Linux host, Auto Scaling group, cloned AMI | `/etc/kmagent/apm.yaml` | SDK through systemd, PM2, or runtime attach, and eBPF. See [AWS Auto Scaling](../../installation/aws-asg-deployment/#set-apm-with-a-host-policy). |
+| Windows | `C:\ProgramData\kmagent\apm.yaml` | SDK for Windows services and IIS application pools. `ebpf` means ETW, for IIS application pools only. |
+| Docker | `KM_APM_POLICY` on the agent container, or the host's `/etc/kmagent/apm.yaml` | eBPF for every container and host process, and SDK for containers by recreating them. See [Docker](../../installation/docker-agent/#set-apm-with-a-host-policy). |
+| Amazon ECS on EC2 | `KM_APM_POLICY` in the daemon's task definition | eBPF for the containers the policy selects. SDK comes from `kmagent ecs inject`, so an `sdk` rule falls back to eBPF. See [Amazon ECS](../../installation/ecs-agent/#trace-non-sdk-services-with-ebpf). |
+| Amazon ECS on Fargate | Not used | The task definition decides what's instrumented. |
+| Kubernetes | Not used | Use the **APM** tab or Helm values. |
+
+`KM_APM_POLICY` takes the same YAML on one line. Flow style keeps it on one line:
+
+```bash
+KM_APM_POLICY='{default: off, services: [{match: {name: checkout}, mode: sdk}, {match: {runtime: go}, mode: ebpf}]}'
+```
+
+## Replace another vendor's agent
+
+When an application already runs another vendor's agent, such as Datadog, New Relic, or Elastic APM, an `sdk` rule replaces it only if the rule names the application exactly, by `name` or `id` with no wildcard. A rule like `default: sdk` or `name: "web-*"` leaves the other agent running, and eBPF covers the application instead. Dynatrace, AppDynamics, and Instana agents are never replaced. `kmagent apm check` shows the other agent and whether the rule allows the switch.
+
+## When an application is redeployed
+
+The agent checks the policy against what's running about once a minute, so a redeployed application picks up its mode again:
+
+- **systemd services:** the SDK lives in a drop-in next to the unit (`/etc/systemd/system/<unit>.d/zz-km-otel.conf`), so a deploy that replaces the files and restarts the unit keeps it. If a deploy deletes that directory, the agent writes the drop-in again and restarts the service once.
+- **JVMs with no unit** (started from `/etc/rc.local`, `cron`, or a script): the agent attaches to the new JVM, with no restart. Requests served before it attaches aren't traced.
+- **PM2 apps and containers:** if the new app or container starts without the SDK, the agent restarts or recreates it once with the SDK. On Docker, [Redeploy-safe SDK](../../platform-notes/redeploy-safe-sdk/) adds the SDK when the container is created, with no second restart.
+
+Rules match by name, unit, or runtime, so they keep matching when a deploy changes the application's ID. That happens with a new unit name, a new release directory, or a new container name. A selection saved in the UI is tied to the old ID, so after one of those deploys the application shows up as a new, untraced service.
+
+## Slow-starting applications
+
+When the SDK is turned on, the agent restarts the application and waits for it to come back healthy. If it doesn't within the wait, the agent undoes the change and restarts it again. The wait is 30 seconds for services and 3 minutes for containers. For an application that takes longer to start, raise it with `KM_INSTRUMENT_HEALTH_TIMEOUT`:
+
+```bash
+echo 'KM_INSTRUMENT_HEALTH_TIMEOUT=10m' | sudo tee -a /etc/kmagent/kmagent.env
+sudo systemctl restart kmagent
+```
+
+It takes a duration such as `10m`, or a number of seconds, up to `30m`. It applies to every runtime.
+
+## Verify
+
+On the host:
+
+```bash
+sudo kmagent apm check
+journalctl -u kmagent -b | grep -E 'APM policy|instrumentation reconcile|runtime-attach'
+```
+
+`APM policy loaded` gives the source and the number of rules. `APM policy not applied` gives the error that stopped it. Each application's result appears as `applied`, `no_change`, `pending_restart`, `rolledback`, or `unsupported`.
+
+In KloudMate, the agent's row shows **APM from host policy**, and the applications start sending traces within a few minutes.
+
+## Next steps
+
+<CardGrid>
+  <LinkCard title="AWS Auto Scaling" href="../../installation/aws-asg-deployment/" description="Bake the policy into an AMI or a launch template." />
+  <LinkCard title="CLI reference" href="../../reference/cli/" description="kmagent apm check and the other commands." />
+  <LinkCard title="Application APM overview" href="../overview/" description="How the per-service modes work." />
+  <LinkCard title="Troubleshooting" href="../../troubleshooting/#applications-arent-traced-from-the-host-policy" description="A policy that isn't applied, or a service that was rolled back." />
+</CardGrid>
