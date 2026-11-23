@@ -8,7 +8,12 @@ sidebar:
 
 Dashboards, alert rules, workflows, and workspace variables can be exported as YAML and imported into another workspace. Use it to copy a setup from staging to production, to start a new workspace from an existing one, or to keep your configuration in git.
 
-Each dashboard, dashboard folder, alert rule, alert folder, workflow, and workspace variable is exported as its own YAML document. Anything that belongs to the source workspace, such as an AWS account, a connection, a notification channel, or a folder, is written as a named input instead of an ID. When you import the file into another workspace, each input is matched by name to what that workspace has.
+Each dashboard, dashboard folder, alert rule, alert folder, workflow, and workspace variable is exported as its own YAML document. Anything that belongs to the source workspace, such as an AWS account, a connection, a notification channel, or a folder, is written as a named input instead of an ID. When you import the file into another workspace, each input is matched to what that workspace has:
+
+- **An AWS account** by its account number. **A connection** only when it's the same one, as when you import a file back into the workspace it came from. Either one also matches when the workspace has only one of its kind.
+- **A notification channel** by name and type, and **a workflow variable** by name and whether it's secret.
+- **A folder** by name. If no folder has that name, the import creates it.
+- **A dashboard or a called workflow** only when it's the same one, either in the same file or imported earlier from the same source.
 
 ## Export from the app
 
@@ -20,7 +25,7 @@ Open the export from the resource you want to copy:
 
 The export is a single YAML file, with one document per resource separated by `---`. Click **Copy** or **Download**.
 
-Smart Alerts rules aren't exported.
+Smart Alerts rules aren't exported. Workspace variables are exported only with [kmctl](#keep-config-in-git-with-kmctl).
 
 ## Import into a workspace
 

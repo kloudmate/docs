@@ -1,21 +1,17 @@
 ---
 title: "Dashboard JSON and API"
-description: "Export and import dashboards as JSON, read the dashboard and panel JSON format, and create, update, share, and delete dashboards with the REST API."
+description: "Read the dashboard and panel JSON format, and create, update, share, and delete dashboards with the REST API."
 sidebar:
   order: 7.5
 ---
 
-Every dashboard can be exported as JSON and imported into another workspace. You can also create, update, share, and delete dashboards from a script or a CI pipeline with the REST API, using the same JSON.
+You can create, update, share, and delete dashboards from a script or a CI pipeline with the REST API. This page describes the dashboard JSON the API takes.
 
-## Export and import in the app
+To copy dashboards between workspaces, or to keep them in git, use [Config as code](../../../platform/config-as-code/) instead. Its export and import work in the app and with the kmctl CLI, and match AWS accounts and folders in the destination workspace.
 
-To export a dashboard, open it, click **Share**, and open the **Export** tab. Click **Copy JSON**, or **Download** to save it as a `.json` file. See [Sharing a Dashboard](../dashboard-details/#sharing-a-dashboard).
+## The dashboard JSON format
 
-To import one, click **Import** on the Dashboards screen, paste the JSON, and click **Submit**. See [Importing a Dashboard](../#importing-a-dashboard).
-
-An export doesn't name any specific AWS account. CloudWatch queries point at a `$Datasource` data source variable instead, so after you import the dashboard, pick an account in the destination workspace from that variable's dropdown.
-
-The export holds four keys:
+A dashboard has four keys:
 
 ```json
 {
@@ -197,16 +193,6 @@ curl -X POST https://api.kloudmate.com/dashboards \
 
 The response is the new dashboard, including its `id`.
 
-Keys the API doesn't recognize are ignored, so you can post an exported file as it is after adding `workspace_id`. For example, with `jq`:
-
-```bash
-jq '. + {workspace_id: "YOUR_WORKSPACE_ID"}' checkout.json | \
-  curl -X POST https://api.kloudmate.com/dashboards \
-    -H "x-api-key: YOUR_API_KEY" \
-    -H "Content-Type: application/json" \
-    -d @-
-```
-
 ### Update a dashboard
 
 `PUT /dashboards/{id}`
@@ -229,7 +215,7 @@ curl -X PUT https://api.kloudmate.com/dashboards/YOUR_DASHBOARD_ID \
   -d '{"workspace_id": "YOUR_WORKSPACE_ID", "name": "CPU (prod)"}'
 ```
 
-The last write wins. If someone saves the dashboard in the app after you exported it, your `PUT` overwrites their changes.
+The last write wins. If someone saves the dashboard in the app after you read it, your `PUT` overwrites their changes.
 
 ### Delete a dashboard
 
@@ -303,7 +289,7 @@ Every error response has a `code` and a `message`.
 
 ### Reading dashboards
 
-No API endpoint reads or lists dashboards. To get a dashboard's JSON, export it in the app. Because `PUT` replaces the whole of `data`, keep the JSON you deploy in source control and send it in full.
+The dashboards API has no endpoint that reads or lists dashboards. Because `PUT` replaces the whole of `data`, keep the JSON you deploy in source control and send it in full. To read dashboards from a workspace, use [Config as code](../../../platform/config-as-code/).
 
 ***
 
