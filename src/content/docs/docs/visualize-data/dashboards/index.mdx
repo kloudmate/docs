@@ -49,13 +49,13 @@ To manage your public links, click **Public dashboards** in the sidebar. Click *
 
 ## Importing a Dashboard
 
-Import a dashboard from its JSON to copy it from one workspace to another, or to reuse a dashboard someone shared with you. To get the JSON of an existing dashboard, see [Sharing a Dashboard](./dashboard-details/#sharing-a-dashboard).
+Import a dashboard to copy it from one workspace to another, or to reuse a dashboard someone shared with you. To get the file, export the dashboard from its **Share** dialog. See [Export](./dashboard-details/#export).
 
-1. Copy the dashboard's JSON.
-2. On the Dashboards page, click **Import**.
-3. Paste the JSON and click **Submit**.
+1. On the Dashboards page, click **Import**.
+2. Paste the exported YAML, or click **Choose file**.
+3. Click **Check** to see what the import would create or update, then click **Apply**.
 
-![The Import Dashboard dialog with dashboard JSON pasted in](./images/dashboards-overview-4.png)
+Dashboard JSON files from the earlier export can't be imported, so export the dashboard again. Importing a dashboard that already exists in the workspace updates it. For how the import matches AWS accounts and folders, see [Config as code](../../platform/config-as-code/).
 
 To create, update, or delete dashboards from a script instead, or to read the JSON format, see [Dashboard JSON and API](./dashboard-json-and-api/).
 
