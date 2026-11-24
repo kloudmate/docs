@@ -39,8 +39,8 @@ Smart Alerts rules aren't exported. Workspace variables are exported only with [
 ### What the import changes
 
 - **Importing a resource that already exists updates it.** A resource is matched by its UID, not its name, so importing the same file twice updates the resources from the first import instead of creating copies.
-- **A resource whose account or connection is missing lands inactive.** A new alert rule is disabled, a new workflow isn't published, and a dashboard panel shows that its data source is missing. An existing resource is left as it is.
-- **Workflows land published** when the file says they're published.
+- **If an account or connection is missing, a new resource is imported turned off.** A new alert rule is disabled, a new workflow isn't published, and a dashboard panel shows that its data source is missing. An existing resource isn't changed.
+- **A workflow is imported as published** if the file says it's published.
 - **Older export files aren't accepted.** A dashboard JSON or alerts JSON file from the previous export can't be imported, so export the resources again.
 
 ## Keep config in git with kmctl
