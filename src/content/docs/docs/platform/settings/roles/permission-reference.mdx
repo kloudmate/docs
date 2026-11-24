@@ -20,7 +20,8 @@ A permission works only when your plan includes its module or feature. See [Plan
 | --- | --- | --- |
 | **Read** | See dashboards and folders, star them, and email yourself an export. | All roles |
 | **Manage** | Create, import, edit, and delete dashboards and folders. Save a panel from Explore to a dashboard. | Developer, Admin |
-| **Share** | Turn on, change, regenerate, or turn off a dashboard's public link. Anyone with the link sees every panel with the workspace's data. | Admin |
+| **Share** | Turn on, change, regenerate, or turn off a dashboard's public link. Anyone with the link sees every panel with the workspace's data. | Developer, Admin |
+| **Publish** | Publish dashboards and folders to the [gallery](../../../gallery/). Publish a new version of, edit, or unpublish an item of your organization's that holds dashboards. | Developer, Admin |
 
 ### Reports
 
@@ -36,6 +37,7 @@ A permission works only when your plan includes its module or feature. See [Plan
 | **Read** | See alerts, alert rules, history, routing rules, silences, and maintenance windows. Give feedback on how alerts are grouped, and export rules and folders. | All roles |
 | **Operate** | Create or end a silence. Pause or resume an alert rule. Dismiss an instance that stopped reporting. Manage maintenance windows. Create or unlink a Jira ticket. | Developer, Admin |
 | **Configure** | Create, copy, import, test, edit, move, and delete alert rules. Manage folders and routing rules, and get AI suggestions for routing. Set up Smart Alerts. | Developer, Admin |
+| **Publish** | Publish alert rules and folders to the [gallery](../../../gallery/). Publish a new version of, edit, or unpublish an item of your organization's that holds alert rules. | Developer, Admin |
 
 To turn on automatic root cause analysis in a routing rule, you also need AI Assistant **Investigate**.
 
@@ -85,6 +87,7 @@ To turn on automatic root cause analysis in a routing rule, you also need AI Ass
 | **Read** | See and export workflows, and see runs, versions, templates, and storage. Run, test-run, retrigger, or cancel a workflow that allows runs by anyone in the workspace. | All roles |
 | **Operate** | Run, test-run, retrigger, or cancel any workflow. | Developer, Admin |
 | **Configure** | Create, import, edit, publish, turn on or off, and delete workflows, and restore an earlier version. See or rotate webhook and form URLs. Use the builder's test tools. Manage storage and variables that aren't secret. Use a secret variable in a step without seeing its value. | Developer, Admin |
+| **Publish** | Publish workflows to the [gallery](../../../gallery/). Publish a new version of, edit, or unpublish an item of your organization's that holds workflows. | Developer, Admin |
 | **Secrets** | Create, rotate, reveal, and delete secret variables. **Reveal value** shows the value only to the person who created the secret, or to an Owner. | Admin |
 
 ### AI Assistant
@@ -139,12 +142,12 @@ Without **Notification channels**, you still see each channel's name and type, a
 
 Organization permissions come with the organization role. A custom role can't include them.
 
-| Task | Owner | User |
-| --- | :---: | :---: |
-| See the organization's profile, your workspaces, the member list, usage, credits, and the subscription | ✓ | ✓ |
-| Edit the organization's name, slug, and time zone | ✓ | |
-| Require multi-factor authentication, and set up single sign-on and its domains | ✓ | |
-| Create, rename, and delete workspaces | ✓ | |
-| Invite users, change their roles, and remove them. Create, edit, and delete custom roles. | ✓ | |
-| Change the plan, payment method, and billing details. Buy credits and change **Overage Control**. See invoices. | ✓ | |
-| Publish to the [gallery](../../../gallery/) for the organization, and edit or unpublish its items. Only KloudMate publishes for now. | ✓ | |
+| Task | Owner | Admin | Billing admin | User |
+| --- | :---: | :---: | :---: | :---: |
+| See the organization's profile, your workspaces, the member list, usage, credits, and the subscription | ✓ | ✓ | ✓ | ✓ |
+| Edit the organization's name, slug, and time zone | ✓ | ✓ | | |
+| Require multi-factor authentication, and set up single sign-on and its domains | ✓ | | | |
+| Create, rename, and delete workspaces | ✓ | ✓ | | |
+| Invite users, change their roles, and remove them | ✓ | ✓ | | |
+| Make someone an Owner or a Billing admin, or change or remove one. Create, edit, and delete custom roles. | ✓ | | | |
+| See the payment method, the billing contact and address, and invoices. Change the plan, payment method, and billing details. Buy credits and change **Overage Control**. | ✓ | | ✓ | |
