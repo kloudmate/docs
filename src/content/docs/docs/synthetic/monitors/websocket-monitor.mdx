@@ -10,7 +10,7 @@ The WebSocket Monitor verifies the availability and performance of WebSocket end
 ## Creating a New WebSocket Monitor
 
 1. Open **Synthetic Monitoring → Monitors**.
-2. Click **Add New**.
+2. Click **Add monitor**.
 3. Select **WebSocket - Monitor WebSocket connections** from the monitor type dropdown.
 
 ## Basic Settings
@@ -25,11 +25,13 @@ The WebSocket Monitor verifies the availability and performance of WebSocket end
   Define the maximum time allowed for the monitor to complete the connection and response validation.
 - **Monitoring Locations**
   Choose one or more geographic locations from which the WebSocket checks will be executed.
+- **Downtime Rules — Locations that must pass**
+  Appears when you select more than one location. Set how many locations must pass for a check to succeed. For example, with **1 of 3 locations**, a check fails only when all three locations fail.
 - **Downtime Rules — Failed checks before going down**
   Set how many consecutive failed checks (about 30 seconds apart) are needed before the monitor counts as down, so a one-off timeout or network blip doesn't open an incident. Unconfirmed failures are ignored completely and never appear in uptime, response time, or incident history.
 
 
-![image](./images/websocket-monitor-monitor-websocket-connections-1.png)
+![The New monitor form for a WebSocket monitor, with the URL, monitor name, check interval, timeout, three monitoring locations, and downtime rules filled in](./images/websocket-monitor-monitor-websocket-connections-1.png)
 
 
 ## Notification Settings

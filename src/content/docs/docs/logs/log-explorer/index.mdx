@@ -13,7 +13,7 @@ Log Explorer indexes logs from all connected services and applications. Use it t
 
 The main view lists log entries in a table. Each row represents a single log entry and shows the most useful attributes for quick triage.
 
-![The Log Explorer main view, with the log volume graph above the field filters and a list of log entries showing time, service, and message.](./images/log-explorer-1.jpeg)
+![The Logs page, with the log volume chart above a list of log entries showing time, service, and message, and the field filters on the left.](./images/log-explorer-1.jpeg)
 
 To see log volume over time, click the chart icon next to **Saved**. The **Log volume** chart stacks errors, warnings, and all other logs in each interval.
 
@@ -25,7 +25,7 @@ Select any log entry to inspect its full payload, labels, and metadata.
 
 The search bar at the top of Log Explorer shows your search as chips. Each chip is one condition, and a log entry must match every chip to appear.
 
-![The Log Explorer search bar highlighted at the top of the page.](./images/log-explorer-2.jpeg)
+![The search bar highlighted at the top of the Logs page, above the log volume chart.](./images/log-explorer-2.jpeg)
 
 To search for text anywhere in a log entry, type it in the bar and press Enter. The text becomes a free-text chip that searches every string field, so `timeout` finds entries with that word in the message or in any text attribute.
 
@@ -49,7 +49,7 @@ If the text doesn't parse, Log Explorer shows the reason and doesn't run the sea
 
 Use the sidebar filters to narrow the result set by relevant dimensions. Combine multiple filters to isolate a specific set of logs.
 
-![The field filters highlighted in the Log Explorer sidebar, grouped into categories such as Common, Kubernetes, Host, and Container.](./images/log-explorer-3.jpeg)
+![The field filters highlighted in the Logs sidebar, grouped into categories such as Common, Kubernetes, Host, and Container.](./images/log-explorer-3.jpeg)
 
 You can also filter from a log entry. In the log detail panel, click **Filter by value** (the filter icon) next to a field to add that field and value to the search. A filter added from the sidebar or the detail panel is combined with the current search using AND.
 
@@ -63,7 +63,7 @@ Save, reuse, and browse queries from the **Saved** menu next to the search bar:
 - **Recent** lists the most recently saved queries. Click one to run it.
 - **All saved queries** opens every saved query, organized in folders.
 
-![The Saved queries dialog, with a folder on the left and a list of saved queries showing each name and description.](./images/log-explorer-4.jpeg)
+![The Saved queries dialog, listing each saved query's name and description, with the Add Folder button at the top.](./images/log-explorer-4.jpeg)
 
 Use folders to keep saved queries organized by service, team, or use case.
 
@@ -77,7 +77,7 @@ Select any log entry to view detailed information and analysis.
 
 **Ask Assistant** opens KloudMate Assistant directly from the issue. It reviews the error log and its associated trace, generates a Log & Trace Summary, identifies the probable root cause, and suggests next steps for faster resolution.
 
-![The log detail panel beside KloudMate Assistant, which shows the log it was asked about and a Log & Trace Summary.](./images/log-explorer-6.jpeg)
+![The log detail panel for a load-generator error beside KloudMate Assistant, which shows the log it was asked about and its findings.](./images/log-explorer-6.jpeg)
 
 Refer to the [KloudMate Assistant](../../kloudmate-assistant/) documentation for more details.
 
@@ -91,7 +91,7 @@ The **View log** link on a logs **Records** table builds this link for you. See 
 
 Use **Stream** to watch logs as they are ingested into KloudMate.
 
-![The Streaming button highlighted in Log Explorer while new log entries appear in the list.](./images/log-explorer-7.jpeg)
+![The Streaming button highlighted at the top of the Logs page while new log entries appear in the list.](./images/log-explorer-7.jpeg)
 
 ## Search Archived Logs
 

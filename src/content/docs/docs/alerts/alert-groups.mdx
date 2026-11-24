@@ -18,9 +18,9 @@ You choose the mode per routing rule; see [Routing Rules](../routing-rules/#aler
 
 ## Where to find groups
 
-Open **Alerts**, which starts on the **Groups** tab: the workspace-wide view of every group, firing or resolved.
+Open **Alerts**, which starts on the **Groups** page: the workspace-wide view of every group, firing or resolved.
 
-![The Groups tab: the All, Firing, and Resolved filter, the Routing rule filter, the search box, and the group list](./images/alert-groups-list.png)
+![The Groups page: the All, Firing, and Resolved filter, the Routing rule filter, the search box, and the group list](./images/alert-groups-list.png)
 
 Above the list, a summary shows how many groups are firing and how many are resolved, such as **6 Firing, 130 Resolved**.
 
@@ -96,7 +96,7 @@ When an investigation is attached, a **Root cause analysis** card appears under 
 
 This is the manual trigger. To investigate every group a rule opens automatically instead, enable [Auto-RCA](../auto-rca/) on the routing rule. The result appears in the same card and under **View RCA**.
 
-![View RCA drawer with the root-cause summary and a View full investigation link](./images/alert-group-rca-drawer.png)
+![The Root cause analysis drawer with the investigation title, a one-line headline, the overview, and the findings](./images/alert-group-rca-drawer.png)
 
 ### Affected resources
 
@@ -130,7 +130,7 @@ Each tab shows how many items it holds, such as **Instances (7)**.
 - **Notifications:** every notification sent for the group, reminders included, with each channel's result and a link to where it landed: the Slack thread, the Jira ticket, the KloudMate Incidents incident, and so on.
 - **Audit:** a timeline of the group's history, from when it opened to when it resolved. It records each notification and reminder sent, notifications suppressed by a silence or skipped, and investigations. For Auto-correlated groups, it also logs when the engine opened the group and when it correlated each alert.
 
-![The Audit tab of an alert group: a timeline from the group opening through each notification sent, including a reminder and a new instance](./images/alert-group-audit-tab.png)
+![The Audit tab of an alert group: a timeline of notifications sent, alerts correlated into the group, and a manual AI investigation](./images/alert-group-audit-tab.png)
 
 ### Instances
 

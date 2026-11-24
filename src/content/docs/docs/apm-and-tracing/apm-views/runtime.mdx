@@ -1,18 +1,18 @@
 ---
 title: "Runtime"
-description: "Use a service's Runtime tab to read its language runtime health: memory, garbage collection, threads, leak signals, runtime settings, and how a release changed what an instance costs to run."
+description: "Use a service's Runtime section to read its language runtime health: memory, garbage collection, threads, leak signals, runtime settings, and how a release changed what an instance costs to run."
 sidebar:
-  order: 5
+  order: 3
 ---
-The **Runtime** tab on a service's APM page shows how the service's language runtime behaves: memory, garbage collection (GC), threads, and the event loop or scheduler. Use it when a service is slow or restarting and the traces don't explain why, to tell whether the runtime is the cause and not the code or a dependency.
+The **Runtime** section on a service's APM page shows how the service's language runtime behaves: memory, garbage collection (GC), threads, and the event loop or scheduler. Use it when a service is slow or restarting and the traces don't explain why, to tell whether the runtime is the cause and not the code or a dependency.
 
-Open **APM & Services**, click a service, then select **Runtime**. The tab follows the page's time range.
+Open **APM & Services**, click a service, then select **Runtime**. The section follows the page's time range.
 
-![The Runtime tab of a Node.js service, with health cards for event loop delay, event loop utilization, heap of V8 limit, and time in GC, a finding that the V8 heap limit is above the container limit, and a stable old_space floor leak card](./images/runtime-1.png)
+![The Runtime section of a Node.js service, with health cards for event loop delay, event loop utilization, heap of V8 limit, and time in GC, a finding that the V8 heap limit is above the container limit, and a stable old_space floor leak card](./images/runtime-1.png)
 
 ## Supported runtimes
 
-The tab reads the runtime metrics that the OpenTelemetry SDK reports.
+The section reads the runtime metrics that the OpenTelemetry SDK reports.
 
 | Runtime | How to get the metrics |
 | --- | --- |
@@ -22,11 +22,11 @@ The tab reads the runtime metrics that the OpenTelemetry SDK reports.
 | .NET | On .NET 9 and later, add the built-in meter with `AddMeter("System.Runtime")`. On .NET 6 to 8, add `OpenTelemetry.Instrumentation.Runtime` with `AddRuntimeInstrumentation()`. |
 | Python | Install `opentelemetry-instrumentation-system-metrics`. The OpenTelemetry Operator's Python image and `opentelemetry-bootstrap` include it. |
 
-Services that the [KloudMate Agent instruments with the SDK](../../auto-instrumentation/) report these metrics with no extra setup. A service traced with eBPF only doesn't report runtime metrics. If it runs on Kubernetes, its container metrics are still on the [Infrastructure](../infrastructure/) tab.
+Services that the [KloudMate Agent instruments with the SDK](../../auto-instrumentation/) report these metrics with no extra setup. A service traced with eBPF only doesn't report runtime metrics. If it runs on Kubernetes, its container metrics are still on the [Infrastructure](../infrastructure/) section.
 
 ## Filters
 
-When the service reports `service.version`, a **Version** filter appears next to the tabs. When it runs in more than one pod, a **Pod** filter appears too. Both narrow every section of the tab. Picking a version limits the **Pod** list to the pods that ran that version.
+When the service reports `service.version`, a **Version** filter appears next to the time range picker. When it runs in more than one pod, a **Pod** filter appears too. Both narrow everything on the page. Picking a version limits the **Pod** list to the pods that ran that version.
 
 ## Health
 

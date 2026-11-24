@@ -10,7 +10,7 @@ The HTTP Monitor allows you to keep track of the availability and performance of
 ## Creating a New HTTP Monitor
 
 1. Open **Synthetic Monitoring → Monitors**.
-2. Click **Add New**.
+2. Click **Add monitor**.
 3. From the monitor type dropdown, select **HTTP - Monitor web endpoints and APIs**.
 
 ## Basic Settings
@@ -25,11 +25,13 @@ The HTTP Monitor allows you to keep track of the availability and performance of
   Set the maximum amount of time the monitor will wait to receive a response from the endpoint before considering the check unsuccessful.
 - **Monitoring Locations**
   Choose one or multiple locations from which the checks will be executed. Selecting multiple locations is recommended to reduce false positives.
+- **Downtime Rules — Locations that must pass**
+  Appears when you select more than one location. Set how many locations must pass for a check to succeed. For example, with **1 of 3 locations**, a check fails only when all three locations fail.
 - **Downtime Rules — Failed checks before going down**
   Set how many consecutive failed checks (about 30 seconds apart) are needed before the monitor counts as down, so a one-off timeout or network blip doesn't open an incident. Unconfirmed failures are ignored completely and never appear in uptime, response time, or incident history.
 
 
-![image](./images/http-monitor-monitor-web-endpoints-and-apis-1.png)
+![The New monitor form for an HTTP monitor, with the URL, monitor name, check interval, timeout, three monitoring locations, and downtime rules filled in](./images/http-monitor-monitor-web-endpoints-and-apis-1.png)
 
 
 ## **Notification Settings**

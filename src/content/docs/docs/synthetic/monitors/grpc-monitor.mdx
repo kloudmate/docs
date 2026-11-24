@@ -10,7 +10,7 @@ The gRPC Monitor enables continuous health checks for gRPC services by invoking 
 ## Creating a New gRPC Monitor
 
 1. Open **Synthetic Monitoring → Monitors**.
-2. Click **Add New**.
+2. Click **Add monitor**.
 3. Select **gRPC - Check gRPC service health** from the monitor type dropdown.
 
 ## Basic Settings
@@ -25,11 +25,13 @@ The gRPC Monitor enables continuous health checks for gRPC services by invoking 
   Set the maximum allowed time to receive a response before marking the check as failed.
 - **Monitoring Locations**
   Select one or more geographic locations from which the health check requests will be performed.
+- **Downtime Rules — Locations that must pass**
+  Appears when you select more than one location. Set how many locations must pass for a check to succeed. For example, with **1 of 3 locations**, a check fails only when all three locations fail.
 - **Downtime Rules — Failed checks before going down**
   Set how many consecutive failed checks (about 30 seconds apart) are needed before the monitor counts as down, so a one-off timeout or network blip doesn't open an incident. Unconfirmed failures are ignored completely and never appear in uptime, response time, or incident history.
 
 
-![image](./images/grpc-monitor-check-grpc-service-health-1.png)
+![The New monitor form for a gRPC monitor, with the host and port, monitor name, check interval, timeout, three monitoring locations, and downtime rules filled in](./images/grpc-monitor-check-grpc-service-health-1.png)
 
 
 ## Notification Settings
