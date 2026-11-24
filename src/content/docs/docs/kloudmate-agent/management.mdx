@@ -74,7 +74,7 @@ To undo a managed change, turn the toggle back. There is no separate history or 
 
 The **Runbook Scripts** tab decides whether a [workflow](../../workflows/) can run commands on this host with the [Run Command on Host](../../workflows/actions/#run-command-on-host) step. Scripts are off until someone with the **Admin** role turns on **Allow runbook scripts on this host**. The agent picks up the change within a minute. Only Linux host agents have this setting.
 
-![The Runbook Scripts tab with Allow runbook scripts on this host turned on](./images/agent-runbook-scripts-tab.png)
+![The Runbook Scripts tab for a Linux host, with the warning that scripts reach anything the host can already reach and Allow runbook scripts on this host turned on](./images/agent-runbook-scripts-tab.png)
 
 Scripts run as root and can access anything the host can already access, such as a kubeconfig, a cloud instance profile, or an SSH key on disk. Allow them only on hosts where that's acceptable.
 

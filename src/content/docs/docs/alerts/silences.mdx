@@ -69,7 +69,7 @@ On an alert rule's **more options (⋯) → Pause Notifications**, KloudMate cre
 
 The Silences list carries an **Alerts muted** column: how many alert rules each active silence is muting. Expand a row to list those rules, each marked with a chip such as `3 firing` when its instances are firing. The silence detail page shows the same list, along with a link to the group the silence is bound to.
 
-To find what's muting a particular alert, check the alert's row on the **Rules** tab, its expanded instance rows, or its detail page. Each links to the silence or maintenance window that's muting the alert. When more than one applies, you can pick which one to open. A group's **Instances** panel marks muted instances but doesn't name the silence.
+To find what's muting a particular alert, check the alert's row on the **Rules** page, its expanded instance rows, or its detail page. Each links to the silence or maintenance window that's muting the alert. When more than one applies, you can pick which one to open. A group's **Instances** panel marks muted instances but doesn't name the silence.
 
 ![Alert rule muted by a silence](./images/silenced-by-rule.png)
 
@@ -80,7 +80,7 @@ A new silence shows up in the **Alerts muted** count and on the alerts it mutes 
 Both features are a **notification gate, not a state change**: the alert still evaluates on its schedule and its state transitions are still recorded in history; only the notification is withheld. Silencing every firing instance of an alert group keeps the group **Firing** (marked **Muted**); it does **not** resolve the group, and muting never emits a *resolved* notification. The differences between the two are operational, not behavioral:
 
 - **Silences** are ad-hoc, label-matcher driven, capped at 30 days, and can be auto-bound to a specific alert group so they expire when the group resolves.
-- **Maintenance Windows** are scheduled: **One Time**, with a start and end, or **Recurring**, repeating **Daily**, **Weekly**, or **Monthly** at a set time of day in the window's timezone.
+- **Maintenance Windows** are scheduled: **One time**, with a start and end, or **Recurring**, repeating **Daily**, **Weekly**, or **Monthly** at a set time of day in the window's timezone.
 
 Both use the same label-matcher operators (**Equals**, **Not equals**, **Matches regex**, **Doesn't match regex**), matched against alert rule labels and alert instance labels.
 

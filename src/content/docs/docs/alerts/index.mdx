@@ -14,7 +14,7 @@ This page covers the concepts behind the Alerts module. The rest of this section
 
 ## Navigate the Alerts module
 
-**Alerts** opens on the **Groups** tab, where related alerts are collected into [alert groups](./alert-groups/). The **Rules** tab lists your alert rules and their [folders](./folders/), and **History** records every alert state change in the workspace. The other tabs control how alerting behaves: [Routing rules](./routing-rules/) decide where notifications go, [Silences](./silences/) and [Maintenance](./maintenance-windows/) windows suppress notifications for a set period, and [Smart Alerts](./smart-alerts/) creates and maintains rules for common infrastructure.
+**Alerts** opens on the **Groups** page, where related alerts are collected into [alert groups](./alert-groups/). The **Rules** page lists your alert rules and their [folders](./folders/), and **History** records every alert state change in the workspace. The other pages control how alerting behaves: [Routing rules](./routing-rules/) decide where notifications go, [Silences](./silences/) and [Maintenance](./maintenance-windows/) windows suppress notifications for a set period, and [Smart Alerts](./smart-alerts/) creates and maintains rules for common infrastructure.
 
 ## Key concepts
 
@@ -69,7 +69,7 @@ Instead of hand-authoring thresholds, turn on curated detectors and let KloudMat
 3. The condition is evaluated; if it holds for the pending duration, the rule fires.
 4. The firing alert is tagged with labels and annotations and sent into the grouping engine.
 5. The grouping engine matches the alert against [Routing Rules](./routing-rules/), opens or appends to an [Alert Group](./alert-groups/), and dispatches notifications to the rule's destination channels.
-6. Active [Silences](./silences/) and [Maintenance Windows](./maintenance-windows/) can suppress the outbound notification at this step. The rule keeps evaluating in the background, and the state change is still recorded on the **History** tab.
+6. Active [Silences](./silences/) and [Maintenance Windows](./maintenance-windows/) can suppress the outbound notification at this step. The rule keeps evaluating in the background, and the state change is still recorded on the **History** page.
 
 ## Alert states
 
@@ -84,7 +84,7 @@ For how these states transition, and how the pending duration, recovery period, 
 
 ## Review alert history
 
-The **History** tab lists every alert state change in the workspace, newest first, with the reason for each change and the query and expression **Values** at that moment. The total number of transitions is shown above the list. Filter by state or search by alert name to narrow the list. For example, select **Firing** and search for `checkout` to see each time a checkout alert moved to **Firing**. Select an alert's name to open its rule.
+The **History** page lists every alert state change in the workspace, newest first, with the reason for each change and the query and expression **Values** at that moment. The total number of transitions is shown above the list. Filter by state or search by alert name to narrow the list. For example, select **Firing** and search for `checkout` to see each time a checkout alert moved to **Firing**. Select an alert's name to open its rule.
 
 ![Alert history tab](./images/alerts-history-tab.png)
 

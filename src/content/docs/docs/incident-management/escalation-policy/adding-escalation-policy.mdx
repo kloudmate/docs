@@ -13,7 +13,7 @@ This page walks through building a policy from scratch — the policy-level sett
 ## Create the policy
 
 <Steps>
-1. Open **Incidents → Escalation policies** and click **Add Escalation Policy**.
+1. Open **Incident Management → Escalation policies** and click **Add escalation policy**.
 
 2. Enter a **name** and **description**.
 
@@ -32,15 +32,17 @@ Each step names its recipients and how long to wait before escalating.
 1. In a step, add one or more **recipients**:
    - **Users** — pick a user, then choose how to notify them. Select at least one method. **Email** is always available. **SMS** and **voice** appear only when your plan includes them, and they need a verified phone number for the user.
    - **On-call schedule** — pick a schedule; the step notifies whoever is on call when it fires — possibly several people. Requires the Pro plan.
-   - **Slack channel** — click **Add Slack Channel** and pick a connected channel. A step can post to one shared channel, and it posts there every time the step runs. Per-user Slack DMs aren't supported. Connect Slack first under [Slack Integration](../../slack-integration/).
+   - **Channel** — click **Add Channel** and pick a connected Slack or Microsoft Teams channel. A step can post to one shared channel, and it posts there every time the step runs. Per-user Slack DMs aren't supported. Connect Slack first under [Slack Integration](../../slack-integration/).
 
-2. Set **Escalate after** — minutes to wait for an acknowledgement before the next step fires.
+2. *(Optional)* Select **Start War Room on this step** under **Incident War Room** to open a [war room](../../war-rooms/) when the step fires.
 
-3. *(Optional)* Turn on **retries** for the step: set a **retry interval** and a **max retries** count to re-page the same recipients until someone acknowledges.
+3. Set **Escalate after** — minutes to wait for an acknowledgement before the next step fires.
 
-4. Add more steps as needed. The connector between steps spells out what happens next — "Escalate after 10 minutes • then escalate to step 2", or "then repeat the policy from step 1", or "then stop".
+4. *(Optional)* Turn on **Re-notify if unacknowledged** for the step: set a **retry interval** and a **max retries** count to re-page the same recipients until someone acknowledges.
 
-5. Click **Save**.
+5. Add more steps as needed. The connector between steps spells out what happens next — "Escalate after 10 minutes • then escalate to step 2", or "then repeat the policy from step 1", or "then stop".
+
+6. Click **Save**.
 </Steps>
 
 ![Escalation step with mixed recipients](./images/escalation-step-recipients.png)

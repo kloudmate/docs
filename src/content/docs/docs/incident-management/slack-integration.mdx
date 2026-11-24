@@ -10,19 +10,19 @@ KloudMate uses a single unified Slack app for both notification delivery and IM 
 
 - Threaded notifications on alert groups and incidents (replies stay attached to the parent message).
 - Per-user ChatOps actions: acknowledge, resolve, or comment on incidents without leaving Slack.
-- Cross-surface visibility: the same install shows up under both **Settings → Notification Channels** and **Incidents → Settings**.
+- Cross-surface visibility: the same install shows up under both **Settings → Notification Channels** and **Incident Management → Settings**.
 
 You can start the install from either place, and it shows up in both.
 
 ## Connect Slack from Incident Management
 
-1. Open **Incidents → Settings** and click **Connect** on the **Slack** panel of the **ChatOps** card. You need the **Developer** role for this step.
+1. Open **Incident Management → Settings** and click **Connect** on the **Slack** panel of the **ChatOps** card. You need the **Developer** role for this step.
 2. Complete the Slack OAuth flow: pick the Slack workspace and channel KloudMate should post into.
 3. KloudMate returns you to the Settings tab, and the Slack panel shows the linked workspace.
 
 If Slack is already installed for notifications, the button reads **Add ChatOps channel** instead. To stop incident actions from Slack, click **Remove ChatOps channel**. Slack stays connected for alert notifications.
 
-The new Slack row appears under both **Settings → Notification Channels** and **Incidents → Settings**. You can use it as a notification destination on a [Routing Rule](../../alerts/routing-rules/) immediately.
+The new Slack row appears under both **Settings → Notification Channels** and **Incident Management → Settings**. You can use it as a notification destination on a [Routing Rule](../../alerts/routing-rules/) immediately.
 
 ## Per-user account linking
 

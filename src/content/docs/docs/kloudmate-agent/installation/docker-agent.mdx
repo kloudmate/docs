@@ -67,11 +67,9 @@ View all collected data in these KloudMate sections:
 
 **Step 3:** Copy and run the Docker agent install command in your terminal to download and install the agent.
 
-![image](./images/docker-agent-1.png)
+![The Install step of the wizard, showing the Docker install command with the ingest key and collector endpoint embedded](./images/docker-agent-1.png)
 
-**Step 4:** Run the following command to verify the agent is running correctly.
-
-![image](./images/docker-agent-2.png)
+**Step 4:** Click **Continue**. The **Verify** step waits for the agent to connect, which usually takes under a minute. When it shows **Agent connected**, click **Configure agent** to set up application instrumentation, database monitoring, and log collection, or click **Go to agents** to return to the agents list.
 
 ## **Log Integration**
 
@@ -114,6 +112,8 @@ The agent reads the policy when it starts, so recreate the agent container after
 
 ## Uninstall Agent
 
-Run the following command to uninstall the agent.
+In **Settings → Agents & Pipelines**, open the agent's actions menu (⋮) and select **Uninstall**. Run the command it shows on the Docker host. It removes the agent container and image.
 
-![image](./images/docker-agent-3.png)
+![The Docker uninstall command, which runs install_docker.sh with the uninstall argument](./images/docker-agent-3.png)
+
+Once the agent is removed, it stops checking in. Delete it from the agents list to clear its configuration.

@@ -1,20 +1,20 @@
 ---
 title: "Infrastructure"
-description: "Use a service's Infrastructure tab to see the Kubernetes pods and containers it runs in: CPU and memory against requests and limits, restarts, leak signals, and capacity planning."
+description: "Use a service's Infrastructure section to see the Kubernetes pods and containers it runs in: CPU and memory against requests and limits, restarts, leak signals, and capacity planning."
 sidebar:
-  order: 6
+  order: 4
 ---
-The **Infrastructure** tab on a service's APM page shows the Kubernetes pods and containers the service runs in. It answers questions the traces can't: is the pod near its memory limit, is it being throttled, are its requests sized right, and how many instances it needs at higher traffic.
+The **Infrastructure** section on a service's APM page shows the Kubernetes pods and containers the service runs in. It answers questions the traces can't: is the pod near its memory limit, is it being throttled, are its requests sized right, and how many instances it needs at higher traffic.
 
-Open **APM & Services**, click a service, then select **Infrastructure**. The tab follows the page's time range.
+Open **APM & Services**, click a service, then select **Infrastructure**. The section follows the page's time range.
 
-![The Infrastructure tab, with health cards for CPU and memory of limit, restarts, and pods, findings that the memory request is below real usage and the CPU request is oversized, and a stable container working set floor](./images/infrastructure-1.png)
+![The Infrastructure section, with health cards for CPU and memory of limit, restarts, and pods, findings that the memory request is below real usage and the CPU request is oversized, and a stable container working set floor](./images/infrastructure-1.png)
 
-The tab needs the service to run on Kubernetes with the [KloudMate Agent for Kubernetes](../../../kloudmate-agent/installation/kubernetes-agent/) collecting container metrics. KloudMate matches the service to its pods through the traces, so the tab is empty for a range in which no pods ran the service.
+The section needs the service to run on Kubernetes with the [KloudMate Agent for Kubernetes](../../../kloudmate-agent/installation/kubernetes-agent/) collecting container metrics. KloudMate matches the service to its pods through the traces, so the section is empty for a range in which no pods ran the service.
 
 ## Filters
 
-When the service runs in more than one pod, a **Pod** filter appears next to the tabs. When it reports `service.version`, a **Version** filter appears too. Both narrow every section of the tab. These filters are shared with the [Runtime](../runtime/) tab, so switching tabs keeps them.
+When the service runs in more than one pod, a **Pod** filter appears next to the time range picker. When it reports `service.version`, a **Version** filter appears too. Both narrow everything on the page. These filters are shared with the [Runtime](../runtime/) section, so switching sections keeps them.
 
 ## Health
 

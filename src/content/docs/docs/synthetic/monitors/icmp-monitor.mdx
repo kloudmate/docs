@@ -10,7 +10,7 @@ The ICMP Monitor performs ping tests to verify basic network connectivity to hos
 ## Creating a New ICMP Monitor
 
 1. Open **Synthetic Monitoring → Monitors**.
-2. Click **Add New**.
+2. Click **Add monitor**.
 3. Select **ICMP - Ping test for basic connectivity** from the monitor type dropdown.
 
 ## Basic Settings
@@ -25,11 +25,13 @@ The ICMP Monitor performs ping tests to verify basic network connectivity to hos
   Set the maximum time to wait for ping responses before marking the check as failed.
 - **Monitoring Locations**
   Select one or more geographic locations from which ping tests will originate.
+- **Downtime Rules — Locations that must pass**
+  Appears when you select more than one location. Set how many locations must pass for a check to succeed. For example, with **1 of 3 locations**, a check fails only when all three locations fail.
 - **Downtime Rules — Failed checks before going down**
   Set how many consecutive failed checks (about 30 seconds apart) are needed before the monitor counts as down, so a one-off timeout or network blip doesn't open an incident. Unconfirmed failures are ignored completely and never appear in uptime, response time, or incident history.
 
 
-![image](./images/icmp-monitor-ping-test-for-basic-connectivity-1.png)
+![The New monitor form for an ICMP monitor, with the host, monitor name, check interval, timeout, three monitoring locations, and downtime rules filled in](./images/icmp-monitor-ping-test-for-basic-connectivity-1.png)
 
 
 ## Notification Settings
