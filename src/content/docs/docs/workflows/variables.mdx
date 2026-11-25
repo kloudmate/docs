@@ -21,7 +21,7 @@ A name uses letters, digits, and underscores, starts with a letter or an undersc
 
 Reference a variable from any field that accepts a template, for example `Bearer {{ secrets.stripe_key }}` in an HTTP header. See [Templating](../templating/).
 
-![The Variables tab with a Constant row showing its value and a Secret row showing Hidden, alongside who set each one and when the value last changed](./images/variables-tab.png)
+![The Variables page with Constant rows showing their values and a Secret row showing Hidden, alongside who set each one, when the value last changed, and when a workflow last used it](./images/variables-tab.png)
 
 The list shows who set each variable, when its **value** last changed, and, for a secret, when a run last used it. To check whether a secret was rotated after an incident, read the value-changed column. Editing a description doesn't change it.
 

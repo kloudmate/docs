@@ -16,7 +16,7 @@ Every IM service detail page (`/<workspaceId>/im/services/<id>`) now has tabs:
 
 Tab is URL-synced — `?tab=overview` or `?tab=reliability`. Refreshing or sharing the link preserves the active tab.
 
-![Service detail Reliability tab](./images/service-reliability-tab.png)
+![Service detail for checkout-api on the Reliability tab, with a 1 SLO · 1 breached chip in the header and a breached Incident availability SLO in the table](./images/service-reliability-tab.png)
 
 ### SLO summary chip in the service header
 
@@ -29,14 +29,14 @@ Clicking the chip jumps to the Reliability tab. The chip is **only rendered when
 
 ## Incident detail — Linked SLOs panel
 
-On incident detail (`/<workspaceId>/im/incidents/<id>`), a **Linked SLOs** panel appears below the **Service**, **Alert source**, and **Escalation policy** labels, but only when the affected service has at least one **Incident availability** SLO.
+On incident detail (`/<workspaceId>/im/incidents/<id>`), a **Linked SLOs** panel appears in the right-hand column below **Details** and **War room**, but only when the affected service has at least one **Incident availability** SLO.
 
-![Incident detail page with the Linked SLOs panel below the Service, Alert source, and Escalation policy labels, showing a breached API service SLO card](./images/incident-linked-slos.png)
+![Incident detail page with the Linked SLOs panel below the War room panel, showing a breached Checkout API SLO card at 84.96% compliance](./images/incident-linked-slos.png)
 
 Each linked SLO shows as a card:
 
 - SLO name with **Breached** / **Disabled** chips as applicable.
-- Kind + target + window.
+- Target and window.
 - Current compliance %.
 
 Clicking a card opens the SLO detail page.

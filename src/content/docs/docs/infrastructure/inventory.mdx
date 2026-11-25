@@ -11,13 +11,13 @@ You don't need an AWS account to use Inventory. The [KloudMate agent](../../klou
 
 ## Browse by type
 
-Open **Inventory**. The **By type** tab shows a card for each resource type with its count, grouped into **AWS**, **Kubernetes**, **Hosts and services**, **Databases**, and **Other**. Click a card to list the resources of that type on the **All resources** tab.
+Open **Inventory**. The **By type** view shows a card for each resource type with its count, grouped into **AWS**, **Kubernetes**, **Hosts and services**, **Databases**, and **Other**. Click a card to list the resources of that type in the **All resources** view. Switch between the two views from the sidebar.
 
-![The By type tab of Inventory, with cards for Kubernetes, Hosts and services, and Databases resource types](./images/inventory-by-type.png)
+![The By type view of Inventory, with cards for Kubernetes, Hosts and services, and Databases resource types](./images/inventory-by-type.png)
 
 AWS resources get their own group after you connect an AWS account.
 
-![The AWS group on the By type tab, with cards for EC2 security groups, Lambda functions, S3 buckets, and other AWS resource types](./images/inventory-by-type-aws.png)
+![The AWS group on the By type view, with cards for EC2 security groups, Lambda functions, S3 buckets, and other AWS resource types](./images/inventory-by-type-aws.png)
 
 ## Filter by source
 
@@ -27,13 +27,13 @@ When the workspace has a cloud account, use the **Source** filter to choose wher
 - **A cloud account:** the resources of one connected account.
 - **Telemetry:** the resources the KloudMate agent reports, such as hosts, Kubernetes objects, and services.
 
-The filter applies to both tabs. Without a cloud account, every resource comes from telemetry, so the filter doesn't show.
+The filter applies to both views. Without a cloud account, every resource comes from telemetry, so the filter doesn't show.
 
 If you pick an AWS account that has regions turned off, some of its resources may be missing. Click **Review** on the warning to turn those regions back on. See [Region sync status](../../platform/settings/data-sources/#region-sync-status).
 
 ## Find a resource
 
-The **All resources** tab lists each resource with its **Name**, **Type**, **Where**, **Tags**, and **Last seen**. Search by name or key to find one.
+The **All resources** view lists each resource with its **Name**, **Type**, **Where**, **Tags**, and **Last seen**. Search by name or key to find one.
 
 **Where** shows where the resource lives:
 

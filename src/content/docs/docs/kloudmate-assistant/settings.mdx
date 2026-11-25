@@ -10,15 +10,15 @@ Prompts, skills, and MCP integrations control what appears in the Assistant expe
 
 Quickstart prompts are suggested questions displayed in the chat interface to help users get immediate value. Clicking a prompt inserts its text directly into the chat input, saving users from having to type common queries from scratch. Open **Assistant → Prompts** to create and manage them.
 
-![The Prompts tab under Assistant: a list of prompts with Name, Prompt, Visibility, and Enabled columns, and the Create Prompt button](./images/prompts-1.png)
+![The Prompts tab under Assistant: a list of prompts with Name, Prompt, Visibility, and Enabled columns, and the New prompt button](./images/prompts-1.png)
 
 The prompts list displays each prompt’s name, a preview of the prompt text, its visibility (Private or Shared), and whether it is currently enabled. The list can be filtered by All, Private, or Shared to quickly locate what you are looking for.
 
-To create a new prompt, click **Create Prompt**.
+To create a new prompt, click **New prompt**.
 
 ![The Create Prompt dialog with Title, Prompt, Private, and Enabled fields](./images/prompts-1.jpeg)
 
-A dialog will appear with the following fields:
+The **Create Prompt** dialog has the following fields:
 
 - **Title:** A short, scannable label for the prompt
 - **Prompt:** The actual text that gets inserted into the chat input when the prompt is selected. This field is required.
@@ -50,9 +50,14 @@ To create a skill from scratch, click **New skill**.
 
 This opens the skill editor screen, which shows a **Title** field at the top and a **Content** editor below it. The content editor comes pre-populated with a structured template, it includes a metadata block at the top where you fill in the skill name and description, followed by a content section where you describe the steps the Assistant should follow in detail.
 
-![The skill editor with a Title field, a Content editor pre-filled with the skill template, and the Private toggle](./images/skills-2.png)
+![The skill editor with a Title field, a Content editor pre-filled with the skill template, and the Private and Use in investigations toggles](./images/skills-2.png)
 
-Fill in the title, replace the template placeholders with your actual skill instructions, configure the **Private** toggle as needed, then click **Save** to create the skill.
+Fill in the title, replace the template placeholders with your actual skill instructions, and configure the toggles below the editor:
+
+- **Private:** When on, only you can use the skill. Turn it off to share the skill with the workspace.
+- **Use in investigations:** Lets the KloudMate Investigator use the skill. Share the skill first to turn this on.
+
+Click **Save** to create the skill.
 
 ### Importing a Skill from a Template
 
@@ -100,7 +105,7 @@ If you can use two servers of the same provider, the Assistant uses one that you
 
 Open a server's row menu and click **Tools…** to see the tools the server offers and set how the Assistant uses each one. Click **Save** when you're done. To change the tools of a shared server, you need the **Developer** or **Admin** role.
 
-![The Tools dialog for a custom MCP server, with quick actions, a search box, and each tool's labels, Enabled switch, and Approval mode](./images/mcp-integrations-tools.png)
+![The Tools dialog for a ClickUp tool server, with quick actions, a search box, and each tool's labels, Enabled switch, and Approval mode](./images/mcp-integrations-tools.png)
 
 **Enabled** decides whether the Assistant can call a tool at all. Keep the list short: with more than 10 tools enabled, the Assistant can respond more slowly.
 

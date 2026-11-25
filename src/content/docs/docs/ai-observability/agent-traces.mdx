@@ -11,13 +11,13 @@ When a trace contains GenAI spans, trace detail adds views for reading the agent
 
 The **AI summary** at the top of the trace shows the models the run used, the number of model and tool calls, total tokens (with cached input called out), how the time split between model calls and tool calls, and how many AI spans failed.
 
-![AI summary, AI Flow, and waterfall for an agent trace](./images/llm-overview.png)
+![An agent trace with the AI summary, the AI Flow graph of two chat calls with their token counts, and the timeline](./images/llm-overview.png)
 
 ## Conversation
 
 Select a model or agent span to open the **Conversation** tab. It shows the prompt and response as a transcript, with each message labeled by role (system, user, assistant, or tool) in the order the model saw them.
 
-![The Conversation tab showing an assistant turn calling a tool](./images/llm-conversation.png)
+![The Conversation tab for a chat span, with the system prompt collapsed, the user's question, and the assistant's answer marked finish: stop](./images/llm-conversation.png)
 
 - **Tool calls** the assistant made appear inline, with the tool name and the arguments the model passed.
 - **Tool results** show what each tool returned to the model.

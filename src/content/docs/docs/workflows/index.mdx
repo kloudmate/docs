@@ -10,7 +10,7 @@ A workflow is a series of steps that runs when something happens, such as an ale
 
 A disk-space alert is a good first workflow. It reads the host from the alert and runs `df -h` on it through the KloudMate agent. Then it posts the output to Slack, asks the on-call engineer to approve a cleanup, runs the cleanup, and waits until free space recovers before it reports back.
 
-![A workflow on the builder canvas: a Manual trigger, a storage lookup, then a branch splitting into a Then path with an approval and an AWS cleanup step, and an Else path posting to Slack](./images/builder-canvas.png)
+![A workflow on the builder canvas: a Webhook trigger and a host agent check, then a branch splitting into a Then path that shows disk usage, waits for approval, runs the cleanup commands, and reports the space freed, and an Else path that emails on-call](./images/builder-canvas.png)
 
 ## What a workflow can do
 
@@ -47,7 +47,7 @@ Use the [KloudMate Assistant](../kloudmate-assistant/) for an open-ended investi
 ## Before you start
 
 - **You need the Developer role to create, edit, publish, or delete a workflow.** Anyone in the workspace can read workflows and run history, and can start a run by hand when the workflow permits it.
-- **Steps and triggers that use an outside account need a [connection](/platform/settings/connections/).** That includes AWS, Azure, Slack, Jira, and MCP servers. The **Connections** tab in Workflows lists the ones a workflow can use, and a step's connection picker can connect a new account without leaving the builder.
+- **Steps and triggers that use an outside account need a [connection](/platform/settings/connections/).** That includes AWS, Azure, Slack, Jira, and MCP servers. The **Connections** page in Workflows lists the ones a workflow can use, and a step's connection picker can connect a new account without leaving the builder.
 - **Workflow automation is part of the Pro and Business plans.** See [Limits](./limits/).
 
 ## Build a workflow
