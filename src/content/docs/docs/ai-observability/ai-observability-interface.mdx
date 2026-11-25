@@ -1,17 +1,17 @@
 ---
 title: "Use AI Observability"
-description: "Read the Overview, Traces, and Tools tabs in AI Observability: requests, tokens, estimated cost, error rate, model and agent breakdowns, runs, and tool calls."
+description: "Read the Overview, Traces, and Tools views in AI Observability: requests, tokens, estimated cost, error rate, model and agent breakdowns, runs, and tool calls."
 sidebar:
   order: 3
 ---
 
-Use **Overview** for trends and breakdowns, **Traces** for individual runs, and **Tools** for tool calls. All tabs share one time range, which defaults to the last 24 hours.
+Pick a view from the menu on the left: **Overview** for trends and breakdowns, **Traces** for individual runs, and **Tools** for tool calls. All three views share one time range, which defaults to the last 24 hours.
 
 ## Overview
 
 **Overview** shows how much work your AI apps did in the selected range, what it cost, and how much of it failed. Each tile compares against the previous period of the same length.
 
-![The Overview tab with AI Requests, Token Volume, LLM Calls, Error Rate, Est. Cost, and LLM Latency p95 tiles above the AI Requests, Token Volume, Error Rate, and Est. Cost Over Time charts](./images/ai-observability-overview.png)
+![The Overview with AI Requests, Token Volume, LLM Calls, Error Rate, Est. Cost, and LLM Latency p95 tiles above the AI Requests, Token Volume, Error Rate, and Est. Cost Over Time charts](./images/ai-observability-overview.png)
 
 | Tile | What it counts |
 | --- | --- |
@@ -38,7 +38,7 @@ A run that spans several intervals counts in each of them, so the bars on the **
 
 ### Models, Providers, and Agents
 
-![The Models, Providers, and Agents tables, with calls, estimated cost, error rate, latency, and token counts for each model and agent](./images/ai-observability-breakdowns.png)
+![The Models, Providers, and Agents tables stacked one above the other, with calls, estimated cost, error rate, latency, and token counts for each model, provider host, and agent](./images/ai-observability-breakdowns.png)
 
 - **Models** lists the 10 models with the most calls, with each model's provider, LLM calls, estimated cost, error rate, p95 latency, and input and output tokens. Models that report reasoning tokens also get a **Reasoning** column. The same model served by two providers, for example `gpt-4o-mini` through OpenAI and through OpenRouter, appears as two rows.
 - **Providers** groups LLM calls by provider and API host. The host tells you when calls go through a gateway: a call with provider `openai` and host `openrouter.ai` was sent to OpenRouter with an OpenAI model.
@@ -48,7 +48,7 @@ A run that spans several intervals counts in each of them, so the bars on the **
 
 **Traces** lists the runs in the selected range, newest first. Filter the list by model with **All Models**, or select **Errors** to show only runs with a failed span.
 
-![The Traces tab listing agent turns and chat requests with their models, steps, tokens, estimated cost, and a Cut off run](./images/ai-observability-traces.png)
+![Traces listing Claude Code turns and chat requests with their models, steps, tokens, and estimated cost, with the newest run still Running](./images/ai-observability-traces.png)
 
 | Column | Shows |
 | --- | --- |
@@ -89,7 +89,7 @@ A run that hasn't finished shows its status under **Duration**. For a relative t
 
 **Tools** lists the tools your agents called in the range, with each tool's type, call count, error rate, and p95 latency. Filter by type with **All Tool Types**.
 
-![The Tools tab listing local, extension, datastore, and MCP tools with their calls, error rate, and p95 latency](./images/ai-observability-tools.png)
+![Tools listing local and MCP tools with their server names, calls, error rate, and p95 latency](./images/ai-observability-tools.png)
 
 | Type | Meaning |
 | --- | --- |
@@ -104,7 +104,7 @@ The same tool name can appear on more than one row. For example, a `get_weather`
 
 ### Tool detail
 
-![The tool detail drawer for create_ticket, with call and latency charts, the agents that used it, error types, and the latest failing calls with their arguments and results](./images/ai-observability-tool-detail.png)
+![The tool detail drawer for the navigate MCP tool, with call and latency charts, the agents that used it, error types, and the latest failing calls with their arguments and results](./images/ai-observability-tool-detail.png)
 
 Select a tool to see its calls and errors over time, along with:
 

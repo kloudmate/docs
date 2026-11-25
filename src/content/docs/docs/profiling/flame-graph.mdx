@@ -18,7 +18,7 @@ A mini time-series chart of the selected type sits above the main view, so you c
 
 ## The function table
 
-![image](./images/top_functions_screen.png)
+![The Flame Graph view in Table layout for Wall time, with a chart above a table of functions and their Self, Total, % Self, and % Total](./images/top_functions_screen.png)
 
 Every function that appears anywhere in the profile gets a row: name, file and line, self time, total time, and each as a percentage of the whole. Click any column header to sort by it — sorting by **Self** is usually the fastest way to find your hotspot, since it's the time spent *in* that function, not in anything it calls.
 
@@ -26,7 +26,7 @@ Click a row to open its [details](#node-details).
 
 ## The flame graph
 
-![image](./images/flamegraph.png)
+![The Flame Graph view in Flamegraph layout for Heap (inuse objects), with Flame and Sandwich modes and Package and Value coloring](./images/flamegraph.png)
 
 Each row of the flame graph is a stack frame; width represents time (or memory, for heap profiles) relative to the root. Wider means more expensive.
 
