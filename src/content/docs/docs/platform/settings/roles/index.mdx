@@ -55,7 +55,7 @@ For what each permission lets you do, see the [permission reference](./permissio
 ## Organization roles
 
 - **Owner**: Can do everything in every workspace, including billing. Only an Owner can set up single sign-on and create custom roles.
-- **Admin**: Runs the organization's accounts. Can invite users, change their roles, remove them, create workspaces, and edit the organization's name, slug, and time zone. Can't manage billing or single sign-on.
+- **Admin**: Runs the organization's accounts. Can invite users, change their roles, remove them, create workspaces, and edit the organization's name, slug, and time zone. Gets the Admin role in each workspace they create. Can't manage billing or single sign-on.
 - **Billing admin**: Manages billing. Can change the plan, payment method, and billing details, buy credits, change **Overage Control**, and see invoices.
 - **User**: Can see the organization's profile, the member list, usage, credits, and the subscription.
 
@@ -65,7 +65,7 @@ These rules apply whenever roles change:
 
 - Only an Owner can make someone an Owner or a Billing admin, change their role, or remove them.
 - An organization always has at least one Owner. To change the role of the only Owner, make another member an Owner first.
-- Nobody can change their own roles. Ask another Owner.
+- Nobody can change their own roles. Ask an Owner or an Admin.
 
 ### Billing
 
