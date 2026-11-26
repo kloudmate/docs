@@ -5,13 +5,13 @@ sidebar:
   order: 0.5
 ---
 
-**Inventory** lists everything KloudMate knows about in your workspace: cloud resources, hosts, Kubernetes objects, services, and databases. Use it to find a resource, see where it runs, and check what it connects to. To see how a resource performs, open it in Kubernetes, Hosts, APM, or Databases.
+**Inventory** lists everything KloudMate knows about in your workspace: cloud resources, hosts, Kubernetes objects, services, and databases. Use it to find a resource, see where it runs, and check what it connects to. To see how your resources fit together, open [Topology](../topology/). To see how a resource performs, open it in Kubernetes, Hosts, APM, or Databases.
 
 You don't need an AWS account to use Inventory. The [KloudMate agent](../../kloudmate-agent/) adds your hosts, Kubernetes objects, services, and databases. [Connect an AWS account](../../aws-integration/account-setup/) to add its resources too.
 
 ## Browse by type
 
-Open **Inventory**. The **By type** view shows a card for each resource type with its count, grouped into **AWS**, **Kubernetes**, **Hosts and services**, **Databases**, and **Other**. Click a card to list the resources of that type in the **All resources** view. Switch between the two views from the sidebar.
+Open **Inventory**. The **By type** view shows a card for each resource type with its count, grouped into **AWS**, **Kubernetes**, **Hosts and services**, **Databases**, and **Other**. Click a card to list the resources of that type in the **All resources** view. Switch between **By type**, **All resources**, and **Topology** from the sidebar.
 
 ![The By type view of Inventory, with cards for Kubernetes, Hosts and services, and Databases resource types](./images/inventory-by-type.png)
 
@@ -65,7 +65,7 @@ Click a resource to open its details. Every resource has these tabs:
 
 AWS resources also have **Alerts**, **Metrics**, and **Config** tabs, with the resource's active alerts, its CloudWatch metrics, and its AWS configuration.
 
-When a resource has its own page elsewhere in KloudMate, a button takes you there: **Open in Kubernetes**, **Open in Hosts**, **Open in APM**, or **Open in Databases**.
+When a resource has its own page elsewhere in KloudMate, a link takes you there: **Open in Kubernetes**, **Open in Hosts**, **Open in APM**, or **Open in Databases**. **View in Topology** opens the resource on the [Topology](../topology/) map with what's directly connected to it.
 
 ## When Inventory is empty
 
@@ -73,6 +73,7 @@ If Inventory shows **No resources yet**, nothing has reported to the workspace. 
 
 ## Related
 
+- [Topology](../topology/): the workspace as a map, with services over their hosts, the calls between them, and network cables.
 - [Kubernetes Monitoring](../kubernetes/): how clusters, nodes, and workloads perform, and a map of the traffic between workloads.
 - [Hosts & Containers](../hosts/): host metrics and logs, and what each host connects to.
 - [Alert Groups](../../alerts/alert-groups/): the resources an alert group affects, and what else is alerting around them.
