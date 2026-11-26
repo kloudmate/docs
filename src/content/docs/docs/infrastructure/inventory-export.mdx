@@ -1,0 +1,167 @@
+---
+title: "Export the Inventory"
+description: "Pull a workspace's resources and the relationships between them as JSON or CSV, to fill a CMDB such as ManageEngine ServiceDesk Plus or any other tool that keeps its own copy."
+sidebar:
+  order: 0.6
+---
+
+The inventory export API returns the resources in a workspace's [Inventory](../inventory/) and the relationships between them: what runs on what, what contains what, and what calls what. Use it to fill a CMDB, such as ManageEngine ServiceDesk Plus or ServiceNow, or any tool that keeps its own list of your infrastructure.
+
+Two endpoints, each in two formats:
+
+| Endpoint | Returns |
+| --- | --- |
+| `GET /inventory/resources` | Cloud resources, hosts, Kubernetes objects, services, and databases |
+| `GET /inventory/relationships` | The links between those resources |
+
+- **JSON** returns a page at a time, with a cursor for the next page. Use it from a script or a scheduled job.
+- **CSV** returns the whole export in one file. Use it to import into a spreadsheet or a CMDB's import wizard.
+
+## Before you start
+
+Use the base URL for your organization's region:
+
+| Region | Base URL |
+| --- | --- |
+| US | `https://api.kloudmate.com` |
+| India | `https://api.in.kloudmate.com` |
+
+Send a [personal API key](../../platform/settings/api-keys/) in the `x-api-key` header. The key acts as you, so it can export any workspace you are a member of, with any role. Every request names the workspace in the `workspace_id` query parameter.
+
+## What the export holds
+
+The export lists the resources Inventory lists:
+
+- A cloud resource until its account's sync no longer finds it.
+- A host, Kubernetes object, or service while KloudMate still sees its telemetry. One not seen for two hours drops out.
+- Containers, network endpoints, and storage mounts are left out, because their names are ids. Name one of these kinds in `kind` to export it anyway.
+
+A relationship is exported only when the resources at both ends are, so every relationship names resources the resource export also returns.
+
+## Query parameters
+
+Both endpoints take the same parameters.
+
+| Parameter | Description |
+| --- | --- |
+| `workspace_id` | Required. The workspace to export. |
+| `kind` | Only these kinds, comma-separated, such as `aws.ec2.instance,host`. For relationships, both ends must be one of them. |
+| `account_id` | Only the resources of one connected cloud account, by its KloudMate account id. |
+| `tags` | Only resources carrying every one of these tags, as a JSON object: `{"team":"payments","env":"prod"}`. URL-encode it. |
+| `format` | `json` (the default) or `csv`. |
+| `limit` | JSON only. Rows per page, from 1 to 1000. The default is 500. |
+| `cursor` | JSON only. The `next_cursor` of the page before. |
+| `tag_columns` | Resources CSV only. Tag keys that each get their own column, comma-separated, such as `team,env`. |
+
+## Export resources
+
+```bash
+curl "https://api.kloudmate.com/inventory/resources?workspace_id=YOUR_WORKSPACE_ID&kind=aws.ec2.instance,host" \
+  -H "x-api-key: YOUR_API_KEY"
+```
+
+```json
+{
+  "resources": [
+    {
+      "id": "0c2f6f1e-6a4b-4d0e-9b1f-6f0d2a7c9e11",
+      "urn": "arn:aws:ec2:us-east-1:123456789012:instance/i-0abc123",
+      "kind": "aws.ec2.instance",
+      "name": "web-1",
+      "account": { "id": "acc_Xy12AbCdEf34", "name": "prod" },
+      "cloud": "aws",
+      "cloud_account_id": "123456789012",
+      "region": "us-east-1",
+      "tags": { "team": "payments", "env": "prod" },
+      "first_seen": "2026-10-02T08:15:00Z",
+      "last_seen": "2026-11-25T09:00:00Z"
+    }
+  ],
+  "next_cursor": "eyJkIjoibmV4dCIsInYiOiIwYzJm..."
+}
+```
+
+| Field | Description |
+| --- | --- |
+| `id` | KloudMate's id for the resource. It stays the same while the resource exists, so use it to match the resource on the next export. |
+| `urn` | A readable unique name: a cloud resource's ARN, or the kind and identity of a host, Kubernetes object, or service, such as `k8s.deployment:prod/payments/checkout`. |
+| `kind` | The resource type, such as `aws.ec2.instance`, `host`, `k8s.deployment`, or `service`. |
+| `account` | The connected cloud account, or `null` for a resource from telemetry. |
+| `cloud`, `cloud_account_id`, `region` | Where a cloud resource lives. `null` for a resource from telemetry. |
+| `tags` | The resource's tags. Kubernetes objects carry their cluster and namespace here. |
+| `first_seen`, `last_seen` | When KloudMate first and last saw the resource. |
+
+## Export relationships
+
+```bash
+curl "https://api.kloudmate.com/inventory/relationships?workspace_id=YOUR_WORKSPACE_ID" \
+  -H "x-api-key: YOUR_API_KEY"
+```
+
+```json
+{
+  "relationships": [
+    {
+      "from": { "id": "5d1e...", "urn": "host:web-1", "kind": "host", "name": "web-1" },
+      "type": "runs_on",
+      "class": "placement",
+      "to": { "id": "0c2f...", "urn": "arn:aws:ec2:us-east-1:123456789012:instance/i-0abc123", "kind": "aws.ec2.instance", "name": "web-1" },
+      "first_seen": "2026-10-02T08:20:00Z",
+      "last_seen": "2026-11-25T09:00:00Z"
+    }
+  ],
+  "next_cursor": null
+}
+```
+
+A relationship reads as a sentence from `from` to `to`: the host `runs_on` the instance, a VPC `contains` a subnet, a service `calls` another. `class` groups the types:
+
+| Class | Types | Meaning |
+| --- | --- | --- |
+| `placement` | `runs_on`, `instance_of`, and similar | Where something runs or what it is an instance of |
+| `ownership` | `contains`, `member_of`, and similar | A parent or group |
+| `dependency` | `calls`, `talks_to`, `reads_from`, `attached_to`, `associated`, and similar | Something it uses or talks to |
+
+## Page through the results
+
+A JSON response holds `next_cursor` while there may be more. Send it back as `cursor` with the same other parameters, and stop when `next_cursor` is `null`. A page can hold fewer rows than `limit`, or none, and still have a `next_cursor`, so stop on the cursor, not on the row count.
+
+A cursor that can't be read gets a `400` response. Start again from the first page.
+
+## Download CSV
+
+Add `format=csv` to get the whole export as one file:
+
+```bash
+curl -G "https://api.kloudmate.com/inventory/resources" \
+  -H "x-api-key: YOUR_API_KEY" \
+  --data-urlencode "workspace_id=YOUR_WORKSPACE_ID" \
+  --data-urlencode "format=csv" \
+  --data-urlencode "tag_columns=team,env" \
+  -o resources.csv
+
+curl -G "https://api.kloudmate.com/inventory/relationships" \
+  -H "x-api-key: YOUR_API_KEY" \
+  --data-urlencode "workspace_id=YOUR_WORKSPACE_ID" \
+  --data-urlencode "format=csv" \
+  -o relationships.csv
+```
+
+The resources file has the JSON fields as columns, with `account` as the account name, `tags` as JSON, and a `tag:<key>` column for each key in `tag_columns`. The relationships file has `from_id`, `from_urn`, `from_kind`, `from_name`, `type`, `class`, `to_id`, `to_urn`, `to_kind`, `to_name`, `first_seen`, and `last_seen`.
+
+A value that starts with `=`, `+`, `-`, or `@` is written with a leading `'`, so a spreadsheet shows it as text instead of running it as a formula.
+
+## Import into ManageEngine ServiceDesk Plus
+
+ServiceDesk Plus imports configuration items (CIs) and their relationships from CSV in two steps.
+
+1. Download `resources.csv` with the kinds you want as CIs, for example `kind=aws.ec2.instance,aws.rds.dbinstance,host`. Download `relationships.csv` with the same `kind`, so every relationship names CIs from the first file.
+2. In ServiceDesk Plus, open **CMDB**, import CIs from the resources file into the matching CI type, and map `name` and the `tag:` columns to CI fields. ServiceDesk Plus matches an imported CI to an existing one by name, so a later import updates it. Map `id` to a custom field as well, to keep KloudMate's id on each CI.
+3. Import CI relationships from the relationships file, mapping `from_name` to the source CI, `to_name` to the destination CI, and `type` to the relationship type.
+
+To keep the CMDB current, call the JSON endpoints from a ServiceDesk Plus scheduled custom function, or from your own scheduled job, and add or update CIs through the ServiceDesk Plus CMDB API.
+
+## Related
+
+- [Inventory](../inventory/): browse the resources the export returns.
+- [API Keys](../../platform/settings/api-keys/): create the personal key the export authenticates with.
