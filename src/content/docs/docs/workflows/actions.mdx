@@ -1,6 +1,6 @@
 ---
 title: "The action catalog"
-description: "Every step a workflow can run: HTTP requests, sandboxed code, AI prompts, the KloudMate Assistant, AWS and Azure calls, Slack, Jira, and ServiceNow, MCP tools, host commands, and lookups of hosts, resources, and alert groups."
+description: "Every step a workflow can run: HTTP requests, sandboxed code, AI prompts, the KloudMate Assistant, AWS and Azure calls, Slack, Jira, ServiceNow, MCP tools, host commands, and lookups of hosts, resources, and alert groups."
 sidebar:
   label: "Action catalog"
   order: 6
@@ -112,7 +112,7 @@ Every Jira action opens with a site picker, because one credential can access se
 | **Get Record** | Read one record of any table, by its number or `sys_id`. |
 | **Search Records** | Find records of any table with an encoded query, up to 1,000 at a time. |
 
-An action that takes an incident accepts its number, such as `INC0010001`, or its `sys_id`. **Search Records** takes a ServiceNow encoded query such as `active=true^priority=1`. To get one, filter a list in ServiceNow and use **Copy query**. The roles of the connection's integration user decide which tables **Get Record** and **Search Records** can read. See [ServiceNow](/platform/settings/connections/servicenow/).
+An action that takes an incident accepts its number, such as `INC0010001`, or its `sys_id`. **Search Records** takes a ServiceNow encoded query such as `active=true^priority=1`. To get one, filter a list in ServiceNow and use **Copy query**. The roles of the connection's integration user decide which tables **Get Record** and **Search Records** can read. See [ServiceNow](../../platform/settings/connections/servicenow/).
 
 ### AWS API Call
 

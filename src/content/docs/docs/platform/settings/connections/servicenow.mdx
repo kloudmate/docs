@@ -8,12 +8,12 @@ sidebar:
 
 import { Steps } from '@astrojs/starlight/components';
 
-A ServiceNow connection lets KloudMate work with incidents on your instance. Use it for two things:
+Connect your ServiceNow instance to open incidents from alerts and to work with records from workflows. One connection does both:
 
 - **A notification channel.** An alert opens an incident, updates to the alert add work notes, and recovery resolves it.
 - **Workflow actions.** A workflow step creates, updates, resolves, or reads records.
 
-One connection serves both. It signs in as a ServiceNow user with a user name and password, so start by creating a user for KloudMate on the instance.
+The connection signs in with a user name and password, so start by creating a user for KloudMate on the instance.
 
 ## Before you start
 
@@ -21,7 +21,7 @@ You need a ServiceNow admin to create the integration user. Use a dedicated user
 
 The user needs the `itil` role. That role can read and write incidents and read assignment groups and users, which is everything the channel and the incident actions use. **Get Record** and **Search Records** on other tables, such as `change_request`, need the roles that can read those tables.
 
-Only HTTPS instance URLs are accepted, because the password travels with every request.
+The instance URL must use HTTPS, because the password travels with every request.
 
 ## Create the integration user
 
@@ -77,6 +77,8 @@ You can connect more than one instance, for example production and a sub-product
    - **Category**: optional.
    - **Resolution code**: the close code set when an alert resolves the incident. Required.
 
+   An `itil` user can't read ServiceNow's choice lists, so **Category** and **Resolution code** show no options. Type the choice's value, not its label, exactly as ServiceNow stores it. ServiceNow doesn't reject a value it doesn't recognize: it leaves the field empty.
+
 5. Under **Impact and urgency**, map each alert severity to an impact and an urgency. **Any other severity** covers every severity you don't list, and events that have no severity. ServiceNow works out the priority from the two, as it does for an incident you open by hand.
 
 6. Under **Updates**, choose whether updates are posted as **Work notes** (support staff only) or **Additional comments** (the caller sees them too), and what happens when an alert fires again on an incident that's already resolved.
@@ -86,10 +88,6 @@ You can connect more than one instance, for example production and a sub-product
 </Steps>
 
 To start sending, add the channel as a destination on a [routing rule](../../../../alerts/routing-rules/).
-
-:::note
-With only the `itil` role, the user can't read ServiceNow's choice lists, so **Category** and **Resolution code** show no options. Type the value instead. Use the choice's value, not its label, exactly as ServiceNow stores it: ServiceNow doesn't reject a value it doesn't recognize, it leaves the field empty.
-:::
 
 ### What happens to an incident
 
@@ -138,7 +136,7 @@ Reference fields such as `cmdb_ci` take the referenced record's `sys_id`, not it
 
 ## Use ServiceNow in a workflow
 
-The ServiceNow actions are listed under [Actions](/workflows/actions/#servicenow). Each one starts with an **Instance** picker for the connection to use. An action that takes an incident accepts its number, such as `INC0010001`, or its `sys_id`.
+The ServiceNow actions are listed under [Actions](../../../../workflows/actions/#servicenow). Each one starts with an **Instance** picker for the connection to use. An action that takes an incident accepts its number, such as `INC0010001`, or its `sys_id`.
 
 ## If something goes wrong
 

@@ -16,7 +16,7 @@ A disk-space alert is a good first workflow. It reads the host from the alert an
 
 - **Act on cloud resources**: call an AWS API action, such as stopping an EC2 instance, or an Azure Resource Manager operation through a connected account, or run a script on an Azure VM.
 - **Run a command on a host**: use the KloudMate agent to run shell commands on any Linux host where someone with the **Admin** role has [allowed runbook scripts](./actions/#allow-runbook-scripts-on-a-host).
-- **Work in your tools**: post and edit Slack messages, create and transition Jira issues, call a tool on an MCP server, or send an HTTP request to anything else.
+- **Work in your tools**: post and edit Slack messages, create and transition Jira issues, open and resolve ServiceNow incidents, call a tool on an MCP server, or send an HTTP request to anything else.
 - **Notify**: send through an existing Slack, Teams, webhook, or SNS channel, or email an address directly.
 - **Transform and decide**: extract a value with JSONPath, parse CSV and XML, run sandboxed JavaScript, choose between several paths by condition, or have a model pull structured fields out of a payload.
 - **Ask the Assistant**: have the [KloudMate Assistant](./actions/#ask-kloudmate-assistant) look into an alert using your telemetry, then use its answer in later steps.
@@ -47,7 +47,7 @@ Use the [KloudMate Assistant](../kloudmate-assistant/) for an open-ended investi
 ## Before you start
 
 - **You need the Developer role to create, edit, publish, or delete a workflow.** Anyone in the workspace can read workflows and run history, and can start a run by hand when the workflow permits it.
-- **Steps and triggers that use an outside account need a [connection](/platform/settings/connections/).** That includes AWS, Azure, Slack, Jira, and MCP servers. The **Connections** page in Workflows lists the ones a workflow can use, and a step's connection picker can connect a new account without leaving the builder.
+- **Steps and triggers that use an outside account need a [connection](/platform/settings/connections/).** That includes AWS, Azure, Slack, Jira, ServiceNow, and MCP servers. The **Connections** page in Workflows lists the ones a workflow can use, and a step's connection picker can connect a new account without leaving the builder.
 - **Workflow automation is part of the Pro and Business plans.** See [Limits](./limits/).
 
 ## Build a workflow
