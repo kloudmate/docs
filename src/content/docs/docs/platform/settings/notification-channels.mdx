@@ -16,9 +16,10 @@ KloudMate supports the following notification channels:
 - [MS Teams](#ms-teams)
 - [Webhook](#webhooks)
 - [Jira](#jira)
+- [ServiceNow](#servicenow)
 - [KloudMate Incidents](#kloudmate-incidents) — bridges alerts and synthetic checks into [Incident Management](../../../incident-management/)
 
-A Slack or Jira channel can reuse an account you've already connected instead of asking for its own credential. The channel form lists the [connections](../connections/) that can be used for **Notifications**, and lets you connect a new one without leaving the form. When the credential changes, you then rotate it in one place.
+A Slack, Jira, or ServiceNow channel can reuse an account you've already connected instead of asking for its own credential. The channel form lists the [connections](../connections/) that can be used for **Notifications**, and lets you connect a new one without leaving the form. When the credential changes, you then rotate it in one place.
 
 :::info
 In the case of multiple workspaces and AWS accounts, you must set up notifications for each account in their respective **Settings**.
@@ -427,4 +428,16 @@ The Jira integration is one-way. Status changes in KloudMate are reflected in Ji
 | Regression Issues | Ticket title |
 | Issue name | Ticket description |
 | Issue comments | Ticket comments |
+
+### ServiceNow
+
+A ServiceNow channel opens an incident when an alert group opens, adds work notes as it changes, and resolves the incident when it recovers. It uses a [ServiceNow connection](../connections/servicenow/) to an integration user on your instance.
+
+1. Select **ServiceNow** from the dropdown menu, then pick a connected **ServiceNow account**. If none is connected yet, click **Connect ServiceNow** and enter the instance URL, user name, and password.
+2. Enter a **Channel name**, then choose the **Assignment group**, **Caller**, **Category**, and **Resolution code** for new incidents.
+3. Map each alert severity to an **Impact** and an **Urgency**.
+4. Choose how updates are posted, and whether an alert that fires again reopens a resolved incident or opens a new one.
+5. Click **Create channel**.
+
+[ServiceNow](../connections/servicenow/#send-alerts-to-servicenow) covers each setting, which events update the incident, and how to set other incident fields.
 

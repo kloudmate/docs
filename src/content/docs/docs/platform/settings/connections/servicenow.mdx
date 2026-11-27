@@ -1,0 +1,162 @@
+---
+title: "ServiceNow"
+description: "Connect a ServiceNow instance with an integration user, so alerts open and resolve incidents and workflows can create, update, and read records."
+sidebar:
+  label: "ServiceNow"
+  order: 5.2
+---
+
+import { Steps } from '@astrojs/starlight/components';
+
+A ServiceNow connection lets KloudMate work with incidents on your instance. Use it for two things:
+
+- **A notification channel.** An alert opens an incident, updates to the alert add work notes, and recovery resolves it.
+- **Workflow actions.** A workflow step creates, updates, resolves, or reads records.
+
+One connection serves both. It signs in as a ServiceNow user with a user name and password, so start by creating a user for KloudMate on the instance.
+
+## Before you start
+
+You need a ServiceNow admin to create the integration user. Use a dedicated user, not a person's account: every incident KloudMate opens or updates is recorded as that user's work, and a person's password changes would break the connection.
+
+The user needs the `itil` role. That role can read and write incidents and read assignment groups and users, which is everything the channel and the incident actions use. **Get Record** and **Search Records** on other tables, such as `change_request`, need the roles that can read those tables.
+
+Only HTTPS instance URLs are accepted, because the password travels with every request.
+
+## Create the integration user
+
+<Steps>
+
+1. On your instance, open **User Administration** > **Users** and click **New**.
+
+2. Enter a **User ID**, for example `kloudmate_integration`, and a first and last name that make it obvious what the user is for.
+
+3. Select **Web service access only**. The user can then call the REST API but can't sign in to the ServiceNow UI.
+
+4. Click **Submit**, then open the user again.
+
+5. On the **Roles** tab, click **Edit**, add `itil`, and save.
+
+6. Click **Set Password**, generate or enter a password, and save it. Copy the password now: you'll paste it into KloudMate.
+
+</Steps>
+
+## Connect it in KloudMate
+
+<Steps>
+
+1. Go to **Settings** > **Connections** and click **Connect**.
+
+2. Select **ServiceNow**.
+
+3. Fill in the form:
+   - **Instance URL**: your instance's address, for example `https://acme.service-now.com`. A path after the host is ignored.
+   - **User name**: the integration user's **User ID**.
+   - **Password**: the password you set.
+
+4. Click **Connect**.
+
+</Steps>
+
+KloudMate then checks the connection by reading one incident. When that works, the connection shows **Verified**. The connection is used for both **Notifications** and **Workflows**.
+
+You can connect more than one instance, for example production and a sub-production instance. Each is its own connection.
+
+## Send alerts to ServiceNow
+
+<Steps>
+
+1. Go to **Settings** > **Notification Channels**, click **Create**, and select **ServiceNow**.
+
+2. Pick the **ServiceNow account**. To add an instance without leaving the page, click **Connect ServiceNow** (or **Connect another ServiceNow account**) and fill in the same form as above.
+
+3. Enter a **Channel name**.
+
+4. Under **Incident**, choose where incidents go:
+   - **Assignment group** and **Caller**: search by name. Both are optional.
+   - **Category**: optional.
+   - **Resolution code**: the close code set when an alert resolves the incident. Required.
+
+5. Under **Impact and urgency**, map each alert severity to an impact and an urgency. **Any other severity** covers every severity you don't list, and events that have no severity. ServiceNow works out the priority from the two, as it does for an incident you open by hand.
+
+6. Under **Updates**, choose whether updates are posted as **Work notes** (support staff only) or **Additional comments** (the caller sees them too), and what happens when an alert fires again on an incident that's already resolved.
+
+7. Click **Create channel**.
+
+</Steps>
+
+To start sending, add the channel as a destination on a [routing rule](../../../../alerts/routing-rules/).
+
+:::note
+With only the `itil` role, the user can't read ServiceNow's choice lists, so **Category** and **Resolution code** show no options. Type the value instead. Use the choice's value, not its label, exactly as ServiceNow stores it: ServiceNow doesn't reject a value it doesn't recognize, it leaves the field empty.
+:::
+
+### What happens to an incident
+
+KloudMate keeps one incident per alert group, issue, or check failure, and reads its state before each update.
+
+| When | No incident yet | Incident open | Incident resolved |
+|---|---|---|---|
+| An alert group opens, an issue is created, or a synthetic check fails | Opens one | Nothing | Reopens it, or opens a new one |
+| More alerts join the alert group | Opens one | Adds a work note | Reopens it, or opens a new one |
+| Root cause analysis or an investigation completes | Opens one | Adds a work note | Adds a work note |
+| An issue gets a comment or changes status | Nothing | Adds a work note | Adds a work note |
+| The alert group or the check recovers | Nothing | Adds a work note and resolves it with the resolution code | Nothing |
+
+**When an alert fires again on a resolved incident** decides between reopening the incident (it goes back to **In Progress** with a note saying it fired again) and opening a new one. An incident that's **Closed** or **Canceled**, or that was deleted, always gets a new one, because ServiceNow doesn't reopen a closed incident.
+
+If the channel has no resolution code, a recovery adds a work note and leaves the incident open.
+
+Other events, such as the repeat reminders for an alert group that's still open, don't reach ServiceNow.
+
+### What goes into the incident
+
+| Incident field | Value |
+|---|---|
+| Short description | The alert's title, cut to 160 characters |
+| Description | The details of the alert, issue, or check, with a link back to KloudMate |
+| Impact, Urgency | From the channel's severity map |
+| Assignment group, Caller, Category | From the channel |
+| Correlation ID | The KloudMate alert group, issue, or check the incident belongs to |
+| Correlation display | `KloudMate` |
+
+Updates in ServiceNow don't come back to KloudMate. Resolving or closing the incident in ServiceNow leaves the alert as it is.
+
+### Set other incident fields
+
+To fill in fields the form doesn't show, open **Set incident fields** and add a row per field. Pick the field, or type its column name, such as `u_environment` or `cmdb_ci`. The value is text or a Liquid placeholder over the event, for example:
+
+```liquid
+{{ group.labels.service }}
+```
+
+Useful placeholders for an alert group are `group.labels.<label>`, `group.severity`, `group.title`, `group.url`, and `workspace.name`. [Notification payloads](../../notification-channels/#notification-payloads) lists the fields of every event. A field you set here wins over the same field set elsewhere on the form.
+
+A placeholder that has no value for an event, such as `group.labels.team` on an issue, leaves the field out of the incident, so a field the channel already sets keeps its value.
+
+Reference fields such as `cmdb_ci` take the referenced record's `sys_id`, not its name.
+
+## Use ServiceNow in a workflow
+
+The ServiceNow actions are listed under [Actions](/workflows/actions/#servicenow). Each one starts with an **Instance** picker for the connection to use. An action that takes an incident accepts its number, such as `INC0010001`, or its `sys_id`.
+
+## If something goes wrong
+
+To see why the last check failed, point to **Degraded** in the connections list. A channel whose last send failed is marked **Error** on the notification channels list.
+
+| You see | What to do |
+|---|---|
+| ServiceNow rejected the user name or password | The **User name** is the user's **User ID**, not an email address. Check it and the password, then update the connection with [Edit](../manage-connections/#edit). |
+| The user cannot read incidents: give it the itil role | Add the `itil` role to the integration user. |
+| The user cannot read the choice list: type the value | Expected for an `itil` user. Type the category or resolution code value. |
+| The user cannot read the field list: type a field name | Expected for an `itil` user. Type the column name under **Set incident fields**. |
+| The instance URL must start with https:// | Enter the URL with `https://`. |
+
+A free Personal Developer Instance hibernates when it's idle, and requests to it fail until you wake it from the ServiceNow developer site.
+
+## Related
+
+- [Providers](../providers/)
+- [Manage connections](../manage-connections/)
+- [Notification channels](../../notification-channels/)
+- [Table API](https://developer.servicenow.com/dev.do#!/reference/api/latest/rest/c_TableAPI) (ServiceNow)
