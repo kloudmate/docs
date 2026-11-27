@@ -75,7 +75,7 @@ A missing text attribute counts as empty, so `x = ""` finds records where `x` ha
 
 ### Combine filters
 
-Filters separated by a space or by `and` must all match. Use `or` for alternatives and parentheses to group them:
+Filters separated by a space or by `and` must all match. The one exception is `=` on the same field twice: `severity = ERROR severity = WARN` matches either value, the same as `severity in (ERROR, WARN)`. Use `or` for alternatives and parentheses to group them:
 
 ```text
 severity = ERROR (k8s.namespace.name = default or has exception.type)
