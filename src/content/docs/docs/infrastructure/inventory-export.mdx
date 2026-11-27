@@ -26,7 +26,7 @@ Use the base URL for your organization's region:
 | US | `https://api.kloudmate.com` |
 | India | `https://api.in.kloudmate.com` |
 
-Send a [personal API key](../../platform/settings/api-keys/) in the `x-api-key` header. The key acts as you, so it can export any workspace you are a member of, with any role. Every request names the workspace in the `workspace_id` query parameter.
+Send a [personal API key](../../platform/settings/api-keys/) in the `x-api-key` header. A tool that can't send a custom header, such as ServiceNow's file import, can send the key as the password of HTTP basic authentication, with any user name. The key acts as you, so it can export any workspace you are a member of, with any role. Every request names the workspace in the `workspace_id` query parameter.
 
 ## What the export holds
 
