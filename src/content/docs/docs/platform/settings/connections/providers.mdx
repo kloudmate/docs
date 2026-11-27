@@ -30,10 +30,13 @@ This isn't the same as the AWS account you connect for inventory and metrics. Th
 | **Slack** | OAuth install. | Notifications, Workflows |
 | **Jira Cloud** | OAuth through Atlassian. | Notifications, Workflows |
 | **Microsoft Teams** | The KloudMate app, added to a team in Teams. One connection per team. See [Microsoft Teams Integration](/incident-management/microsoft-teams-integration/). | Notifications |
+| **ServiceNow** | An instance URL, and the user name and password of an integration user with the `itil` role. See [ServiceNow](../servicenow/). | Notifications, Workflows |
 
 One Slack install serves alert notifications, incident ChatOps, the [Slack workflow actions](/workflows/actions/#slack), and Slack event triggers. A Slack or Jira Cloud connection made in **Settings → Connections** starts out used for **Notifications**. Add **Workflows** under [Edit](../manage-connections/#edit) before a workflow step or trigger can use it, and reconnect it if it's then marked **Needs reconnect**.
 
 One Jira credential can access several Atlassian sites, which is why every Jira action and trigger starts with a site picker.
+
+A ServiceNow connection starts out used for both **Notifications** and **Workflows**, and you can connect more than one instance.
 
 ## Meetings
 
