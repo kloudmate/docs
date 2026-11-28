@@ -82,17 +82,15 @@ On a host that's already configured, the script keeps the existing configuration
 
 **Step 2:** Click **Add Agent**, select **Windows**, and click **Continue**. On the **API key** step, click **Create backend key**, or select **Use existing key** and paste your backend ingest key. Then click **Continue**.
 
-**Step 3:** Download the Windows executable using the provided link.
+**Step 3:** Click **Download the Windows executable** and run it.
 
-![image](./images/windows-agent-1.png)
+![The Install step of the wizard, showing the PowerShell install command with the ingest key and collector endpoint embedded, and a link to download the Windows executable](./images/windows-agent-1.png)
 
-**Step 4:** After installation completes, enter the API key and Collector Endpoint when prompted.
+**Step 4:** When the installer asks, enter the API key and collector endpoint from the command on the **Install** step.
 
-![image](./images/windows-agent-2.png)
+**Step 5:** Click **Continue**. The **Verify** step waits for the agent to connect, which usually takes under a minute. When it shows **Agent connected**, click **Configure agent** to set up application instrumentation, database monitoring, and log collection, or click **Go to agents** to return to the agents list.
 
-**Step 5:** Run the command under **Check service status** in PowerShell to verify the service is running. 
-
-![image](./images/windows-agent-3.png)
+![The Verify step of the wizard showing Agent connected for a Windows host, with the agent version and the number of apps and databases the agent found](./images/windows-agent-2.png)
 
 ## Silent install
 
@@ -136,6 +134,8 @@ The agent installs as a Windows service running as Local System. It needs that p
 
 ## Uninstall Agent
 
-Run the following command to uninstall the agent.
+In **Settings → Agents & Pipelines**, open the agent's actions menu (⋮) and select **Uninstall**. Run the command it shows in PowerShell as Administrator, or remove **KloudMate Agent** from **Settings > Apps** in Windows.
 
-![image](./images/windows-agent-4.png)
+![The PowerShell command that runs the agent uninstaller, unins000.exe, silently](./images/windows-agent-4.png)
+
+Once the agent is removed, it stops checking in. Delete it from the agents list to clear its configuration.

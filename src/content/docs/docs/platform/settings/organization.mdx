@@ -1,12 +1,12 @@
 ---
 title: "Organization"
-description: "Manage your organization's display name, default timezone, overage policy, and your own membership, or create a new organization."
+description: "Manage your organization's display name, slug, default timezone, overage policy, and your own membership, or create a new organization."
 sidebar:
   label: "Organization"
   order: 1.5
 ---
 
-Organization settings apply org-wide: the display name, default timezone, overage policy, and MFA requirement.
+Organization settings apply org-wide: the display name, slug, default timezone, overage policy, and MFA requirement.
 
 Open **Settings → Organization** to view or edit these settings.
 
@@ -20,14 +20,13 @@ Only an organization owner can edit these settings. Other members see the page i
 
 Set the organization's display name and default timezone. The timezone is the org-wide default for shared artifacts like alert schedules and reports; individual users can override it for themselves in their own [Profile & Security](../profile-security/) settings.
 
-## Overage Policy
+### Slug
 
-Controls what happens when usage exceeds your plan's allowance:
+The slug is your organization's short public name, such as `acme`. It will identify your organization as a publisher when organizations can publish to the [gallery](../../gallery/).
 
-- **Off (default):** overage is billed at the per-unit overage rate.
-- **On:** KloudMate suspends ingest the moment usage crosses the threshold, protecting against runaway bills.
+A new organization gets its slug from the name part of the sign-up email, so `jane.doe@acme.com` gives `jane-doe`. If that slug is taken or isn't valid, the organization gets a random one, such as `calm-river-42`.
 
-Toggle **Allow unlimited overage** to switch between the two.
+On a paid plan, you can change the slug in the **General** card. A slug must be unique and 3 to 32 characters long. It can contain lowercase letters, digits, and single hyphens, and it must start and end with a letter or a digit. Some slugs, such as `admin` and `kloudmate`, are reserved.
 
 ## Require MFA for All Members
 

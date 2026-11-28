@@ -1,0 +1,59 @@
+---
+title: "Gallery"
+description: "Install ready-made dashboards, alert rules, and workflows from the KloudMate gallery into a workspace by pasting an item's ID or link."
+sidebar:
+  label: "Gallery"
+  order: 2.8
+---
+
+The [KloudMate gallery](https://templates.kloudmate.com) has ready-made dashboards, alert rules, and workflows that you can install into any workspace. Installing an item adds a copy to your workspace. You can change the copy as you like, and a later version of the item doesn't change it unless you install it again.
+
+## Find an item
+
+Browse or search the gallery at [templates.kloudmate.com](https://templates.kloudmate.com). Each item's page lists the resources it contains, what it needs from your workspace if anything, and any setup steps.
+
+Items published by KloudMate carry the **Official** badge and are listed first. Any organization can publish, and its items show who published them. KloudMate doesn't review those items, so check what an item holds before you install it.
+
+## Install an item
+
+Every item has an ID, such as `aws-rds`, shown on its page with a button to copy it. To share an item with your team, send its ID or its link.
+
+1. Click **Import** on the **Dashboards**, **Alerts**, or **Workflows** list.
+2. Paste the item's ID or its link.
+3. Click **Check**. Nothing is written yet. Each resource is listed with its action and the fields that would change.
+4. Resolve anything the item needs that isn't found in this workspace. For an AWS account, a connection, or a notification channel, select a match from this workspace in the **Pick a match** list. For a workflow variable that's missing, click **Set value** to create it here.
+5. Click **Apply**.
+
+You can also click **Open in KloudMate** on an item's page in the gallery, then click **Install**.
+
+### Check the setup steps
+
+Some items need something in place before their data shows up, such as a minimum agent version, a collector setting, or a data source. The publisher lists these setup steps on the item's page, and the Import dialog shows them as soon as you paste the item's ID or link.
+
+### What installing changes
+
+- A dashboard or an alert rule is installed outside any folder, unless the item was published as a folder. In that case, the folder is created with everything in it.
+- A workflow is installed as an unpublished draft, turned off. Open it, review its steps, then publish it and turn it on.
+- Installing an item again, for example after a new version is published, updates the copy from the first install. **Check** shows each field that would change, including fields you edited yourself. For a workflow, the new version is saved as a draft, and the published version keeps running until you publish the draft.
+
+Installing works the same way as [importing a config file](../config-as-code/). Click **Download YAML** on an item's page in KloudMate to keep the item in a [kmctl](../config-as-code/#keep-config-in-git-with-kmctl) directory.
+
+## Publish an item
+
+1. Open **Export** on a dashboard (in its **Share** menu), on an alert rule or folder, or on a workflow, then click **Publish to gallery**. **Publish** alone is enough to open a dashboard's **Share** menu: without **Share**, it opens on **Export** and has no public link.
+2. Pick what to publish: folders with everything in them, or single resources.
+3. Give it a name and an ID. Anyone can install it with that ID, so it can't be changed later. An organization other than KloudMate gets an eight-digit number in front of its IDs, such as `48291307-api-latency`.
+4. Add a description, setup steps, tags, and up to three screenshots, PNG or JPEG of up to 1 MB each. The first screenshot is the item's picture in the gallery.
+5. Click **Publish**.
+
+Variables and secrets are never published. Each workspace that installs the item picks its own connections and accounts.
+
+To publish a new version, open the item in KloudMate and click **New version**. **Edit details** changes the listing and screenshots without a new version. **Unpublish** takes the item off the gallery; workspaces keep what they installed.
+
+An organization can publish up to 50 times a day, with up to 200 resources in one item.
+
+## Permissions
+
+Publishing needs **Publish** for each kind of resource the item holds, in the workspace you publish from: on dashboards, alerts, or workflows. Developers and Admins have it. To publish a new version, edit, or unpublish an item later, you need the same permissions in the workspace it was published from.
+
+Installing needs permission to change each kind of resource the item contains: **Manage** for dashboards, **Configure** for alerts, and **Configure** for workflows. See the [permission reference](../settings/roles/permission-reference/).

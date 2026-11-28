@@ -12,13 +12,14 @@ This page includes:
 - The active subscription plan
 - Payment method and billing details
 - Usage totals relevant to billing
+- AI credit balance, with options to buy more credits
 - Historical invoices
 
 ![image](./images/subscription-_-billing-1.png)
 
-Every member of the organization can see the plan, usage, and purchased credits. Only an Owner can:
+Every member of the organization can see the plan, usage, and purchased credits. Only an Owner or a Billing admin can:
 
-- See invoices
+- See the payment method, the billing contact and address, and invoices
 - Change the subscription plan
 - Add or remove payment methods
 - Update billing contact or billing address information
@@ -28,13 +29,17 @@ See [Roles and permissions](../roles/#billing).
 
 ## Control Overage Costs
 
-To prevent unexpected charges, configure overage controls for your account.
+To prevent unexpected charges, set an overage limit under **Overage Control**. Overage is what you use beyond the usage your plan includes.
 
 You can limit overage using either:
 
-- A fixed dollar amount
-- A percentage of the plan limit
+- A fixed amount, on plans paid by card
+- A percentage of your plan's monthly fee
+
+Overage Control isn't shown on the Free plan, during a trial, or on a prepaid plan, because none of these is billed for overage.
 
 ![image](./images/subscription-_-billing-2.png)
+
+As you set the limit, the dialog shows the most you'd pay in a month with that limit in place.
 
 Set the value to `0` if you want to block all overage charges entirely.

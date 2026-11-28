@@ -9,7 +9,7 @@ The panel always reads alerts. The query editor has no data set picker or aggreg
 
 The list is paged. The page size is the query's **Limit** (10 for a new panel), and numbered pages appear under the list when there are more alerts than fit on one page.
 
-![Alert List panel settings](./images/alert-list-panel-1.jpeg)
+![An Alerts List panel in the panel editor, with a page of alerts, the Filters and Limit fields, and the Panel and Time range sections](./images/alert-list-panel-1.jpeg)
 
 The **Options** tab has the **Panel** and **Time range** sections. The panel has no **Overrides** or **Transform** tab.
 
@@ -22,7 +22,7 @@ The **Options** tab has the **Panel** and **Time range** sections. The panel has
 
 ## Time range
 
-Turn on **Override dashboard time range** to give this panel its own time range. **Time shift** moves the panel's range back in time, for example `-1d` to show the same window yesterday. See [Time Range Expressions and Settings](../time-range-expressions-and-settings/) for the supported units and syntax.
+Enter a **Time shift** and turn on **Apply time shift** to move this panel's time range back in time. For example, `-1d` shows the same window yesterday. The shift only goes backwards, so use a value such as `-1h` or `-7d`. See [Time Range Expressions and Settings](../time-range-expressions-and-settings/) for the supported units and syntax.
 
 ## Related
 

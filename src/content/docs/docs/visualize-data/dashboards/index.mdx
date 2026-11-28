@@ -7,7 +7,7 @@ sidebar:
 ---
 Build dashboards to track the metrics that matter to your application and business. Open **Dashboards** in the left navigation to see all of them. To build one, see [Create a dashboard](./create-a-dashboard/).
 
-![image](./images/dashboards-overview-1.png)
+![The All dashboards page in Folders view, with dashboards grouped under K8s Dashboard, Machine Learning, and SNMP](./images/dashboards-overview-1.png)
 
 ## Find a dashboard
 
@@ -29,11 +29,11 @@ Group related dashboards in a folder, for example one folder per team or service
 
 1. Click the arrow next to **Create Dashboard**, then click **Create folder**.
 
-   ![image](./images/dashboards-overview-2.png)
+   ![The arrow menu next to Create Dashboard, with Create folder](./images/dashboards-overview-2.png)
 
 2. Enter a **Name** and an optional **Description**, then click **Create**.
 
-![image](./images/dashboards-overview-1.jpeg)
+   ![The Create folder dialog with the name Payments and a description](./images/dashboards-overview-1.jpeg)
 
 To put a dashboard in a folder, open its more options (⋯) menu, click **Move to folder**, and pick the folder. Pick **Ungrouped** to take it out of a folder.
 
@@ -43,19 +43,19 @@ To rename or remove a folder, use its more options (⋯) menu to **Edit folder**
 
 A public link gives read-only access to people outside your workspace, such as stakeholders or external teams, without a KloudMate login. To create one, see [Sharing a Dashboard](./dashboard-details/#sharing-a-dashboard).
 
-To manage your public links, click **Public Dashboards**. From there you can copy a link, open it to see what others see, or click **Delete** to revoke it. A deleted link stops working immediately.
+To manage your public links, click **Public dashboards** in the sidebar. Click **Copy link** to copy a link. To see what others see, open the link's more options (⋮) menu and click **View**. To revoke a link, click **Delete** in the same menu. A deleted link stops working immediately.
 
-![image](./images/dashboards-overview-3.png)
+![The Public dashboards page, listing each shared dashboard with who shared it, whether it is active, and Copy link](./images/dashboards-overview-3.png)
 
 ## Importing a Dashboard
 
-Import a dashboard from its JSON to copy it from one workspace to another, or to reuse a dashboard someone shared with you. To get the JSON of an existing dashboard, see [Sharing a Dashboard](./dashboard-details/#sharing-a-dashboard).
+Import a dashboard to copy it from one workspace to another, or to reuse a dashboard someone shared with you. To get the file, export the dashboard from its **Share** dialog. See [Export](./dashboard-details/#export).
 
-1. Copy the dashboard's JSON.
-2. On the Dashboards page, click **Import**.
-3. Paste the JSON and click **Submit**.
+1. On the Dashboards page, click **Import**.
+2. Paste the exported YAML, or click **Choose file**.
+3. Click **Check** to see what the import would create or update, then click **Apply**.
 
-![image](./images/dashboards-overview-4.png)
+Dashboard JSON files from the earlier export can't be imported, so export the dashboard again. Importing a dashboard that already exists in the workspace updates it. For how the import matches AWS accounts and folders, see [Config as code](../../platform/config-as-code/).
 
 To create, update, or delete dashboards from a script instead, or to read the JSON format, see [Dashboard JSON and API](./dashboard-json-and-api/).
 

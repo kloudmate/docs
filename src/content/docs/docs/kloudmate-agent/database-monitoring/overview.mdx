@@ -53,7 +53,7 @@ The wizard is one form, top to bottom:
 
 Click **Save and apply**. The change reaches the agent within a minute.
 
-![The "Add database monitoring" wizard for MySQL, top to bottom: the engine picker and coverages with Query performance turned on, the setup steps it needs, the connection fields with the credential mode selector (environment variable or entered value), and the collapsed Advanced section with Save and apply.](./images/wizard-add-database.png)
+![The "Add database monitoring" wizard for MySQL, top to bottom: the engine picker and coverages with Query performance turned on, the setup steps it needs, the connection fields for an Orders DB instance with the credential mode selector (environment variable or entered value), and the collapsed Advanced section with Save and apply.](./images/wizard-add-database.png)
 
 ## What's checked when you save
 
@@ -95,7 +95,7 @@ query_sample_collection:
   max_rows_per_query: 200
 ```
 
-![The Advanced section of the edit wizard with the Query performance coverage selected and the YAML above in the editor.](./images/advanced-query-performance.png)
+![The Advanced section of the database wizard with the Query performance coverage selected and the YAML above in the editor.](./images/advanced-query-performance.png)
 
 - **Query samples follow the standard metrics interval.** The receivers don't support a separate interval for samples. Don't set a top-level `collection_interval` in this override: query performance shares a receiver with standard metrics, so it would slow those down too.
 - **Connection poolers produce many idle samples.** An idle session is sampled once after each query it finishes, which is how short queries are captured at all. Behind a pooler such as PgBouncer, most connections are idle at any moment, so most samples are idle sessions. Samples can't be filtered by session state, so lower `max_rows_per_query` to send fewer of them.

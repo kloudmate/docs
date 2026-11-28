@@ -71,7 +71,7 @@ Logs and traces don't have a metric. Their **Aggregate** step picks a statistic 
 
 ### Filter the data
 
-The **Filter** step narrows the query with chips, the same way the [Log Explorer](../../../../logs/log-explorer/) filter bar does. Click **filter**, then pick a label on a metric or a field on logs and traces, an operator, and a value. The query keeps only what matches every chip.
+The **Filter** step narrows the query with chips, the same way the [Log Explorer](../../../../logs/log-explorer/) filter bar does. Click **filter**, then pick a label on a metric or a field on logs and traces, an operator, and a value. The query keeps only what matches every chip, except that two `=` chips on the same field match either value.
 
 To match any one of several conditions, click **OR group** and add the conditions inside it. For example, an OR group with `service_name = checkout` and `service_name = payments` matches either service. Logs and traces also take free text, which matches any string field in the record.
 

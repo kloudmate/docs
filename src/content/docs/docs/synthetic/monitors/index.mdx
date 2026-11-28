@@ -4,7 +4,7 @@ description: "The synthetic monitor types KloudMate supports and how to create t
 sidebar:
   label: "Introduction"
 ---
-The **Monitors** tab lists all monitors in the current workspace, with key status information for each one.
+The **Monitors** page lists all monitors in the current workspace, with key status information for each one.
 
 When creating or editing any monitor (except Push), click **Test** next to **Save Monitor** to run the check once from your selected locations and preview the result before you save.
 
@@ -17,13 +17,13 @@ When creating or editing any monitor (except Push), click **Test** next to **Sav
 - **Success (7d)**: Shows the success percentage of the monitor over the past 7 days.
 - **Status**: Indicates whether the monitor is **Enabled** or **Paused**. The colored dot next to each row shows its current health (up or down), separate from this enabled/paused state.
 
-![The Monitors tab listing each monitor with its health dot, name, type, target, frequency, 7-day success rate, status, and actions menu](./images/monitors-1.png)
+![The Monitors page listing each monitor with its health dot, name, type, target, frequency, 7-day success rate, status, and actions menu](./images/monitors-1.png)
 
 ### Monitor Details Page
 
 Clicking any monitor in the list opens its details page, with full performance and history information.
 
-![The details page for a DNS monitor with current status, last checked time, the last 24 hours, success rates for 7 days, 30 days, and 1 year, and a DNS resolve time chart](./images/monitors-2.png)
+![The details page for an HTTP monitor with current status, last checked time, the last 24 hours, SSL expiry, success rates for 7 days, 30 days, and 1 year, and a request duration chart](./images/monitors-2.png)
 
 **Details Page Sections** - **Status**  
   Current real-time status of the monitor with visual indicators.
@@ -39,14 +39,16 @@ Clicking any monitor in the list opens its details page, with full performance a
   Log of the most recent check executions with results and timings.
 
 
-![The Recent Checks table with time, status, resolve time, and location](./images/monitors-4.png)
+![The Recent Checks table with time, status, response time, and location](./images/monitors-4.png)
 
 
 ## Downtime Rules and Flapping Control
 
 Every monitor runs its checks from the **Monitoring Locations** you select. Selecting multiple locations is recommended to reduce false positives caused by an issue local to a single location.
 
-**Downtime Rules** controls when a failing check actually counts as downtime. Set **Failed checks before going down** to the number of consecutive failed checks (about 30 seconds apart) required before the monitor is marked down — for example, "2 checks in a row" means the monitor only goes down after two failures back to back. This filters out flapping, so a single transient blip or timeout doesn't open an incident. Failures that don't reach this threshold are unconfirmed: they're ignored completely and never appear in uptime, response time, or incident history.
+**Downtime Rules** controls when a failing check actually counts as downtime. Set **Failed checks before going down** to the number of consecutive failed checks (about 30 seconds apart) required before the monitor is marked down. For example, "2 checks in a row" means the monitor only goes down after two failures back to back. This filters out flapping, so a single transient blip or timeout doesn't open an incident. Failures that don't reach this threshold are unconfirmed: they're ignored completely and never appear in uptime, response time, or incident history.
+
+When you select more than one location, **Locations that must pass** sets how many of them must pass for a check to succeed. For example, with **1 of 3 locations**, a check fails only when all three locations fail.
 
 ## Core Uptime and Status Metrics
 

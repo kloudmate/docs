@@ -7,24 +7,24 @@ sidebar:
 ---
 Opening a dashboard takes you to the Dashboard Details view where all your panels are displayed together. Every panel updates with the selected time range and refresh setting.
 
-![image](./images/dashboard-details-1.png)
+![The Kubernetes cluster overview dashboard with Health stat panels and node CPU and memory charts](./images/dashboard-details-1.png)
 
 ## Toolbar
 
 The toolbar at the top provides the following controls:
 
-- **Panel list:** Opens a dropdown listing all panels on the dashboard, letting you quickly jump to a specific panel without scrolling.
+- **Panel list:** Opens a dropdown listing all panels on the dashboard, grouped by section. Click a panel to jump to it without scrolling.
 
-![image](./images/dashboard-details-1.jpeg)
+![The panel list open, showing panels grouped under the Health and Nodes sections](./images/dashboard-details-1.jpeg)
 
-- **Time range picker:** Sets the time window applied to all panels. Choose a relative option or use Start & End time to set a custom range. You can also set the Timezone.
+- **Time range picker:** Sets the time window applied to all panels. Choose a relative option, type one such as `15m` or `1h` in the **Relative time** field, or use **Start & End time** to set a custom range. You can also set the **Time zone**.
 
-![image](./images/dashboard-details-2.jpeg)
+![The time range picker open, with the Relative time field, preset ranges, Start & End time, and Time zone](./images/dashboard-details-2.jpeg)
 
 - **Refresh icon:** Manually refreshes all panels to pull the latest data.
 - **Refresh interval dropdown:** Sets an automatic refresh interval so the dashboard stays current. 
 
-![image](./images/dashboard-details-3.jpeg)
+![The refresh interval menu open, with Off and intervals from 5s to 30m](./images/dashboard-details-3.jpeg)
 
 - **Export:** Exports the dashboard.
 - **Share:** Opens the Share Dashboard dialog, with options for a public link or a copy of the dashboard's JSON.
@@ -35,7 +35,7 @@ The toolbar at the top provides the following controls:
 
 KloudMate integrates alerts directly into your dashboard visualizations, providing immediate context on system health alongside your metrics.
 
-![image](./images/dashboard-details-5.png)
+![The Linked Alerts bell in the dashboard toolbar](./images/dashboard-details-5.png)
 
 - **Linked Alerts:** Click the bell icon in the toolbar to open the Linked Alerts drawer, which lists every alert linked to a panel in the dashboard.
 - **Panel Alert Indicators:** If a panel is linked to an alert and the alert is currently **Firing**, a status indicator will appear on the panel header.
@@ -47,7 +47,7 @@ KloudMate integrates alerts directly into your dashboard visualizations, providi
 
 To open the Share Dashboard dialog, click **Share** in the dashboard's toolbar, or in the more options (⋯) menu in the dashboard list.
 
-![image](./images/dashboard-details-2.png)
+![The Link tab of the Share dialog, with Enable public sharing, Allow time range selection, Theme, and Time range](./images/dashboard-details-2.png)
 
 ### Public link
 
@@ -55,17 +55,14 @@ Generates a link that anyone can use to view the dashboard without logging in to
 
 - **Enable public sharing:** Toggle this on to activate the public link.
 - **Allow time range selection:** Toggle this on to let viewers change the time range when viewing the shared dashboard.
+- **Theme:** Sets the theme the dashboard opens in from a public link: **System**, **Light**, or **Dark**. **System** follows the viewer's device setting.
 - **Time range:** Sets the default time range viewers will see when they open the shared link.
-- **Variables:** Picks the value of each variable for the public link. Viewers can't change them. A public link opens on the values picked here, whatever the dashboard's defaults or anyone's own picks. A variable you don't pick here uses its default.
+- **Variables:** Shown when the dashboard has variables. Picks the value of each variable for the public link. Viewers can't change them. A public link opens on the values picked here, whatever the dashboard's defaults or anyone's own picks. A variable you don't pick here uses its default.
 
 Click **Save** to apply the settings. The shared link can be managed from the **Public Dashboards** page.
 
 A public dashboard draws no annotations, and its panel menu has no **Create alert**.
 
-### Copy JSON
+### Export
 
-Open the **Export** tab and click **Copy JSON** to copy the dashboard's JSON definition, or **Download** to save it as a file. Use it to recreate the dashboard in another workspace with the same layout and no manual rebuild.
-
-![image](./images/dashboard-details-4.jpeg)
-
-To import the JSON, or to read what it contains, see [Dashboard JSON and API](../dashboard-json-and-api/).
+Open the **Export** tab to get the dashboard as YAML, then click **Copy** or **Download**. Import the file into another workspace to recreate the dashboard with the same layout and no manual rebuild. See [Importing a Dashboard](../#importing-a-dashboard) and [Config as code](../../../platform/config-as-code/).

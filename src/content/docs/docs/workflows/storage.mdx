@@ -44,7 +44,7 @@ Publishing refuses a typed value that isn't a duration, such as `30 min`. KloudM
 
 Only the actions that can create a key have this field. Leaving it blank never removes an expiry that an earlier write set.
 
-An expired key counts as missing right away. The Storage tab lists it as **Expired** until a daily cleanup removes it.
+An expired key counts as missing right away. The **Storage** page lists it as **Expired** until a daily cleanup removes it.
 
 ## Examples
 
@@ -107,7 +107,7 @@ The [Send alerts to your workflows](../alert-router/#how-the-cooldown-works) tem
 
 **Workflows → Storage** lists every key in the workspace with its scope, type, size, expiry, and when it last changed. The list doesn't show values. To read one, open **View value** on its row.
 
-![The Storage tab listing keys with their scope, type, size, and expiry, including one key chipped as Expired](./images/storage-tab.png)
+![The Storage page listing keys with their scope, type, size, and expiry, including one key marked Expired](./images/storage-tab.png)
 
 It's the only place to remove a key by hand. A row's menu deletes that key, or clears every key a given workflow wrote.
 

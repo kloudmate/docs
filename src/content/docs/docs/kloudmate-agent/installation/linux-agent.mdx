@@ -62,19 +62,15 @@ View all data in these KloudMate sections:
 
 **Step 2:** Click **Add Agent**, select **Linux**, and click **Continue**. On the **API key** step, click **Create backend key**, or select **Use existing key** and paste your backend ingest key. Then click **Continue**.
 
-![API key step when adding an agent](./images/agent-install-api-key.png)
+![The API key step of the Install KloudMate Agent wizard, with Create new key selected, a note for the backend ingest key, and the Create backend key button](./images/agent-install-api-key.png)
 
 **Step 3:** Copy and run the Linux agent install command in your terminal to download and install the agent.
 
-![image](./images/linux-agent-1.png)
+![The Install step of the wizard, showing the Linux install command with the ingest key and collector endpoint embedded](./images/linux-agent-1.png)
 
-**Step 4:** Run the agent status command to check if the agent is active.
+**Step 4:** Click **Continue**. The **Verify** step waits for the agent to connect, which usually takes under a minute. When it shows **Agent connected**, click **Configure agent** to set up application instrumentation, database monitoring, and log collection, or click **Go to agents** to return to the agents list.
 
-![image](./images/linux-agent-2.png)
-
-**Step 5:** Execute the "Check Logs" command to confirm the agent is functioning correctly.
-
-![image](./images/linux-agent-3.png)
+![The Verify step of the wizard showing Agent connected, with the host name, agent version, and the number of apps and databases the agent found on the host](./images/linux-agent-2.png)
 
 ## Check a host before installing
 
@@ -143,6 +139,8 @@ After the agent is running, confirm what it collects and explore what it found:
 
 ## Uninstall Agent
 
-Run the provided uninstall command to remove the agent.
+In **Settings → Agents & Pipelines**, open the agent's actions menu (⋮) and select **Uninstall**. Run the command it shows on the host. It stops the service and removes the package, config, and logs.
 
-![image](./images/linux-agent-4.png)
+![The Linux uninstall command, which runs uninstall_linux.sh](./images/linux-agent-4.png)
+
+Once the agent is removed, it stops checking in. Delete it from the agents list to clear its configuration.

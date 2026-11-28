@@ -44,9 +44,9 @@ Rows carry an action where there is one to take. An error opens its issue, a req
 
 Rage, dead, and error clicks are events in their own right. They appear as badges on the sessions list, as markers on the timeline, and as rows in **What happened**, so you can open a session from a badge and go straight to the click behind it.
 
-![A session badged Rage click, with a RAGE CLICK row on button#ck_apply among repeated coupon_denied events](./images/rum-session-frustration.png)
+![A session badged Rage click, with a RAGE CLICK row on a canvas element among the session's network requests](./images/rum-session-frustration.png)
 
-The example above is typical: a coupon that won't apply, the same event firing over and over, and a rage click on the button that kept rejecting it.
+In the example above, a burst of clicks on a `canvas` element is reported as one **RAGE CLICK** row, in order with the requests the page made before and after it.
 
 | Signal | What it means |
 | --- | --- |
@@ -64,7 +64,7 @@ The browser SDK classifies these at the moment of the click, from what the page 
 
 ## The evidence tabs
 
-The right-hand pane switches between views of the same session: **Replay**, **Console**, **Network**, **Errors**, **Attributes**, and **Raw**. Each tab carries its own count where it has one, such as `Network (210)` or `Errors (14)`.
+The right-hand pane switches between views of the same session: **Replay**, **Console**, **Network**, **Errors**, **Attributes**, and **Raw**. Each tab carries its own count where it has one, such as `Network (444)` or `Errors (16)`.
 
 ### Replay
 
@@ -82,9 +82,9 @@ The browser console for this session. `console.error` and `console.warn` are cap
 
 ### Network
 
-Every `fetch` and `XMLHttpRequest` the session made, drawn as a waterfall, with a summary line giving the request count, how many failed, and the slowest.
+Every `fetch` and `XMLHttpRequest` the session made, drawn as a waterfall, with a summary line giving the request count and the slowest request.
 
-![The Network tab as a waterfall: a GET returning 200 in 99ms and a POST taking 360ms, each with a bar placed against the session](./images/rum-session-network.png)
+![The Network tab as a waterfall of GET requests returning 200, each with its duration and a bar placed against the session](./images/rum-session-network.png)
 
 Each bar is placed against the whole session rather than sized on its own, so three calls stacked in the same second are easy to spot. Same-origin calls show the path alone and third-party calls show host and path, with the full URL on hover. Failed requests are red across the row.
 
@@ -92,15 +92,15 @@ Each bar is placed against the whole session rather than sized on its own, so th
 
 The errors, crashes, and app hangs from this session, each with its type and message.
 
-![The Errors tab listing two errors with their times and messages](./images/rum-session-errors.png)
+![The Errors tab listing the session's 16 errors with their times and messages](./images/rum-session-errors.png)
 
 ### Attributes
 
 The environment the session ran in: service, version, browser, OS, device, location, and referrer.
 
-![The Attributes tab showing service, environment, browser, OS, device type, Screen, Screen Density, platform, and location fields](./images/rum-session-attributes.png)
+![The Attributes tab showing service, app version, environment, browser, OS, device type, Screen, platform, location, IP address, and referrer fields](./images/rum-session-attributes.png)
 
-**Screen** is the device's screen resolution and **Screen Density** is its scale factor. Both are reported on web and mobile, and the same measurement feeds the **Screen resolution** breakdown on [Overview](../rum-interface/#overview).
+**Screen** is the device's screen resolution. It's reported on web and mobile, and the same measurement feeds the **Screen resolution** breakdown on [Overview](../rum-interface/#overview).
 
 ### Raw
 

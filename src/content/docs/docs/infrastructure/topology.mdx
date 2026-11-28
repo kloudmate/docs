@@ -1,0 +1,120 @@
+---
+title: "Topology"
+description: "See your workspace as one map: services over the hosts they run on, the calls between them, network devices and their cables, and where a problem starts."
+sidebar:
+  order: 0.55
+---
+
+**Topology** draws your workspace as a map. Services sit over the hosts they run on, calls run between services, network devices sit beside the hosts cabled to them, and the APIs and AWS services you call sit on a ring outside. Use it to see how your system fits together, find what a resource depends on, and trace an alert back to where it likely started.
+
+Topology reads the same resources as [Inventory](../inventory/). The [KloudMate agent](../../kloudmate-agent/) adds hosts, Kubernetes workloads, and services, traces add the calls between them, and [SNMP monitoring](../../network-monitoring/) adds network devices and their cables.
+
+## Open the map
+
+Open **Inventory** and select **Topology** in the sidebar. The map opens with:
+
+- Services and the calls between them.
+- The hosts those services run on.
+- Kubernetes workloads that run a service.
+- Network devices and their cables, when the workspace monitors any.
+
+A resource shows on the map when it calls, is called by, or is cabled to another resource in the workspace. A service with no calls still shows, so you can spot one that has gone quiet.
+
+Regions and networks place hosts and devices on the map, but they don't draw until you turn them on. External services, workloads that run no service, and network flows start off too.
+
+## Move around the map
+
+- **Zoom:** scroll over the map, or use **−**, **Fit**, and **+** in the corner. **Fit** fits everything that's drawn.
+- **Pan:** drag the map.
+- **Names:** the most important resources are named first. Services are named at every zoom. Network devices, hosts, and workloads get their names as you zoom in.
+- **Hover:** point at any resource or line to see a card with its numbers, such as a service's requests per minute, error rate, and p95 latency, or a call's rate and errors.
+
+When you zoom out, a network with six or more hosts draws as one bubble. The bubble shows how many hosts it holds and how many of them are alerting. Click it to zoom in and open it.
+
+Colors follow the resource's category: blue for hosts, violet for Kubernetes, teal for services, and orange for databases, caches, and queues. Red always means alerting.
+
+## Choose what the map draws
+
+The panel on the left of the map lists each layer with a switch, how many resources it has, and how many of them are alerting.
+
+| Layer | What it draws |
+| --- | --- |
+| **Services** | Services, including those with no calls (**With no calls**) |
+| **Workloads** | Kubernetes workloads, and those that run no service (**With no service**) |
+| **Hosts** | Hosts and Kubernetes nodes |
+| **Network devices** | Switches, routers, and firewalls you monitor over SNMP |
+| **Networks** | VPCs and the networks hosts sit in |
+| **Regions** | Cloud regions |
+| **Calls** | Calls between services, from traces |
+| **Network flows** | Flows between resources |
+| **Cables** | Links between network devices, and between a switch and the hosts cabled to it |
+| **External services** | APIs and AWS services that your services call but that aren't in the workspace |
+
+Click a layer's row to turn it on and zoom in until its resources are named.
+
+When a workload is the only one behind the only service it runs, the map draws the service and not the workload. The **Workloads** row says how many it shows that way.
+
+To narrow the map, use **Filter by tag** at the top of the panel. To find one resource, type in **Find a resource** at the bottom and press **Enter** to select the first match.
+
+## Inspect a resource
+
+Click a resource to open its side panel. Press **Escape** to close it.
+
+The panel shows whether the resource is alerting and a link to its own page, such as **Open in APM** for a service or **Open in Hosts** for a host. Below that you'll find its last hour of metrics:
+
+| Resource | Metrics |
+| --- | --- |
+| Service | Requests per minute, error rate, and p95 latency |
+| Host | CPU, memory, and disk use |
+| Kubernetes node | CPU, memory, and disk use, against what the node can allocate |
+| Workload | CPU (in cores, or millicores under one core), memory, and pods |
+| Network device | CPU, memory, and throughput |
+
+If a resource sends no metrics, the panel shows **Metrics not available**.
+
+The rest of the panel lists:
+
+- **Where it runs:** the hosts, network, and region under the resource.
+- What runs on it, such as the workloads and services on a host.
+- **Links:** for a network device, its cables, with down links and links above 80% use called out.
+- **If it fails:** what loses its only path, for example the hosts behind a switch with no backup link.
+- **Calls** and **Called by:** the services this one calls and the ones that call it.
+
+Selecting a resource highlights its stack and what it talks to, and fades the rest of the map.
+
+## Read the lines
+
+- **Calls** are arcs from caller to callee. With a resource selected, its calls take the accent color.
+- **Cables** always draw solid. A down cable is dashed red, and a cable above 80% use is amber.
+
+## Find where a problem starts
+
+Switch the map from **All** to **Problems**. The map keeps the alerting services, the calls that join them, and down cables. The line above the map counts the alerting services and names the likely origin: the alerting service that the others call into and that doesn't call another alerting service itself.
+
+If the line ends with **Alert counts are a minimum**, the workspace has more alerting resources than the map counted.
+
+## Focus on one resource
+
+Click **Focus** in a resource's side panel to see only that resource and what's directly connected to it. Click **Show 2 hops** to widen it to the next ring of connections. Click **Topology** in the breadcrumb to go back to the map.
+
+## Open Topology from other pages
+
+Look for **View in Topology** on:
+
+- A resource's details in [Inventory](../inventory/#open-a-resource).
+- A host's related resources in [Hosts & Containers](../hosts/).
+- An [alert group's](../../alerts/alert-groups/) affected resources. Topology opens with that group's affected resources and what they run on and depend on.
+
+## Limits
+
+- On a large workspace, the map draws the resources it can and says how many it left out, for example **120 more resources are not drawn**. Use **Filter by tag** to narrow it.
+- Calls come from traces, so a service that isn't instrumented shows no calls.
+- Cables come from the LLDP and CDP neighbor tables of the devices you monitor over SNMP. A host appears at the end of a cable only when it's also monitored by the agent.
+- The map updates as often as Inventory does. See [How often Inventory updates](../inventory/#how-often-inventory-updates).
+
+## Related
+
+- [Inventory](../inventory/): every resource in the workspace, by type or in one list.
+- [Kubernetes Monitoring](../kubernetes/): the traffic map between workloads in a cluster.
+- [Network monitoring](../../network-monitoring/): add switches, routers, and firewalls over SNMP.
+- [Alert Groups](../../alerts/alert-groups/): related alerts grouped into one problem.

@@ -6,17 +6,17 @@ sidebar:
 ---
 Investigations is your primary workspace for diagnosing issues, exploring anomalies, and uncovering insights. You can ask questions across metrics, logs, and traces, and iteratively troubleshoot problems in a conversational flow.
 
-Opening **Assistant** lands you on the **Investigations** tab, which lists past and active investigations. Click **New investigation** to start one. The new investigation opens with quick-access cards to help you get started:
+Opening **Assistant** lands you on the **Investigations** tab, which lists past and active investigations. Click **New investigation** to start one. The **Investigate an issue** page opens with quick-access cards above the chat input:
 
-- **Previous investigations:** Returns you to the **Investigations** tab, where you can find and revisit completed or in-progress RCA reports.
-- **Integration hub:** Opens the **MCP Integrations** tab, where you connect external systems to the Assistant.
+- **Investigations:** Returns you to the **Investigations** tab, where you can find and revisit reports from earlier runs.
+- **MCP Integrations:** Opens the **MCP Integrations** tab, where you connect tool servers for the Assistant.
 - **Skills:** Opens the **Skills** tab, where you can create and edit agent skills.
 
-![The page New investigation opens: quick-access cards for Previous investigations, Integration hub, and Skills above the investigation chat input](./images/investigations-2.jpeg)
+![The Investigate an issue page: quick-access cards for Investigations, MCP Integrations, and Skills above the chat input, with KloudMate Investigator selected](./images/investigations-2.jpeg)
 
 ## Adding Context to a Message
 
-![image](./images/investigations-1.jpeg)
+![The context picker opened from the + button in the chat input, with context categories on the left and resources on the right](./images/investigations-1.jpeg)
 
 The + button in the chat input bar opens a context picker that lets you attach relevant resources to your message before sending it. This helps the Assistant understand the scope of your query without requiring you to describe everything from scratch. Select a category on the left panel, then browse the available resources on the right and attach those relevant to your investigation.
 
@@ -55,13 +55,12 @@ The Assistant analyzes the full context, including stack traces, attributes, and
 
 Open **Assistant → Investigations** to see the full investigations list.
 
-![The investigations list with Title, Status, Time Range, Created, and Created By columns](./images/investigations-1.png)
+![The investigations list with Title, Status, Created, and Created By columns and the New investigation button](./images/investigations-1.png)
 
 The list shows all past and active investigations in your workspace. Each row displays the following information:
 
 - **Title:** A brief summary or auto-generated description of the investigation.
 - **Status:** The current state of the investigation, typically shown as Completed or In Progress.
-- **Time Range:** The observation window that was used when the investigation was run.
 - **Created:** The date and time the investigation was initiated.
 - **Created By:** The user who triggered the investigation.
 
@@ -71,18 +70,24 @@ To start a new investigation, open **Assistant → Investigations** and click **
 
 ## Viewing an Investigation
 
-Click any investigation title to open the full investigation report. The report is structured to give you a clear picture of what was analyzed, what was found, and what the likely causes are.
+Click any investigation title to open the full report. The report opens with a one-line summary of what the investigation found, followed by the evidence behind it.
 
-![image](./images/investigations-2.png)
+![An investigation report with the root cause summary, the Health, Severity, Suspects, and Time window panel, a hypothesis with its recommended fixes, and the timeline](./images/investigations-2.png)
 
-At the top of the report, the Investigation Context panel summarizes the scope of the analysis, including the services or resources examined, the time range observed, and the symptom or trigger that was described. It also shows the number of **AI credits** consumed for the investigation and a status badge indicating whether it is **Completed** or still running. If the outcome could not be determined, the badge will show **Unknown**.
+The summary panel at the top shows a status badge, such as **Root cause found**, and how long the investigation took. Next to the summary, it lists the overall **Health**, the **Severity**, the **Suspects** (the resources most likely at fault), and the **Time window** that was analyzed.
 
-Below the context panel, the **Identified User Impact** section provides a plain-language summary of how the issue may be affecting end users or downstream systems. This is designed to give a quick understanding of the situation before diving into the technical detail.
+Below the summary, each hypothesis gets its own card, ranked by how likely it is. Each card includes:
 
-The main body of the report contains the **Active Hypotheses** section, which presents a ranked list of potential root causes uncovered during the investigation. Each hypothesis includes the following:
+- **Cause:** A label for the type of cause, such as `capacity` or `dependency`, followed by a description of the suspected root cause.
+- **Confidence:** How strongly the evidence supports the hypothesis, for example **High confidence** or **Low confidence**.
+- **Explanation:** What was confirmed, what was ruled out against it, and any caveats.
+- **Recommended fixes:** Steps to resolve the issue, each with the **Expected result** you should see once the fix works. Fixes are AI-generated, so verify any command before you run it.
 
-- **Hypothesis Name:** A concise label for the suspected root cause.
-- **Severity:** Indicates the likely impact level: High, Medium, or Low.
-- **Description:** A detailed explanation of why this hypothesis was raised, what it implies for the system, and how it relates to the observed symptom.
-- **Supporting Evidence:** A list of data points from traces, topology, logs, and metrics that validate the hypothesis.
-- **Relevant Resources:** Tags that link to the specific services, pods, or other entities implicated in the hypothesis, making it easy to navigate directly to the affected components.
+The rest of the report backs up the hypotheses:
+
+- **Timeline:** The key events in order, with the alert trigger highlighted.
+- **Supporting evidence:** The individual findings from alerts, Kubernetes, metrics, logs, and traces. For a metric finding, click **Show chart** to see the data or **Open in Explore** to query it further.
+- **Resources involved:** A map of the resources the report names, each marked as **Suspect** or **Affected**, with the number of firing alerts. Click **Show connected resources** to see related resources.
+- **Ruled out:** Causes the investigation checked and rejected.
+- **Gaps:** Checks the investigation couldn't answer from the available data.
+- **Investigation steps:** Every probe the investigation ran, grouped by data source.

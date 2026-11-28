@@ -40,7 +40,7 @@ Give each called workflow a **Manual / API** trigger. Declare the text inputs it
 
 You need the **Developer** role.
 
-1. Open **Workflows → Templates** and click **Use template** on **Send alerts to your workflows**. The new draft opens in the builder.
+1. Open **Workflows** and click **Import**. Paste `alert-router`, click **Check**, then click **Apply**. Open the new draft in the builder.
 2. On **Run your host workflow** and **Run your workload workflow**, pick the workflow each step runs. If you don't have one of them, delete that step. A path with no steps is valid, but don't delete the Route itself, because that also deletes the email under **Otherwise**.
 3. Set **To** on **Email: what a person must look at** and on **Email: no workflow for this resource**. You can also replace both steps with a Slack or Teams message.
 4. To change the cooldown, set **Expires after** on **Count alert group updates for this resource**. It's `30m` by default.

@@ -11,21 +11,21 @@ An alert watches a query, evaluates a condition, and when the condition holds lo
 
 Open **Alerts → Rules**.
 
-![The Rules tab listing alert rules with their state, name, and description](./images/setting-up-kloudmate-alarms-1.png)
+![The Rules page listing alert rules with their state, name, and description](./images/setting-up-kloudmate-alarms-1.png)
 
-The **Rules** tab lists your alert rules with their current state, name, and description. You can group rules into [Folders](../folders/). Select a rule's name to open it.
+The **Rules** page lists your alert rules with their current state, name, and description. You can group rules into [Folders](../folders/). Select a rule's name to open it.
 
 From the **more options (⋯)** icon on any rule, you can:
 
 - **Edit** the rule configuration
 - **Duplicate** the rule
 - **Move to folder…** to move the rule into a different [folder](../folders/)
-- **Export as JSON** to copy the rule into another workspace. See [Export and Import Alerts](../export-and-import/)
+- **Export…** to copy the rule into another workspace as YAML. See [Export and Import Alerts](../export-and-import/)
 - **State history** to see the rule's past state changes
 - **Pause Evaluation** or **Pause Notifications**
 - **Delete** the rule
 
-![A rule's more options menu with Edit, Duplicate, Move to folder, Export as JSON, State history, Resume Evaluation, Pause Notifications, and Delete](./images/setting-up-kloudmate-alarms-1.jpeg)
+![A rule's more options menu with Edit, Duplicate, Move to folder, Export, State history, Resume Evaluation, Pause Notifications, and Delete](./images/setting-up-kloudmate-alarms-1.jpeg)
 
 **Pause Notifications** creates a temporary [silence](../silences/) scoped to this alert: the rule keeps evaluating, but KloudMate suppresses its notifications until the silence expires. While it's paused, the rule is marked **Silenced**; view or end the pause from **Alerts → Silences**. Add matchers to limit it to specific instances.
 
@@ -50,7 +50,7 @@ Instead of building an alert from scratch, start from a pre-configured template 
 
 ![Template selection dropdown](./images/from-template-dropdown.png)
 
-3. Click **Create Alert**. The rule is saved right away and appears on the **Rules** tab.
+3. Click **Create Alert**. The rule is saved right away and appears on the **Rules** page.
 4. To configure it, click the menu next to the rule and select **Edit**.
 5. The alert opens pre-configured with the query, aggregation, and threshold from the template. Review it and adjust any filters to match your environment.
 6. Click **Save** or **Save & Close** when you're done.
@@ -92,7 +92,7 @@ Simple mode puts the whole rule on one page.
 3. In **Evaluation settings**, pick a folder and set how the rule is evaluated. The fields are described in [Configure evaluation settings](#2-configure-evaluation-settings).
 4. In **Alert details**, enter an **Alert name** and a description. Expand **Responder context** to add annotations such as a severity, a title, or a summary. See [Add alert details](#3-add-alert-details).
 5. Expand **Labels** and add the labels you want routing rules to match on. See [Notifications](#4-notifications).
-6. Click **Save**, or **Save & Close** to save and return to the **Rules** tab.
+6. Click **Save**, or **Save & Close** to save and return to the **Rules** page.
 
 ### Choose a detection method
 
@@ -252,7 +252,7 @@ If you're migrating a rule that used notification tags, it keeps working; routin
 
 ### 5. Save the alert
 
-Click **Save** to save the alert, or **Save & Close** to save it and return to the **Rules** tab.
+Click **Save** to save the alert, or **Save & Close** to save it and return to the **Rules** page.
 
 If a field is missing or invalid, its message appears on the field, and the first one scrolls into view. Each message clears as soon as you fix the field. Problems with the rule as a whole, such as a rule with no condition expression or a step that reads a step that doesn't exist, appear as a toast.
 
@@ -276,7 +276,7 @@ The pre-filled values aren't kept if you reload the editor before saving.
 
 ## Viewing an alert
 
-To open an alert, select its name on the **Rules** tab. The detail page has these tabs:
+To open an alert, select its name on the **Rules** page. The detail page has these tabs:
 
 - **Overview:** instance states, breaching instances with their labels, reason, and duration, plus recent state transitions.
 - **Instances:** the full list of alert instances and their current states.

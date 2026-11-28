@@ -21,7 +21,7 @@ Alert expressions support these operations:
 
 A math expression takes the time series or numbers returned by a query or expression and transforms them with mathematical operations or functions.
 
-![image](./images/expressions-1.png)
+![An expression block set to Math expression, with an empty expression field](./images/expressions-1.png)
 
 **Input:** any mathematical operation to apply to the data returned from other queries or expressions. Reference queries and expressions by their letter, prefixed with a dollar sign, for example `$A`.
 
@@ -96,11 +96,11 @@ Reduce takes the time series or numbers returned by a query or expression and tu
 
 - **Reduction function:** select the function to apply: `mean()`, `max()`, `min()`, `sum()`, `last()`, or `count()`.
 
-![image](./images/expressions-2.png)
+![The Reduce function dropdown with LAST, MEAN, MAX, MIN, SUM, and COUNT](./images/expressions-2.png)
 
 - **Input:** select the query or expression to reduce by its letter.
 
-![image](./images/expressions-3.png)
+![The Reduce Input dropdown listing the queries and expressions A and C](./images/expressions-3.png)
 
 The reduction function aggregates the values of the query or expression into a single value.
 
@@ -110,19 +110,19 @@ A condition expression takes the time series or numbers returned by queries or e
 
 - **WHEN:** select the reduction function: `last()`, `mean()`, `max()`, `min()`, `sum()`, or `count()`.
 
-![image](./images/expressions-4.png)
+![The Condition expression WHEN dropdown with the reduction functions](./images/expressions-4.png)
 
 - **OF:** select the query or expression by its letter (for example, A or C).
 
-![image](./images/expressions-5.png)
+![The Condition expression OF dropdown listing A and C](./images/expressions-5.png)
 
-- **Condition string:** select the comparison: `IS ABOVE`, `IS SAME OR ABOVE`, `IS BELOW`, or `IS SAME OR BELOW`.
+- **Condition string:** select the comparison: `IS ABOVE`, `IS SAME OR ABOVE`, `IS BELOW`, `IS SAME OR BELOW`, `IS EQUAL TO`, or `IS NOT EQUAL TO`.
 
-![image](./images/expressions-6.png)
+![The Condition expression comparison dropdown with IS ABOVE through IS NOT EQUAL TO](./images/expressions-6.png)
 
 - **Threshold:** enter the numeric value to evaluate the condition against.
 
-![image](./images/expressions-7.png)
+![A complete condition: WHEN COUNT OF A IS ABOVE a threshold of 0](./images/expressions-7.png)
 
 KloudMate reduces the query or expression to a single value, then compares it against the threshold using the condition you chose. When the input is a collection of time series or numbers, it reduces each element individually, evaluates each reduced output against the condition, and combines the results with AND.
 
@@ -132,16 +132,16 @@ Add more conditions with the **Add condition** button, and choose how they combi
 
 Nodes represent the individual queries or expressions used to build alerts and dashboards. A node's ID is its name. KloudMate names nodes with a letter by default (for example, A, B, or C), based on the order they were created.
 
-![image](./images/expressions-8.png)
+![A query node header with its default name, A, highlighted](./images/expressions-8.png)
 
 You reference a node by its name in other queries and expressions.
 
-![image](./images/expressions-9.png)
+![A Math expression field with its example placeholder highlighted](./images/expressions-9.png)
 
 To rename a node, edit its name in the node header. A name can contain letters, numbers, underscores, and spaces, and it must be unique within the alert or panel. Renaming a node updates every reference to it, including math expressions, the **Input** of a Reduce, the **OF** of a condition, and the alert condition.
 
-![image](./images/expressions-10.png)
+![A query node renamed to CPU usage in the node header](./images/expressions-10.png)
 
 If a node name includes spaces, enclose it in **${}** when you reference it. For example: `${CPU usage}`
 
-![image](./images/expressions-11.png)
+![A Math expression that references nodes with spaces in their names, CPU usage divided by CPU Limit](./images/expressions-11.png)

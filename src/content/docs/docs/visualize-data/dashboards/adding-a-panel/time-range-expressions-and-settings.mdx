@@ -39,22 +39,19 @@ You can enter the **From** and **To** expressions in the time picker’s **Start
 
 ## Time Range Settings
 
-Access panel-level time range settings from the **General** tab's **Time Range** section in the right-side panel editor. These settings let you configure the time range independently for individual panels.
+Panel-level time settings are in the **Time range** section of the **Options** tab in the panel editor. By default, every panel follows the dashboard's time range.
 
-### 1. Override Dashboard Time Range
+### Apply a time shift
 
-By default, all panels follow the dashboard’s global time range. Enabling **Override dashboard time** range lets an individual panel use its own time range, independent of the rest of the dashboard.
+A time shift moves a panel's start and end time back by a fixed amount, so the panel shows an earlier window than the rest of the dashboard. For example, put a panel with a `-1d` shift next to an unshifted one to compare today's traffic with yesterday's.
 
-This is useful when you want to visualize and compare data across different time periods on the same dashboard, for example, comparing last month’s data alongside this month’s in separate panels.
+1. Enter a **Time shift**, for example `-1d`.
+2. Turn on **Apply time shift**.
 
-![image](./images/time-range-expressions-and-settings-2.jpeg)
+![The Time range section with Time shift set to -1d and Apply time shift turned on](./images/time-range-expressions-and-settings-2.jpeg)
 
-### 2. Time shift
-
-Time Shift moves a panel’s start and end time forward or backward by a specified amount. This lets you view historical data offset from the current time range without changing the dashboard’s global range.
-
-- **Supported operators:** `-` (subtract time)
-- **Supported units:** Same as Dashboard time range expressions
+- **Supported operators:** `-` (subtract time). The shift only goes backwards.
+- **Supported units:** Same as dashboard time range expressions
 
 **Examples:**
 
@@ -63,5 +60,5 @@ Time Shift moves a panel’s start and end time forward or backward by a specifi
 | now-1d   | now      | **-5h**        | now-1d-5h        | now-5h         |
 | now-1d/d | now-1d\d | **-1d**        | now-1d/d-1d      | now-1d\d-1d    |
 
-![image](./images/time-range-expressions-and-settings-3.jpeg)
+![The Time shift field set to -1d](./images/time-range-expressions-and-settings-3.jpeg)
 

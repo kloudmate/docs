@@ -67,7 +67,7 @@ To find where a machine is plugged in, enter its MAC address in **Find a device 
 
 The **Topology** tab draws a link map from LLDP and CDP neighbour data. Devices are nodes, neighbour links are edges, and both use the same status colors as the Overview. Gateways and routers sit at the top and access points at the bottom. A link whose port is down is drawn in red, and a lost link is dashed. Select a link to open its port.
 
-![The Topology tab showing a monitored Chennai device linked to two unmonitored neighbour nodes, with a status legend for up, down, not reporting, and unmonitored](./images/topology.png)
+![The Topology map with gateways, switches, and access points linked by neighbour data, a legend that includes Link down and Link lost, and the Link changes panel below it reporting 0 of 7 links lost](./images/topology.png)
 
 On agent 2.11.0 or later, the agent collects LLDP and CDP neighbours from every SNMP device, so the map fills in without any setup. Older agents collect only LLDP, and only from devices that were set up with the **LLDP neighbours** capability. A neighbour that isn't polled over SNMP still appears on the map as an **Unmonitored** node.
 
@@ -89,6 +89,8 @@ A device's availability is the share of its polls that it answered over the peri
 
 Utilization above 60% is highlighted as a warning, and above 80% as an error. Because p95 ignores the busiest 5% of the period, a port with occasional bursts can show a low p95 while still saturating briefly.
 
+![The SLA and capacity view with availability by site, where Ahmedabad is at 0.00% and the other sites are above 99.9%, and the start of the Availability by device list](./images/sla-and-capacity.png)
+
 ## Device drawer
 
 Selecting a device opens its drawer. The header shows the device's status, and the tabs depend on what the device reports:
@@ -101,7 +103,7 @@ Selecting a device opens its drawer. The header shows the device's status, and t
 
 ![The device drawer Overview tab: the device details and monitoring status, a port map with ports in use, an active-issues list, and the busiest inbound and outbound ports beside CPU and memory charts](./images/device-drawer-overview.png)
 
-![The device drawer Interfaces tab: a table of interfaces with status, IP, speed, throughput, utilization, and errors, sorted with down ports first](./images/device-drawer-interfaces.png)
+![The Interfaces tab of the delhi-switch-01 drawer, listing five ports with their status, speed, throughput, utilization, and errors, one of them Not connected](./images/device-drawer-interfaces.png)
 
 Select a port anywhere on the page to open the port drawer. It shows the port's details, what it's connected to, link uptime, traffic and utilization, errors, the flow through it, and who's on it.
 

@@ -2,7 +2,7 @@
 title: "Service Map"
 description: "Use the Service Map to understand service dependencies, traffic flow, and error hotspots in KloudMate APM."
 sidebar:
-  order: 3
+  order: 5
 ---
 The **Service Map** is a visual representation of the relationships and interdependencies between services in your workspace. It is built from your services' distributed traces and gives you a topology-level view of your architecture.
 
@@ -36,23 +36,23 @@ The main area displays the **Service Dependency Graph**. Each service is represe
 
 Use the zoom controls on the bottom-right to zoom in and out, or click the expand icon to view the graph in full screen.
 
-![image](./images/service-map-2.png)
+![The Service Dependency Graph in full screen, with Fit Graph, Clear Selection, the minimap, and the zoom controls](./images/service-map-2.png)
 
 ## Inspecting a Service
 
 Click any service node on the graph to open the service details panel on the right.
 
-![image](./images/service-map-1.jpeg)
+![The Service details panel for frontend, with request count, request rate, average latency, error rate, inbound and outbound dependencies, and Open service page](./images/service-map-1.jpeg)
 
 Click **Open service page** at the bottom of the panel to navigate to that service's APM dashboard, where you can inspect request trends, latency percentiles, traces, issues, alerts, and dashboards in more detail.
 
-![image](./images/service-map-3.png)
+![The Service dependencies panel on the frontend service page, with tables of downstream dependencies, outbound calls, and upstream callers, and View in service map](./images/service-map-3.png)
 
 ## Inspecting a Dependency
 
 Click any edge between two service nodes to open the dependency details panel on the right.
 
-![image](./images/service-map-2.jpeg)
+![The Dependency details panel for the edge from frontend-proxy to frontend, with source and target, request count, error rate, P99, P95, and P50 latency, and Open source and Open target](./images/service-map-2.jpeg)
 
 Use **Open source** or **Open target** to navigate directly to the APM dashboard of either service involved in the dependency.
 

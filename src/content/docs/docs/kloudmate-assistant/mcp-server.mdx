@@ -251,6 +251,7 @@ If the connection works, the agent calls a KloudMate tool and answers from your 
 - **Requests fail with an access error.** You no longer have access to the workspace the connection reads. KloudMate checks your access on every request.
 - **An API key fails to authenticate.** The key is wrong or deleted, or the `Authorization` header is missing the `Bearer ` prefix.
 - **An API key request is refused for a missing workspace.** Add the `x-workspace-id` header.
+- **Requests fail with HTTP 429.** The connection went over its [request limit](#security-and-scope). Wait the number of seconds in the `Retry-After` header, then try again.
 
 ## Available tools
 
@@ -309,6 +310,7 @@ For example, a triage prompt might read the open alert groups, check what change
 ## Security and scope
 
 - **Read-only.** The tools can't change anything in your workspace.
+- **60 requests a minute.** Each user gets 60 requests a minute, and each API key gets its own 60. A request over the limit gets HTTP 429 with a `Retry-After` header that says how many seconds to wait.
 - **Your permissions, one workspace.** Every connection acts with your own permissions. An OAuth connection reads only the workspace you picked when you signed in. An API key connection reads the workspace in its `x-workspace-id` header. KloudMate checks your access on every request, so a connection can't read a workspace you can't.
 - **Disconnect from the app.** To disconnect an app that signed in with OAuth, remove the KloudMate server or connector in that app. KloudMate doesn't list the apps you've connected.
 - **Keep API keys secret.** Prefer the environment variable or prompted secret options above over pasting a key into a file, and add any config file that contains a key to `.gitignore`. If a key is exposed or no longer used, delete it from the **Personal API Keys** screen. Any client using it stops working immediately.

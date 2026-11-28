@@ -43,7 +43,7 @@ The agent discovers and pings its own default gateway. Saving adds both probes a
 
 Open **Network Monitoring → Reachability**. Each probe is a row with its endpoint, site, role (gateway or internet), protocol, round-trip time, jitter, packet loss, status, and when it was last seen. Summary tiles at the top count how many checks are up, down, and not reporting. Select a row to open the site's drawer, with charts for reachability, round-trip time, packet loss, and jitter, and the traced path.
 
-![The Reachability tab listing gateway and internet probes with their site, role, protocol, RTT, packet loss, and status](./images/reachability-tab.png)
+![The Reachability view listing gateway and internet probes with their site, role, protocol, RTT, jitter, packet loss, and status. Jitter is filled in for the ICMP gateway probes and empty for the TCP internet probes](./images/reachability-tab.png)
 
 The agent emits these metrics per probe:
 
@@ -81,6 +81,8 @@ Open the site's drawer from the **Reachability** tab. The **Path** panel at the 
 - **Address**: the router that answered, or **No answer** when none of the hop's probes did.
 - **RTT**: the mean round trip of the hop's answered probes.
 - **Loss**: the share of the hop's probes that got no answer.
+
+![The Path panel in a site drawer: a trace to 8.8.8.8:443 marked Reached, with seven hops, their addresses, RTT, and loss, and one hop with No answer at 100% loss](./images/reachability-path.png)
 
 A hop listed twice answered from two addresses, which usually means a load-balanced route. A router that rate-limits its own replies can show loss on its hop even though traffic through it, and to the target, isn't lost. Hops after the last one that answered are left out.
 

@@ -10,7 +10,7 @@ An Availability report shows how much of the report period your synthetic monito
 
 With **Monitor type** set to **Synthetic monitors**, the report has one row per monitor. A monitor's **Availability** is the share of its checks that passed. Checks that run during a maintenance window don't count toward availability, and that time appears under **Maintenance** instead.
 
-![Availability report for synthetic monitors](./images/availability-report-synthetic.png)
+![Availability report for synthetic monitors, with the Covers period in the header, summary figures including MTTR and MTBF, and a row for each monitor](./images/availability-report-synthetic.png)
 
 The summary combines every monitor in the report.
 
@@ -56,7 +56,7 @@ The **Alert rules** tab has one row per rule:
 
 The **Instances** tab has one row per instance, so you can see which host or pod caused a rule's downtime. **Availability**, **Triggered**, **Down duration**, and **No data** are measured for that instance alone.
 
-![Instances tab of an availability report](./images/alarm-report-instances.png)
+![Instances tab of an availability report, with the Monitored, First seen, and Last seen columns for each instance](./images/alarm-report-instances.png)
 
 - **Instance:** the labels that identify the instance, such as `host=vm1, pod=api`.
 - **Monitored:** how much of the period the instance had data. If an instance was added or removed partway through the period, its availability covers only the time it was monitored. An instance at 100% with a short **Monitored** time was healthy while it ran, not for the whole period.

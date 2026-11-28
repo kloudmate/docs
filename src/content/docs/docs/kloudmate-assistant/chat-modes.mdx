@@ -10,7 +10,7 @@ Chat Modes let you choose how KloudMate Assistant should respond before you send
 
 To choose a chat mode, click the sparkle icon in the top-right corner of the Assistant interface.
 
-![image](./images/chat-modes-14.png)
+![The Assistant panel open next to the Investigations page, with the sparkle icon highlighted and the mode selector listing KloudMate Assistant, Builder, Docs, and Investigator](./images/chat-modes-14.png)
 
 Once the Assistant panel opens, use the mode selector in the chat input bar to switch between the available modes.
 
@@ -24,17 +24,17 @@ This mode is best suited for:
 - Asking questions about recent errors or issues
 - Getting quick explanations without launching a background investigation
 
-In this example, the Assistant analyzes a service for errors and root cause. It checks current health, logs, traces, and issues, then surfaces relevant observations along with a root cause recommendation.
+In this example, the Assistant analyzes a service for errors and root cause. It checks current health, logs, traces, and issues, then surfaces relevant observations along with a root cause recommendation. Click **Ran 14 tools** to see which tools the Assistant called, or click a **Follow-up** suggestion to continue the conversation.
 
-![image](./images/chat-modes-13.png)
+![A KloudMate Assistant reply analyzing payments service errors, with the tools it ran, the current status, observations, a root cause recommendation, and follow-up suggestions](./images/chat-modes-13.png)
 
 ## KloudMate Builder
 
-KloudMate Builder is designed for drafting dashboards and alarms before you apply them. Use this mode when you want help creating or modifying alerting and dashboard configurations from natural-language instructions.
+KloudMate Builder drafts dashboards, alert rules, and workflows before you apply them. Use this mode when you want help creating or modifying dashboards, alerting, or workflow configurations from natural-language instructions.
 
 In this example, KloudMate Builder interprets the request as a dashboard creation task and drafts a dashboard with relevant panels based on that intent.
 
-![image](./images/chat-modes-15.png)
+![A KloudMate Builder reply that drafts a VM Performance Dashboard, listing the tools it ran and the panels it added](./images/chat-modes-15.png)
 
 This helps users move from a natural-language request to a structured dashboard draft without manually configuring every panel from scratch. The Builder selects appropriate metrics, applies relevant variables and filters, and lays out the panels into a reviewable dashboard that can be refined and saved.
 
@@ -43,7 +43,7 @@ This helps users move from a natural-language request to a structured dashboard 
 KloudMate Docs is optimized for documentation search and platform reference questions. Use this mode when you want answers grounded in the KloudMate documentation rather than a general operational conversation.
 
 :::note[Free usage]
-The Docs agent is **free** and does not consume credits. KloudMate Assistant runs on credits. A chat message costs 1 credit, a full investigation costs 5 credits, and an [Ask KloudMate Assistant](/workflows/actions/#ask-kloudmate-assistant) step in a workflow costs 1 credit. Every plan includes a monthly allowance: 5 credits on Free and 20 on Pro, and prepaid credits can be purchased anytime. Enterprise teams can bring their own AI provider key instead of using credits.
+The Docs agent is **free** and does not consume credits. KloudMate Assistant runs on credits. A chat message costs 1 credit, an investigation costs 5 credits on its first message, with follow-up messages in the same investigation free, and an [Ask KloudMate Assistant](/workflows/actions/#ask-kloudmate-assistant) step in a workflow costs 1 credit. Every plan includes a monthly allowance, listed on [kloudmate.com/pricing](https://www.kloudmate.com/pricing), and prepaid credits can be purchased anytime. Enterprise teams can bring their own AI provider key instead of using credits.
 :::
 
 This mode is useful for:
@@ -54,7 +54,7 @@ This mode is useful for:
 
 The Docs mode searches the indexed documentation and returns an answer based on the documented product behavior.
 
-![image](./images/chat-modes-5.png)
+![A KloudMate Docs reply explaining how to instrument a PHP application with OpenTelemetry, with prerequisites, install commands, and environment variables](./images/chat-modes-5.png)
 
 ## KloudMate Investigator
 
@@ -66,6 +66,6 @@ This mode is appropriate when you need:
 - Correlation across logs, metrics, and traces
 - A structured summary of findings for an active issue
 
-In this example, the Investigator launches a background investigation, tracks its progress, and returns a completed report with overall health status, severity, top suspects, likely causes, affected resources, and recommended fixes.
+In this example, the Investigator launches a background investigation, tracks its progress, and returns a completed report with the overall health, severity, suspects, ranked hypotheses, recommended fixes, and a timeline of events.
 
-![image](./images/chat-modes-11.png)
+![A completed investigation report with the root cause summary, Health, Severity, Suspects, and Time window, a high-confidence hypothesis with recommended fixes, and the timeline](./images/chat-modes-11.png)

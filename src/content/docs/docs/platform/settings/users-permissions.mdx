@@ -8,25 +8,29 @@ sidebar:
 
 import { Steps } from '@astrojs/starlight/components';
 
-Use **Settings → Users** to invite people to your organization and decide what they can do in each workspace. Every member can see the list of users. Only an Owner can invite, change, or remove users.
+Use **Settings → Users** to invite people to your organization and decide what they can do in each workspace. Every member can see the list of users. Only an Owner or an organization Admin can invite, change, or remove users.
 
-Each person has an organization role (**Owner** or **User**) and a role in each workspace. For what each role can do, see [Roles and permissions](../roles/).
+Each person has an organization role (**Owner**, **Admin**, **Billing admin**, or **User**) and a role in each workspace. For what each role can do, see [Roles and permissions](../roles/).
+
+![The Users list, showing each member's email, organization role, and workspace roles](./images/users-list.png)
 
 ## Invite a user
 
 <Steps>
 
-1. Open **Settings → Users** and click **Add User**.
+1. Open **Settings → Users** and click **Add User** to open the **Invite User** dialog.
 
 2. Enter the person's **Email address**.
 
-3. Under **Organization role**, select **Owner** or **User**. An Owner is an Admin in every workspace, so you don't pick workspace roles for an Owner.
+3. Under **Organization role**, select **User**, **Billing admin**, **Admin**, or **Owner**. An Owner is an Admin in every workspace, so you don't pick workspace roles for an Owner. Only an Owner can pick **Owner** or **Billing admin**.
 
-4. For a User, pick a role in each workspace they need: **Admin**, **Developer**, **Viewer**, or one of your [custom roles](../roles/custom-roles/). Leave **No access** in the other workspaces. A User needs a role in at least one workspace.
+4. For anyone but an Owner, pick a role in each workspace they need: **Admin**, **Developer**, **Viewer**, or one of your [custom roles](../roles/custom-roles/). Leave **No access** in the other workspaces. They need a role in at least one workspace.
 
 5. Click **Submit**.
 
 </Steps>
+
+![The Invite User dialog with User selected, Developer picked in Production and Viewer in Staging](./images/users-invite.png)
 
 The person gets the invitation by email. After they sign in, they can also accept it from **Settings → Pending Invitations**. If your plan doesn't include custom roles, you can't pick one.
 
@@ -38,7 +42,7 @@ Invitations that haven't been accepted yet are on the **Invitations** tab. An in
 - To change the roles on an invitation, invite the same email address again with the new roles.
 - To cancel an invitation, click its delete icon.
 
-Only an Owner can resend an invitation. You can resend the same invitation once a minute at most.
+Only an Owner can resend an invitation for an Owner or a Billing admin. You can resend the same invitation once a minute at most.
 
 ## Change a user's roles
 
@@ -56,8 +60,8 @@ Only an Owner can resend an invitation. You can resend the same invitation once 
 
 These rules apply to every change:
 
-- Only an Owner can make someone an Owner, change an Owner's role, or remove an Owner.
-- Nobody can change their own roles. Ask another Owner.
+- Only an Owner can make someone an Owner or a Billing admin, change their role, or remove them.
+- Nobody can change their own roles. Ask an Owner or an Admin.
 - An organization always has at least one Owner. To change the role of the only Owner, make another member an Owner first.
 
 ## Remove a user

@@ -19,7 +19,7 @@ From this page, you can:
 - Rename a workspace
 - Delete a workspace
 
-Only an Owner can add, rename, or delete a workspace.
+An Owner or an organization Admin can add, rename, or delete a workspace.
 
 ![Workspaces settings page, showing the organization's workspace list, usage against the plan limit, and the Add Workspace button](./images/workspaces-list.png)
 
@@ -27,15 +27,17 @@ Only an Owner can add, rename, or delete a workspace.
 
 Click **Add Workspace** to start a three-step wizard that creates the workspace and confirms data is flowing into it, rather than just naming an empty workspace.
 
+You get the Admin role in the workspace you create. Owners already have it in every workspace.
+
 1. **Workspace.** Name the new workspace. Stack and team settings carry over from the organization, so this step only needs a name.
 
    ![Add a workspace wizard, step 1: naming the new workspace](./images/workspaces-create-step1.png)
 
 2. **Send data to KloudMate.** Choose how to send data to the new workspace, either the KloudMate OpenTelemetry Agent or AWS Integration. Each workspace gets its own ingest API key.
 
-   ![Add a workspace wizard, step 2: choosing OpenTelemetry Agent or AWS Integration](./images/workspaces-create-step2-methods.png)
+   ![Add a workspace wizard, step 2: choosing OpenTelemetry or AWS Integration](./images/workspaces-create-step2-methods.png)
 
-   - **OpenTelemetry Agent:** install the agent, or, if you already run an OpenTelemetry Collector, point it at the given endpoint using the generated API key as the `Authorization` header.
+   - **OpenTelemetry:** install the agent, or, if you already run an OpenTelemetry Collector, point it at the given endpoint using the generated API key as the `Authorization` header.
 
      ![Add a workspace wizard, step 2: OpenTelemetry Agent install and Collector API key](./images/workspaces-create-step2-otel.png)
 

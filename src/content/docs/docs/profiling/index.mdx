@@ -14,13 +14,13 @@ This page introduces the five views in the Profiling module and shows you how to
 
 ## The five views
 
-Profiling has five views, reached from the segmented toggle at the top of the module:
+Profiling has five views, listed in the menu on the left of the module:
 
 - **[All Services](./all-services/)** is your entry point — see every service reporting a given profile type, at a glance, over your selected time range.
 - **[Profile Types](./profile-types/)** is service-centric — once you pick a service, see every metric it profiles (CPU, heap, goroutines, and so on) side by side.
 - **[Labels](./labels/)** breaks a service's profiles down by the resource attributes your SDK attaches — region, pod, version — so you can filter down to the one that matters.
 - **[Flame Graph](./flame-graph/)** is where you find the hotspot: an interactive, zoomable flame graph plus a sortable function table for one service and profile type.
-- **[Difference View](./difference-view/)** compares two time windows of the same service and profile type — the view you reach for right after a deploy, to answer "did that change make things worse?"
+- **[Difference View](./difference-view/)** (**Diff** in the menu) compares two time windows of the same service and profile type — the view you reach for right after a deploy, to answer "did that change make things worse?"
 
 Start on **All Services** to see what's reporting data, narrow to one service in **Profile Types** or **Labels**, then open **Flame Graph** to dig into a specific hotspot. Reach for **Difference View** whenever you need a before/after comparison instead of a single snapshot.
 

@@ -6,14 +6,14 @@ sidebar:
   order: 1
 ---
 
-Roles decide what each person can do in KloudMate. Every member of your organization has an organization role, and a role in each workspace they can open. An Owner assigns both from [**Settings → Users**](../users-permissions/).
+Roles decide what each person can do in KloudMate. Every member of your organization has an organization role, and a role in each workspace they can open. An Owner or an organization Admin assigns both from [**Settings → Users**](../users-permissions/).
 
 ## How access works
 
-- The **organization role** is **Owner** or **User**. It decides who manages the organization: its users, workspaces, billing, and sign-in settings.
+- The **organization role** is **Owner**, **Admin**, **Billing admin**, or **User**. It decides who manages the organization: its users, workspaces, billing, and sign-in settings.
 - The **workspace role** is **Admin**, **Developer**, **Viewer**, or a [custom role](./custom-roles/). It decides what you can change in that workspace. You can have a different role in each workspace.
 
-An Owner is an Admin in every workspace. A User sees only the workspaces where they have a role.
+An Owner is an Admin in every workspace. Everyone else sees only the workspaces where they have a role.
 
 The workspace is the boundary for data. Everyone with a role in a workspace sees all of that workspace's data, and there's no filter that limits a team to part of it. If a team must see only its own data, give that team its own [workspace](../workspaces/).
 
@@ -27,15 +27,15 @@ Every role can see everything in the workspace, except the workspace settings pa
 
 | Module | Viewer | Developer | Admin |
 | --- | --- | --- | --- |
-| Dashboards | Read | Read, Manage | Read, Manage, Share |
+| Dashboards | Read | Read, Manage, Share, Publish | Read, Manage, Share, Publish |
 | Reports | Read | Read, Manage | Read, Manage |
-| Alerts | Read | Read, Operate, Configure | Read, Operate, Configure |
+| Alerts | Read | Read, Operate, Configure, Publish | Read, Operate, Configure, Publish |
 | Issues | Read | Read, Operate, Configure | Read, Operate, Configure |
 | Incidents | Read | Read, Operate, Configure | Read, Operate, Configure |
 | Status pages | Read | Read, Post | Read, Post, Manage |
 | Reliability | Read | Read, Configure | Read, Configure |
 | Synthetic monitoring | Read | Read, Operate, Configure | Read, Operate, Configure |
-| Workflows | Read | Read, Operate, Configure | Read, Operate, Configure, Secrets |
+| Workflows | Read | Read, Operate, Configure, Publish | Read, Operate, Configure, Publish, Secrets |
 | AI Assistant | Use, Investigate | Use, Investigate, Configure | Use, Investigate, Configure |
 | Metrics | Read | Read | Read |
 | Traces | Read | Read | Read |
@@ -46,7 +46,6 @@ Every role can see everything in the workspace, except the workspace settings pa
 A Developer builds and runs monitoring: alert rules, incidents, SLOs, monitors, workflows, dashboards, and reports. These tasks need the **Admin** role:
 
 - Change workspace settings.
-- Turn on a public link for a dashboard.
 - Create or brand a status page.
 - Manage secret workflow variables.
 - Rehydrate logs from cold storage.
@@ -55,18 +54,22 @@ For what each permission lets you do, see the [permission reference](./permissio
 
 ## Organization roles
 
-- **Owner**: Can do everything in every workspace, including billing. Owners invite users, change roles, create workspaces, set up single sign-on, and create custom roles.
-- **User**: Can see the organization's profile, the member list, usage, credits, and the subscription. What a User can do in a workspace comes from their workspace role.
+- **Owner**: Can do everything in every workspace, including billing. Only an Owner can set up single sign-on and create custom roles.
+- **Admin**: Runs the organization's accounts. Can invite users, change their roles, remove them, create workspaces, and edit the organization's name, slug, and time zone. Gets the Admin role in each workspace they create. Can't manage billing or single sign-on.
+- **Billing admin**: Manages billing. Can change the plan, payment method, and billing details, buy credits, change **Overage Control**, and see invoices.
+- **User**: Can see the organization's profile, the member list, usage, credits, and the subscription.
+
+An Admin, a Billing admin, or a User can do in a workspace only what their workspace role there allows, so each needs a role in at least one workspace.
 
 These rules apply whenever roles change:
 
-- Only an Owner can make someone an Owner, change an Owner's role, or remove an Owner.
+- Only an Owner can make someone an Owner or a Billing admin, change their role, or remove them.
 - An organization always has at least one Owner. To change the role of the only Owner, make another member an Owner first.
-- Nobody can change their own roles. Ask another Owner.
+- Nobody can change their own roles. Ask an Owner or an Admin.
 
 ### Billing
 
-Every member can see the plan, usage, and credits on [**Subscription & Billing**](../subscription-billing/) and [**Usage Report**](../usage-report/). Only an Owner can see invoices, change the plan, payment method, or billing details, buy credits, or change **Overage Control**.
+Every member can see the plan, usage, and credits on [**Subscription & Billing**](../subscription-billing/) and [**Usage Report**](../usage-report/). Only an Owner or a Billing admin can see the payment method, the billing contact and address, and invoices, change the plan, payment method, or billing details, buy credits, or change **Overage Control**.
 
 ## Plan limits
 

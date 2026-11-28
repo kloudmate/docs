@@ -7,7 +7,7 @@ sidebar:
 ---
 Kubernetes Monitoring in KloudMate gives you visibility into cluster health, workload availability, resource usage, pod behavior, and related telemetry collected by the KloudMate Agent.
 
-KloudMate organizes Kubernetes data into tabs for clusters, nodes, namespaces, pods, storage, workloads, and jobs, plus a map of the traffic between workloads, so you can move from fleet-level health to pod-level troubleshooting quickly.
+KloudMate organizes Kubernetes data into views for clusters, nodes, namespaces, pods, storage, workloads, and jobs, plus a map of the traffic between workloads. Switch between them from the sidebar on the **Kubernetes** page, so you can move from fleet-level health to pod-level troubleshooting quickly.
 
 ## What This Covers
 
@@ -55,43 +55,43 @@ KloudMate provides visibility into all major Kubernetes components:
 
 ### Clusters
 
-The **Clusters** tab lists every connected cluster, with overall health, capacity, and scale at a glance. Use it as the starting point before drilling into a specific node, namespace, or workload.
+The **Clusters** view lists every connected cluster, with overall health, capacity, and scale at a glance. Use it as the starting point before drilling into a specific node, namespace, or workload.
 
 ### Nodes
 
-The **Nodes** tab lists every node across your clusters, showing node health and infrastructure-level resource usage: allocatable CPU and memory alongside current usage for each. Use it to spot nodes running hot before they affect scheduling.
+The **Nodes** view lists every node across your clusters, showing node health and infrastructure-level resource usage: allocatable CPU and memory alongside current usage for each. Use it to spot nodes running hot before they affect scheduling.
 
-![Nodes tab in Kubernetes, showing CPU and memory allocatable capacity and usage per node](./images/kubernetes-nodes-tab.png)
+![The Nodes view in Kubernetes, showing CPU and memory allocatable capacity and usage per node](./images/kubernetes-nodes-tab.png)
 
 ### Namespaces
 
-The **Namespaces** tab breaks resource distribution down by namespace, so you can see how CPU, memory, and workload counts spread across the teams, applications, or environments sharing a cluster.
+The **Namespaces** view breaks resource distribution down by namespace, so you can see how CPU, memory, and workload counts spread across the teams, applications, or environments sharing a cluster.
 
 ### Pods
 
-The **Pods** tab lists every pod across your clusters, with its performance, restart count, and resource consumption. Use it to find pods that are restarting frequently or running hot before they affect the workloads they belong to.
+The **Pods** view lists every pod across your clusters, with its performance, restart count, and resource consumption. Use it to find pods that are restarting frequently or running hot before they affect the workloads they belong to.
 
 ### Storage
 
-The **Storage** tab lists Persistent Volumes across your clusters, with their status, claim, storage class, and capacity. Use it to see what's provisioned and bound without checking each cluster individually. To list Persistent Volume Claims instead, select **Persistent Volume Claim** as the storage type.
+The **Storage** view lists Persistent Volumes across your clusters, with their status, claim, storage class, and capacity. Use it to see what's provisioned and bound without checking each cluster individually. To list Persistent Volume Claims instead, select **Persistent Volume Claim** as the storage type.
 
-![Storage tab in Kubernetes, listing Persistent Volumes with their cluster, status, claim, storage class, and capacity](./images/kubernetes-storage-tab.png)
+![The Storage view in Kubernetes, listing Persistent Volumes with their cluster, status, claim, storage class, and capacity](./images/kubernetes-storage-tab.png)
 
 ### Workloads
 
-The **Workloads** tab lists deployments, daemonsets, statefulsets, and other workload types across your clusters, showing their health and availability alongside pod counts and CPU and memory requests and limits. Filter by workload type, namespace, or cluster to narrow the list.
+The **Workloads** view lists deployments, daemonsets, statefulsets, and other workload types across your clusters, showing their health and availability alongside pod counts and CPU and memory requests and limits. Filter by workload type, namespace, or cluster to narrow the list.
 
-![Workloads tab in Kubernetes, listing deployments with pod counts and CPU/memory request and limit values](./images/kubernetes-workloads-tab.png)
+![The Workloads view in Kubernetes, listing deployments with pod counts and CPU/memory request and limit values](./images/kubernetes-workloads-tab.png)
 
 ### Jobs
 
-The **Jobs** tab lists Jobs across your clusters, with their status, completions (succeeded out of desired, the same count `kubectl` shows), and active, failed, and parallelism counts. Filter by cluster, namespace, or status to find Jobs that failed or haven't completed. To list CronJobs instead, select **CronJob** as the job type. Each CronJob shows its cluster, namespace, and number of active jobs.
+The **Jobs** view lists Jobs across your clusters, with their status, completions (succeeded out of desired, the same count `kubectl` shows), and active, failed, and parallelism counts. Filter by cluster, namespace, or status to find Jobs that failed or haven't completed. To list CronJobs instead, select **CronJob** as the job type. Each CronJob shows its cluster, namespace, and number of active jobs.
 
-![Jobs tab in Kubernetes](./images/kubernetes-jobs-tab.png)
+![The Jobs view in Kubernetes, listing a completed Job with its completions, active, failed, and parallelism counts](./images/kubernetes-jobs-tab.png)
 
 ### Map
 
-The **Map** tab shows how the workloads in a cluster talk to each other. Pick a cluster, then pick a namespace or keep **All namespaces**.
+The **Map** view shows how the workloads in a cluster talk to each other. Pick a cluster, then pick a namespace or keep **All namespaces**.
 
 - **All namespaces** shows one box per namespace, with how many workloads and Services it has and how many of them are alerting. A line joins two namespaces whose workloads talk to each other. Click a namespace to open its map.
 - **A single namespace** shows its Deployments, StatefulSets, DaemonSets, and Services, with a line between each pair that talks. Workloads and Services in other namespaces that they talk to are dimmed. Click one to open its namespace.
@@ -102,7 +102,7 @@ The map draws workloads and Services that sent data in the last 2 hours, up to 2
 
 The lines come from network flow data that the KloudMate agent collects with eBPF, so the nodes need a kernel that supports it. See [eBPF requirements](../../kloudmate-agent/ebpf-observability/#deployment-modes-and-requirements). Without flow data, the map draws no lines and notes that the cluster sends no traffic data.
 
-![The Map tab in Kubernetes, with one box per namespace, their workload and Service counts, alerting counts, and lines between namespaces that talk to each other](./images/kubernetes-map-tab.png)
+![The Map view in Kubernetes, with one box per namespace, their workload and Service counts, alerting counts, and lines between namespaces that talk to each other](./images/kubernetes-map-tab.png)
 
 ## See what a resource connects to
 
@@ -114,11 +114,11 @@ Each group shows how many of its resources are alerting, and a group with alerti
 
 ## Find resources that stopped reporting
 
-Every tab includes a **Last seen** column. A resource stays in the list for seven days after it last reported, and its **Last seen** dot turns from green to gray once it has gone 15 minutes without reporting. If a resource reported nothing in the selected time range, its metric cells show a dash.
+Every list includes a **Last seen** column. A resource stays in the list for seven days after it last reported, and its **Last seen** dot turns from green to gray once it has gone 15 minutes without reporting. If a resource reported nothing in the selected time range, its metric cells show a dash.
 
 Set the **Reporting** filter to **Reporting now** to list only live resources, or to **Stopped reporting** to find resources that stopped sending data. When the filter is empty, the pod, ReplicaSet, and Job lists show only resources that are reporting now, and every other list shows everything seen in the last seven days.
 
-![Reporting filter in Kubernetes](./images/kubernetes-reporting-filter.png)
+![The Reporting filter open on the Jobs view, with Stopped reporting highlighted](./images/kubernetes-reporting-filter.png)
 
 ## Validation Checklist
 

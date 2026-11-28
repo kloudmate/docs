@@ -35,7 +35,7 @@ Every platform gets the same tabs, but what's inside them depends on the applica
 
 Start on **Overview** to find out whether anything needs attention right now.
 
-![The RUM Overview tab, top to bottom: a Needs attention list of findings, Core Web Vitals cards for LCP, INP, CLS, page views, and error rate, the Page Views & Errors and Network Requests & Errors charts, Worst pages by impact, Recent errors, and Audience breakdowns](./images/rum-overview.png)
+![The RUM Overview tab, top to bottom: a Needs attention list of findings, Core Web Vitals cards for LCP, INP, CLS, page views, and error rate, the Page Views & Errors and Network Requests & Errors charts, Worst pages by impact, Recent errors, Delivery, and Audience breakdowns](./images/rum-overview.png)
 
 - **Needs attention** lists what changed, with the evidence behind each finding: `70 errors in this window, 3.7x the norm of 19 for the previous 7 days`.
 - **Core Web Vitals** reports LCP, INP, and CLS at p75 with the boundary each is judged against, plus page views and error rate. Web applications only.
@@ -72,7 +72,7 @@ Click any row to open the session. See [Session Detail](../session-detail/) for 
 
 **Pages** ranks the pages of a web app, or the screens of a mobile app, by how fast they load and how often they fail.
 
-![The Pages tab with Views, Errors, Loading P75, LCP P75, INP P75, and CLS P75 columns, and a grouped /product/{param} row](./images/rum-pages.png)
+![The Pages tab with Views, Errors, Loading P75, LCP P75, INP P75, and CLS P75 columns, sorted by errors, with Group similar pages turned on](./images/rum-pages.png)
 
 Each row carries a page's views and errors, plus its load time, LCP, INP, and CLS at p75, banded good, needs-improvement, or poor. Sort by any column to bring the worst to the top, then open a page to see its own trend and the errors on it.
 
@@ -157,13 +157,13 @@ Clicking a node opens its **Sessions**, along with the share who **Left here** a
 
 Funnels measure conversion across up to five steps. A step is either a **route**, such as `/cart`, or an **Event**, such as `checkout_completed`, and either can match a prefix.
 
-![A Checkout flow funnel with Conversion, Biggest drop, and Time to convert cards above four event steps and their drop-off rates](./images/rum-journeys-funnels.png)
+![A three-step funnel from / to /pricing to /contact, with a Conversion card above the steps and each step's session count and drop-off rate](./images/rum-journeys-funnels.png)
 
-**Conversion**, **Biggest drop**, and **Time to convert** sit above the chart, and each step reports its session count and how many people dropped off there.
+**Conversion** sits above the chart, and each step reports its session count and how many people dropped off there. The last step reports the funnel completion rate.
 
 **Complete within** sets how long a session has to get from the first step to the last. Steps further apart than that don't count as a conversion. **Compare to previous period** reports the change in percentage points against the preceding window.
 
-Clicking a step opens the sessions that stalled there, with the errors they hit and a **Play** button on every row. Save a funnel to track its conversion over time.
+Clicking a step opens the sessions that stalled there, with the errors they hit and a **Play** button on every row. Save a funnel to track its conversion over time, and reopen it later from **Saved funnels**.
 
 :::caution
 Funnels read raw RUM data, which is kept for a limited time that varies by workspace. If you select a range longer than your retention, the funnel covers fewer sessions than the dates suggest.

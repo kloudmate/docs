@@ -123,6 +123,8 @@ The account has to be a [connection](/platform/settings/connections/) with the *
 
 Slack pushes its events. KloudMate polls Jira for new ones, and the first poll only records the current state, so a project full of existing issues doesn't fire a run for each one.
 
+ServiceNow has actions but no app events. To start a workflow on a ServiceNow change, have a business rule or a flow in ServiceNow send a REST message to a [Webhook](#webhook) trigger.
+
 KloudMate deduplicates events on the app's own item id, so a redelivery starts one run.
 
 An app-event trigger stops in any of these cases:

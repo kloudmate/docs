@@ -1,0 +1,62 @@
+---
+title: "Config as code"
+description: "Export dashboards, alert rules, workflows, and workspace variables as YAML, and import them into another workspace from the app or with the kmctl CLI."
+sidebar:
+  label: "Config as code"
+  order: 2.7
+---
+
+Dashboards, alert rules, workflows, and workspace variables can be exported as YAML and imported into another workspace. Use it to copy a setup from staging to production, to start a new workspace from an existing one, or to keep your configuration in git.
+
+Each dashboard, dashboard folder, alert rule, alert folder, workflow, and workspace variable is exported as its own YAML document. Anything that belongs to the source workspace, such as an AWS account, a connection, a notification channel, or a folder, is written as a named input instead of an ID. When you import the file into another workspace, each input is matched to what that workspace has:
+
+- **An AWS account** by its account number. **A connection** only when it's the same one, as when you import a file back into the workspace it came from. Either one also matches when the workspace has only one of its kind.
+- **A notification channel** by name and type, and **a workflow variable** by name and whether it's secret.
+- **A folder** by name. If no folder has that name, the import creates it.
+- **A dashboard or a called workflow** only when it's the same one, either in the same file or imported earlier from the same source.
+
+## Export from the app
+
+Open the export from the resource you want to copy:
+
+- **A dashboard:** click **Share** and open the **Export** tab.
+- **An alert rule or an alert folder:** select **Export…** from its menu.
+- **A workflow:** select **Export…** from its menu.
+
+The export is a single YAML file, with one document per resource separated by `---`. Click **Copy** or **Download**.
+
+Smart Alerts rules aren't exported. Workspace variables are exported only with [kmctl](#keep-config-in-git-with-kmctl).
+
+## Import into a workspace
+
+1. Click **Import** on the **Dashboards**, **Alerts**, or **Workflows** list.
+2. Paste the exported YAML, or click **Choose file**. To install an item from the [gallery](../gallery/), paste its ID or link instead.
+3. Enter a value for each secret the file uses. Secret values are never stored in the file.
+4. Click **Check**. Nothing is written yet. Each resource is listed with its action (**Create**, **Update**, **No change**, or **Skip**) and the fields that would change.
+5. Resolve anything that isn't found in this workspace. For an account, a connection, or a channel with no match, select one of this workspace's own from the **Pick a match** list. For a workflow variable that's missing, click **Set value** to create it here.
+6. Click **Apply**.
+
+### What the import changes
+
+- **Importing a resource that already exists updates it.** A resource is matched by its UID, not its name, so importing the same file twice updates the resources from the first import instead of creating copies.
+- **If an account or connection is missing, a new resource is imported turned off.** A new alert rule is disabled, a new workflow isn't published, and a dashboard panel shows that its data source is missing. An existing resource isn't changed.
+- **A workflow is imported as published** if the file says it's published.
+- **Older export files aren't accepted.** A dashboard JSON or alerts JSON file from the previous export can't be imported, so export the resources again.
+
+## Keep config in git with kmctl
+
+[kmctl](https://github.com/kloudmate/kmctl) is a command-line tool for the same export and import. It writes one file per resource, so you can review changes in pull requests and apply them to a workspace from CI. A file downloaded from the app can go into a kmctl directory as it is.
+
+```bash
+kmctl export --context dev --out ./config --bundle payments
+kmctl plan ./config --context prod
+kmctl apply ./config --context prod
+```
+
+`export` writes a workspace's resources to files, `plan` shows what applying them would change, and `apply` makes the changes. The [kmctl README](https://github.com/kloudmate/kmctl#readme) covers installation, contexts, bundles, per-workspace values, and deleting resources with `--prune`.
+
+kmctl uses the config API: `GET /workspaces/:workspaceId/config/export`, and `POST` to `config/plan` and `config/apply`.
+
+## Permissions
+
+Export needs read access to what it exports. Import needs permission to change each resource it creates or updates, and secret workflow variables also need the **Secrets** permission for workflows. See the [permission reference](../settings/roles/permission-reference/).

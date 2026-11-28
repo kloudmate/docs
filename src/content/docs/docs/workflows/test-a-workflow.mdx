@@ -35,7 +35,7 @@ Each step keeps its last three outputs, and you can switch which one the picker 
 
 A sample's timestamp shows when that exact payload was first seen, not when you last clicked Test. If a test returns the same bytes again, the sample keeps its older time.
 
-![The Test tab on a Slack step, showing the notice that testing performs the action, a Re-test button, the Sample later steps map against selector, and a sample labelled as being from two days ago](./images/step-test-panel.png)
+![The Test tab on a Send Email step before its first test, showing the notice that testing performs the action and the Run test button](./images/step-test-panel.png)
 
 To try a path your real data doesn't reach, click the pencil icon (**Edit sample**). Then change the saved output by hand. A sample must be a JSON object, up to 1024 KB.
 
@@ -70,7 +70,7 @@ A trigger sample gives `{{ trigger.* }}` a real payload to test against. How you
 | **App event**, polled | Click **Test trigger**. Pick from the app's five newest items, listed newest first as **Result 1** onward. |
 | **App event**, pushed | Click **Test trigger**. You get the last delivery this workflow ran on, or KloudMate starts listening for the next one. |
 
-![The Test tab on a Jira Cloud trigger, showing the Test trigger button, a selector for which captured delivery to use, and the sampled event payload](./images/trigger-test-panel.png)
+![The Test tab on a Webhook trigger, showing the Reload button and the captured alert payload](./images/trigger-test-panel.png)
 
 ### Capture a webhook sample
 

@@ -2,14 +2,14 @@
 title: "Trace Explorer"
 description: "Learn how to use the Traces section in KloudMate to search, filter, and inspect distributed traces."
 sidebar:
-  order: 1
+  order: 3
 ---
 
 Click **Traces** in the left navigation menu to open the section. It opens on the **Trace Summary** view by default.
 
 To see trace activity over the selected time range, click the chart icon next to the time picker. The **Span count** chart stacks spans with errors and all other spans in each interval.
 
-![image](./images/traces-1.jpeg)
+![The Traces page with the Span count chart above the Trace summary list, counting spans with errors and all other spans](./images/traces-1.jpeg)
 
 :::note
   See [Sending Data to KloudMate](../../getting-started/sending-data-to-kloudmate/) for onboarding and ingestion options.
@@ -21,7 +21,7 @@ To see trace activity over the selected time range, click the chart icon next to
 
 Search across traces using span attributes. Click the search bar or start typing, pick an attribute, then an operator and a value. If the attribute or value you want isn't listed, type it. Each condition appears as a chip in the bar, and a trace must match every chip. To remove a condition, click the **×** on its chip.
 
-![image](./images/traces-2.jpeg)
+![The trace search bar with the field list open, listing span attributes marked S for string or N for number](./images/traces-2.jpeg)
 
 The operators are the ones [KMQL](../../visualize-data/kmql/) uses. The `in` and `not in` operators take several values, which you can type separated by commas. On string attributes, `matches` and `not matches` compare the value against a regular expression that must match the whole value.
 
@@ -40,7 +40,7 @@ Use the left sidebar to filter results by:
 
 Each filter section includes a search box for quick lookup. When filters are active, a recent-filters notice appears at the top of the sidebar.
 
-![image](./images/traces-4.jpeg)
+![The Trace summary view with the sidebar filters highlighted: duration, service, severity, HTTP method, and HTTP status, each value with its count](./images/traces-4.jpeg)
 
 ## Saved Queries
 
@@ -48,17 +48,17 @@ Open the **Saved** menu next to the search bar. Select **Save this query** to sa
 
 When you edit a saved search that has OR groups or free text, they appear in a read-only **Other filters** field and stay in the search when you save it.
 
-![image](./images/traces-5.jpeg)
+![The top of the Traces page with the Span count chart shown and the Saved menu open and highlighted, showing Save this query and All saved queries](./images/traces-5.jpeg)
 
 ## Traces Result Views
 
-Switch between views using the toggle above the results. They all read the same trace data, subject to the active time range and filters — each gives you a different level of detail.
+Switch between views from the menu on the left of the page. They all read the same trace data, subject to the active time range and filters — each gives you a different level of detail.
 
 ### Trace Summary
 
 **Trace Summary** is the default view. It groups spans into complete traces, giving you a higher-level view of end-to-end request journeys. Each row represents a single trace, showing its entry point, number of services, spans involved, total duration, and any errors.
 
-![image](./images/traces-2.png)
+![The Trace summary view, with one row per trace showing its timestamp, entry point, services, span count, and duration](./images/traces-2.png)
 
 ### Trace Groups
 
@@ -74,6 +74,8 @@ Switch between views using the toggle above the results. They all read the same 
 
 Filter the groups from the left panel by **entry operation**, **service**, and **duration**.
 
+![The Trace groups view, with one row per entry point showing its trace count, average spans and entities, p95 duration, errors, and a trend sparkline](./images/trace-groups.png)
+
 #### Drilling into a group
 
 Click a group row to open its **drill-down drawer**. The drawer shows the group's metrics across the top, then the list of traces that belong to it. From here you can:
@@ -88,13 +90,13 @@ The **Spans** view lists every individual span captured within the selected time
 
 This view is best when you need the most granular look at tracing activity. To isolate errors, add a **Severity → Error** filter from the sidebar.
 
-![image](./images/traces-6.jpeg)
+![The Spans view, with one row per span showing its timestamp, span name, service, and duration](./images/traces-6.jpeg)
 
 ## Open a Trace
 
 Select a trace or span from any result view to open it in [Trace Detail](../trace-detail/), where you inspect the timeline waterfall, per-span attributes, and the Service List, Request Flow, and AI Flow views.
 
-![image](./images/trace-detail-open.png)
+![A trace open in Trace Detail, with each service's share of the request time, the Service List, and the timeline waterfall](./images/trace-detail-open.png)
 
 ## Related Paths
 

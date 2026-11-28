@@ -1,0 +1,714 @@
+---
+title: "Import the inventory into a CMDB"
+description: "Keep a CMDB such as ServiceNow or ManageEngine ServiceDesk Plus filled from KloudMate's inventory on a schedule, with tags and relationships, using the inventory export API."
+sidebar:
+  order: 1
+---
+
+import { Steps } from '@astrojs/starlight/components';
+
+This guide keeps a configuration management database (CMDB) filled from KloudMate's [Inventory](/infrastructure/inventory/). A job in the CMDB runs on a schedule, reads the [inventory export API](/infrastructure/inventory-export/), and adds or updates a configuration item (CI) for each resource, with its tags and the relationships between them. Cloud resources, hosts, Kubernetes objects, and services then show up in the CMDB without anyone entering them.
+
+The guide has a complete, tested sync for ServiceNow and for ManageEngine ServiceDesk Plus Cloud, and the pattern to build one for any other CMDB.
+
+## How the sync works
+
+Every run of the job does the same four things:
+
+1. **Pages through the resources.** It calls `GET /inventory/resources` with `limit=1000`, and sends each page's `next_cursor` back as `cursor` until `next_cursor` is `null`.
+2. **Matches each resource to its CI by KloudMate's `id`.** The job keeps the `id` on the CI, looks it up on the next run, and updates the CI it finds. Names aren't unique (two regions can each have a `web-1`), so a sync that matches on the name merges different resources into one CI.
+3. **Copies the tags.** The CI gets the resource's tags as they are in KloudMate, so a tag removed in KloudMate is removed from the CI.
+4. **Links the relationships.** It pages through `GET /inventory/relationships` and adds a CMDB relationship between the two CIs of each one, unless the CMDB already has it.
+
+A re-run changes only what changed, so the job can run every day.
+
+## Before you start
+
+- Create a [personal API key](/platform/settings/api-keys/). The key acts as you, so you need to be a member of the workspace you export, with any role.
+- Copy the ID of the workspace to export. It starts with `ws_` and is in the address bar after you open the workspace.
+- Note your region's base URL: `https://api.kloudmate.com` in the US, or `https://api.in.kloudmate.com` in India.
+
+## ServiceNow
+
+The ServiceNow job is a scheduled script that runs on the instance. It needs an admin to set up, and no plugin or IntegrationHub subscription.
+
+### Step 1: Store the connection settings
+
+<Steps>
+
+1. On your instance, type `sys_properties.list` in the navigation filter and press Enter. The **System Properties** list opens.
+
+2. Click **New** and add a property with **Type** set to **string** for each of these:
+
+   | Name | Value |
+   | --- | --- |
+   | `kloudmate.inventory.base_url` | Your region's base URL. Leave this property out in the US. |
+   | `kloudmate.inventory.workspace_id` | The workspace ID |
+   | `kloudmate.inventory.api_key` | The API key |
+
+3. On the `kloudmate.inventory.api_key` property, set **Read roles** and **Write roles** to `admin`, so only admins can read the key.
+
+</Steps>
+
+### Step 2: Create the scheduled job
+
+<Steps>
+
+1. Open **System Definition** > **Scheduled Jobs** and click **New**.
+
+2. Select **Automatically run a script of your choosing**.
+
+3. Enter a **Name**, such as `KloudMate inventory import`.
+
+4. Set **Run** to **Daily** and pick a **Time**.
+
+5. Paste this script into **Run this script**:
+
+   ```js
+   // KloudMate inventory → ServiceNow CMDB. A Scheduled Script Execution body
+   // (global scope, so ES5). Reads three system properties:
+   //   kloudmate.inventory.base_url      https://api.kloudmate.com, or the region's
+   //   kloudmate.inventory.workspace_id  the workspace to export
+   //   kloudmate.inventory.api_key       a personal API key of a workspace member
+   //
+   // A CI is matched to its KloudMate resource by `correlation_id` (the resource
+   // id), so a re-run updates instead of duplicating. Relationships are matched
+   // on (parent, child, type).
+   (function () {
+     var TAG = 'KloudMate import: ';
+     var base = gs.getProperty('kloudmate.inventory.base_url', 'https://api.kloudmate.com');
+     var ws = gs.getProperty('kloudmate.inventory.workspace_id', '');
+     var key = gs.getProperty('kloudmate.inventory.api_key', '');
+     if (!ws || !key) {
+       gs.error(TAG + 'set kloudmate.inventory.workspace_id and kloudmate.inventory.api_key');
+       return;
+     }
+
+     // KloudMate kind → CMDB class. A kind without a class here lands in cmdb_ci.
+     var CLASS = {
+       host: 'cmdb_ci_linux_server',
+       service: 'cmdb_ci_appl',
+       'aws.ec2.instance': 'cmdb_ci_vm_instance',
+       'aws.ec2.vpc': 'cmdb_ci_network',
+       'aws.ec2.subnet': 'cmdb_ci_cloud_subnet',
+       'aws.ec2.securitygroup': 'cmdb_ci_compute_security_group',
+       'aws.ec2.internetgateway': 'cmdb_ci_internet_gateway',
+       'aws.ec2.networkinterface': 'cmdb_ci_nic',
+       'aws.ec2.volume': 'cmdb_ci_storage_volume',
+       'aws.dynamodb.table': 'cmdb_ci_cloud_database',
+       'aws.sns.topic': 'cmdb_ci_cloud_topic'
+     };
+
+     // KloudMate edge type → [CMDB relationship type, whether `to` is the parent].
+     var REL = {
+       contains: ['Contains::Contained by', false],
+       runs_on: ['Runs on::Runs', false],
+       instance_of: ['Instantiates::Instantiated by', true],
+       calls: ['Depends on::Used by', false],
+       reads_from: ['Uses::Used by', false],
+       associated: ['Connects to::Connected by', false],
+       attached_to: ['Connects to::Connected by', false],
+       member_of: ['Members::Member of', true]
+     };
+
+     function fetchPage(path, cursor) {
+       var r = new sn_ws.RESTMessageV2();
+       r.setHttpMethod('get');
+       r.setEndpoint(base + path + '?workspace_id=' + encodeURIComponent(ws) + '&limit=1000' +
+         (cursor ? '&cursor=' + encodeURIComponent(cursor) : ''));
+       r.setRequestHeader('x-api-key', key);
+       r.setRequestHeader('Accept', 'application/json');
+       r.setHttpTimeout(60000);
+       var res = r.execute();
+       var status = res.getStatusCode();
+       if (status != 200) {
+         throw TAG + path + ' answered ' + status + ' ' + String(res.getErrorMessage() || res.getBody()).substring(0, 300);
+       }
+       return JSON.parse(res.getBody());
+     }
+
+     // `2026-11-26T10:00:00.000Z` → `2026-11-26 10:00:00`, a date-time field's
+     // stored (UTC) form.
+     function when(iso) {
+       return String(iso).replace('T', ' ').substring(0, 19);
+     }
+
+     var ciOf = {}; // KloudMate id → sys_id
+     var stats = { created: 0, updated: 0, tags_set: 0, tags_removed: 0, rel_created: 0, rel_existing: 0, rel_skipped: 0, by_class: {} };
+
+     // A CI's Key Values mirror the resource's tags: each key is set, and a key
+     // the resource no longer has is removed. Keys and values are cut to the
+     // table's 254 characters before they are compared.
+     function syncTags(ciId, tags) {
+       var want = {};
+       for (var k in tags) {
+         if (Object.prototype.hasOwnProperty.call(tags, k)) {
+           want[String(k).substring(0, 254)] = String(tags[k]).substring(0, 254);
+         }
+       }
+       var kv = new GlideRecord('cmdb_key_value');
+       kv.addQuery('configuration_item', ciId);
+       kv.query();
+       while (kv.next()) {
+         var name = kv.getValue('key');
+         if (!Object.prototype.hasOwnProperty.call(want, name)) {
+           kv.deleteRecord();
+           stats.tags_removed++;
+           continue;
+         }
+         if (kv.getValue('value') !== want[name]) {
+           kv.setValue('value', want[name]);
+           kv.update();
+           stats.tags_set++;
+         }
+         delete want[name];
+       }
+       for (var add in want) {
+         if (Object.prototype.hasOwnProperty.call(want, add)) {
+           var row = new GlideRecord('cmdb_key_value');
+           row.initialize();
+           row.setValue('configuration_item', ciId);
+           row.setValue('key', add);
+           row.setValue('value', want[add]);
+           row.insert();
+           stats.tags_set++;
+         }
+       }
+     }
+
+     var cursor = null;
+     do {
+       var page = fetchPage('/inventory/resources', cursor);
+       for (var i = 0; i < page.resources.length; i++) {
+         var r = page.resources[i];
+         var cls = CLASS[r.kind] || 'cmdb_ci';
+         var ci = new GlideRecord('cmdb_ci');
+         ci.addQuery('correlation_id', r.id);
+         ci.setLimit(1);
+         ci.query();
+         var exists = ci.next();
+         if (!exists) {
+           ci = new GlideRecord(cls);
+           ci.initialize();
+         }
+         ci.setValue('name', String(r.name || r.id).substring(0, 255));
+         ci.setValue('correlation_id', r.id);
+         ci.setValue('short_description', r.kind + ' · ' + r.urn);
+         ci.setValue('discovery_source', 'Other Automated');
+         if (r.first_seen) ci.setValue('first_discovered', when(r.first_seen));
+         if (r.last_seen) ci.setValue('last_discovered', when(r.last_seen));
+         var id;
+         if (exists) {
+           ci.update();
+           id = ci.getUniqueValue();
+         } else {
+           id = ci.insert();
+         }
+         if (id) {
+           ciOf[r.id] = id;
+           syncTags(id, r.tags || {});
+           stats[exists ? 'updated' : 'created']++;
+           stats.by_class[cls] = (stats.by_class[cls] || 0) + 1;
+         }
+       }
+       cursor = page.next_cursor;
+     } while (cursor);
+
+     var relTypes = {};
+     function relType(name) {
+       if (!relTypes[name]) {
+         var t = new GlideRecord('cmdb_rel_type');
+         if (t.get('name', name)) relTypes[name] = t.getUniqueValue();
+       }
+       return relTypes[name];
+     }
+
+     cursor = null;
+     do {
+       var rels = fetchPage('/inventory/relationships', cursor);
+       for (var j = 0; j < rels.relationships.length; j++) {
+         var e = rels.relationships[j];
+         var map = REL[e.type];
+         var from = ciOf[e.from.id];
+         var to = ciOf[e.to.id];
+         var type = map && relType(map[0]);
+         if (!type || !from || !to) {
+           stats.rel_skipped++;
+           continue;
+         }
+         var parent = map[1] ? to : from;
+         var child = map[1] ? from : to;
+         var rel = new GlideRecord('cmdb_rel_ci');
+         rel.addQuery('parent', parent);
+         rel.addQuery('child', child);
+         rel.addQuery('type', type);
+         rel.query();
+         if (rel.next()) {
+           stats.rel_existing++;
+           continue;
+         }
+         rel.initialize();
+         rel.setValue('parent', parent);
+         rel.setValue('child', child);
+         rel.setValue('type', type);
+         rel.insert();
+         stats.rel_created++;
+       }
+       cursor = rels.next_cursor;
+     } while (cursor);
+
+     gs.info(TAG + JSON.stringify(stats));
+   })();
+   ```
+
+6. Click **Submit**.
+
+</Steps>
+
+### Step 3: Run it and check the log
+
+<Steps>
+
+1. Open the job again and click **Execute Now**.
+
+2. Open **System Logs** > **System Log** > **All**, and filter on **Message** starts with `KloudMate import:`. When the run finishes, it logs a summary such as:
+
+   ```text
+   KloudMate import: {"created":644,"updated":0,"tags_set":471,"tags_removed":0,"rel_created":504,"rel_existing":0,"rel_skipped":0,"by_class":{...}}
+   ```
+
+   `created` and `updated` count CIs, `tags_set` and `tags_removed` count tag keys, and the `rel_` counts are relationships. `rel_skipped` counts relationships with a type the job doesn't map, or with an end that isn't a CI.
+
+3. Run it a second time. The summary now shows the CIs as `updated` and the relationships as `rel_existing`, with no new CIs.
+
+</Steps>
+
+A run that can't read the export logs an error with the response status, such as `401` for a wrong API key.
+
+### Step 4: Look at the CIs
+
+Open the `cmdb_ci.list` list and filter on **Discovery source** is **Other Automated** to see the imported CIs. On each one:
+
+- **Correlation ID** holds KloudMate's `id`.
+- **Description** holds the kind and the URN, such as `aws.lambda.function · arn:aws:lambda:...`.
+- **First discovered** and **Most recent discovery** hold `first_seen` and `last_seen`.
+- The tags show on the **Tags** tab when you open the CI in CMDB Workspace. They're stored in the `cmdb_key_value` table.
+- The relationships show when you open the CI in CMDB Workspace. They're stored in the `cmdb_rel_ci` table.
+
+### How kinds and relationships map
+
+Each kind goes to a CMDB class:
+
+| KloudMate kind | ServiceNow class |
+| --- | --- |
+| `host` | `cmdb_ci_linux_server` |
+| `service` | `cmdb_ci_appl` |
+| `aws.ec2.instance` | `cmdb_ci_vm_instance` |
+| `aws.ec2.vpc` | `cmdb_ci_network` |
+| `aws.ec2.subnet` | `cmdb_ci_cloud_subnet` |
+| `aws.ec2.securitygroup` | `cmdb_ci_compute_security_group` |
+| `aws.ec2.internetgateway` | `cmdb_ci_internet_gateway` |
+| `aws.ec2.networkinterface` | `cmdb_ci_nic` |
+| `aws.ec2.volume` | `cmdb_ci_storage_volume` |
+| `aws.dynamodb.table` | `cmdb_ci_cloud_database` |
+| `aws.sns.topic` | `cmdb_ci_cloud_topic` |
+| Any other kind | `cmdb_ci` |
+
+To put another kind in its own class, add it to `CLASS` in the script, with a class your instance has. A CI keeps the class it was created in, so a change to `CLASS` applies to new CIs only.
+
+Each relationship type goes to a CMDB relationship type:
+
+| KloudMate type | ServiceNow relationship |
+| --- | --- |
+| `contains` | `Contains::Contained by` |
+| `runs_on` | `Runs on::Runs` |
+| `instance_of` | `Instantiates::Instantiated by`, with the `to` end as the parent |
+| `calls` | `Depends on::Used by` |
+| `reads_from` | `Uses::Used by` |
+| `associated`, `attached_to` | `Connects to::Connected by` |
+| `member_of` | `Members::Member of`, with the `to` end as the parent |
+
+### Things to know
+
+- The job writes to the CMDB tables directly, not through the Identification and Reconciliation Engine (IRE). A CI that ServiceNow Discovery or a Service Graph Connector also creates for the same resource stays a separate CI.
+- The job doesn't retire CIs. A resource that leaves the inventory keeps its CI, and its **Most recent discovery** stops moving. Filter on that field to find CIs that are gone.
+- To export part of the workspace, add query parameters such as `&kind=aws.ec2.instance,host` or `&account_id=...` to the endpoint in `fetchPage`. The [query parameters](/infrastructure/inventory-export/#query-parameters) apply to both endpoints, so the relationships match the resources.
+
+## ManageEngine ServiceDesk Plus
+
+For a one-time load, import the CSV export through the ServiceDesk Plus import wizard, as described in [Import into ManageEngine ServiceDesk Plus](/infrastructure/inventory-export/#import-into-manageengine-servicedesk-plus).
+
+To keep the CMDB current, run a Python script on a schedule, from cron on a server or from a CI pipeline. It calls the [ServiceDesk Plus Cloud CMDB API](https://www.manageengine.com/products/service-desk/sdpod-v3-api/cmdb/introduction.html), and needs Python 3.8 or later with no other packages.
+
+### Step 1: Add the KloudMate fields
+
+The fields go on the root **CMDB** CI type, so every CI type has them.
+
+<Steps>
+
+1. In ServiceDesk Plus, open **Setup** > **Customization** > **CMDB**. The **CI Types** tab lists the types as a tree.
+
+2. Click **CMDB** at the top of the tree, then open the **Fields** tab.
+
+3. Drag a field type from **New fields** into the layout for each of these fields, enter its **Field Name** and **Field Key**, and click **Save**:
+
+   | Field Name | Field Key | Field type | Options |
+   | --- | --- | --- | --- |
+   | KloudMate ID | `kloudmate_id` | Single-line | Select **Is Unique Field** |
+   | KloudMate Kind | `kloudmate_kind` | Single-line | |
+   | Tags | `kloudmate_tags` | Multi-line | |
+
+   ServiceDesk Plus adds `txt_` to the front of each key, so the script reads and writes `txt_kloudmate_id`, `txt_kloudmate_kind`, and `txt_kloudmate_tags`.
+
+4. Click **Save** under the layout.
+
+</Steps>
+
+### Step 2: Add a CI type for cloud resources
+
+ServiceDesk Plus has no CI types for cloud services or Kubernetes objects, so the script puts every kind it has no type for into one CI type of its own.
+
+<Steps>
+
+1. On the **CI Types** tab, click **New CI Type**.
+
+2. Enter `Cloud Resource` as the **CI Type Name** and `cloud_resource` as the **API Name**, and set **Parent CI Type** to **CMDB**.
+
+3. Click **Save**. The new type's API name is `ci_cloud_resource`.
+
+</Steps>
+
+### Step 3: Create an OAuth client
+
+ServiceDesk Plus Cloud takes a Zoho OAuth token. The script exchanges a refresh token for a new access token on every run.
+
+<Steps>
+
+1. Open the Zoho API Console for your data center, such as `https://api-console.zoho.com` in the US or `https://api-console.zoho.in` in India, and add a **Self Client**. Copy the **Client ID** and **Client Secret**.
+
+2. On the **Generate Code** tab, enter the scope `SDPOnDemand.cmdb.ALL`, pick a time duration, and click **Create**. Copy the code.
+
+3. Exchange the code for a refresh token before it expires, on the accounts server of the same data center:
+
+   ```bash
+   curl -X POST "https://accounts.zoho.com/oauth/v2/token" \
+     -d grant_type=authorization_code \
+     -d client_id=YOUR_CLIENT_ID \
+     -d client_secret=YOUR_CLIENT_SECRET \
+     -d code=YOUR_CODE
+   ```
+
+   Keep the `refresh_token` from the response. It doesn't expire, so store it as a secret.
+
+</Steps>
+
+### Step 4: Run the script
+
+Save this script as `kloudmate_sdp_sync.py`:
+
+```python
+#!/usr/bin/env python3
+"""Sync a KloudMate workspace's inventory into the ServiceDesk Plus Cloud CMDB.
+
+Each resource becomes a CI, matched on its KloudMate id in the `txt_kloudmate_id`
+field, so a re-run updates the CI instead of adding another. Each relationship
+becomes a CI relationship; one that already exists is left as it is.
+
+Reads its settings from the environment:
+  KLOUDMATE_API_KEY, KLOUDMATE_WORKSPACE_ID
+  KLOUDMATE_BASE_URL   default https://api.kloudmate.com
+  SDP_URL              the portal URL, such as https://sdpondemand.manageengine.com/app/itdesk
+  ZOHO_ACCOUNTS_URL    default https://accounts.zoho.com
+  ZOHO_CLIENT_ID, ZOHO_CLIENT_SECRET, ZOHO_REFRESH_TOKEN   with the SDPOnDemand.cmdb.ALL scope
+  SDP_CALL_INTERVAL    seconds between ServiceDesk Plus calls, default 1.5
+
+ServiceDesk Plus blocks a client that calls too fast for a few minutes, and
+says how long in `Retry-After`; the script waits that out and carries on.
+"""
+import json
+import os
+import time
+import urllib.error
+import urllib.parse
+import urllib.request
+
+KM_BASE = os.environ.get('KLOUDMATE_BASE_URL', 'https://api.kloudmate.com').rstrip('/')
+SDP = os.environ['SDP_URL'].rstrip('/') + '/api/v3'
+ACCOUNTS = os.environ.get('ZOHO_ACCOUNTS_URL', 'https://accounts.zoho.com').rstrip('/')
+
+# KloudMate kind -> CI type API name. Any other kind goes to DEFAULT_TYPE.
+TYPE = {'host': 'ci_linux_server', 'service': 'ci_application'}
+DEFAULT_TYPE = 'ci_cloud_resource'
+
+# KloudMate relationship type -> (CI relationship type, whether `from` takes
+# its inverse name). `runs_on` is ('Runs', True): `from` Runs On `to`.
+REL = {
+    'contains': ('Includes', False),
+    'member_of': ('Includes', True),
+    'runs_on': ('Runs', True),
+    'instance_of': ('Consists of', True),
+    'calls': ('Depends on', False),
+    'reads_from': ('Sends data to', True),
+    'associated': ('Connected to', False),
+    'attached_to': ('Connected to', False),
+}
+
+ID, KIND, TAGS = 'txt_kloudmate_id', 'txt_kloudmate_kind', 'txt_kloudmate_tags'
+INTERVAL = float(os.environ.get('SDP_CALL_INTERVAL', '1.5'))
+
+
+def call(method, url, headers, form=None):
+    body = urllib.parse.urlencode(form).encode() if form else None
+    for attempt in range(6):
+        req = urllib.request.Request(url, data=body, method=method, headers=headers)
+        try:
+            with urllib.request.urlopen(req, timeout=60) as res:
+                return json.load(res)
+        except urllib.error.HTTPError as err:
+            text = err.read().decode(errors='replace')
+            if err.code == 429 or err.code >= 500:
+                time.sleep(int(err.headers.get('Retry-After') or 2 ** attempt) + 1)
+                continue
+            try:
+                return json.loads(text)  # ServiceDesk Plus puts the reason in a JSON body
+            except ValueError:
+                raise SystemExit(f'{method} {url} answered {err.code}: {text[:300]}')
+    raise SystemExit(f'{method} {url} kept failing')
+
+
+def zoho_token():
+    res = call('POST', ACCOUNTS + '/oauth/v2/token', {}, {
+        'grant_type': 'refresh_token',
+        'refresh_token': os.environ['ZOHO_REFRESH_TOKEN'],
+        'client_id': os.environ['ZOHO_CLIENT_ID'],
+        'client_secret': os.environ['ZOHO_CLIENT_SECRET'],
+    })
+    if 'access_token' not in res:
+        raise SystemExit(f'Zoho token refresh failed: {res.get("error", res)}')
+    return res['access_token']
+
+
+SDP_HEADERS = {'Accept': 'application/vnd.manageengine.sdp.v3+json'}
+token_at = last_call = -1e9
+
+
+def sdp(method, path, input_data=None):
+    global token_at, last_call
+    if time.monotonic() - token_at > 3000:  # an access token lasts an hour
+        SDP_HEADERS['Authorization'] = 'Zoho-oauthtoken ' + zoho_token()
+        token_at = time.monotonic()
+    time.sleep(max(0.0, last_call + INTERVAL - time.monotonic()))
+    last_call = time.monotonic()
+    if method == 'GET':
+        query = '?' + urllib.parse.urlencode({'input_data': json.dumps(input_data)}) if input_data else ''
+        return call(method, SDP + path + query, SDP_HEADERS)
+    return call(method, SDP + path, SDP_HEADERS, {'input_data': json.dumps(input_data)} if input_data else None)
+
+
+def status(res):
+    st = res.get('response_status') or {}
+    st = st[0] if isinstance(st, list) else st
+    codes = [m.get('status_code') for m in st.get('messages', [])]
+    return st.get('status_code'), codes, st
+
+
+def km_pages(path):
+    cursor = None
+    while True:
+        query = {'workspace_id': os.environ['KLOUDMATE_WORKSPACE_ID'], 'limit': 1000}
+        if cursor:
+            query['cursor'] = cursor
+        page = call('GET', f'{KM_BASE}{path}?{urllib.parse.urlencode(query)}',
+                    {'x-api-key': os.environ['KLOUDMATE_API_KEY'], 'Accept': 'application/json'})
+        yield page
+        cursor = page.get('next_cursor')
+        if not cursor:
+            return
+
+
+stats = {'created': 0, 'updated': 0, 'unchanged': 0, 'failed': 0,
+         'rel_created': 0, 'rel_existing': 0, 'rel_skipped': 0, 'rel_failed': 0}
+
+# Every CI the sync wrote before, by KloudMate id.
+known = {}
+for ci_type in set(TYPE.values()) | {DEFAULT_TYPE}:
+    start = 1
+    while True:
+        res = sdp('GET', f'/cmdb/{ci_type}', {'list_info': {'row_count': 100, 'start_index': start}})
+        for ci in res.get(ci_type, []):
+            kid = (ci.get('ci_attributes') or {}).get(ID)
+            if kid:
+                known[kid] = ci
+        if not res.get('list_info', {}).get('has_more_rows'):
+            break
+        start += 100
+
+ci_of = {}  # KloudMate id -> (CI type, CI id)
+for page in km_pages('/inventory/resources'):
+    for r in page['resources']:
+        name = (r.get('name') or r['id'])[:250]
+        # A CI name is unique within its CI type, so a resource whose name is
+        # taken gets its URN added.
+        names = [name, f"{name} ({r['urn']})"[:250]]
+        want = {
+            'name': name,
+            'description': f"{r['kind']} · {r['urn']}",
+            'ci_attributes': {
+                ID: r['id'],
+                KIND: r['kind'],
+                TAGS: '\n'.join(f'{k}={v}' for k, v in sorted((r.get('tags') or {}).items()))[:5000],
+            },
+        }
+        have = known.get(r['id'])
+        if have:
+            ci_type = have['ci_type']['name']
+            attrs = have.get('ci_attributes') or {}
+            if have.get('name') in names:
+                want['name'] = have['name']
+            if (have.get('name') == want['name'] and (have.get('description') or '') == want['description']
+                    and all((attrs.get(k) or '') == v for k, v in want['ci_attributes'].items())):
+                ci_of[r['id']] = (ci_type, have['id'])
+                stats['unchanged'] += 1
+                continue
+            write = lambda: sdp('PUT', f"/cmdb/{ci_type}/{have['id']}", {ci_type: want})
+        else:
+            ci_type = TYPE.get(r['kind'], DEFAULT_TYPE)
+            write = lambda: sdp('POST', f'/cmdb/{ci_type}', {ci_type: want})
+        res = write()
+        code, codes, st = status(res)
+        if want['name'] == name and any(m.get('field') == 'name' for m in st.get('messages', [])):
+            want['name'] = names[1]
+            res = write()
+            code, codes, st = status(res)
+        if code != 2000:
+            stats['failed'] += 1
+            print(f"{r['id']} {r['kind']} {want['name']}: {json.dumps(st)}")
+            continue
+        ci_of[r['id']] = (ci_type, res[ci_type]['id'])
+        stats['updated' if have else 'created'] += 1
+
+for page in km_pages('/inventory/relationships'):
+    for e in page['relationships']:
+        rel = REL.get(e['type'])
+        a, b = ci_of.get(e['from']['id']), ci_of.get(e['to']['id'])
+        if not (rel and a and b):
+            stats['rel_skipped'] += 1
+            continue
+        res = sdp('POST', f'/cmdb/{a[0]}/{a[1]}/ci_relationships', {'ci_relationship': {
+            'relationship_type': {'name': rel[0]},
+            'is_inverse': rel[1],
+            'related_ci': {'id': b[1]},
+            'related_citype': {'name': b[0]},
+        }})
+        code, codes, st = status(res)
+        if code == 2000:
+            stats['rel_created'] += 1
+        elif 4008 in codes:  # the relationship already exists
+            stats['rel_existing'] += 1
+        else:
+            stats['rel_failed'] += 1
+            print(f"{e['type']} {e['from']['name']} -> {e['to']['name']}: {json.dumps(st)}")
+
+print(json.dumps(stats))
+```
+
+Set the settings in the environment and run it:
+
+```bash
+export KLOUDMATE_API_KEY=YOUR_API_KEY
+export KLOUDMATE_WORKSPACE_ID=YOUR_WORKSPACE_ID
+export SDP_URL=https://sdpondemand.manageengine.com/app/itdesk
+export ZOHO_ACCOUNTS_URL=https://accounts.zoho.com
+export ZOHO_CLIENT_ID=YOUR_CLIENT_ID
+export ZOHO_CLIENT_SECRET=YOUR_CLIENT_SECRET
+export ZOHO_REFRESH_TOKEN=YOUR_REFRESH_TOKEN
+python3 kloudmate_sdp_sync.py
+```
+
+`SDP_URL` is the address of your ServiceDesk Plus portal up to the portal name, as it shows in the browser. Outside the US, set `KLOUDMATE_BASE_URL` to your region's base URL, and use your data center's ServiceDesk Plus and Zoho accounts hosts, such as `sdpondemand.manageengine.in` and `accounts.zoho.in` in India.
+
+When the run finishes, it prints a summary such as:
+
+```text
+{"created": 640, "updated": 0, "unchanged": 0, "failed": 0, "rel_created": 500, "rel_existing": 0, "rel_skipped": 0, "rel_failed": 0}
+```
+
+A resource or relationship that ServiceDesk Plus rejects is printed with the reason before the summary. Run the script a second time: the CIs now count as `unchanged` and the relationships as `rel_existing`.
+
+To keep the CMDB current, run the script once a day, for example from cron:
+
+```text
+0 2 * * * /usr/bin/env python3 /opt/kloudmate/kloudmate_sdp_sync.py >> /var/log/kloudmate_sdp_sync.log 2>&1
+```
+
+Set the environment variables for the cron job too, for example in the crontab or in a wrapper script.
+
+### Step 5: Look at the CIs
+
+Open **CMDB** and pick a CI type, such as **Cloud Resource**. Each CI imported from KloudMate has:
+
+- **Description**: the kind and the URN, such as `aws.s3.bucket · arn:aws:s3:::my-bucket`.
+- **KloudMate ID** and **KloudMate Kind**.
+- **Tags**: one `key=value` per line.
+- The relationships on the **Relationships** tab and in the **Relationship Map**.
+
+### How kinds and relationships map
+
+| KloudMate kind | ServiceDesk Plus CI type |
+| --- | --- |
+| `host` | `ci_linux_server` |
+| `service` | `ci_application` |
+| Any other kind | `ci_cloud_resource` |
+
+To put another kind in its own CI type, add it to `TYPE` in the script. A CI keeps the type it was created in, so a change to `TYPE` applies to new CIs only.
+
+| KloudMate type | ServiceDesk Plus relationship, read from the `from` end |
+| --- | --- |
+| `contains` | Includes |
+| `member_of` | Member of (the inverse of Includes) |
+| `runs_on` | Runs On (the inverse of Runs) |
+| `instance_of` | Are part of (the inverse of Consists of) |
+| `calls` | Depends on |
+| `reads_from` | Receives data from (the inverse of Sends data to) |
+| `associated`, `attached_to` | Connected to |
+
+The script names relationship types that have one name in ServiceDesk Plus. **Contains** and **Uses** each name two relationship types, so it doesn't use them.
+
+### Things to know
+
+- A CI name is unique within its CI type. Resources often share a name, such as every VPC's `default` security group, so the second one gets its URN added: `default (arn:aws:ec2:...)`.
+- ServiceDesk Plus Cloud blocks a client that calls too fast for a few minutes. The script waits `SDP_CALL_INTERVAL` seconds between calls, 1.5 by default, and waits out a block when one comes. The first run of a large workspace takes a while: about 1.5 seconds per resource and per relationship.
+- The script doesn't delete CIs or relationships. A resource that leaves the inventory keeps its CI.
+- To export part of the workspace, add [query parameters](/infrastructure/inventory-export/#query-parameters) such as `kind` or `account_id` to the query in `km_pages`.
+
+## Other CMDBs
+
+Any CMDB that takes CIs from an API or a file can follow [How the sync works](#how-the-sync-works). Store KloudMate's `id` on the CI and match on it, map the kinds and relationship types to the CMDB's own, and run the job on a schedule.
+
+This script pages through the resources and writes one JSON object per line, for a job that loads them into another tool. It needs `curl` and `jq`:
+
+```bash
+#!/usr/bin/env bash
+set -euo pipefail
+BASE="https://api.kloudmate.com"
+cursor=""
+while :; do
+  page=$(curl -sfG "$BASE/inventory/resources" \
+    -H "x-api-key: $KLOUDMATE_API_KEY" \
+    --data-urlencode "workspace_id=$KLOUDMATE_WORKSPACE_ID" \
+    --data-urlencode "limit=1000" \
+    ${cursor:+--data-urlencode "cursor=$cursor"})
+  jq -c '.resources[]' <<<"$page"
+  cursor=$(jq -r '.next_cursor // empty' <<<"$page")
+  [ -n "$cursor" ] || break
+done
+```
+
+A tool that can send HTTP basic authentication but no custom header can call the export with the API key as the password and any user name.
+
+## Related
+
+- [Export the inventory](/infrastructure/inventory-export/): every field, parameter, and format of the export.
+- [Inventory](/infrastructure/inventory/): browse the resources the export returns.
+- [API Keys](/platform/settings/api-keys/): create the key the job uses.
+- [ServiceNow](/platform/settings/connections/servicenow/): open ServiceNow incidents from alerts.
